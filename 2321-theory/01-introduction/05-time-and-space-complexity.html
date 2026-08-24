@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time &amp; Space Complexity — CSE-2321 Class 5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --mono:'Fira Code',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  --bn:'Noto Serif Bengali','Kalpurush','SolaimanLipi','Nirmala UI',serif;
+  --bg:#f1f5f9; --panel:#ffffff; --ink:#1e293b; --ink-soft:#475569; --ink-mute:#64748b;
+  --line:#e2e8f0; --line-strong:#cbd5e1; --dark:#0f172a; --dark-2:#1e293b;
+  --accent:#4f46e5;
+  --r:1rem; --r-sm:.6rem;
+  --sh-sm:0 1px 2px rgba(15,23,42,.06),0 1px 3px rgba(15,23,42,.04);
+  --sh-md:0 4px 6px -1px rgba(15,23,42,.07),0 2px 4px -2px rgba(15,23,42,.05);
+  --sh-lg:0 12px 28px -8px rgba(15,23,42,.18);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
+body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.65;font-size:16px;
+     -webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3,h4{line-height:1.25;margin:0}
+p{margin:0 0 1rem}
+p:last-child{margin-bottom:0}
+a{color:var(--accent)}
+.mono{font-family:var(--mono)}
+.bn{font-family:var(--bn);line-height:1.95;font-size:1.02rem}
+.wrap{max-width:1080px;margin:0 auto;padding:0 1rem}
+@media(min-width:768px){ .wrap{padding:0 1.75rem} body{font-size:16.5px} }
+
+/* ============ HEADER + TABS ============ */
+.topbar{position:sticky;top:0;z-index:60;background:rgba(15,23,42,.97);backdrop-filter:blur(10px);
+        border-bottom:1px solid #334155;color:#e2e8f0}
+.topbar-in{max-width:1080px;margin:0 auto;padding:.6rem 1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+@media(min-width:768px){.topbar-in{padding:.7rem 1.75rem}}
+.brand{display:flex;align-items:center;gap:.6rem;min-width:0}
+.brand-badge{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#6366f1,#8b5cf6);
+             display:grid;place-items:center;font-weight:900;font-size:.8rem;color:#fff;flex:0 0 auto}
+.brand-t{font-size:.78rem;font-weight:800;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand-s{font-size:.66rem;color:#94a3b8;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.tabs{display:flex;gap:.3rem;margin-left:auto;overflow-x:auto;scrollbar-width:none;padding:2px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{appearance:none;border:1px solid transparent;background:transparent;color:#94a3b8;font-family:inherit;
+     font-size:.78rem;font-weight:700;padding:.42rem .85rem;border-radius:.5rem;cursor:pointer;white-space:nowrap;
+     transition:background .15s,color .15s}
+.tab:hover{color:#e2e8f0;background:#1e293b}
+.tab[aria-selected="true"]{background:#e2e8f0;color:#0f172a}
+.tab:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px solid #818cf8;outline-offset:2px}
+.panel[hidden]{display:none}
+
+/* progress rail */
+.rail{height:3px;background:#1e293b;position:relative;overflow:hidden}
+.rail>i{position:absolute;inset:0 100% 0 0;background:linear-gradient(90deg,#6366f1,#22d3ee);transition:right .1s linear}
+
+/* ============ HERO ============ */
+.hero{background:linear-gradient(160deg,#0f172a 0%,#1e1b4b 55%,#312e81 100%);color:#e2e8f0;
+      padding:3rem 0 3.4rem;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;width:520px;height:520px;right:-180px;top:-200px;border-radius:50%;
+             background:radial-gradient(circle,rgba(99,102,241,.32),transparent 68%)}
+.hero .wrap{position:relative;z-index:1}
+.eyebrow{font-size:.68rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#a5b4fc;margin-bottom:.9rem}
+.hero h1{font-size:clamp(1.85rem,6.4vw,3.4rem);font-weight:900;letter-spacing:-.025em;margin-bottom:1rem}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,#818cf8,#22d3ee);-webkit-background-clip:text;
+            background-clip:text;color:transparent}
+.hero-lede{font-size:clamp(1rem,2.5vw,1.15rem);color:#cbd5e1;max-width:44rem}
+.arc{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1.6rem}
+.arc span{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:.4rem .7rem;
+          border-radius:999px;border:1px solid rgba(148,163,184,.35);color:#cbd5e1;background:rgba(15,23,42,.4)}
+.arc span b{color:#fff}
+.hero-meta{display:flex;flex-wrap:wrap;gap:1.4rem;margin-top:1.8rem;font-size:.8rem;color:#94a3b8}
+.hero-meta b{color:#e2e8f0;display:block;font-size:1.05rem;font-weight:800}
+
+/* ============ CARDS ============ */
+main{padding:2.6rem 0 4rem}
+.card{background:var(--panel);border-radius:var(--r);box-shadow:var(--sh-md);padding:1.5rem 1.25rem;
+      margin-bottom:2.6rem;position:relative;border-top:4px solid var(--accent)}
+@media(min-width:768px){.card{padding:2rem 2.25rem}}
+.card>.badge{position:absolute;top:-1.15rem;left:1.25rem;width:2.4rem;height:2.4rem;border-radius:50%;
+             background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:900;font-size:1rem;
+             border:4px solid var(--bg);z-index:2}
+@media(min-width:768px){.card>.badge{left:2rem}}
+.card.numbered{padding-top:2.1rem}
+@media(min-width:768px){.card.numbered{padding-top:2.4rem}}
+.kicker{font-size:.66rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:.45rem}
+.card h2{font-size:clamp(1.2rem,3.6vw,1.7rem);font-weight:800;letter-spacing:-.015em;margin-bottom:.35rem}
+.card h3{font-size:1.02rem;font-weight:800;margin:1.5rem 0 .5rem}
+.subtle{color:var(--ink-mute);font-size:.85rem;font-weight:600}
+.timechip{display:inline-flex;align-items:center;gap:.35rem;font-size:.68rem;font-weight:800;letter-spacing:.05em;
+          padding:.24rem .6rem;border-radius:999px;background:#f1f5f9;color:var(--ink-mute);border:1px solid var(--line)}
+.hdr-row{display:flex;align-items:flex-start;gap:1rem;flex-wrap:wrap;justify-content:space-between;margin-bottom:1.1rem}
+
+/* ============ DARK "SO WHAT" PANEL ============ */
+.bridge{background:linear-gradient(135deg,#0f172a,#1e293b);border-left:5px solid var(--accent);
+        border-radius:.85rem;padding:1.25rem 1.1rem;color:#cbd5e1;margin:1.4rem 0;box-shadow:var(--sh-md)}
+@media(min-width:768px){.bridge{padding:1.5rem 1.6rem}}
+.bridge .lbl{font-size:.64rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#818cf8;margin-bottom:.5rem}
+.bridge p{margin-bottom:.7rem}
+.bridge strong,.bridge b{color:#fff}
+.bridge .say{font-size:clamp(1.02rem,2.9vw,1.28rem);font-weight:800;color:#fff;line-height:1.45}
+
+/* ============ GENERIC BOXES ============ */
+.box{background:#f8fafc;border:1px solid var(--line);border-radius:.8rem;padding:1rem 1.1rem;margin:1rem 0}
+.box.warn{background:#fffbeb;border-color:#fde68a}
+.box.bad{background:#fff1f2;border-color:#fecdd3}
+.box.good{background:#f0fdf4;border-color:#bbf7d0}
+.box.info{background:#eff6ff;border-color:#bfdbfe}
+.box .bt{font-weight:800;font-size:.8rem;letter-spacing:.02em;margin-bottom:.35rem;display:flex;align-items:center;gap:.4rem}
+.box.warn .bt{color:#b45309}.box.bad .bt{color:#be123c}.box.good .bt{color:#15803d}.box.info .bt{color:#1d4ed8}
+.box p{font-size:.9rem;margin-bottom:.5rem}
+.grid2{display:grid;gap:1rem}
+@media(min-width:720px){.grid2{grid-template-columns:1fr 1fr}}
+.grid3{display:grid;gap:.8rem}
+@media(min-width:720px){.grid3{grid-template-columns:repeat(3,1fr)}}
+
+/* ============ TABLES ============ */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:1.1rem 0;border:1px solid var(--line);border-radius:.8rem;background:#fff}
+table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:520px}
+th{background:#f8fafc;text-align:left;font-weight:800;font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;
+   color:var(--ink-mute);padding:.65rem .85rem;border-bottom:1px solid var(--line)}
+td{padding:.7rem .85rem;border-bottom:1px solid #f1f5f9;vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.num{font-family:var(--mono);font-weight:600;white-space:nowrap}
+.hl-bad{color:#be123c;font-weight:800}
+.hl-good{color:#15803d;font-weight:800}
+
+/* ============ CODE ============ */
+pre.code{font-family:var(--mono);font-size:.78rem;line-height:1.75;background:#0f172a;color:#e2e8f0;
+         padding:1rem;border-radius:.7rem;overflow-x:auto;margin:.8rem 0}
+@media(min-width:768px){pre.code{font-size:.83rem}}
+.k{color:#c4b5fd}.t{color:#fcd34d}.f{color:#7dd3fc}.n{color:#fdba74}.c{color:#64748b;font-style:italic}.s{color:#86efac}
+
+/* ============ BUTTONS ============ */
+.btn{appearance:none;font-family:inherit;font-weight:800;font-size:.82rem;padding:.6rem 1.15rem;border-radius:.55rem;
+     cursor:pointer;border:none;background:var(--accent);color:#fff;box-shadow:var(--sh-sm);
+     transition:filter .15s,transform .1s}
+.btn:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn.ghost{background:#fff;color:var(--ink-soft);border:2px solid var(--line)}
+.btn.ghost:hover:not(:disabled){border-color:var(--line-strong);color:var(--ink)}
+.btn.sm{font-size:.74rem;padding:.42rem .8rem}
+.btnrow{display:flex;flex-wrap:wrap;gap:.5rem;margin:.9rem 0}
+
+/* ============ QUIZ ============ */
+.quiz{border:2px solid #e2e8f0;border-radius:.85rem;overflow:hidden;margin:1.3rem 0;background:#fff}
+.quiz .qh{background:#f8fafc;padding:.75rem 1rem;font-size:.66rem;font-weight:800;letter-spacing:.12em;
+          text-transform:uppercase;color:var(--ink-mute);border-bottom:1px solid var(--line)}
+.quiz .qq{padding:1rem;font-weight:700;font-size:.95rem}
+.qopts{display:grid;gap:.45rem;padding:0 1rem 1rem}
+.qopt{appearance:none;text-align:left;font-family:inherit;font-size:.87rem;font-weight:600;padding:.65rem .85rem;
+      border:2px solid var(--line);border-radius:.55rem;background:#fff;color:var(--ink-soft);cursor:pointer;transition:.15s}
+.qopt:hover:not(:disabled){border-color:var(--line-strong);background:#f8fafc}
+.qopt.ok{border-color:#22c55e;background:#f0fdf4;color:#15803d}
+.qopt.no{border-color:#f43f5e;background:#fff1f2;color:#be123c}
+.qopt:disabled{cursor:default}
+.qexp{display:none;padding:1rem;background:#0f172a;color:#cbd5e1;font-size:.87rem;border-top:1px solid var(--line)}
+.qexp.show{display:block}
+.qexp b{color:#fff}
+
+/* ============ TRANSCRIPT MAPPER ============ */
+.tmap{display:grid;gap:.45rem}
+.trow{display:flex;align-items:center;gap:.7rem;padding:.6rem .8rem;border:1px solid var(--line);border-radius:.55rem;
+      background:#fff;cursor:pointer;transition:.18s;text-align:left;font-family:inherit;width:100%;appearance:none}
+.trow:hover{border-color:var(--line-strong);transform:translateX(3px)}
+.trow .tq{flex:1;font-size:.86rem;font-weight:600;color:var(--ink-soft);min-width:0}
+.trow .tw2{font-size:.66rem;font-weight:800;letter-spacing:.04em;padding:.24rem .55rem;border-radius:999px;
+          background:#f1f5f9;color:#94a3b8;white-space:nowrap;opacity:0;transition:opacity .3s}
+.trow.on{border-color:#6366f1;background:#eef2ff}
+.trow.on .tq{color:#1e293b}
+.trow.on .tw2{opacity:1;background:#4f46e5;color:#fff}
+
+/* ============ GUESS WIDGET ============ */
+.guess{display:grid;gap:.5rem;margin:1rem 0}
+.gopt{appearance:none;font-family:inherit;text-align:left;padding:.8rem 1rem;border:2px solid var(--line);
+      border-radius:.6rem;background:#fff;cursor:pointer;font-weight:700;font-size:.92rem;color:var(--ink-soft);transition:.15s}
+.gopt:hover:not(:disabled){border-color:#818cf8;background:#eef2ff}
+.gopt.picked{border-color:#4f46e5;background:#eef2ff;color:#312e81}
+.gopt.truth{border-color:#22c55e;background:#f0fdf4;color:#15803d}
+.gopt:disabled{cursor:default}
+.bignum{font-family:var(--mono);font-size:clamp(2rem,10vw,4.2rem);font-weight:700;line-height:1;letter-spacing:-.03em}
+.reveal{background:linear-gradient(135deg,#0f172a,#312e81);color:#fff;border-radius:.9rem;padding:1.6rem 1.1rem;
+        text-align:center;margin:1.1rem 0;display:none}
+.reveal.show{display:block;animation:pop .5s ease}
+@keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+.reveal .cap{font-size:.68rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#a5b4fc;margin-bottom:.6rem}
+.reveal .sub{color:#c7d2fe;font-size:.88rem;margin-top:.7rem}
+
+/* ============ RACE / COUNTERS ============ */
+.race{display:grid;gap:.9rem;margin:1.1rem 0}
+@media(min-width:720px){.race{grid-template-columns:1fr 1fr}}
+.lane{border:2px solid var(--line);border-radius:.85rem;padding:1rem;background:#fff}
+.lane.win{border-color:#22c55e;background:#f0fdf4}
+.lane.lose{border-color:#fb7185;background:#fff1f2}
+.lane h4{font-size:.9rem;font-weight:800;margin-bottom:.15rem}
+.lane .way{font-size:.7rem;font-weight:700;color:var(--ink-mute);margin-bottom:.7rem}
+.meter{height:12px;border-radius:999px;background:#e2e8f0;overflow:hidden;margin:.6rem 0}
+.meter>i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#6366f1,#22d3ee);transition:width .08s linear}
+.lane.lose .meter>i{background:linear-gradient(90deg,#f43f5e,#fb923c)}
+.lane.win .meter>i{background:linear-gradient(90deg,#16a34a,#4ade80)}
+.count{font-family:var(--mono);font-size:1.35rem;font-weight:700;letter-spacing:-.02em}
+.pct{font-family:var(--mono);font-size:.74rem;color:var(--ink-mute);font-weight:600}
+.verdict{font-weight:800;font-size:.82rem;margin-top:.5rem;min-height:1.2rem}
+
+/* ============ STACK TOY ============ */
+.stacks{display:grid;gap:1rem;margin:1rem 0}
+@media(min-width:600px){.stacks{grid-template-columns:1fr 1fr}}
+.stk{border:2px solid var(--line);border-radius:.8rem;background:#f8fafc;padding:.9rem;min-height:210px;
+     display:flex;flex-direction:column}
+.stk h5{font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);
+        margin-bottom:.6rem;text-align:center}
+.stk.flash{animation:flash .55s ease}
+@keyframes flash{0%,100%{background:#f8fafc;border-color:var(--line)}40%{background:#fee2e2;border-color:#f87171}}
+.cells{display:flex;flex-direction:column-reverse;gap:.3rem;flex:1;justify-content:flex-start}
+.cell{background:#fff;border:2px solid #6366f1;border-radius:.4rem;padding:.4rem;text-align:center;
+      font-family:var(--mono);font-weight:700;font-size:.95rem;color:#4338ca;animation:drop .25s ease}
+.stk.redo .cell{border-color:#f59e0b;color:#b45309}
+@keyframes drop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.empty{color:#cbd5e1;font-size:.78rem;text-align:center;font-weight:700;margin:auto 0}
+.typed{font-family:var(--mono);font-size:1.1rem;font-weight:700;background:#0f172a;color:#e2e8f0;padding:.7rem .9rem;
+       border-radius:.5rem;min-height:2.9rem;word-break:break-all;letter-spacing:.02em}
+.typed .car{display:inline-block;width:2px;height:1.05em;background:#22d3ee;vertical-align:-2px;animation:bl 1s steps(2) infinite}
+@keyframes bl{50%{opacity:0}}
+
+/* ============ PLATFORM CARDS ============ */
+.plat{display:grid;gap:1rem;margin:1.2rem 0}
+@media(min-width:760px){.plat{grid-template-columns:1fr 1fr}}
+.pcard{border:2px solid var(--line);border-radius:.9rem;overflow:hidden;background:#fff}
+.pcard .ph{padding:1rem 1.1rem;color:#fff}
+.pcard.lc .ph{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.pcard.cf .ph{background:linear-gradient(135deg,#1d4ed8,#3b82f6)}
+.pcard .ph h4{font-size:1.15rem;font-weight:900}
+.pcard .ph p{font-size:.78rem;opacity:.92;margin:0}
+.pcard .pb{padding:1rem 1.1rem}
+.pcard dl{margin:0;display:grid;gap:.6rem}
+.pcard dt{font-size:.63rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute)}
+.pcard dd{margin:.1rem 0 0;font-size:.86rem;font-weight:600;color:var(--ink-soft)}
+
+/* ============ MISC ============ */
+.shot{border-radius:.7rem;border:1px solid var(--line);max-width:100%;height:auto;display:block;box-shadow:var(--sh-md)}
+figure{margin:1rem 0}
+figcaption{font-size:.74rem;color:var(--ink-mute);margin-top:.5rem;font-weight:600}
+details{border:1px solid var(--line);border-radius:.6rem;background:#fff;margin:.7rem 0;overflow:hidden}
+details>summary{cursor:pointer;padding:.75rem 1rem;font-weight:700;font-size:.87rem;background:#f8fafc;list-style:none;
+                display:flex;align-items:center;gap:.5rem}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"+";font-family:var(--mono);font-weight:700;color:var(--accent);width:1rem}
+details[open]>summary::before{content:"–"}
+details>div{padding:1rem;border-top:1px solid var(--line);font-size:.88rem}
+ul.tight,ol.tight{margin:.6rem 0;padding-left:1.3rem}
+ul.tight li,ol.tight li{margin-bottom:.4rem;font-size:.9rem}
+.note13{background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;border-radius:.85rem;
+        padding:1.1rem;margin:1.3rem 0;display:flex;gap:.9rem;align-items:flex-start}
+.note13 .ic{font-size:1.5rem;line-height:1;flex:0 0 auto}
+.note13 b{color:#92400e}
+.note13 p{font-size:.88rem;color:#78350f;margin:0}
+.sec-nav{position:fixed;right:.6rem;bottom:.6rem;z-index:50;display:flex;gap:.35rem;background:rgba(15,23,42,.94);
+         padding:.35rem;border-radius:.6rem;box-shadow:var(--sh-lg)}
+.sec-nav button{appearance:none;border:none;background:transparent;color:#94a3b8;font-size:1rem;cursor:pointer;
+                padding:.3rem .5rem;border-radius:.35rem;line-height:1}
+.sec-nav button:hover{background:#334155;color:#fff}
+@media print{.topbar,.sec-nav{display:none}.card{break-inside:avoid;box-shadow:none;border:1px solid #ccc}}
+
+/* ============ CLASS 3 · ALGORITHM NOTATION ============ */
+.algo{background:#fff;border:2px solid var(--line);border-radius:.8rem;overflow:hidden;margin:1rem 0;
+      font-family:var(--mono);font-size:clamp(.72rem,2.9vw,.88rem);line-height:1.9}
+.algo .ahead{background:#fffbeb;border-bottom:2px solid #fde68a;padding:.8rem 1rem;font-family:var(--sans);
+             font-size:.82rem;color:#78350f;line-height:1.6}
+.algo .ahead b{color:#92400e}
+.algo .body{padding:.7rem .4rem}
+.algo .st{display:block;padding:.22rem .7rem;border-radius:.3rem;white-space:pre-wrap;transition:background .2s;color:#334155}
+.algo .st.cur{background:#fef3c7;box-shadow:inset 3px 0 0 #d97706;font-weight:700;color:#78350f}
+.algo .st.done{color:#94a3b8}
+.algo .st .cm{color:#0891b2;font-style:italic}
+.algo .st .kw{color:#be123c;font-weight:700}
+.algo .st .vr{color:#7c3aed;font-weight:700}
+.algo .st .op{color:#d97706;font-weight:700}
+
+/* variable watch */
+.vars{display:grid;gap:.45rem;margin:.9rem 0}
+@media(min-width:540px){.vars{grid-template-columns:repeat(4,1fr)}}
+.vcell{border:1px solid var(--line);border-radius:.5rem;padding:.5rem;text-align:center;background:#f8fafc;transition:.2s}
+.vcell.bump{background:#fef3c7;border-color:#fbbf24;transform:scale(1.05)}
+.vcell .vk{font-family:var(--mono);font-size:.62rem;font-weight:800;letter-spacing:.08em;color:var(--ink-mute)}
+.vcell .vv{font-family:var(--mono);font-size:1.2rem;font-weight:700;color:var(--ink)}
+.arr{display:flex;gap:.3rem;flex-wrap:wrap;margin:.8rem 0;justify-content:center}
+.acell{min-width:46px;border:2px solid var(--line);border-radius:.4rem;background:#fff;text-align:center;padding:.35rem .2rem;transition:.2s}
+.acell .ai{font-family:var(--mono);font-size:.55rem;color:#94a3b8;font-weight:700}
+.acell .av{font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--ink)}
+.acell.look{border-color:#d97706;background:#fffbeb;transform:translateY(-3px)}
+.acell.best{border-color:#16a34a;background:#f0fdf4}
+.acell.best .av{color:#15803d}
+
+/* spot the mistake */
+.findbug{background:#0f172a;border-radius:.7rem;padding:1rem;font-family:var(--mono);
+         font-size:clamp(.72rem,2.9vw,.88rem);line-height:2.1;color:#cbd5e1;margin:1rem 0;overflow-x:auto}
+.findbug .tok{cursor:pointer;border-radius:3px;padding:1px 3px;transition:.15s;border-bottom:2px dotted #475569}
+.findbug .tok:hover{background:#1e293b;border-bottom-color:#94a3b8}
+.findbug .tok.got{background:#14532d;color:#86efac;border-bottom:2px solid #22c55e;cursor:default}
+.findbug .tok.miss{background:#7f1d1d;color:#fecaca;animation:shake .35s}
+.findbug .fix{color:#86efac;font-weight:700}
+.bugbar{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;margin:.8rem 0}
+.bugbar .cnt{font-family:var(--mono);font-weight:700;font-size:1.05rem;color:var(--ink)}
+.bugbar .dots{display:flex;gap:.28rem}
+.bugbar .dots i{width:11px;height:11px;border-radius:50%;background:#e2e8f0;display:block}
+.bugbar .dots i.on{background:#16a34a}
+.buglog{font-size:.82rem;color:var(--ink-soft);min-height:1.4rem;font-weight:600}
+
+/* halving */
+.halve{margin:1rem 0}
+.hbar{height:34px;background:linear-gradient(90deg,#d97706,#f59e0b);border-radius:.4rem;
+      transition:width .45s cubic-bezier(.4,0,.2,1);display:grid;place-items:center;color:#fff;
+      font-family:var(--mono);font-weight:700;font-size:.85rem;min-width:42px;box-shadow:var(--sh-sm)}
+.htrack{background:#f1f5f9;border-radius:.4rem;padding:3px;border:1px solid var(--line)}
+.hsteps{display:flex;gap:.3rem;flex-wrap:wrap;margin:.8rem 0}
+.hstep{font-family:var(--mono);font-size:.72rem;font-weight:700;padding:.28rem .55rem;border-radius:.35rem;
+       background:#fef3c7;color:#92400e;border:1px solid #fde68a;animation:drop .25s}
+
+/* expansion chips */
+.expand{font-family:var(--mono);font-size:clamp(.8rem,3.2vw,1.05rem);font-weight:700;line-height:2;
+        background:#f8fafc;border:1px solid var(--line);border-radius:.6rem;padding:.9rem;margin:.9rem 0;
+        overflow-x:auto;white-space:nowrap}
+.expand .eq{color:#d97706}
+.expand .res{color:#15803d;font-size:1.15em}
+.fibrow{display:flex;gap:.35rem;flex-wrap:wrap;margin:.9rem 0}
+.fib{min-width:52px;text-align:center;border:2px solid var(--line);border-radius:.45rem;padding:.35rem .2rem;background:#fff}
+.fib .fi{font-family:var(--mono);font-size:.55rem;color:#94a3b8;font-weight:700}
+.fib .fv{font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--ink)}
+.fib.add{border-color:#d97706;background:#fffbeb}
+.fib.add .fv{color:#b45309}
+.fib.newv{border-color:#16a34a;background:#f0fdf4;animation:drop .3s}
+.fib.newv .fv{color:#15803d}
+
+/* control structure cards */
+.cs{border:2px solid var(--line);border-radius:.8rem;overflow:hidden;background:#fff;margin-bottom:.9rem}
+.cs .csh{padding:.65rem 1rem;font-weight:800;font-size:.85rem;display:flex;align-items:center;gap:.5rem}
+.cs.seq .csh{background:#eff6ff;color:#1d4ed8;border-bottom:1px solid #bfdbfe}
+.cs.sel .csh{background:#f5f3ff;color:#6d28d9;border-bottom:1px solid #ddd6fe}
+.cs.itr .csh{background:#ecfdf5;color:#047857;border-bottom:1px solid #a7f3d0}
+.cs .csb{padding:.9rem 1rem;font-family:var(--mono);font-size:clamp(.72rem,2.9vw,.85rem);line-height:1.95;
+         white-space:pre-wrap;color:#334155}
+.cs .csn{padding:.7rem 1rem;background:#f8fafc;border-top:1px solid var(--line);font-size:.8rem;color:var(--ink-soft)}
+
+/* ============ SHARED BYLINE (all pages) ============ */
+.byline{display:flex;align-items:center;gap:.75rem;margin-top:1.9rem;padding-top:1.15rem;
+        border-top:1px solid rgba(148,163,184,.22)}
+.byline .av{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.11);
+            border:1px solid rgba(148,163,184,.3);display:grid;place-items:center;
+            font-weight:800;font-size:.7rem;color:#fff;letter-spacing:.03em;flex:0 0 auto}
+.byline .who{font-size:.82rem;font-weight:700;color:#e2e8f0;line-height:1.4;min-width:0}
+.byline .who span{display:block;font-size:.7rem;font-weight:500;color:#94a3b8}
+.pagefoot{border-top:1px solid var(--line);background:#fff;padding:1.7rem 0 2.2rem;margin-top:2rem}
+.pagefoot .fin{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;justify-content:space-between}
+.pagefoot .fw{display:flex;align-items:center;gap:.7rem}
+.pagefoot .av{width:34px;height:34px;border-radius:50%;background:#0f172a;color:#fff;display:grid;
+              place-items:center;font-weight:800;font-size:.68rem;flex:0 0 auto}
+.pagefoot .nm{font-size:.8rem;font-weight:700;color:var(--ink);line-height:1.4}
+.pagefoot .nm span{display:block;font-size:.7rem;font-weight:500;color:var(--ink-mute)}
+.pagefoot .dept{font-size:.72rem;color:var(--ink-mute);font-weight:600}
+.pagefoot a{color:var(--ink-mute);text-decoration:none;font-weight:700}
+.pagefoot a:hover{color:var(--accent)}
+
+
+/* ============ PREV / INDEX / NEXT ============ */
+.pagenav{display:grid;gap:.6rem;margin:2.6rem 0 0}
+@media(min-width:700px){.pagenav{grid-template-columns:1fr auto 1fr;align-items:stretch}}
+.pn{display:flex;align-items:center;gap:.75rem;border:1px solid var(--line);border-radius:.75rem;padding:.85rem 1rem;
+    background:#fff;text-decoration:none;color:inherit;transition:.16s;box-shadow:var(--sh-sm);min-height:64px}
+a.pn:hover{border-color:var(--accent);box-shadow:var(--sh-md);transform:translateY(-2px)}
+.pn.off{opacity:.4;pointer-events:none;border-style:dashed;background:transparent;box-shadow:none}
+.pn .ar{font-size:1.1rem;color:var(--accent);flex:0 0 auto;font-weight:700}
+.pn.off .ar{color:#cbd5e1}
+.pn .tx{min-width:0;flex:1}
+.pn .tx em{font-style:normal;display:block;font-size:.6rem;font-weight:800;letter-spacing:.11em;
+           text-transform:uppercase;color:var(--ink-mute)}
+.pn .tx b{display:block;font-size:.86rem;font-weight:700;line-height:1.35;margin-top:.12rem}
+.pn.nx{text-align:right}
+.pn.nx .ar{order:2}
+.pn.nx .tx{order:1}
+.pn.home{justify-content:center;text-align:center;flex-direction:column;gap:.2rem;padding:.85rem 1.4rem;min-width:120px}
+.pn.home .ar{font-size:1.2rem;color:var(--ink-mute)}
+.pn.home b{font-size:.76rem}
+
+/* ============ RESPONSIVE HARDENING ============ */
+img,svg,video,canvas{max-width:100%;height:auto}
+pre,code,.mono{overflow-wrap:break-word}
+pre.code{white-space:pre;word-break:normal}
+table{min-width:0}
+.tw table{min-width:480px}
+@media(max-width:420px){
+  .wrap{padding:0 .8rem}
+  .card{padding:1.15rem .9rem;border-radius:.8rem}
+  .card.numbered{padding-top:1.9rem}
+  .card>.badge{left:.9rem;width:2.1rem;height:2.1rem;font-size:.85rem}
+  .box{padding:.8rem .85rem}
+  .bridge{padding:1rem .9rem}
+  pre.code{font-size:.7rem;padding:.8rem .7rem}
+  .hero{padding:2.2rem 0 2.4rem}
+  .timechip{display:none}
+  .hdr-row{gap:.4rem}
+}
+@media(max-width:340px){ .bit{width:30px} .byte{width:26px;height:26px;line-height:26px} }
+
+/* footer + pagenav centring */
+.pagenav{margin:2.6rem auto 0 !important}
+.pagefoot .fin{justify-content:center;text-align:center}
+@media(min-width:700px){.pagefoot .fin{justify-content:space-between;text-align:left}}
+.pagefoot .dept{text-align:center}
+@media(min-width:700px){.pagefoot .dept{text-align:right}}
+@media(max-width:699px){
+  .pagenav{grid-template-columns:1fr}
+  .pn{justify-content:flex-start}
+  .pn.nx{text-align:left}
+  .pn.nx .ar{order:0}.pn.nx .tx{order:1}
+  .pn.home{flex-direction:row;justify-content:center;gap:.5rem}
+}
+
+/* ============ FLOATING JUMP DRAWER ============ */
+.fab{position:fixed;right:.7rem;bottom:.7rem;z-index:90;display:flex;flex-direction:column;gap:.4rem}
+.fab button{width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;display:grid;place-items:center;
+            font-size:1.05rem;box-shadow:var(--sh-lg);transition:transform .15s,filter .15s;font-family:inherit}
+.fab button:hover{transform:scale(1.07)}
+.fab .fmenu{background:var(--acc,#4f46e5);color:#fff;font-size:1.15rem}
+.fab .fup,.fab .fdn{background:rgba(15,23,42,.92);color:#e2e8f0;width:38px;height:38px;font-size:.9rem;margin:0 3px}
+@media(max-width:520px){.fab .fup,.fab .fdn{display:none}}
+
+.scrim{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:95;opacity:0;pointer-events:none;transition:opacity .22s}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;right:0;top:0;bottom:0;width:min(340px,86vw);background:#fff;z-index:96;
+        box-shadow:-8px 0 30px rgba(15,23,42,.22);transform:translateX(105%);transition:transform .26s cubic-bezier(.4,0,.2,1);
+        display:flex;flex-direction:column;overflow:hidden}
+.drawer.on{transform:none}
+.drawer .dh{background:linear-gradient(140deg,var(--h1,#0f172a),var(--h3,#312e81));color:#fff;padding:1.05rem 1.1rem;flex:0 0 auto}
+.drawer .dh p{font-size:.6rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:#a5b4fc;margin:0 0 .2rem}
+.drawer .dh b{font-size:1rem;font-weight:800;display:block;line-height:1.3}
+.drawer .dx{position:absolute;right:.7rem;top:.7rem;background:rgba(255,255,255,.14);border:none;color:#fff;
+            width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem;line-height:1}
+.drawer .db{overflow-y:auto;padding:.85rem;flex:1}
+.drawer .grp{font-size:.6rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);
+             margin:.9rem .2rem .45rem;display:flex;align-items:center;gap:.45rem}
+.drawer .grp:first-child{margin-top:0}
+.drawer .grp span{height:1px;background:var(--line);flex:1}
+.drawer a.dl,.drawer button.dl{display:flex;align-items:center;gap:.55rem;width:100%;text-align:left;font-family:inherit;
+     border:1px solid var(--line);background:#fff;border-radius:.55rem;padding:.55rem .7rem;margin-bottom:.3rem;
+     text-decoration:none;color:var(--ink-soft);font-size:.82rem;font-weight:600;cursor:pointer;transition:.14s;line-height:1.4}
+.drawer a.dl:hover,.drawer button.dl:hover{border-color:var(--acc,#4f46e5);color:var(--ink);transform:translateX(2px)}
+.drawer a.dl.here{background:#eef2ff;border-color:#4f46e5;color:#3730a3;font-weight:800}
+.drawer .dn2{font-family:var(--mono);font-size:.62rem;font-weight:700;color:#fff;background:#94a3b8;border-radius:.28rem;
+             padding:.15rem .35rem;flex:0 0 auto;min-width:1.5rem;text-align:center}
+.drawer a.dl.here .dn2{background:#4f46e5}
+.drawer .home2{background:var(--h1,#0f172a);color:#fff;border-color:var(--h1,#0f172a);justify-content:center;font-weight:800}
+.drawer .home2:hover{color:#fff;filter:brightness(1.2)}
+.drawer .dsec{font-size:.78rem;padding:.42rem .7rem}
+.drawer .dsec .dn2{background:#e2e8f0;color:#64748b}
+
+/* ---- flowchart shapes gallery ---- */
+.shapes{display:grid;gap:.6rem;margin:1rem 0}
+@media(min-width:520px){.shapes{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:860px){.shapes{grid-template-columns:repeat(5,1fr)}}
+figure.shp{margin:0;border:1px solid var(--line);border-radius:.6rem;background:#fff;padding:.6rem;text-align:center}
+figure.shp svg{width:100%;height:auto;max-height:56px}
+figure.shp figcaption{margin-top:.4rem}
+figure.shp figcaption b{display:block;font-size:.78rem;font-weight:800;color:var(--ink)}
+figure.shp figcaption span{display:block;font-size:.68rem;color:var(--ink-mute);line-height:1.4;margin-top:.1rem}
+
+/* ---- running flowchart ---- */
+.fcwrap{display:grid;gap:1rem;margin:1.1rem 0;align-items:start}
+@media(min-width:780px){.fcwrap{grid-template-columns:minmax(0,320px) 1fr}}
+#fcsvg{width:100%;height:auto;max-width:340px;margin:0 auto;display:block;
+       border:1px solid var(--line);border-radius:.7rem;background:#fff;padding:.4rem}
+.fcn rect,.fcn path{fill:#f8fafc;stroke:#cbd5e1;stroke-width:2.5;transition:fill .25s,stroke .25s}
+.fcn text{font-family:Inter,sans-serif;font-size:12px;font-weight:700;fill:#64748b;text-anchor:middle;transition:fill .25s}
+.fcn.io rect,.fcn.io path{fill:#eff6ff;stroke:#93c5fd}
+.fcn.pr rect{fill:#f5f3ff;stroke:#c4b5fd}
+.fcn.de path{fill:#fffbeb;stroke:#fcd34d}
+.fcn.ok path{fill:#f0fdf4;stroke:#86efac}
+.fcn.no path{fill:#fff1f2;stroke:#fda4af}
+.fcn.cur rect,.fcn.cur path{fill:#e11d48;stroke:#9f1239}
+.fcn.cur text{fill:#fff}
+.fcedges line,.fcedges path{transition:stroke .25s}
+.fcside{min-width:0}
+.fclbl{font-size:.6rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-mute);margin:0 0 .4rem}
+.fcside .arr{justify-content:flex-start}
+.fcside .acell{min-width:44px}
+.fcside .acell.look{border-color:#e11d48;background:#fff1f2}
+.fcside .acell.look .av{color:#be123c}
+.fcside .acell.hitv{border-color:#16a34a;background:#dcfce7}
+.fcside .acell.hitv .av{color:#15803d}
+.vars{display:grid;gap:.45rem;margin:.8rem 0}
+.vcell{border:1px solid var(--line);border-radius:.5rem;padding:.45rem;text-align:center;background:#f8fafc}
+.vcell .vk{font-family:var(--mono);font-size:.6rem;font-weight:800;letter-spacing:.08em;color:var(--ink-mute)}
+.vcell .vv{font-family:var(--mono);font-size:1.15rem;font-weight:700;color:var(--ink)}
+
+.btn.ghost{background:#fff !important;color:var(--ink-soft) !important;border:2px solid var(--line) !important;box-shadow:none !important}
+.btn.ghost:hover:not(:disabled){border-color:var(--line-strong) !important;color:var(--ink) !important}
+
+/* ---- verdict cards ---- */
+.verdictgrid{display:grid;gap:.6rem;margin-top:.7rem}
+@media(min-width:560px){.verdictgrid{grid-template-columns:1fr 1fr}}
+.vcard{border:2px solid var(--line);border-radius:.6rem;padding:.8rem;text-align:center;background:#fff;transition:.25s}
+.vcard .vk{font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-mute);margin:0}
+.vcard .vv{font-family:var(--mono);font-size:1.2rem;font-weight:700;margin:.2rem 0 0;word-break:break-all}
+.vcard .vd{font-size:.74rem;font-weight:800;margin:.3rem 0 0}
+.vcard.pass{border-color:#86efac;background:#f0fdf4}.vcard.pass .vv,.vcard.pass .vd{color:#15803d}
+.vcard.fail{border-color:#fda4af;background:#fff1f2}.vcard.fail .vv,.vcard.fail .vd{color:#be123c}
+
+/* ---- factor pairs ---- */
+.pairs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin:1rem 0}
+.pr2{border:2px solid var(--line);border-radius:.5rem;background:#fff;padding:.45rem .7rem;font-family:var(--mono);
+     font-size:.9rem;font-weight:700;color:var(--ink-soft);transition:.2s}
+.pr2.turn{border-color:#ea580c;background:#fff7ed;color:#c2410c;transform:scale(1.06)}
+.pr2.dup{opacity:.45;text-decoration:line-through}
+
+/* ---- folding ---- */
+.fold{display:flex;align-items:flex-end;gap:.35rem;flex-wrap:wrap;margin:1rem 0;min-height:60px}
+.fd{background:linear-gradient(180deg,#22d3ee,#0891b2);border-radius:.3rem;min-width:26px;display:grid;place-items:center;
+    color:#fff;font-family:var(--mono);font-size:.68rem;font-weight:700;transition:.35s;padding:.3rem .2rem;animation:drop .25s}
+
+/* ---- calculator ---- */
+.calcgrid{display:grid;gap:.9rem;margin:1rem 0}
+@media(min-width:640px){.calcgrid{grid-template-columns:1fr 1.4fr}}
+.verdictbox{border:2px solid var(--line);border-radius:.7rem;padding:1rem;background:#f8fafc;margin:.6rem 0 0;text-align:center}
+.verdictbox.pass{border-color:#86efac;background:#f0fdf4}
+.verdictbox.fail{border-color:#fda4af;background:#fff1f2}
+.verdictbox .vbig{font-family:var(--mono);font-size:1.5rem;font-weight:700;margin:0}
+.verdictbox .vsub{font-size:.85rem;margin:.35rem 0 0;font-weight:700}
+
+/* ---- hierarchy ---- */
+.hier{display:grid;gap:.35rem;margin:1rem 0}
+.hr2{display:flex;align-items:center;gap:.7rem;border:1px solid var(--line);border-radius:.5rem;background:#fff;padding:.5rem .8rem}
+.hr2 .hb{height:12px;border-radius:999px;flex:0 0 auto;transition:width .4s}
+.hr2 .hn{font-family:var(--mono);font-size:.86rem;font-weight:700;min-width:5.6rem;flex:0 0 auto}
+.hr2 .hd{font-size:.76rem;color:var(--ink-mute);font-weight:600}
+
+/* ---- copy bar ---- */
+.copybar{display:grid;gap:.35rem;margin:1rem 0 .5rem}
+.cprow{display:flex;justify-content:space-between;gap:.8rem;border:1px solid var(--line);border-radius:.45rem;
+       background:#fff;padding:.45rem .7rem}
+.cpl{font-size:.78rem;color:var(--ink-mute);font-weight:700}
+.cpv{font-weight:700;font-size:.95rem;text-align:right;word-break:break-all;max-width:62%}
+
+.hero-lede{max-width:60rem}
+.arc span{white-space:nowrap}
+.hero-meta div{white-space:nowrap}
+@media(max-width:520px){.hero-meta div{white-space:normal}}
+
+/* ============ DIG DEEPER — richer look (all pages) ============ */
+.digwrap{margin:1.5rem 0}
+.dighead{display:flex;align-items:center;gap:.55rem;font-size:.64rem;font-weight:800;letter-spacing:.14em;
+         text-transform:uppercase;color:var(--ink-mute);margin-bottom:.7rem}
+.dighead::before{content:"";width:16px;height:16px;border-radius:5px;flex:0 0 auto;
+  background:linear-gradient(135deg,var(--accent,#4f46e5),color-mix(in srgb,var(--accent,#4f46e5) 45%,#fff))}
+.dighead span{height:1px;background:linear-gradient(90deg,var(--line),transparent);flex:1}
+
+details.dig{border:1px solid var(--line);border-radius:.75rem;background:#fff;margin-bottom:.55rem;
+            overflow:hidden;position:relative;transition:border-color .2s,box-shadow .2s,transform .2s}
+details.dig::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,var(--accent,#4f46e5),transparent);opacity:0;transition:opacity .25s}
+details.dig:hover{border-color:var(--line-strong);transform:translateX(2px)}
+details.dig[open]{border-color:color-mix(in srgb,var(--accent,#4f46e5) 40%,var(--line));
+                  box-shadow:0 6px 20px -10px color-mix(in srgb,var(--accent,#4f46e5) 60%,transparent)}
+details.dig[open]::before{opacity:1}
+
+details.dig>summary{cursor:pointer;padding:.8rem 2.5rem .8rem 1rem;font-weight:700;font-size:.87rem;
+  list-style:none;display:flex;align-items:center;gap:.65rem;color:var(--ink);position:relative;
+  background:linear-gradient(180deg,#fff,#fafbfd);transition:background .18s;line-height:1.45}
+details.dig>summary::-webkit-details-marker{display:none}
+details.dig>summary:hover{background:#f5f8fc}
+details.dig>summary .dicon{width:26px;height:26px;border-radius:8px;flex:0 0 auto;display:grid;place-items:center;
+  font-size:.78rem;font-weight:800;color:#fff;
+  background:linear-gradient(135deg,var(--accent,#4f46e5),color-mix(in srgb,var(--accent,#4f46e5) 60%,#000));
+  box-shadow:0 2px 6px -1px color-mix(in srgb,var(--accent,#4f46e5) 70%,transparent);transition:transform .25s}
+details.dig[open]>summary .dicon{transform:rotate(-8deg) scale(1.06)}
+details.dig>summary::after{content:"";position:absolute;right:1rem;top:50%;width:9px;height:9px;
+  border-right:2.4px solid var(--accent,#4f46e5);border-bottom:2.4px solid var(--accent,#4f46e5);
+  transform:translateY(-70%) rotate(45deg);transition:transform .25s;opacity:.75}
+details.dig[open]>summary::after{transform:translateY(-30%) rotate(225deg)}
+details.dig[open]>summary{border-bottom:1px solid color-mix(in srgb,var(--accent,#4f46e5) 22%,var(--line))}
+details.dig>div{padding:1rem 1.1rem;font-size:.87rem;color:var(--ink-soft);line-height:1.75;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--accent,#4f46e5) 4%,#fff),#fff)}
+details.dig>div b{color:var(--ink)}
+
+/* ---- problem cards ---- */
+details.prob{border:1px solid var(--line);border-radius:.7rem;background:#fff;margin:.9rem 0;overflow:hidden;
+             transition:border-color .2s,box-shadow .2s}
+details.prob[open]{box-shadow:0 6px 20px -12px rgba(15,23,42,.35)}
+details.prob.cf[open]{border-color:#93c5fd}
+details.prob.lc[open]{border-color:#fcd34d}
+details.prob>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:.7rem;
+                     padding:.7rem .9rem;font-size:.87rem;font-weight:700;color:var(--ink);
+                     background:linear-gradient(180deg,#fff,#fafbfd);position:relative}
+details.prob>summary::-webkit-details-marker{display:none}
+details.prob>summary::after{content:"";position:absolute;right:.95rem;width:8px;height:8px;
+  border-right:2.2px solid #94a3b8;border-bottom:2.2px solid #94a3b8;transform:rotate(45deg) translateY(-2px);transition:transform .25s}
+details.prob[open]>summary::after{transform:rotate(225deg) translateY(-2px)}
+.plogo{width:30px;height:30px;border-radius:7px;flex:0 0 auto;display:grid;place-items:center;padding:5px}
+.plogo svg{width:100%;height:100%;display:block}
+details.prob.cf .plogo{background:#eff6ff}
+details.prob.lc .plogo{background:#fffbeb}
+.psrc{font-size:.6rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;padding:.2rem .5rem;
+      border-radius:999px;margin-right:1.4rem;white-space:nowrap;flex:0 0 auto}
+details.prob.cf .psrc{background:#dbeafe;color:#1d4ed8}
+details.prob.lc .psrc{background:#fef3c7;color:#b45309}
+details.prob>div{padding:.9rem 1rem 1rem;border-top:1px solid var(--line);font-size:.86rem;line-height:1.7;color:var(--ink-soft)}
+.plink{display:inline-flex;align-items:center;gap:.4rem;margin-top:.7rem;font-size:.8rem;font-weight:800;
+       text-decoration:none;border-radius:.45rem;padding:.42rem .8rem;color:#fff}
+details.prob.cf .plink{background:#1d4ed8}
+details.prob.lc .plink{background:#d97706}
+.plink:hover{filter:brightness(1.12)}
+.pconstraint{font-family:var(--mono);font-size:.78rem;background:#f1f5f9;border-radius:.35rem;padding:.15rem .45rem;color:#334155}
+
+/* ---- goals box ---- */
+.goals{border:2px solid #fecdd3;border-radius:.9rem;background:linear-gradient(180deg,#fff5f6,#fff);
+       padding:1.1rem 1.2rem;margin-bottom:2.2rem}
+.goals .gh{display:flex;align-items:center;gap:.6rem;margin:0 0 .9rem}
+.goals .gh i{font-style:normal;width:32px;height:32px;border-radius:9px;background:#e11d48;color:#fff;
+             display:grid;place-items:center;font-size:1rem;flex:0 0 auto}
+.goals .gh b{font-size:.95rem;font-weight:800;color:#9f1239}
+.goals ol{list-style:none;counter-reset:g;margin:0;padding:0;display:grid;gap:.55rem}
+.goals li{counter-increment:g;display:flex;gap:.65rem;align-items:flex-start;font-size:.9rem;line-height:1.6;color:var(--ink-soft)}
+.goals li::before{content:counter(g);width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #fda4af;
+  color:#be123c;font-size:.7rem;font-weight:800;display:grid;place-items:center;flex:0 0 auto;margin-top:.1rem}
+.goals li b{color:var(--ink)}
+
+/* ---- factor pairs, one per line ---- */
+.pairlist{display:grid;gap:.28rem;margin:1rem 0;max-width:420px;margin-left:auto;margin-right:auto}
+.pl{display:flex;align-items:center;gap:.6rem;border:1px solid var(--line);border-radius:.45rem;
+    background:#fff;padding:.4rem .75rem;font-family:var(--mono);font-size:.92rem;font-weight:700;color:var(--ink-soft)}
+.pl .plx{flex:1}
+.pl .pln{font-size:.62rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:.15rem .45rem;
+         border-radius:999px;white-space:nowrap}
+.pl.turn{border-color:#ea580c;background:#fff7ed;color:#c2410c;border-width:2px}
+.pl.turn .pln{background:#ea580c;color:#fff}
+.pl.dup{opacity:.5}
+.pl.dup .pln{background:#f1f5f9;color:#94a3b8}
+.pl.pre .pln{background:#dcfce7;color:#15803d}
+
+/* ---- hierarchy: no overflow ---- */
+.hier{display:grid;gap:.4rem;margin:1rem 0 0}
+.hr2{display:grid;grid-template-columns:5.6rem 1fr;gap:.5rem .7rem;align-items:center;
+     border:1px solid var(--line);border-radius:.55rem;background:#fff;padding:.55rem .8rem}
+.hr2 .hn{font-family:var(--mono);font-size:.85rem;font-weight:700}
+.hr2 .hbwrap{height:12px;border-radius:999px;background:#f1f5f9;overflow:hidden}
+.hr2 .hb{height:100%;border-radius:999px;display:block}
+.hr2 .hd{grid-column:1/-1;font-size:.75rem;color:var(--ink-mute);font-weight:600;line-height:1.45}
+@media(min-width:620px){
+  .hr2{grid-template-columns:5.6rem minmax(80px,1fr) 1.5fr}
+  .hr2 .hd{grid-column:auto}
+}
+
+/* ---- reveal-the-optimisation ---- */
+.thinkbox{border:2px dashed #cbd5e1;border-radius:.7rem;background:#f8fafc;padding:1rem;text-align:center;margin:.9rem 0}
+.thinkbox p{font-size:.88rem;color:var(--ink-soft);margin:0 0 .7rem}
+.thinkbox p b{color:var(--ink)}
+.revealed{display:none}
+.revealed.on{display:block;animation:pop .35s ease}
+
+/* ============ LIGHT CODE THEME (default) + toggle ============ */
+body.codelight pre.code,
+body.codelight .carr-code,
+body.codelight .codepane,
+body.codelight .fboard,
+body.codelight .findbug,
+body.codelight .exactbox{
+  background:#f8fafc;color:#334155;border:1px solid #e2e8f0;box-shadow:inset 0 1px 0 #fff}
+body.codelight pre.code .k,body.codelight .carr-code .k,body.codelight .codepane .k{color:#7c3aed}
+body.codelight pre.code .t,body.codelight .carr-code .t,body.codelight .codepane .t{color:#b45309}
+body.codelight pre.code .f,body.codelight .carr-code .f,body.codelight .codepane .f{color:#0369a1}
+body.codelight pre.code .n,body.codelight .carr-code .n,body.codelight .codepane .n{color:#c2410c}
+body.codelight pre.code .c,body.codelight .carr-code .c,body.codelight .codepane .c{color:#94a3b8}
+body.codelight pre.code .s{color:#15803d}
+body.codelight .carr-code .cl{color:#334155}
+body.codelight .carr-code .cl.cur{background:rgba(2,132,199,.14);box-shadow:inset 3px 0 0 #0284c7}
+body.codelight .carr-code .cl.done{background:rgba(148,163,184,.12)}
+body.codelight .codepane .ln{color:#334155}
+body.codelight .codepane .ln.newest{background:rgba(13,148,136,.14);box-shadow:inset 2px 0 0 #0d9488}
+body.codelight .codepane .cursor{background:#0d9488}
+body.codelight .fboard .fline{color:#334155}
+body.codelight .fboard .fline.dim{color:#94a3b8}
+body.codelight .fboard .fv{color:#0369a1}
+body.codelight .fboard .fk{color:#b45309}
+body.codelight .fboard .fr{color:#15803d}
+body.codelight .fboard .fc{color:#94a3b8}
+body.codelight .outpane{background:#f1f5f9;color:#15803d;border:1px solid #e2e8f0}
+body.codelight .findbug{color:#334155}
+body.codelight .findbug .fbline{background:rgba(148,163,184,.10)}
+body.codelight .findbug .tok{border-bottom-color:#cbd5e1}
+body.codelight .findbug .tok:hover{background:#e2e8f0}
+body.codelight .findbug .tok.got{background:#dcfce7;color:#15803d;border-bottom-color:#22c55e}
+body.codelight .findbug .fix{color:#15803d}
+body.codelight .exactbox{color:#334155}
+body.codelight .exactbox .hi{color:#be123c}
+body.codelight .exactbox .lo{color:#94a3b8}
+
+.codetog{appearance:none;border:1px solid #334155;background:transparent;color:#94a3b8;border-radius:.45rem;
+         font-family:inherit;font-size:.68rem;font-weight:700;padding:.3rem .6rem;cursor:pointer;
+         white-space:nowrap;transition:.15s;flex:0 0 auto}
+.codetog:hover{color:#e2e8f0;border-color:#64748b}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <span class="brand-badge" style="background:linear-gradient(135deg,#be123c,#f43f5e)">05</span>
+      <span>
+        <span class="brand-s">CSE-2321 · Segment 1 · Class 5</span>
+        <span class="brand-t">Time &amp; Space Complexity</span>
+      </span>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-tab="lesson">Lesson</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="exam">Exam &amp; Interview</button>
+    </div>
+  </div>
+  <div class="rail"><i id="rail"></i></div>
+</div>
+
+<section class="panel" id="p-lesson">
+
+<header class="hero" style="background:linear-gradient(160deg,#0f172a 0%,#4c0519 55%,#9f1239 100%)">
+  <div class="wrap">
+    <p class="eyebrow" style="color:#fda4af">Data Structures · Segment 1 · Class 5</p>
+    <h1>Time &amp; space <em>complexity</em></h1>
+    <p class="hero-lede">Not "how many seconds did it take on my laptop". The real question: <b>how fast does the work grow when the input grows?</b> Answer that and you can tell whether your code will pass before you ever run it.</p>
+    <div class="arc">
+      <span>Why not seconds</span><span>O(1) &amp; O(N)</span><span>O(&radic;N)</span><span>O(log N)</span><span>O(N²)</span><span>Space</span>
+    </div>
+    <div class="hero-meta">
+      <div><b>10<sup>8</sup></b>operations per second</div>
+      <div><b>N ≥ 10<sup>5</sup></b>the number that decides everything</div>
+      <div><b>3 traps</b>that cause silent TLE</div>
+    </div>
+    <div class="byline">
+      <span class="av">JA</span>
+      <span class="who">Jamil As-ad<span>Lecturer, Dept. of CSE &middot; International Islamic University Chittagong</span></span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<div class="goals">
+  <p class="gh"><i>🎯</i><b>By the end of this class you will be able to</b></p>
+  <ol>
+    <li>Say <b>why complexity matters more</b> than the runtime on your own machine</li>
+    <li>Read the complexity of <b>loops</b>, <b>nested loops</b> and <b>halving</b> straight off the code</li>
+    <li>Look at a constraint like <span class="mono">N &le; 10<sup>5</sup></span> and know <b>instantly</b> which solutions can pass</li>
+    <li>Spot the <b>hidden traps</b> that cause TLE and MLE with no nested loop in sight</li>
+  </ol>
+</div>
+
+<!-- ============ 1 · WHY NOT SECONDS ============ -->
+<article class="card numbered" id="s1" style="--accent:#e11d48">
+  <span class="badge">1</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 1</p><h2>Why we cannot measure in seconds</h2></div>
+    <span class="timechip">⏱ 6 min</span>
+  </div>
+
+  <div class="box info">
+    <p class="bt">The core question</p>
+    <p style="margin:0"><b>How fast does your algorithm grow when the input grows?</b><br><br>
+    Time complexity is <b>not</b> how many seconds your code runs on your laptop. It is how the <b>number of operations</b> increases as the input gets bigger.</p>
+  </div>
+
+  <p>Seconds are unreliable for three reasons:</p>
+  <div class="grid3">
+    <div class="box" style="margin:0"><p class="bt">Different machines</p><p style="margin:0">Your laptop and the judge's server are not the same speed.</p></div>
+    <div class="box" style="margin:0"><p class="bt">Different languages</p><p style="margin:0">The same idea in C++ and in Python runs at very different speeds.</p></div>
+    <div class="box" style="margin:0"><p class="bt">Background processes</p><p style="margin:0">A browser open in the background changes your timing.</p></div>
+  </div>
+
+  <div class="bridge" style="--accent:#e11d48">
+    <p class="say">Time complexity = the <b>growth rate</b> of operations as the input size N increases.</p>
+    <p style="margin-top:.8rem">We count operations, and we watch the <b>shape</b> of the growth — not the clock.</p>
+  </div>
+
+  <div class="box warn">
+    <p class="bt">📌 The one number to carry all semester</p>
+    <p style="margin:0">A typical judge machine handles about <b>10<sup>8</sup> operations per second</b>. Time limits are usually <b>1 to 2 seconds</b>.<br><br>
+    That single fact turns every constraint into a verdict — before you write a line of code.</p>
+  </div>
+</article>
+
+<!-- ============ 2 · SUM 1..N ============ -->
+<article class="card numbered" id="s2" style="--accent:#e11d48">
+  <span class="badge">2</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Case study 1</p><h2>Sum of 1 to N — O(N) versus O(1)</h2></div>
+    <span class="timechip">⏱ 10 min</span>
+  </div>
+
+  <details class="prob cf">
+    <summary><span class="plogo"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="1" y="9"  width="5.5" height="13" rx="1.6" fill="#f0932b"/><rect x="9.2" y="3" width="5.5" height="19" rx="1.6" fill="#1e88e5"/><rect x="17.4" y="12" width="5.5" height="10" rx="1.6" fill="#e53935"/></svg></span><b style="flex:1;min-width:0">Sum of 1 to N</b><span class="psrc">Codeforces</span></summary>
+    <div>
+      <p style="margin:0"><b>Problem.</b> Given a number N, find the sum of all the numbers from 1 to N.</p>
+      <p style="margin:.6rem 0 0"><b>Constraint:</b> <span class="pconstraint">1 &le; N &le; 10<sup>9</sup></span></p><p style="margin:.6rem 0 0">That constraint is the whole question. 10<sup>9</sup> is far past what a loop can do inside a time limit.</p>
+      <a class="plink" href="https://codeforces.com/group/MWSDmqGsZm/contest/219158/problem/G" target="_blank" rel="noopener">Open on Codeforces &nbsp;&rarr;</a>
+    </div>
+  </details>
+
+  <div class="grid2">
+    <div>
+      <p style="font-size:.8rem;font-weight:800;color:#be123c;margin-bottom:.3rem">APPROACH A — the loop</p>
+<pre class="code"><span class="t">long long</span> sum = <span class="n">0</span>;
+<span class="k">for</span> (<span class="t">int</span> i = <span class="n">1</span>; i &lt;= n; i++) {
+    sum += i;
+}
+cout &lt;&lt; sum;</pre>
+      <p class="subtle" style="margin-top:.4rem">Loop runs <b>N</b> times → <b>O(N)</b></p>
+    </div>
+<div class="thinkbox"><p><b>Before you scroll — think.</b> The loop needs N steps. Is there a way to get the same answer in a <b>fixed</b> number of steps, no matter how big N is?<br><span class="subtle">Hint: you met this formula in school.</span></p><button class="btn" id="rv1" style="background:#15803d">Show the better approach</button></div><div class="revealed" id="rv1-w">    <div>
+      <p style="font-size:.8rem;font-weight:800;color:#15803d;margin-bottom:.3rem">APPROACH B — the formula</p>
+<pre class="code"><span class="c">// sum = n(n+1)/2</span>
+<span class="t">long long</span> sum = ((<span class="t">long long</span>)n * (n+<span class="n">1</span>)) / <span class="n">2</span>;
+cout &lt;&lt; sum;</pre>
+      <p class="subtle" style="margin-top:.4rem">Always <b>3</b> operations → <b>O(1)</b></p>
+    </div>
+</div>  </div>
+
+  <p>Move the slider and watch what each approach actually costs.</p>
+
+  <div class="trade" style="background:#fff">
+    <label for="nslider" style="font-size:.82rem;font-weight:700;color:var(--ink-soft)">N = <b id="nval" class="mono">1,000,000,000</b></label>
+    <input type="range" id="nslider" min="1" max="9" step="1" value="9">
+    <div class="verdictgrid">
+      <div class="vcard" id="vA"><p class="vk">Approach A · O(N)</p><p class="vv">—</p><p class="vd">—</p></div>
+      <div class="vcard" id="vB"><p class="vk">Approach B · O(1)</p><p class="vv">—</p><p class="vd">—</p></div>
+    </div>
+  </div>
+
+  <div class="box bad">
+    <p class="bt">⚠ The trap that catches almost everybody</p>
+<pre class="code" style="margin:.5rem 0"><span class="t">int</span> N = <span class="n">1000000000</span>;
+<span class="t">long long</span> sum = (N * (N + <span class="n">1</span>)) / <span class="n">2</span>;   <span class="c">// WRONG</span></pre>
+    <p style="margin:0">Even though <span class="mono">sum</span> is a <span class="mono">long long</span>, the calculation <span class="mono">N * (N + 1)</span> happens between two <span class="mono">int</span> values <b>first</b>. It overflows <b>before</b> the answer is ever assigned.</p>
+    <div class="box" style="background:#fff;margin:.8rem 0 0">
+      <p class="bt" style="margin:0 0 .3rem">Real-life analogy</p>
+      <p style="margin:0">Multiplying two <span class="mono">int</span>s is like pouring water into a <b>small bucket</b>. Once it spills, moving the bucket into a bigger tank will not bring the water back.</p>
+    </div>
+    <p style="margin:.8rem 0 0"><b>The fix — cast one side first:</b> <span class="mono">long long sum = ((long long)n * (n+1)) / 2;</span></p>
+  </div>
+
+  <div class="bridge" style="--accent:#e11d48">
+    <p class="say"><b>O(1)</b> is the gold standard. The time does not grow with the input at all.</p>
+  </div>
+</article>
+
+<!-- ============ 3 · PRIME / SQRT N ============ -->
+<article class="card numbered" id="s3" style="--accent:#ea580c">
+  <span class="badge">3</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Case study 2</p><h2>Prime checking — and the &radic;N idea</h2></div>
+    <span class="timechip">⏱ 9 min</span>
+  </div>
+
+  <details class="prob cf">
+    <summary><span class="plogo"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="1" y="9"  width="5.5" height="13" rx="1.6" fill="#f0932b"/><rect x="9.2" y="3" width="5.5" height="19" rx="1.6" fill="#1e88e5"/><rect x="17.4" y="12" width="5.5" height="10" rx="1.6" fill="#e53935"/></svg></span><b style="flex:1;min-width:0">Prime checking</b><span class="psrc">Codeforces</span></summary>
+    <div>
+      <p style="margin:0"><b>Problem.</b> Check whether a given number N is prime.</p>
+      <p style="margin:.6rem 0 0"><b>Constraint:</b> <span class="pconstraint">N can be as large as 10<sup>12</sup></span></p><p style="margin:.6rem 0 0">A loop to N would take hours. The fix is one character: <span class="mono">i * i &lt;= n</span>.</p>
+      <a class="plink" href="https://codeforces.com/group/MWSDmqGsZm/contest/223338/problem/B" target="_blank" rel="noopener">Open on Codeforces &nbsp;&rarr;</a>
+    </div>
+  </details>
+
+  <div class="grid2">
+    <div>
+      <p style="font-size:.8rem;font-weight:800;color:#be123c;margin-bottom:.3rem">APPROACH A — check everything</p>
+<pre class="code"><span class="k">for</span> (<span class="t">long long</span> i = <span class="n">2</span>; i &lt; n; i++)
+    <span class="k">if</span> (n % i == <span class="n">0</span>) <span class="k">return</span> <span class="k">false</span>;</pre>
+      <p class="subtle" style="margin-top:.4rem"><b>O(N)</b> — for a large prime this runs for <b>hours</b>.</p>
+    </div>
+<div class="thinkbox"><p><b>Your turn.</b> Checking every number up to N is far too slow. <b>How early can you stop and still be certain?</b><br><span class="subtle">Hint: write out the factor pairs of 36 and look for the turning point.</span></p><button class="btn" id="rv2" style="background:#15803d">Show the better approach</button></div><div class="revealed" id="rv2-w">    <div>
+      <p style="font-size:.8rem;font-weight:800;color:#15803d;margin-bottom:.3rem">APPROACH B — stop at &radic;N</p>
+<pre class="code"><span class="k">for</span> (<span class="t">long long</span> i = <span class="n">2</span>; i * i &lt;= n; i++)
+    <span class="k">if</span> (n % i == <span class="n">0</span>) <span class="k">return</span> <span class="k">false</span>;</pre>
+      <p class="subtle" style="margin-top:.4rem"><b>O(&radic;N)</b> — a massive improvement.</p>
+    </div>
+</div>  </div>
+
+  <h3>Why stopping at &radic;N is safe</h3>
+  <p><b>Factors come in pairs.</b> Write them all out and the turning point shows itself.</p>
+  <div class="btnrow" id="fnbtns">
+    <span class="subtle" style="font-weight:700;align-self:center">N =</span>
+    <button class="btn sm" data-fn="36" style="background:#ea580c">36</button>
+    <button class="btn sm ghost" data-fn="50">50</button>
+    <button class="btn sm ghost" data-fn="64">64</button>
+    <button class="btn sm ghost" data-fn="100">100</button>
+    <button class="btn sm ghost" data-fn="97">97</button>
+  </div>
+  <div class="pairlist" id="pairs"></div>
+  <p class="opdesc" id="pairmsg" style="text-align:center"></p>
+
+  <div class="box good">
+    <p class="bt">The rule</p>
+    <p style="margin:0">If no factor has been found by <b>&radic;N</b>, there will never be one after it. Every factor above &radic;N is already paired with one below it.</p>
+  </div>
+
+  <div class="box info">
+    <p class="bt">What that saves, in numbers</p>
+    <p style="margin:0">For N = 1,000,000 (10<sup>6</sup>):<br>
+    <b>O(N)</b> → 1,000,000 steps &nbsp;·&nbsp; <b>O(&radic;N)</b> → <b>1,000</b> steps.<br><br>
+    <span class="subtle">Use <span class="mono">i * i &lt;= n</span> rather than <span class="mono">i &lt;= sqrt(n)</span> — <span class="mono">sqrt</span> returns a floating point number and can be off by one at the boundary.</span></p>
+  </div>
+</article>
+<!-- ============ 4 · LOG N ============ -->
+<article class="card numbered" id="s4" style="--accent:#0891b2">
+  <span class="badge">4</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 4</p><h2>Logarithmic time — O(log N)</h2></div>
+    <span class="timechip">⏱ 10 min</span>
+  </div>
+
+  <div class="box info">
+    <p class="bt">The idea</p>
+    <p style="margin:0">If an algorithm <b>divides the input by a fraction — usually half — at every step</b>, it is logarithmic.</p>
+  </div>
+
+  <h3>The paper folding picture</h3>
+  <p>A sheet of size <b>16</b>. How many times can you fold it in half until it reaches size 1?</p>
+
+  <div class="fold" id="fold"></div>
+  <div class="btnrow">
+    <button class="btn" id="fold-go" style="background:#0891b2">Fold it in half</button>
+    <button class="btn ghost sm" id="fold-reset">Reset</button>
+    <select class="btn ghost sm" id="fold-n" style="font-family:var(--mono)">
+      <option value="16">start at 16</option>
+      <option value="32">start at 32</option>
+      <option value="1024">start at 1024</option>
+      <option value="1000000000000">start at 10¹²</option>
+    </select>
+  </div>
+  <p class="opdesc" id="fold-msg">16 → 8 → 4 → 2 → 1 takes <b>4</b> folds, and 2<sup>4</sup> = 16, so log₂(16) = 4.</p>
+
+  <h3>Two ways to read the same thing</h3>
+  <div class="grid2">
+    <div class="box" style="margin:0">
+      <p class="bt">Method 1 — divide down to 1</p>
+      <p style="margin:0">How many times must you halve N to reach 1?</p>
+      <p class="mono" style="margin:.5rem 0 0;font-size:.84rem">32 → 16 → 8 → 4 → 2 → 1<br><b>5 steps → log₂(32) = 5</b></p>
+    </div>
+    <div class="box" style="margin:0">
+      <p class="bt">Method 2 — multiply up to N</p>
+      <p style="margin:0">How many times must you double 1 to reach N?</p>
+      <p class="mono" style="margin:.5rem 0 0;font-size:.84rem">1 → 2 → 4 → 8 → 16 → 32<br><b>5 steps → log₂(32) = 5</b></p>
+    </div>
+  </div>
+  <p class="subtle" style="margin-top:.8rem">💡 Method 2 is the one that explains <b>merge sort</b> later — how many times you merge until the whole N-sized array is sorted.</p>
+
+  <div class="bridge" style="--accent:#0891b2">
+    <p class="lbl">Why it matters</p>
+    <p class="say">Even for N = one trillion, O(N) needs a trillion steps. <b>O(log N) needs about 40.</b></p>
+    <p style="margin-top:.8rem">For any practical input, logarithmic is almost as good as constant.</p>
+  </div>
+</article>
+
+<!-- ============ 5 · N SQUARED ============ -->
+<article class="card numbered" id="s5" style="--accent:#be123c">
+  <span class="badge">5</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 5</p><h2>Nested loops and O(N²)</h2></div>
+    <span class="timechip">⏱ 12 min</span>
+  </div>
+
+  <div class="box bad">
+    <p class="bt">Read the constraint. It is telling you the answer.</p>
+    <p style="margin:0">Almost every problem gives you a line like <span class="mono">N &le; 100,000</span>. That single line already decides which solutions are allowed:<br><br>
+    <b>O(N)</b> → 100,000 operations → <span class="hl-good">✅ very fast</span><br>
+    <b>O(N²)</b> → (10<sup>5</sup>)² = <b>10<sup>10</sup></b> operations → <span class="hl-bad">❌ impossible</span><br><br>
+    At 10<sup>8</sup> operations per second, 10<sup>10</sup> ÷ 10<sup>8</sup> = <b>100 seconds</b>. The limit is 1–2 seconds.</p>
+  </div>
+
+  <div class="note13">
+    <span class="ic">📌</span>
+    <div><p><b>The interview reflex to build today.</b></p>
+    <p style="margin-top:.5rem">The moment you see <b>N &ge; 10<sup>5</sup></b>, immediately think: <em>"I must avoid O(N²)."</em></p></div>
+  </div>
+
+  <h3>Try it yourself — will this pass?</h3>
+  <p>Pick a constraint and a complexity, and see the verdict before writing any code.</p>
+
+  <div class="calcgrid">
+    <div>
+      <p class="fclbl">Constraint N</p>
+      <div class="btnrow" id="nbtns" style="margin-top:0">
+        <button class="btn sm ghost" data-n="1000">10³</button>
+        <button class="btn sm ghost" data-n="100000">10⁵</button>
+        <button class="btn sm ghost" data-n="1000000">10⁶</button>
+        <button class="btn sm ghost" data-n="1000000000">10⁹</button>
+      </div>
+    </div>
+    <div>
+      <p class="fclbl">Your algorithm</p>
+      <div class="btnrow" id="cbtns" style="margin-top:0">
+        <button class="btn sm ghost" data-c="1">O(1)</button>
+        <button class="btn sm ghost" data-c="log">O(log N)</button>
+        <button class="btn sm ghost" data-c="sqrt">O(&radic;N)</button>
+        <button class="btn sm ghost" data-c="n">O(N)</button>
+        <button class="btn sm ghost" data-c="nlogn">O(N log N)</button>
+        <button class="btn sm ghost" data-c="n2">O(N²)</button>
+      </div>
+    </div>
+  </div>
+  <div class="verdictbox" id="verdict"><p class="subtle" style="margin:0">Pick a constraint and a complexity.</p></div>
+
+  <h3>The Two Sum trap</h3>
+  <details class="prob lc">
+    <summary><span class="plogo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.6 2.3a1.4 1.4 0 0 1 2 2l-4.1 4.2 5.3 5.4a1.4 1.4 0 1 1-2 2l-6.3-6.4a1.4 1.4 0 0 1 0-2z" fill="#ffa116"/><path d="M9.5 7.5 4.9 12.2a5.6 5.6 0 0 0 0 7.9 5.6 5.6 0 0 0 7.9 0l2-2a1.4 1.4 0 0 0-2-2l-2 2a2.8 2.8 0 0 1-4-4l4.6-4.6z" fill="#3e3e3e"/><path d="M12.4 17.2h8.2a1.35 1.35 0 1 0 0-2.7h-8.2a1.35 1.35 0 1 0 0 2.7z" fill="#b3b3b3"/></svg></span><b style="flex:1;min-width:0">1 · Two Sum</b><span class="psrc">LeetCode</span></summary>
+    <div>
+      <p style="margin:0"><b>Problem.</b> Given an array of integers and a target, return the indices of the two numbers that add up to the target.</p>
+      <p style="margin:.6rem 0 0">Called the “Hello World” of interviews — it is really a lesson in counting operations.</p>
+      <a class="plink" href="https://leetcode.com/problems/two-sum/" target="_blank" rel="noopener">Open on LeetCode &nbsp;&rarr;</a>
+    </div>
+  </details>
+
+  <div class="grid2">
+    <div>
+      <p style="font-size:.8rem;font-weight:800;color:#be123c;margin-bottom:.3rem">BRUTE FORCE</p>
+<pre class="code"><span class="k">for</span> (<span class="t">int</span> i=<span class="n">0</span>; i&lt;n; i++)
+  <span class="k">for</span> (<span class="t">int</span> j=<span class="n">0</span>; j&lt;n; j++)
+    <span class="k">if</span> (i!=j &amp;&amp; a[i]+a[j]==target)
+      <span class="k">return</span> {i,j};</pre>
+      <p class="subtle" style="margin-top:.4rem">N × N = <b>N²</b> checks → <b>O(N²)</b></p>
+    </div>
+    <div>
+      <p style="font-size:.8rem;font-weight:800;color:#c2410c;margin-bottom:.3rem">"OPTIMISED" — still O(N²)</p>
+<pre class="code"><span class="k">for</span> (<span class="t">int</span> i=<span class="n">0</span>; i&lt;n; i++)
+  <span class="k">for</span> (<span class="t">int</span> j=i+<span class="n">1</span>; j&lt;n; j++)
+    <span class="k">if</span> (a[i]+a[j]==target)
+      <span class="k">return</span> {i,j};</pre>
+      <p class="subtle" style="margin-top:.4rem">Half the work — but <b>still O(N²)</b></p>
+    </div>
+  </div>
+
+  <div class="box warn">
+    <p class="bt">Many students think the second one is O(N). It is not. Count it.</p>
+    <p style="margin:0" class="mono" style="font-size:.85rem">
+    i = 0 → j runs N&minus;1 times<br>
+    i = 1 → j runs N&minus;2 times<br>
+    i = 2 → j runs N&minus;3 times<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&hellip;<br>
+    i = N&minus;2 → j runs 1 time</p>
+    <p style="margin:.7rem 0 0">Total = (N&minus;1) + (N&minus;2) + &hellip; + 2 + 1 = <b>N(N&minus;1)/2</b></p>
+  </div>
+
+  <h3>Why "/2" and "&minus;N" disappear</h3>
+  <p>Expand it: <span class="mono">N(N&minus;1)/2 = (N² &minus; N) / 2</span>. Three parts, three fates:</p>
+
+  <div class="grid3">
+    <div class="box bad" style="margin:0"><p class="bt">N²</p><p style="margin:0">Grows very fast. <b>This one survives.</b></p></div>
+    <div class="box" style="margin:0"><p class="bt">&minus;N</p><p style="margin:0">Grows too — but far slower than N². Dropped.</p></div>
+    <div class="box" style="margin:0"><p class="bt">÷ 2</p><p style="margin:0">Just a constant scale. Makes it smaller, not slower. Dropped.</p></div>
+  </div>
+
+  <p style="margin-top:1rem">Here is the same sum written out for real values of N. Watch the last column.</p>
+  <div class="tw">
+  <table>
+    <thead><tr>
+      <th>N</th>
+      <th>Exact comparisons<br><span class="subtle">N(N&minus;1)/2</span></th>
+      <th>If we just said N²<br><span class="subtle">the Big-O answer</span></th>
+      <th>Ratio<br><span class="subtle">exact ÷ N²</span></th>
+    </tr></thead>
+    <tbody id="dombody"></tbody>
+  </table>
+  </div>
+  <p class="subtle" style="margin-top:.5rem">The ratio settles at <b>0.5</b> and stays there. It never drifts, never grows. That constant one-half is precisely what Big-O throws away — and throwing it away costs us nothing, because <b>0.5 × N² still doubles-and-doubles exactly like N² does.</b></p>
+
+  <div class="bridge" style="--accent:#be123c">
+    <p class="say">Big-O asks one question: <b>how fast does this grow as N goes to infinity?</b></p>
+    <p style="margin-top:.8rem">It deliberately ignores constants (÷2, ×5) and lower terms (+N, +100), because they do not change whether your solution <b>scales</b>.</p>
+  </div>
+
+  <h3>The hierarchy — memorise this order</h3>
+  <div class="hier" id="hier"></div>
+</article>
+<!-- ============ 6 · STRING TRAP ============ -->
+<article class="card numbered" id="s6" style="--accent:#7c3aed">
+  <span class="badge">6</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 6 · the hidden trap</p><h2>The line that is secretly O(N²)</h2></div>
+    <span class="timechip">⏱ 9 min</span>
+  </div>
+
+  <p><b>Problem.</b> Given N (10 &le; N &le; 10<sup>5</sup>), build the string <span class="mono">"12345678910111213…N"</span>.</p>
+
+  <div class="box bad">
+    <p class="bt">❌ The trap</p>
+<pre class="code" style="margin:.5rem 0"><span class="t">string</span> s = <span class="s">""</span>;
+<span class="k">for</span> (<span class="t">int</span> i = <span class="n">1</span>; i &lt;= N; i++) {
+    s = s + <span class="f">to_string</span>(i);      <span class="c">// looks harmless. it is not.</span>
+}</pre>
+    <p style="margin:0">There is no visible nested loop. It still runs in <b>O(N²)</b>.</p>
+  </div>
+
+  <div class="digwrap" style="--accent:#7c3aed">
+    <p class="dighead">Why this is quadratic<span></span></p>
+    <details class="dig"><summary><span class="dicon">?</span>Open it up — what <span class="mono">s = s + x</span> really does, step by step</summary><div>
+<p><span class="mono">s = s + "x"</span> does not simply append. It <b>allocates a brand new string</b>, <b>copies every existing character across</b>, adds the new ones, and destroys the old one.</p>
+
+  <p>Watch what that costs. Press step and see how much gets copied each round.</p>
+
+  <div class="copybar">
+    <div class="cprow"><span class="cpl">i</span><span class="cpv mono" id="cp-i">1</span></div>
+    <div class="cprow"><span class="cpl">string so far</span><span class="cpv mono" id="cp-s" style="font-size:.72rem">""</span></div>
+    <div class="cprow"><span class="cpl">characters copied this round</span><span class="cpv mono" id="cp-c" style="color:#be123c">0</span></div>
+    <div class="cprow"><span class="cpl">total copied so far</span><span class="cpv mono" id="cp-t" style="color:#be123c">0</span></div>
+  </div>
+  <div class="meter"><i id="cp-bar"></i></div>
+  <div class="btnrow">
+    <button class="btn" id="cp-next" style="background:#7c3aed">Next i ▸</button>
+    <button class="btn ghost sm" id="cp-jump">Jump to i = 500</button>
+    <button class="btn ghost sm" id="cp-reset">Reset</button>
+  </div>
+  <p class="opdesc" id="cp-msg">Each round copies the <b>whole</b> string again, just to add two or three characters.</p>
+
+  <div class="box warn">
+    <p class="bt">A concrete moment — N = 500, and we are at i = 497</p>
+    <p style="margin:0">At this point <span class="mono">s</span> is already <span class="mono">"123456789101112…495496"</span>.<br><br>
+    Now <span class="mono">s = s + "497";</span> runs. Internally: a brand new string is allocated · the entire old string is copied character by character · <span class="mono">"497"</span> is copied on the end · the old string is destroyed.<br><br>
+    <b>You added 3 characters and copied nearly 1,900.</b></p>
+  </div>
+
+  <details class="dig"><summary><span class="dicon">?</span>How big does the string actually get?</summary><div>
+    <div class="tw" style="margin:0">
+    <table>
+      <thead><tr><th>Range</th><th>Count</th><th>Digits each</th><th>Total digits</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1–9</td><td class="num">9</td><td class="num">1</td><td class="num">9</td></tr>
+        <tr><td class="num">10–99</td><td class="num">90</td><td class="num">2</td><td class="num">180</td></tr>
+        <tr><td class="num">100–999</td><td class="num">900</td><td class="num">3</td><td class="num">2,700</td></tr>
+        <tr><td class="num">1000–9999</td><td class="num">9,000</td><td class="num">4</td><td class="num">36,000</td></tr>
+        <tr><td class="num">10000–99999</td><td class="num">90,000</td><td class="num">5</td><td class="num">450,000</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="margin:.7rem 0 0">For large N most numbers have about <b>5 digits</b>, so each round adds roughly 5 characters. The copying then looks like<br>
+    <span class="mono">5×1 + 5×2 + 5×3 + … + 5×N</span><br><br>
+    The 5 is a constant, so we drop it and are left with <span class="mono">1 + 2 + 3 + … + N</span>, which is <b>O(N²)</b>.</p>
+  </div></details>
+    </div></details>
+  </div>
+
+  <div class="box good">
+    <p class="bt">✅ The fix — O(N)</p>
+<pre class="code" style="margin:.5rem 0"><span class="t">string</span> s;
+s.<span class="f">reserve</span>(N * <span class="n">6</span>);          <span class="c">// ask for the memory once</span>
+<span class="k">for</span> (<span class="t">int</span> i = <span class="n">1</span>; i &lt;= N; i++) {
+    s += <span class="f">to_string</span>(i);        <span class="c">// '+=' appends in place</span>
+}</pre>
+    <p style="margin:0"><b>Memory is allocated once</b> · <b>nothing is copied repeatedly</b> · appends are O(1) amortised.<br><br>
+    <span class="mono">s = s + x</span> and <span class="mono">s += x</span> look almost identical. One is O(N²) and one is O(N).</p>
+  </div>
+</article>
+
+<!-- ============ 7 · SPACE ============ -->
+<article class="card numbered" id="s7" style="--accent:#16a34a">
+  <span class="badge">7</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 7</p><h2>Space complexity</h2></div>
+    <span class="timechip">⏱ 8 min</span>
+  </div>
+
+  <div class="box info">
+    <p class="bt">Same idea, different resource</p>
+    <p style="margin:0">Time complexity counts <b>operations</b>. Space complexity counts <b>memory</b> — variables and arrays — relative to the input size.</p>
+  </div>
+
+  <h3>Case study: find the missing number</h3>
+  <details class="prob lc">
+    <summary><span class="plogo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.6 2.3a1.4 1.4 0 0 1 2 2l-4.1 4.2 5.3 5.4a1.4 1.4 0 1 1-2 2l-6.3-6.4a1.4 1.4 0 0 1 0-2z" fill="#ffa116"/><path d="M9.5 7.5 4.9 12.2a5.6 5.6 0 0 0 0 7.9 5.6 5.6 0 0 0 7.9 0l2-2a1.4 1.4 0 0 0-2-2l-2 2a2.8 2.8 0 0 1-4-4l4.6-4.6z" fill="#3e3e3e"/><path d="M12.4 17.2h8.2a1.35 1.35 0 1 0 0-2.7h-8.2a1.35 1.35 0 1 0 0 2.7z" fill="#b3b3b3"/></svg></span><b style="flex:1;min-width:0">268 · Missing Number</b><span class="psrc">LeetCode</span></summary>
+    <div>
+      <p style="margin:0"><b>Problem.</b> Given an array containing N distinct numbers taken from 0 to N, find the one that is missing.</p>
+      <p style="margin:.6rem 0 0">Two solutions, both O(N) time. Only one of them survives when N is huge — the difference is <b>space</b>.</p>
+      <a class="plink" href="https://leetcode.com/problems/missing-number/" target="_blank" rel="noopener">Open on LeetCode &nbsp;&rarr;</a>
+    </div>
+  </details>
+
+  <div class="grid2">
+    <div>
+      <p style="font-size:.8rem;font-weight:800;color:#be123c;margin-bottom:.3rem">APPROACH A — a boolean array</p>
+<pre class="code"><span class="t">vector</span>&lt;<span class="t">bool</span>&gt; seen(n+<span class="n">1</span>, <span class="k">false</span>);
+<span class="k">for</span> (<span class="t">int</span> x : nums) seen[x] = <span class="k">true</span>;
+<span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt;= n; i++)
+    <span class="k">if</span> (!seen[i]) <span class="k">return</span> i;</pre>
+      <p class="subtle" style="margin-top:.4rem">Time <b>O(N)</b> · Space <b class="hl-bad">O(N)</b></p>
+    </div>
+<div class="thinkbox"><p><b>Think first.</b> The boolean array works, but it allocates memory that grows with N. <b>Can you find the missing number using only a couple of variables?</b><br><span class="subtle">Hint: you already know the sum of 0 to N.</span></p><button class="btn" id="rv3" style="background:#15803d">Show the better approach</button></div><div class="revealed" id="rv3-w">    <div>
+      <p style="font-size:.8rem;font-weight:800;color:#15803d;margin-bottom:.3rem">APPROACH B — the sum formula</p>
+<pre class="code"><span class="t">long long</span> expected = (<span class="t">long long</span>)n*(n+<span class="n">1</span>)/<span class="n">2</span>;
+<span class="t">long long</span> actual = <span class="n">0</span>;
+<span class="k">for</span> (<span class="t">int</span> x : nums) actual += x;
+<span class="k">return</span> expected - actual;</pre>
+      <p class="subtle" style="margin-top:.4rem">Time <b>O(N)</b> · Space <b class="hl-good">O(1)</b></p>
+    </div>
+</div>  </div>
+
+  <div class="box bad">
+    <p class="bt">Why Approach A breaks</p>
+    <p style="margin:0">If N = 10<sup>9</sup>, allocating N+1 boolean values is simply impossible → <b>Memory Limit Exceeded (MLE)</b>.<br><br>
+    Both approaches take O(N) <b>time</b>. Only one of them survives the memory limit.</p>
+  </div>
+
+  <div class="bridge" style="--accent:#16a34a">
+    <p class="say">Approach B uses <b>two variables</b>, no matter how big N gets. That is what <b>O(1) space</b> means.</p>
+    <p style="margin-top:.8rem">And notice the callback to <span class="sgtag sg1">Class 2</span> — spending memory to save time is the time&ndash;space tradeoff. Here we spent <b>none</b> and lost <b>nothing</b>. When that is possible, take it.</p>
+  </div>
+</article>
+
+<!-- ============ 8 · POP QUIZ ============ -->
+<article class="card numbered" id="s8" style="--accent:#d97706">
+  <span class="badge">8</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 8</p><h2>🛑 Pop quiz — name the complexity</h2></div>
+    <span class="timechip">⏱ 6 min</span>
+  </div>
+
+  <div class="quiz" data-q="pq1">
+    <div class="qh">Code 1</div>
+    <div class="qq"><pre class="code" style="margin:0"><span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; <span class="n">2</span> * N; i++) {
+    sum += i;
+}</pre></div>
+    <div class="qopts">
+      <button class="qopt" data-a="0">O(2N)</button>
+      <button class="qopt" data-a="1" data-ok="1">O(N)</button>
+      <button class="qopt" data-a="2">O(N²)</button>
+    </div>
+    <div class="qexp"><b>O(N).</b> The loop runs 2N times, but constants are ignored in Big-O. O(2N) simplifies to <b>O(N)</b> — doubling the work does not change how it <em>scales</em>.</div>
+  </div>
+
+  <div class="quiz" data-q="pq2">
+    <div class="qh">Code 2</div>
+    <div class="qq"><pre class="code" style="margin:0"><span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; N; i++) {
+    <span class="k">for</span> (<span class="t">int</span> j = <span class="n">0</span>; j &lt; <span class="n">100</span>; j++) {
+        sum += i * j;
+    }
+}</pre></div>
+    <div class="qopts">
+      <button class="qopt" data-a="0">O(N²) — it is a nested loop</button>
+      <button class="qopt" data-a="1" data-ok="1">O(N)</button>
+      <button class="qopt" data-a="2">O(100N²)</button>
+    </div>
+    <div class="qexp"><b>O(N).</b> Nested does not automatically mean squared. The inner loop runs exactly <b>100</b> times — a constant that does not depend on N. Total = 100N, and we drop the 100. <b>Look at what the inner loop depends on, not at the indentation.</b></div>
+  </div>
+
+  <div class="quiz" data-q="pq3">
+    <div class="qh">Code 3</div>
+    <div class="qq"><pre class="code" style="margin:0"><span class="k">while</span> (N &gt; <span class="n">1</span>) {
+    N = N / <span class="n">2</span>;
+    steps++;
+}</pre></div>
+    <div class="qopts">
+      <button class="qopt" data-a="0">O(N)</button>
+      <button class="qopt" data-a="1">O(N/2)</button>
+      <button class="qopt" data-a="2" data-ok="1">O(log N)</button>
+    </div>
+    <div class="qexp"><b>O(log N).</b> The input is cut in <b>half</b> every step. That is the signature of a logarithm — the paper-folding picture from Section 4. For N = 10<sup>12</sup> this is about 40 steps.</div>
+  </div>
+
+  <div class="quiz" data-q="pq4">
+    <div class="qh">Code 4</div>
+    <div class="qq"><pre class="code" style="margin:0"><span class="t">string</span> s = <span class="s">""</span>;
+<span class="k">for</span> (<span class="t">int</span> i = <span class="n">1</span>; i &lt;= N; i++)
+    s = s + <span class="s">"a"</span>;</pre></div>
+    <div class="qopts">
+      <button class="qopt" data-a="0">O(N) — one loop, one append</button>
+      <button class="qopt" data-a="1" data-ok="1">O(N²)</button>
+      <button class="qopt" data-a="2">O(log N)</button>
+    </div>
+    <div class="qexp"><b>O(N²)</b> — the trap from Section 6. There is only one visible loop, but <span class="mono">s = s + "a"</span> copies the entire string each round: 1 + 2 + 3 + … + N = <b>O(N²)</b>. Using <span class="mono">s += "a"</span> instead makes it genuinely O(N).</div>
+  </div>
+</article>
+
+<!-- ============ CLOSING ============ -->
+<article class="card numbered" id="s9" style="--accent:#e11d48">
+  <span class="badge">9</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Before you go</p><h2>Take these home</h2></div>
+    <span class="timechip">⏱ 2 min</span>
+  </div>
+
+  <div class="grid3">
+    <div class="box bad" style="margin:0"><p class="bt">1 · Read the constraint first</p><p style="margin:0">N &ge; 10<sup>5</sup> means <b>O(N²) is dead</b>. Decide this before you write code.</p></div>
+    <div class="box warn" style="margin:0"><p class="bt">2 · Drop constants and small terms</p><p style="margin:0">O(2N), O(100N), O(N(N&minus;1)/2) → <b>O(N), O(N), O(N²)</b>.</p></div>
+    <div class="box good" style="margin:0"><p class="bt">3 · Watch the invisible loops</p><p style="margin:0"><span class="mono">s = s + x</span> has no nested loop and is still <b>O(N²)</b>.</p></div>
+  </div>
+
+  <div class="box info" style="margin-top:1.2rem">
+    <p class="bt">📝 Assignment</p>
+    <p style="margin:0"><b>Task 1 — Maximum Subarray Sum.</b> Find the contiguous subarray with the largest sum.<br>
+    Input <span class="mono">[-2, 1, -3, 4, -1, 2, 1, -5, 4]</span> → Output <span class="mono">6</span> (from <span class="mono">[4, -1, 2, 1]</span>).<br>
+    <b>Step 1:</b> solve it by brute force, any complexity. <b>Step 2:</b> research <b>Kadane's algorithm</b> and solve it in O(N). Submit both.<br>
+    <span class="subtle">LeetCode 53 — Maximum Subarray.</span><br><br>
+    <b>Task 2 — the "ChatGPT vs. You" challenge.</b> Ask ChatGPT: <em>"Give me 10 tricky algorithm problems and ask me to identify their time complexity. Make them confusing."</em> Solve them, then share the chat link in the group for review.</p>
+  </div>
+
+  <div class="bridge" style="--accent:#e11d48">
+    <p class="lbl">And the loop closes</p>
+    <p class="say">Class 1: checking 3 billion Facebook names took 30 seconds. A trie took 90 nanoseconds.</p>
+    <p style="margin-top:.9rem">You now have the language for that difference. <b>O(N) versus O(L).</b> That was the whole point of Segment 1.</p>
+  </div>
+</article>
+
+</main>
+</section>
+
+<!-- ==================== EXAM & INTERVIEW ==================== -->
+<section class="panel" id="p-exam" hidden>
+<header class="hero" style="background:linear-gradient(160deg,#0f172a 0%,#4c0519 55%,#881337 100%)">
+  <div class="wrap">
+    <p class="eyebrow" style="color:#fda4af">Exam &amp; Interview · CSE-2321</p>
+    <h1>Complexity is on <em>every single paper</em></h1>
+    <p class="hero-lede">Real questions from four CSE-2321 Mid Term papers, with model answers — plus what interviewers ask.</p>
+    <div class="byline">
+      <span class="av">JA</span>
+      <span class="who">Jamil As-ad<span>Lecturer, Dept. of CSE &middot; International Islamic University Chittagong</span></span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<article class="card" style="--accent:#e11d48">
+  <p class="kicker">Real past questions</p>
+  <h2>Copied from the papers</h2>
+
+  <details class="dig" open><summary><span class="dicon">?</span><b>Why Big O instead of seconds?</b> — Autumn 2025, Q1(a) <span class="subtle">[1 + 2 marks]</span></summary><div>
+    <em>"Explain why Big O notation is preferred over measuring algorithm time in seconds. Find the time complexity of (i) and (ii) on the following graph."</em><br><br>
+    <b>Model answer.</b> Runtime in seconds depends on the <b>machine</b>, the <b>programming language</b> and other <b>processes running</b> at the time, so the same algorithm gives different numbers on different computers. Big O instead measures how the <b>number of operations grows</b> as the input size grows — a property of the algorithm itself, which is the same everywhere.<br><br>
+    For the graph part, read the curves against the labelled ones: the steeper the curve, the worse the complexity. The order shown is O(1) &lt; O(log n) &lt; O(n) &lt; O(n²) &lt; O(2ⁿ) &lt; O(n!).
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span><b>Time complexity of two functions</b> — Spring 2025, Q1(c) <span class="subtle">[2 marks]</span></summary><div>
+    <pre class="code" style="margin:.5rem 0"><span class="c">// (i)</span>
+<span class="t">int</span> <span class="f">solve1</span>(<span class="t">int</span> n){
+    <span class="t">int</span> i = n, cnt = <span class="n">0</span>;
+    <span class="k">while</span>(i &gt; <span class="n">0</span>){ i = i / <span class="n">2</span>; cnt++; }
+    <span class="k">return</span> cnt;
+}</pre>
+    <b>O(log n).</b> The variable <span class="mono">i</span> is <b>halved</b> every round, so the loop runs about log₂n times — the paper-folding pattern from Section 4.<br><br>
+    <pre class="code" style="margin:.5rem 0"><span class="c">// (ii)</span>
+<span class="t">int</span> <span class="f">solve2</span>(<span class="t">int</span> n){
+    <span class="t">int</span> cnt = <span class="n">0</span>;
+    <span class="k">for</span>(<span class="t">int</span> i=<span class="n">0</span>; i&lt;n; i++)
+        <span class="k">for</span>(<span class="t">int</span> j=<span class="n">1</span>; j&lt;n; j*=<span class="n">2</span>) cnt++;
+    <span class="k">return</span> cnt;
+}</pre>
+    <b>O(n log n).</b> The outer loop runs n times. The inner loop <b>multiplies j by 2</b> each round rather than adding 1, so it runs about log₂n times — not n times. n × log n.<br><br>
+    <b>⚠ The trap:</b> a nested loop is <b>not</b> automatically O(n²). Always look at how the counter <em>changes</em>.
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span><b>Space complexity of a swap</b> — Spring 2024 &amp; Spring 2023, Q1(c) <span class="subtle">[2 marks]</span></summary><div>
+    <em>"What do you mean by space complexity? What is the space complexity of the following functions? Explain."</em>
+    <pre class="code" style="margin:.5rem 0"><span class="t">void</span> <span class="f">swap</span>(){
+    <span class="t">int</span> a, b, temp;
+    temp = a; a = b; b = temp;
+}
+
+<span class="t">int</span> <span class="f">sum</span>(<span class="t">int</span> a[], <span class="t">int</span> n){
+    <span class="t">int</span> i, sum = <span class="n">0</span>;
+    <span class="k">for</span>(i = <span class="n">0</span>; i &lt; n; i += <span class="n">2</span>) sum += a[i];
+    <span class="k">return</span> sum;
+}</pre>
+    <b>Space complexity</b> is the total memory an algorithm needs, measured as a function of the input size.<br><br>
+    <b>swap:</b> three integer variables, and that never changes when the input changes → <b>O(1)</b>.<br>
+    <b>sum:</b> only <span class="mono">i</span> and <span class="mono">sum</span> are created — the array was already given, so it is not <em>extra</em> space → <b>O(1)</b> auxiliary space. Its <b>time</b> is O(n) even with <span class="mono">i += 2</span>, because n/2 still grows linearly.
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span><b>Worst and average case of the standard algorithms</b> — Spring 2025 &amp; Spring 2024, Q2(d) <span class="subtle">[1.5 marks]</span></summary><div>
+    <em>"Write down the worst case &amp; average case time complexity for: i) Binary search ii) Linear search iii) Bubble Sort."</em>
+    <div class="tw" style="margin:.6rem 0 0">
+    <table>
+      <thead><tr><th>Algorithm</th><th>Best</th><th>Average</th><th>Worst</th></tr></thead>
+      <tbody>
+        <tr><td>Binary search</td><td class="num">O(1)</td><td class="num">O(log n)</td><td class="num">O(log n)</td></tr>
+        <tr><td>Linear search</td><td class="num">O(1)</td><td class="num">O(n)</td><td class="num">O(n)</td></tr>
+        <tr><td>Bubble sort</td><td class="num">O(n)*</td><td class="num">O(n²)</td><td class="num">O(n²)</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="margin:.6rem 0 0"><span class="subtle">* Bubble sort is O(n) in the best case <b>only</b> with the early-exit flag that stops when no swap happens in a pass. Without it, it is O(n²) always. Spring 2024 Q2(c) asked for exactly that modification.</span></p>
+  </div></details>
+
+  <div class="box good">
+    <p class="bt">✅ The pattern across all four papers</p>
+    <p style="margin:0">Complexity appears in <b>Question 1 of every single paper</b>, usually twice — once as a definition and once as "read this code and tell me its complexity". It is worth roughly <b>4 to 5 marks</b> before you reach any data structure at all.</p>
+  </div>
+</article>
+
+<article class="card" style="--accent:#4f46e5">
+  <p class="kicker">Interview questions</p>
+  <h2>What they will ask</h2>
+
+  <details class="dig"><summary><span class="dicon">?</span>What is the time complexity of your solution?</summary><div>
+    Asked after <b>every single problem</b> — the candidate in Class 1 wrote down that it was required with every answer.<br><br>
+    Answer in one line, then justify in one line: <em>"O(n log n) time and O(1) extra space — the sort dominates, and I only used a few variables."</em><br><br>
+    <b>Always give both time and space.</b> Giving only time makes it look like you never thought about memory.
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span>Why do we ignore constants in Big-O?</summary><div>
+    Because Big-O answers "<b>how does this scale?</b>", not "how many operations exactly?".<br><br>
+    O(2n) and O(n) both double their work when the input doubles — they behave the same way. But O(n) and O(n²) do not: doubling the input <b>quadruples</b> the second one. That difference is what decides whether your program finishes, so that is the difference Big-O keeps.<br><br>
+    <b>Say the honest caveat too:</b> constants absolutely matter in practice — a 10× constant is real time. They just do not change the <em>class</em>.
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span>Given N ≤ 10⁵, what complexity do you need?</summary><div>
+    This is really a test of whether you can read constraints. Work it out out loud:<br><br>
+    "10⁵ squared is 10¹⁰, and a judge does about 10⁸ per second, so O(N²) would need ~100 seconds — far over the limit. I need <b>O(N log N)</b> or better."<br><br>
+    <div class="tw" style="margin:.5rem 0 0">
+    <table>
+      <thead><tr><th>Constraint</th><th>What you can afford</th></tr></thead>
+      <tbody>
+        <tr><td class="num">N ≤ 10</td><td>O(N!) or O(2ⁿ) — brute force everything</td></tr>
+        <tr><td class="num">N ≤ 1,000</td><td>O(N²) is fine</td></tr>
+        <tr><td class="num">N ≤ 10⁵</td><td>O(N log N) or O(N)</td></tr>
+        <tr><td class="num">N ≤ 10⁹</td><td>O(log N) or O(1) — or O(&radic;N)</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="margin:.6rem 0 0"><b>Memorising this table is worth more than any single algorithm.</b></p>
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span>Difference between time and space complexity — and which matters more?</summary><div>
+    <b>Time</b> counts operations as the input grows. <b>Space</b> counts extra memory as the input grows.<br><br>
+    Which matters more? <b>"It depends on the limit you are about to break."</b> Usually time is the binding constraint, but the missing-number example from Section 7 is the counter-case: both approaches are O(N) time, and only the O(1)-space one survives when N = 10⁹.<br><br>
+    <b>Also mention auxiliary space:</b> the input array itself is not counted — only what you allocate on top of it.
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span>Can you give an example where an obvious optimisation does not change the complexity?</summary><div>
+    Perfect place for the Two Sum example from Section 5.<br><br>
+    Changing <span class="mono">for(j = 0)</span> to <span class="mono">for(j = i+1)</span> halves the real work — genuinely twice as fast on a real machine. But it is still <b>O(N²)</b>, because N(N&minus;1)/2 still grows like N².<br><br>
+    <b>The insight to state:</b> "it made the constant better, not the growth. To actually pass the constraint I need a hash map and O(N)." That sentence shows you understand what Big-O is <em>for</em>.
+  </div></details>
+</article>
+
+</main>
+</section>
+
+<nav class="pagenav wrap" style="padding-bottom:0">
+  <a class="pn pv" href="04-algorithms-and-notation.html"><span class="ar">&larr;</span><span class="tx"><em>Previous</em><b>Algorithms — and how we write them</b></span></a>
+  <a class="pn home" href="../../index.html"><span class="ar">&#9783;</span><b>All classes</b></a>
+  <a class="pn nx" href="../02-arrays-and-strings/01-linear-arrays.html"><span class="ar">&rarr;</span><span class="tx"><em>Next</em><b>Linear arrays &amp; memory</b></span></a>
+</nav>
+
+<footer class="pagefoot">
+  <div class="wrap fin">
+    <div class="fw">
+      <span class="av">JA</span>
+      <span class="nm">Jamil As-ad<span>Lecturer, Dept. of CSE</span></span>
+    </div>
+    <p class="dept"><a href="../../index.html">&larr; All classes</a> &nbsp;·&nbsp; Data Structures · CSE-2321 · International Islamic University Chittagong</p>
+  </div>
+</footer>
+
+<div class="sec-nav" style="display:none">
+  <button id="nav-up">↑</button><button id="nav-down">↓</button><button id="nav-top">⤒</button>
+</div>
+<script>
+
+(function(){
+"use strict";
+var $=function(s,r){return (r||document).querySelector(s);};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+
+/* TABS */
+$$('.tab').forEach(function(t){t.addEventListener('click',function(){
+  $$('.tab').forEach(function(x){x.setAttribute('aria-selected','false');});
+  t.setAttribute('aria-selected','true');
+  $$('.panel').forEach(function(p){p.hidden=true;});
+  $('#p-'+t.dataset.tab).hidden=false; window.scrollTo({top:0,behavior:'instant'});
+});});
+
+/* RAIL */
+window.addEventListener('scroll',function(){
+  var h=document.documentElement,m=h.scrollHeight-h.clientHeight;
+  $('#rail').style.right=(100-(m>0?(h.scrollTop/m)*100:0))+'%';
+},{passive:true});
+
+function jump(d){
+  var s=$$('.panel:not([hidden]) .card'); if(!s.length)return;
+  var y=window.scrollY, cur=0, i;
+  for(i=0;i<s.length;i++){ if(s[i].offsetTop-120<=y) cur=i; }
+  var t=cur+d;
+  if(d<0 && y>s[cur].offsetTop-60) t=cur;      /* scrolled inside a card -> snap to its top first */
+  if(t<0){window.scrollTo({top:0,behavior:'smooth'});return;}
+  if(t>s.length-1)t=s.length-1;
+  window.scrollTo({top:Math.max(s[t].offsetTop-80,0),behavior:'smooth'});
+}
+$('#nav-down').onclick=function(){jump(1);};$('#nav-up').onclick=function(){jump(-1);};
+$('#nav-top').onclick=function(){window.scrollTo({top:0,behavior:'smooth'});};
+
+/* ---------- 2 · SUM 1..N SLIDER ---------- */
+var OPS=1e8;
+function fmtOps(n){
+  if(n>=1e15) return n.toExponential(2).replace('e+',' × 10^');
+  return Math.round(n).toLocaleString('en-US');
+}
+function fmtT(s){
+  if(s<1e-6) return (s*1e9).toFixed(0)+' ns';
+  if(s<1e-3) return (s*1e6).toFixed(0)+' µs';
+  if(s<1)    return (s*1e3).toFixed(1)+' ms';
+  if(s<90)   return s.toFixed(1)+' s';
+  if(s<86400)return (s/60).toFixed(1)+' min';
+  return (s/86400).toFixed(1)+' days';
+}
+function paintSum(){
+  var e=+$('#nslider').value, N=Math.pow(10,e);
+  $('#nval').textContent=N.toLocaleString('en-US');
+  var tA=N/OPS, tB=3/OPS;
+  function set(id,ops,t){
+    var c=$(id), ok=t<=1;
+    c.className='vcard '+(ok?'pass':'fail');
+    c.querySelector('.vv').textContent=fmtT(t);
+    c.querySelector('.vd').textContent=(ok?'✅ passes':'❌ TLE')+' · '+fmtOps(ops)+' operations';
+  }
+  set('#vA',N,tA); set('#vB',3,tB);
+}
+$('#nslider').addEventListener('input',paintSum); paintSum();
+
+/* ---------- 3 · FACTOR PAIRS ---------- */
+var FN=36;
+function paintPairs(){
+  var N=FN, rows='', root=Math.sqrt(N), found=0;
+  for(var i=1;i<=N;i++){
+    if(N%i) continue;
+    var j=N/i;
+    var cls='pl', tag='';
+    if(i===j){ cls+=' turn'; tag='<span class="pln">turning point = √'+N+'</span>'; }
+    else if(i>j){ cls+=' dup'; tag='<span class="pln">already seen</span>'; }
+    else { cls+=' pre'; tag='<span class="pln">below √'+N+'</span>'; found++; }
+    rows+='<div class="'+cls+'"><span class="plx">'+i+' × '+j+'</span>'+tag+'</div>';
+  }
+  $('#pairs').innerHTML=rows;
+  var isPrime = (function(){ if(N<2)return false; for(var k=2;k*k<=N;k++) if(N%k===0) return false; return true; })();
+  $('#pairmsg').innerHTML = isPrime
+    ? '<b>'+N+' is prime</b> — the only pair is 1 × '+N+'. We still only had to test up to <b>√'+N+' ≈ '+root.toFixed(1)+'</b> before being certain.'
+    : 'Everything below <b>√'+N+' ≈ '+root.toFixed(1)+'</b> is a genuinely new pair. Everything above it is a pair we already wrote, just flipped. <b>So we can stop at √'+N+'.</b>';
+}
+$$('#fnbtns .btn').forEach(function(b){
+  b.addEventListener('click',function(){
+    $$('#fnbtns .btn').forEach(function(x){x.classList.add('ghost');});
+    b.classList.remove('ghost'); FN=+b.dataset.fn; paintPairs();
+  });
+});
+paintPairs();
+
+/* ---------- REVEAL THE OPTIMISATION ---------- */
+['rv1','rv2','rv3'].forEach(function(id){
+  var b=$('#'+id), w=$('#'+id+'-w');
+  if(b&&w) b.addEventListener('click',function(){
+    w.classList.add('on');
+    b.parentNode.style.display='none';
+    w.scrollIntoView({behavior:'smooth',block:'nearest'});
+  });
+});
+
+/* ---------- 4 · PAPER FOLDING ---------- */
+var F0=16, Fcur=16, Fsteps=0;
+function paintFold(){
+  var out='', v=F0, guard=0;
+  while(guard++<60){
+    var shown = v>=1e6 ? (v/1e6).toFixed(0)+'M' : v.toLocaleString('en-US');
+    var w = Math.max(26, Math.round(150*Math.pow(v/F0,0.32)));
+    out+='<div class="fd" style="width:'+w+'px;height:'+Math.max(20,Math.round(52*Math.pow(v/F0,0.18)))+'px">'+shown+'</div>';
+    if(v<=1 || guard>Fsteps) break;
+    v=Math.ceil(v/2);
+  }
+  // rebuild strictly from the number of folds taken
+  out=''; v=F0;
+  for(var k=0;k<=Fsteps;k++){
+    var shown = v>=1e6 ? (v/1e6>=1e6 ? (v/1e9).toFixed(0)+'B' : (v/1e6).toFixed(0)+'M') : v.toLocaleString('en-US');
+    var w=Math.max(28, Math.round(140*Math.pow(k?1/(k+1):1,0.55)));
+    out+='<div class="fd" style="width:'+w+'px">'+shown+'</div>';
+    v=Math.ceil(v/2);
+  }
+  $('#fold').innerHTML=out;
+  Fcur=v;
+  var need=Math.ceil(Math.log2(F0));
+  if(Fcur<=1||Fsteps>=need)
+    $('#fold-msg').innerHTML='Reached <b>1</b> after <b>'+Fsteps+'</b> folds. And 2<sup>'+Fsteps+'</sup> ≈ '+F0.toLocaleString('en-US')+', so <b>log₂('+F0.toLocaleString('en-US')+') = '+Fsteps+'</b>.';
+  else
+    $('#fold-msg').innerHTML='<b>'+Fsteps+'</b> fold'+(Fsteps===1?'':'s')+' so far. Size is now <b>'+Fcur.toLocaleString('en-US')+'</b>.';
+}
+$('#fold-go').onclick=function(){ var need=Math.ceil(Math.log2(F0)); if(Fsteps<need){Fsteps++;paintFold();} };
+$('#fold-reset').onclick=function(){ Fsteps=0; paintFold(); };
+$('#fold-n').addEventListener('change',function(){ F0=+this.value; Fsteps=0; paintFold(); });
+paintFold();
+
+/* ---------- 5 · WILL IT PASS ---------- */
+var selN=null, selC=null;
+var CN={'1':'O(1)','log':'O(log N)','sqrt':'O(√N)','n':'O(N)','nlogn':'O(N log N)','n2':'O(N²)'};
+function opsFor(c,N){
+  if(c==='1')return 1;
+  if(c==='log')return Math.log2(N);
+  if(c==='sqrt')return Math.sqrt(N);
+  if(c==='n')return N;
+  if(c==='nlogn')return N*Math.log2(N);
+  return N*N;
+}
+function paintVerdict(){
+  if(selN===null||selC===null){ $('#verdict').className='verdictbox';
+    $('#verdict').innerHTML='<p class="subtle" style="margin:0">Pick a constraint and a complexity.</p>'; return; }
+  var ops=opsFor(selC,selN), t=ops/OPS, ok=t<=1;
+  $('#verdict').className='verdictbox '+(ok?'pass':'fail');
+  $('#verdict').innerHTML='<p class="vbig">'+fmtOps(ops)+' operations</p>'+
+    '<p class="vsub" style="color:'+(ok?'#15803d':'#be123c')+'">'+(ok?'✅ Passes':'❌ Time Limit Exceeded')+' — about '+fmtT(t)+' at 10⁸ ops/sec</p>'+
+    '<p class="subtle" style="margin:.4rem 0 0">'+CN[selC]+' with N = '+selN.toLocaleString('en-US')+'</p>';
+}
+$$('#nbtns .btn').forEach(function(b){b.addEventListener('click',function(){
+  $$('#nbtns .btn').forEach(function(x){x.classList.add('ghost');}); b.classList.remove('ghost');
+  selN=+b.dataset.n; paintVerdict();
+});});
+$$('#cbtns .btn').forEach(function(b){b.addEventListener('click',function(){
+  $$('#cbtns .btn').forEach(function(x){x.classList.add('ghost');}); b.classList.remove('ghost');
+  selC=b.dataset.c; paintVerdict();
+});});
+
+/* ---------- 5b · DOMINANCE TABLE + HIERARCHY ---------- */
+(function(){
+  var rows='';
+  [10,100,1000,10000].forEach(function(N){
+    var exact=N*(N-1)/2, sq=N*N, ratio=(exact/sq).toFixed(3);
+    rows+='<tr><td class="num">'+N.toLocaleString('en-US')+'</td>'+
+          '<td class="num">'+exact.toLocaleString('en-US')+'</td>'+
+          '<td class="num">'+sq.toLocaleString('en-US')+'</td>'+
+          '<td class="num hl-good">'+ratio+'</td></tr>';
+  });
+  $('#dombody').innerHTML=rows;
+  var H=[['O(1)','Constant — instant','#16a34a',8],
+         ['O(log N)','Logarithmic — binary search','#22c55e',16],
+         ['O(√N)','Square root — prime checks','#84cc16',26],
+         ['O(N)','Linear — a simple loop','#eab308',42],
+         ['O(N log N)','Linearithmic — good sorting','#f59e0b',58],
+         ['O(N²)','Quadratic — nested loops, bubble sort','#ef4444',76],
+         ['O(2ⁿ)','Exponential — naive recursive Fibonacci','#dc2626',90],
+         ['O(N!)','Factorial — permutations','#991b1b',100]];
+  $('#hier').innerHTML=H.map(function(h){
+    return '<div class="hr2"><span class="hn" style="color:'+h[2]+'">'+h[0]+'</span>'+
+           '<span class="hbwrap"><span class="hb" style="width:'+h[3]+'%;background:'+h[2]+'"></span></span>'+
+           '<span class="hd">'+h[1]+'</span></div>';
+  }).join('');
+})();
+
+/* ---------- 6 · STRING COPY COST ---------- */
+var ci=0, ctot=0, clen=0;
+function paintCopy(){
+  var s='';
+  if(ci===0){ $('#cp-i').textContent='1'; $('#cp-s').textContent='""'; $('#cp-c').textContent='0'; $('#cp-t').textContent='0';
+    $('#cp-bar').style.width='0'; $('#cp-msg').innerHTML='Each round copies the <b>whole</b> string again, just to add two or three characters.'; return; }
+  var shown = clen>46 ? '"1234…'+String(ci-1).slice(-4)+'" ('+clen+' chars)' : '"'+Array.from({length:ci-1},function(_,k){return k+1;}).join('')+'"';
+  $('#cp-i').textContent=ci;
+  $('#cp-s').textContent=shown;
+  $('#cp-c').textContent=clen.toLocaleString('en-US');
+  $('#cp-t').textContent=ctot.toLocaleString('en-US');
+  $('#cp-bar').style.width=Math.min(100, ctot/1200*100)+'%';
+  var add=String(ci).length;
+  $('#cp-msg').innerHTML='Adding <b>"'+ci+'"</b> is only <b>'+add+' character'+(add>1?'s':'')+'</b> — but the whole <b>'+clen.toLocaleString('en-US')+'</b> characters already there had to be copied first.';
+}
+function stepCopy(){ ci++; ctot+=clen; clen+=String(ci).length; }
+$('#cp-next').onclick=function(){ stepCopy(); paintCopy(); };
+$('#cp-jump').onclick=function(){ while(ci<500) stepCopy(); paintCopy();
+  $('#cp-msg').innerHTML='At <b>i = 500</b> the program has copied <b>'+ctot.toLocaleString('en-US')+' characters</b> in total — to build a string only '+clen.toLocaleString('en-US')+' characters long. <b>That gap is the O(N²).</b>'; };
+$('#cp-reset').onclick=function(){ ci=0; ctot=0; clen=0; paintCopy(); };
+paintCopy();
+
+
+/* ---------- QUIZZES ---------- */
+$$('.quiz').forEach(function(q){
+  var o=$$('.qopt',q),e=$('.qexp',q);
+  o.forEach(function(b){b.addEventListener('click',function(){
+    o.forEach(function(x){x.disabled=true;if(x.dataset.ok)x.classList.add('ok');});
+    if(!b.dataset.ok)b.classList.add('no'); e.classList.add('show');
+  });});
+});
+document.addEventListener('keydown',function(e){
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+  if(e.key==='j'||e.key==='ArrowDown'){e.preventDefault();jump(1);}
+  if(e.key==='k'||e.key==='ArrowUp'){e.preventDefault();jump(-1);}
+});
+})();
+
+/* ---------- FLOATING JUMP DRAWER ---------- */
+(function(){
+  var CLASSES=[
+    ['1','Why do we need data structures?','01-why-data-structures.html'],
+    ['2','Data, data structures and the ADT','02-data-and-adt.html'],
+    ['3','What your data looks like in memory','03-data-in-memory.html'],
+    ['4','Algorithms — and how we write them','04-algorithms-and-notation.html'],
+    ['5','Time & space complexity','05-time-and-space-complexity.html']
+  ];
+  var here=(location.pathname.split('/').pop()||'');
+  var base = /2321-theory/.test(location.pathname) ? '' : '../2321-theory/01-introduction/';
+  var root = /2321-theory|2322-lab/.test(location.pathname) ? '../../index.html' : '../index.html';
+
+  var scrim=document.createElement('div'); scrim.className='scrim';
+  var dr=document.createElement('aside'); dr.className='drawer';
+  dr.setAttribute('aria-hidden','true');
+
+  var secs='';
+  var cards=document.querySelectorAll('.panel:not([hidden]) .card');
+  for(var i=0;i<cards.length;i++){
+    var h=cards[i].querySelector('h2');
+    if(!h)continue;
+    var b=cards[i].querySelector('.badge');
+    secs+='<button class="dl dsec" data-jump="'+i+'"><span class="dn2">'+(b?b.textContent:(i+1))+'</span>'+
+          h.textContent.trim()+'</button>';
+  }
+
+  var links=CLASSES.map(function(c){
+    var on = c[2] && here===c[2];
+    if(!c[2]) return '<span class="dl" style="opacity:.45;cursor:default"><span class="dn2">'+c[0]+'</span>'+c[1]+' — soon</span>';
+    return '<a class="dl'+(on?' here':'')+'" href="'+base+c[2]+'"><span class="dn2">'+c[0]+'</span>'+c[1]+'</a>';
+  }).join('');
+
+  dr.innerHTML='<div class="dh"><p>CSE-2321 · Segment 1</p><b>Jump to</b>'+
+    '<button class="dx" aria-label="Close">✕</button></div>'+
+    '<div class="db">'+
+      '<a class="dl home2" href="'+root+'">☰ &nbsp;All classes &amp; the full course</a>'+
+      '<p class="grp">Segment 1 · Introduction<span></span></p>'+links+
+      (secs?'<p class="grp">On this page<span></span></p>'+secs:'')+
+    '</div>';
+
+  var fab=document.createElement('div'); fab.className='fab';
+  fab.innerHTML='<button class="fup" aria-label="Previous section">↑</button>'+
+                '<button class="fdn" aria-label="Next section">↓</button>'+
+                '<button class="fmenu" aria-label="Open navigation">☰</button>';
+  document.body.appendChild(scrim); document.body.appendChild(dr); document.body.appendChild(fab);
+
+  function open(v){
+    dr.classList.toggle('on',v); scrim.classList.toggle('on',v);
+    dr.setAttribute('aria-hidden', v?'false':'true');
+    document.body.style.overflow = v?'hidden':'';
+  }
+  fab.querySelector('.fmenu').onclick=function(){open(!dr.classList.contains('on'));};
+  fab.querySelector('.fup').onclick=function(){jump(-1);};
+  fab.querySelector('.fdn').onclick=function(){jump(1);};
+  dr.querySelector('.dx').onclick=function(){open(false);};
+  scrim.onclick=function(){open(false);};
+  dr.addEventListener('click',function(e){
+    var b=e.target.closest('[data-jump]'); if(!b)return;
+    open(false);
+    var c=document.querySelectorAll('.panel:not([hidden]) .card')[+b.dataset.jump];
+    if(c) setTimeout(function(){window.scrollTo({top:Math.max(c.offsetTop-80,0),behavior:'smooth'});},180);
+  });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') open(false); });
+})();
+
+
+/* ---------- CODE THEME TOGGLE ---------- */
+(function(){
+  var KEY='dsa-code-theme';
+  var saved=null; try{saved=localStorage.getItem(KEY);}catch(e){}
+  if(saved!=='dark') document.body.classList.add('codelight');
+  var tabs=document.querySelector('.tabs');
+  if(!tabs)return;
+  var b=document.createElement('button');
+  b.className='codetog'; b.type='button';
+  function label(){ b.textContent = document.body.classList.contains('codelight') ? '🌙 Dark code' : '☀ Light code'; }
+  label();
+  b.addEventListener('click',function(){
+    document.body.classList.toggle('codelight');
+    try{localStorage.setItem(KEY, document.body.classList.contains('codelight')?'light':'dark');}catch(e){}
+    label();
+  });
+  tabs.appendChild(b);
+})();
+
+</script>
+</body>
+</html>

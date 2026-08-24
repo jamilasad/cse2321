@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interview Question Bank — CSE-2321</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --mono:'Fira Code',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  --bn:'Noto Serif Bengali','Kalpurush','SolaimanLipi','Nirmala UI',serif;
+  --bg:#f1f5f9; --panel:#ffffff; --ink:#1e293b; --ink-soft:#475569; --ink-mute:#64748b;
+  --line:#e2e8f0; --line-strong:#cbd5e1; --dark:#0f172a; --dark-2:#1e293b;
+  --accent:#4f46e5;
+  --r:1rem; --r-sm:.6rem;
+  --sh-sm:0 1px 2px rgba(15,23,42,.06),0 1px 3px rgba(15,23,42,.04);
+  --sh-md:0 4px 6px -1px rgba(15,23,42,.07),0 2px 4px -2px rgba(15,23,42,.05);
+  --sh-lg:0 12px 28px -8px rgba(15,23,42,.18);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
+body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.65;font-size:16px;
+     -webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3,h4{line-height:1.25;margin:0}
+p{margin:0 0 1rem}
+p:last-child{margin-bottom:0}
+a{color:var(--accent)}
+.mono{font-family:var(--mono)}
+.bn{font-family:var(--bn);line-height:1.95;font-size:1.02rem}
+.wrap{max-width:1080px;margin:0 auto;padding:0 1rem}
+@media(min-width:768px){ .wrap{padding:0 1.75rem} body{font-size:16.5px} }
+
+/* ============ HEADER + TABS ============ */
+.topbar{position:sticky;top:0;z-index:60;background:rgba(15,23,42,.97);backdrop-filter:blur(10px);
+        border-bottom:1px solid #334155;color:#e2e8f0}
+.topbar-in{max-width:1080px;margin:0 auto;padding:.6rem 1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+@media(min-width:768px){.topbar-in{padding:.7rem 1.75rem}}
+.brand{display:flex;align-items:center;gap:.6rem;min-width:0}
+.brand-badge{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#6366f1,#8b5cf6);
+             display:grid;place-items:center;font-weight:900;font-size:.8rem;color:#fff;flex:0 0 auto}
+.brand-t{font-size:.78rem;font-weight:800;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand-s{font-size:.66rem;color:#94a3b8;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.tabs{display:flex;gap:.3rem;margin-left:auto;overflow-x:auto;scrollbar-width:none;padding:2px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{appearance:none;border:1px solid transparent;background:transparent;color:#94a3b8;font-family:inherit;
+     font-size:.78rem;font-weight:700;padding:.42rem .85rem;border-radius:.5rem;cursor:pointer;white-space:nowrap;
+     transition:background .15s,color .15s}
+.tab:hover{color:#e2e8f0;background:#1e293b}
+.tab[aria-selected="true"]{background:#e2e8f0;color:#0f172a}
+.tab:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px solid #818cf8;outline-offset:2px}
+.panel[hidden]{display:none}
+
+/* progress rail */
+.rail{height:3px;background:#1e293b;position:relative;overflow:hidden}
+.rail>i{position:absolute;inset:0 100% 0 0;background:linear-gradient(90deg,#6366f1,#22d3ee);transition:right .1s linear}
+
+/* ============ HERO ============ */
+.hero{background:linear-gradient(160deg,#0f172a 0%,#1e1b4b 55%,#312e81 100%);color:#e2e8f0;
+      padding:3rem 0 3.4rem;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;width:520px;height:520px;right:-180px;top:-200px;border-radius:50%;
+             background:radial-gradient(circle,rgba(99,102,241,.32),transparent 68%)}
+.hero .wrap{position:relative;z-index:1}
+.eyebrow{font-size:.68rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#a5b4fc;margin-bottom:.9rem}
+.hero h1{font-size:clamp(1.85rem,6.4vw,3.4rem);font-weight:900;letter-spacing:-.025em;margin-bottom:1rem}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,#818cf8,#22d3ee);-webkit-background-clip:text;
+            background-clip:text;color:transparent}
+.hero-lede{font-size:clamp(1rem,2.5vw,1.15rem);color:#cbd5e1;max-width:44rem}
+.arc{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1.6rem}
+.arc span{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:.4rem .7rem;
+          border-radius:999px;border:1px solid rgba(148,163,184,.35);color:#cbd5e1;background:rgba(15,23,42,.4)}
+.arc span b{color:#fff}
+.hero-meta{display:flex;flex-wrap:wrap;gap:1.4rem;margin-top:1.8rem;font-size:.8rem;color:#94a3b8}
+.hero-meta b{color:#e2e8f0;display:block;font-size:1.05rem;font-weight:800}
+
+/* ============ CARDS ============ */
+main{padding:2.6rem 0 4rem}
+.card{background:var(--panel);border-radius:var(--r);box-shadow:var(--sh-md);padding:1.5rem 1.25rem;
+      margin-bottom:2.6rem;position:relative;border-top:4px solid var(--accent)}
+@media(min-width:768px){.card{padding:2rem 2.25rem}}
+.card>.badge{position:absolute;top:-1.15rem;left:1.25rem;width:2.4rem;height:2.4rem;border-radius:50%;
+             background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:900;font-size:1rem;
+             border:4px solid var(--bg);z-index:2}
+@media(min-width:768px){.card>.badge{left:2rem}}
+.card.numbered{padding-top:2.1rem}
+@media(min-width:768px){.card.numbered{padding-top:2.4rem}}
+.kicker{font-size:.66rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:.45rem}
+.card h2{font-size:clamp(1.2rem,3.6vw,1.7rem);font-weight:800;letter-spacing:-.015em;margin-bottom:.35rem}
+.card h3{font-size:1.02rem;font-weight:800;margin:1.5rem 0 .5rem}
+.subtle{color:var(--ink-mute);font-size:.85rem;font-weight:600}
+.timechip{display:inline-flex;align-items:center;gap:.35rem;font-size:.68rem;font-weight:800;letter-spacing:.05em;
+          padding:.24rem .6rem;border-radius:999px;background:#f1f5f9;color:var(--ink-mute);border:1px solid var(--line)}
+.hdr-row{display:flex;align-items:flex-start;gap:1rem;flex-wrap:wrap;justify-content:space-between;margin-bottom:1.1rem}
+
+/* ============ DARK "SO WHAT" PANEL ============ */
+.bridge{background:linear-gradient(135deg,#0f172a,#1e293b);border-left:5px solid var(--accent);
+        border-radius:.85rem;padding:1.25rem 1.1rem;color:#cbd5e1;margin:1.4rem 0;box-shadow:var(--sh-md)}
+@media(min-width:768px){.bridge{padding:1.5rem 1.6rem}}
+.bridge .lbl{font-size:.64rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#818cf8;margin-bottom:.5rem}
+.bridge p{margin-bottom:.7rem}
+.bridge strong,.bridge b{color:#fff}
+.bridge .say{font-size:clamp(1.02rem,2.9vw,1.28rem);font-weight:800;color:#fff;line-height:1.45}
+
+/* ============ GENERIC BOXES ============ */
+.box{background:#f8fafc;border:1px solid var(--line);border-radius:.8rem;padding:1rem 1.1rem;margin:1rem 0}
+.box.warn{background:#fffbeb;border-color:#fde68a}
+.box.bad{background:#fff1f2;border-color:#fecdd3}
+.box.good{background:#f0fdf4;border-color:#bbf7d0}
+.box.info{background:#eff6ff;border-color:#bfdbfe}
+.box .bt{font-weight:800;font-size:.8rem;letter-spacing:.02em;margin-bottom:.35rem;display:flex;align-items:center;gap:.4rem}
+.box.warn .bt{color:#b45309}.box.bad .bt{color:#be123c}.box.good .bt{color:#15803d}.box.info .bt{color:#1d4ed8}
+.box p{font-size:.9rem;margin-bottom:.5rem}
+.grid2{display:grid;gap:1rem}
+@media(min-width:720px){.grid2{grid-template-columns:1fr 1fr}}
+.grid3{display:grid;gap:.8rem}
+@media(min-width:720px){.grid3{grid-template-columns:repeat(3,1fr)}}
+
+/* ============ TABLES ============ */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:1.1rem 0;border:1px solid var(--line);border-radius:.8rem;background:#fff}
+table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:520px}
+th{background:#f8fafc;text-align:left;font-weight:800;font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;
+   color:var(--ink-mute);padding:.65rem .85rem;border-bottom:1px solid var(--line)}
+td{padding:.7rem .85rem;border-bottom:1px solid #f1f5f9;vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.num{font-family:var(--mono);font-weight:600;white-space:nowrap}
+.hl-bad{color:#be123c;font-weight:800}
+.hl-good{color:#15803d;font-weight:800}
+
+/* ============ CODE ============ */
+pre.code{font-family:var(--mono);font-size:.78rem;line-height:1.75;background:#0f172a;color:#e2e8f0;
+         padding:1rem;border-radius:.7rem;overflow-x:auto;margin:.8rem 0}
+@media(min-width:768px){pre.code{font-size:.83rem}}
+.k{color:#c4b5fd}.t{color:#fcd34d}.f{color:#7dd3fc}.n{color:#fdba74}.c{color:#64748b;font-style:italic}.s{color:#86efac}
+
+/* ============ BUTTONS ============ */
+.btn{appearance:none;font-family:inherit;font-weight:800;font-size:.82rem;padding:.6rem 1.15rem;border-radius:.55rem;
+     cursor:pointer;border:none;background:var(--accent);color:#fff;box-shadow:var(--sh-sm);
+     transition:filter .15s,transform .1s}
+.btn:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn.ghost{background:#fff;color:var(--ink-soft);border:2px solid var(--line)}
+.btn.ghost:hover:not(:disabled){border-color:var(--line-strong);color:var(--ink)}
+.btn.sm{font-size:.74rem;padding:.42rem .8rem}
+.btnrow{display:flex;flex-wrap:wrap;gap:.5rem;margin:.9rem 0}
+
+/* ============ QUIZ ============ */
+.quiz{border:2px solid #e2e8f0;border-radius:.85rem;overflow:hidden;margin:1.3rem 0;background:#fff}
+.quiz .qh{background:#f8fafc;padding:.75rem 1rem;font-size:.66rem;font-weight:800;letter-spacing:.12em;
+          text-transform:uppercase;color:var(--ink-mute);border-bottom:1px solid var(--line)}
+.quiz .qq{padding:1rem;font-weight:700;font-size:.95rem}
+.qopts{display:grid;gap:.45rem;padding:0 1rem 1rem}
+.qopt{appearance:none;text-align:left;font-family:inherit;font-size:.87rem;font-weight:600;padding:.65rem .85rem;
+      border:2px solid var(--line);border-radius:.55rem;background:#fff;color:var(--ink-soft);cursor:pointer;transition:.15s}
+.qopt:hover:not(:disabled){border-color:var(--line-strong);background:#f8fafc}
+.qopt.ok{border-color:#22c55e;background:#f0fdf4;color:#15803d}
+.qopt.no{border-color:#f43f5e;background:#fff1f2;color:#be123c}
+.qopt:disabled{cursor:default}
+.qexp{display:none;padding:1rem;background:#0f172a;color:#cbd5e1;font-size:.87rem;border-top:1px solid var(--line)}
+.qexp.show{display:block}
+.qexp b{color:#fff}
+
+/* ============ TRANSCRIPT MAPPER ============ */
+.tmap{display:grid;gap:.45rem}
+.trow{display:flex;align-items:center;gap:.7rem;padding:.6rem .8rem;border:1px solid var(--line);border-radius:.55rem;
+      background:#fff;cursor:pointer;transition:.18s;text-align:left;font-family:inherit;width:100%;appearance:none}
+.trow:hover{border-color:var(--line-strong);transform:translateX(3px)}
+.trow .tq{flex:1;font-size:.86rem;font-weight:600;color:var(--ink-soft);min-width:0}
+.trow .tw2{font-size:.66rem;font-weight:800;letter-spacing:.04em;padding:.24rem .55rem;border-radius:999px;
+          background:#f1f5f9;color:#94a3b8;white-space:nowrap;opacity:0;transition:opacity .3s}
+.trow.on{border-color:#6366f1;background:#eef2ff}
+.trow.on .tq{color:#1e293b}
+.trow.on .tw2{opacity:1;background:#4f46e5;color:#fff}
+
+/* ============ GUESS WIDGET ============ */
+.guess{display:grid;gap:.5rem;margin:1rem 0}
+.gopt{appearance:none;font-family:inherit;text-align:left;padding:.8rem 1rem;border:2px solid var(--line);
+      border-radius:.6rem;background:#fff;cursor:pointer;font-weight:700;font-size:.92rem;color:var(--ink-soft);transition:.15s}
+.gopt:hover:not(:disabled){border-color:#818cf8;background:#eef2ff}
+.gopt.picked{border-color:#4f46e5;background:#eef2ff;color:#312e81}
+.gopt.truth{border-color:#22c55e;background:#f0fdf4;color:#15803d}
+.gopt:disabled{cursor:default}
+.bignum{font-family:var(--mono);font-size:clamp(2rem,10vw,4.2rem);font-weight:700;line-height:1;letter-spacing:-.03em}
+.reveal{background:linear-gradient(135deg,#0f172a,#312e81);color:#fff;border-radius:.9rem;padding:1.6rem 1.1rem;
+        text-align:center;margin:1.1rem 0;display:none}
+.reveal.show{display:block;animation:pop .5s ease}
+@keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+.reveal .cap{font-size:.68rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#a5b4fc;margin-bottom:.6rem}
+.reveal .sub{color:#c7d2fe;font-size:.88rem;margin-top:.7rem}
+
+/* ============ RACE / COUNTERS ============ */
+.race{display:grid;gap:.9rem;margin:1.1rem 0}
+@media(min-width:720px){.race{grid-template-columns:1fr 1fr}}
+.lane{border:2px solid var(--line);border-radius:.85rem;padding:1rem;background:#fff}
+.lane.win{border-color:#22c55e;background:#f0fdf4}
+.lane.lose{border-color:#fb7185;background:#fff1f2}
+.lane h4{font-size:.9rem;font-weight:800;margin-bottom:.15rem}
+.lane .way{font-size:.7rem;font-weight:700;color:var(--ink-mute);margin-bottom:.7rem}
+.meter{height:12px;border-radius:999px;background:#e2e8f0;overflow:hidden;margin:.6rem 0}
+.meter>i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#6366f1,#22d3ee);transition:width .08s linear}
+.lane.lose .meter>i{background:linear-gradient(90deg,#f43f5e,#fb923c)}
+.lane.win .meter>i{background:linear-gradient(90deg,#16a34a,#4ade80)}
+.count{font-family:var(--mono);font-size:1.35rem;font-weight:700;letter-spacing:-.02em}
+.pct{font-family:var(--mono);font-size:.74rem;color:var(--ink-mute);font-weight:600}
+.verdict{font-weight:800;font-size:.82rem;margin-top:.5rem;min-height:1.2rem}
+
+/* ============ STACK TOY ============ */
+.stacks{display:grid;gap:1rem;margin:1rem 0}
+@media(min-width:600px){.stacks{grid-template-columns:1fr 1fr}}
+.stk{border:2px solid var(--line);border-radius:.8rem;background:#f8fafc;padding:.9rem;min-height:210px;
+     display:flex;flex-direction:column}
+.stk h5{font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);
+        margin-bottom:.6rem;text-align:center}
+.stk.flash{animation:flash .55s ease}
+@keyframes flash{0%,100%{background:#f8fafc;border-color:var(--line)}40%{background:#fee2e2;border-color:#f87171}}
+.cells{display:flex;flex-direction:column-reverse;gap:.3rem;flex:1;justify-content:flex-start}
+.cell{background:#fff;border:2px solid #6366f1;border-radius:.4rem;padding:.4rem;text-align:center;
+      font-family:var(--mono);font-weight:700;font-size:.95rem;color:#4338ca;animation:drop .25s ease}
+.stk.redo .cell{border-color:#f59e0b;color:#b45309}
+@keyframes drop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.empty{color:#cbd5e1;font-size:.78rem;text-align:center;font-weight:700;margin:auto 0}
+.typed{font-family:var(--mono);font-size:1.1rem;font-weight:700;background:#0f172a;color:#e2e8f0;padding:.7rem .9rem;
+       border-radius:.5rem;min-height:2.9rem;word-break:break-all;letter-spacing:.02em}
+.typed .car{display:inline-block;width:2px;height:1.05em;background:#22d3ee;vertical-align:-2px;animation:bl 1s steps(2) infinite}
+@keyframes bl{50%{opacity:0}}
+
+/* ============ PLATFORM CARDS ============ */
+.plat{display:grid;gap:1rem;margin:1.2rem 0}
+@media(min-width:760px){.plat{grid-template-columns:1fr 1fr}}
+.pcard{border:2px solid var(--line);border-radius:.9rem;overflow:hidden;background:#fff}
+.pcard .ph{padding:1rem 1.1rem;color:#fff}
+.pcard.lc .ph{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.pcard.cf .ph{background:linear-gradient(135deg,#1d4ed8,#3b82f6)}
+.pcard .ph h4{font-size:1.15rem;font-weight:900}
+.pcard .ph p{font-size:.78rem;opacity:.92;margin:0}
+.pcard .pb{padding:1rem 1.1rem}
+.pcard dl{margin:0;display:grid;gap:.6rem}
+.pcard dt{font-size:.63rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute)}
+.pcard dd{margin:.1rem 0 0;font-size:.86rem;font-weight:600;color:var(--ink-soft)}
+
+/* ============ MISC ============ */
+.shot{border-radius:.7rem;border:1px solid var(--line);max-width:100%;height:auto;display:block;box-shadow:var(--sh-md)}
+figure{margin:1rem 0}
+figcaption{font-size:.74rem;color:var(--ink-mute);margin-top:.5rem;font-weight:600}
+details{border:1px solid var(--line);border-radius:.6rem;background:#fff;margin:.7rem 0;overflow:hidden}
+details>summary{cursor:pointer;padding:.75rem 1rem;font-weight:700;font-size:.87rem;background:#f8fafc;list-style:none;
+                display:flex;align-items:center;gap:.5rem}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"+";font-family:var(--mono);font-weight:700;color:var(--accent);width:1rem}
+details[open]>summary::before{content:"–"}
+details>div{padding:1rem;border-top:1px solid var(--line);font-size:.88rem}
+ul.tight,ol.tight{margin:.6rem 0;padding-left:1.3rem}
+ul.tight li,ol.tight li{margin-bottom:.4rem;font-size:.9rem}
+.note13{background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;border-radius:.85rem;
+        padding:1.1rem;margin:1.3rem 0;display:flex;gap:.9rem;align-items:flex-start}
+.note13 .ic{font-size:1.5rem;line-height:1;flex:0 0 auto}
+.note13 b{color:#92400e}
+.note13 p{font-size:.88rem;color:#78350f;margin:0}
+.sec-nav{position:fixed;right:.6rem;bottom:.6rem;z-index:50;display:flex;gap:.35rem;background:rgba(15,23,42,.94);
+         padding:.35rem;border-radius:.6rem;box-shadow:var(--sh-lg)}
+.sec-nav button{appearance:none;border:none;background:transparent;color:#94a3b8;font-size:1rem;cursor:pointer;
+                padding:.3rem .5rem;border-radius:.35rem;line-height:1}
+.sec-nav button:hover{background:#334155;color:#fff}
+@media print{.topbar,.sec-nav{display:none}.card{break-inside:avoid;box-shadow:none;border:1px solid #ccc}}
+
+/* ============ SHARED BYLINE (all pages) ============ */
+.byline{display:flex;align-items:center;gap:.75rem;margin-top:1.9rem;padding-top:1.15rem;
+        border-top:1px solid rgba(148,163,184,.22)}
+.byline .av{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.11);
+            border:1px solid rgba(148,163,184,.3);display:grid;place-items:center;
+            font-weight:800;font-size:.7rem;color:#fff;letter-spacing:.03em;flex:0 0 auto}
+.byline .who{font-size:.82rem;font-weight:700;color:#e2e8f0;line-height:1.4;min-width:0}
+.byline .who span{display:block;font-size:.7rem;font-weight:500;color:#94a3b8}
+.pagefoot{border-top:1px solid var(--line);background:#fff;padding:1.7rem 0 2.2rem;margin-top:2rem}
+.pagefoot .fin{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;justify-content:space-between}
+.pagefoot .fw{display:flex;align-items:center;gap:.7rem}
+.pagefoot .av{width:34px;height:34px;border-radius:50%;background:#0f172a;color:#fff;display:grid;
+              place-items:center;font-weight:800;font-size:.68rem;flex:0 0 auto}
+.pagefoot .nm{font-size:.8rem;font-weight:700;color:var(--ink);line-height:1.4}
+.pagefoot .nm span{display:block;font-size:.7rem;font-weight:500;color:var(--ink-mute)}
+.pagefoot .dept{font-size:.72rem;color:var(--ink-mute);font-weight:600}
+.pagefoot a{color:var(--ink-mute);text-decoration:none;font-weight:700}
+.pagefoot a:hover{color:var(--accent)}
+
+
+/* ============ SEGMENT COLOUR SYSTEM (used across the whole course) ============ */
+.sg   {--sc:#94a3b8}
+.sg1  {--sc:#4f46e5}   /* 1  Introduction        indigo */
+.sg2  {--sc:#0284c7}   /* 2  Arrays & Strings    sky    */
+.sg3  {--sc:#0891b2}   /* 3  Linked Lists        cyan   */
+.sg4  {--sc:#0d9488}   /* 4  Stacks & Recursion  teal   */
+.sg5  {--sc:#16a34a}   /* 5  Queues              green  */
+.sg6  {--sc:#ca8a04}   /* 6  Sorting             gold   */
+.sg7  {--sc:#ea580c}   /* 7  Searching           orange */
+.sg8  {--sc:#dc2626}   /* 8  Trees & Heaps       red    */
+.sg9  {--sc:#db2777}   /* 9  Balanced Trees      pink   */
+.sg10 {--sc:#9333ea}   /* 10 Hashing             purple */
+.sgS4 {--sc:#475569}   /* Semester 4 · Algorithms  slate */
+.sgX  {--sc:#94a3b8}   /* another course           grey  */
+.sgtag{font-size:.56rem;font-weight:800;letter-spacing:.05em;padding:.22rem .45rem;border-radius:.3rem;
+       background:var(--sc);color:#fff;white-space:nowrap;flex:0 0 auto;line-height:1.25}
+
+/* segment legend */
+.seglegend{display:flex;flex-wrap:wrap;gap:.35rem;margin:1rem 0}
+.seglegend span{display:inline-flex;align-items:center;gap:.35rem;font-size:.68rem;font-weight:700;
+                color:var(--ink-soft);border:1px solid var(--line);border-radius:999px;padding:.22rem .6rem .22rem .28rem;background:#fff}
+.seglegend span i{width:9px;height:9px;border-radius:50%;background:var(--sc);display:block;flex:0 0 auto}
+
+/* ============ INTERVIEW TRANSCRIPT ============ */
+.ivwrap{border:1px solid var(--line);border-radius:.8rem;background:#f8fafc;padding:.9rem;margin:1.1rem 0}
+.ivhead{display:flex;align-items:center;gap:.5rem;font-family:var(--mono);font-size:.7rem;font-weight:700;
+        letter-spacing:.06em;text-transform:uppercase;color:#64748b;margin:.9rem 0 .5rem}
+.ivhead:first-child{margin-top:0}
+.ivhead b{color:#0f172a}
+.ivhead span{height:1px;background:var(--line-strong);flex:1}
+.ivlist{column-count:1;column-gap:.6rem}
+@media(min-width:700px){.ivlist{column-count:2}}
+.ivq{break-inside:avoid;-webkit-column-break-inside:avoid;page-break-inside:avoid;
+     display:flex;gap:.5rem;align-items:center;padding:.42rem .6rem;border:1px solid var(--line);
+     border-radius:.42rem;background:#fff;margin-bottom:.32rem;transition:.16s;cursor:default}
+.ivq.mapped{border-color:var(--sc);box-shadow:inset 3px 0 0 var(--sc)}
+.ivq .qt{flex:1;font-size:.79rem;font-weight:600;color:var(--ink-soft);line-height:1.4;min-width:0}
+.ivq.mapped .qt{color:var(--ink)}
+.ivq .sgtag{opacity:0;transition:opacity .35s}
+.ivq.mapped .sgtag{opacity:1}
+.ivq.skip .qt{text-decoration:line-through;color:#94a3b8}
+.ivstat{display:grid;gap:.5rem;margin:1.1rem 0}
+@media(min-width:620px){.ivstat{grid-template-columns:repeat(3,1fr)}}
+.ivstat div{border:1px solid var(--line);border-radius:.6rem;padding:.7rem;text-align:center;background:#fff}
+.ivstat .n{font-family:var(--mono);font-size:1.7rem;font-weight:700;line-height:1;color:var(--sc)}
+.ivstat .l{font-size:.66rem;font-weight:700;color:var(--ink-mute);margin-top:.3rem;line-height:1.35}
+
+
+/* ============ RESEARCH / DOORS CARDS ============ */
+.uses{display:grid;gap:.6rem;margin:1.1rem 0}
+@media(min-width:640px){.uses{grid-template-columns:1fr 1fr}}
+.use{border:1px solid var(--line);border-radius:.65rem;padding:.8rem .9rem;background:#fff;
+     border-left:4px solid var(--sc)}
+.use b{display:block;font-size:.85rem;font-weight:800;margin-bottom:.15rem}
+.use em{font-style:normal;display:block;font-size:.78rem;color:var(--ink-mute);font-weight:500;line-height:1.55}
+.use .ds{display:inline-block;margin-top:.4rem;font-size:.66rem;font-weight:800;color:var(--sc)}
+.doors{display:grid;gap:.7rem;margin:1.2rem 0}
+@media(min-width:760px){.doors{grid-template-columns:repeat(3,1fr)}}
+.door{border:2px solid var(--line);border-radius:.8rem;padding:1rem;background:#fff;text-align:center;transition:.18s}
+.door:hover{border-color:var(--sc);transform:translateY(-3px);box-shadow:var(--sh-md)}
+.door .dn{width:34px;height:34px;border-radius:50%;background:var(--sc);color:#fff;display:grid;place-items:center;
+          font-weight:800;font-size:.9rem;margin:0 auto .55rem}
+.door b{display:block;font-size:.9rem;font-weight:800;margin-bottom:.3rem}
+.door p{font-size:.79rem;color:var(--ink-mute);margin:0;line-height:1.6}
+
+/* ============ DATA → INFORMATION ============ */
+.di{display:grid;gap:.8rem;align-items:center;margin:1.1rem 0}
+@media(min-width:720px){.di{grid-template-columns:1fr auto 1fr}}
+.dibox{border:2px solid var(--line);border-radius:.75rem;padding:.9rem;background:#fff}
+.dibox .dt{font-size:.62rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:.5rem}
+.dibox.raw{border-color:#cbd5e1;background:#f8fafc}
+.dibox.info{border-color:#86efac;background:#f0fdf4}
+.dibox .nums{font-family:var(--mono);font-size:.92rem;font-weight:600;color:var(--ink-soft);line-height:1.9;word-spacing:.3em}
+.dirow{display:flex;justify-content:space-between;gap:.7rem;font-size:.85rem;padding:.28rem 0;border-bottom:1px dashed #bbf7d0}
+.dirow:last-child{border:none}
+.dirow b{color:#15803d;font-family:var(--mono)}
+.diarrow{text-align:center;font-size:1.4rem;color:var(--accent);font-weight:700}
+@media(max-width:719px){.diarrow{transform:rotate(90deg)}}
+
+/* ============ ITEM SPLITTER ============ */
+.items{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0}
+.item{appearance:none;font-family:inherit;border:2px solid var(--line);border-radius:.6rem;background:#fff;
+      padding:.6rem .9rem;cursor:pointer;font-weight:700;font-size:.88rem;color:var(--ink-soft);transition:.18s}
+.item:hover{border-color:#818cf8;transform:translateY(-2px)}
+.item.grp{border-color:#4f46e5;background:#eef2ff;color:#3730a3}
+.item.elem{border-color:#16a34a;background:#f0fdf4;color:#15803d}
+.splitout{min-height:5.2rem;border:1px dashed var(--line-strong);border-radius:.65rem;padding:.9rem;background:#f8fafc;margin:.8rem 0}
+.parts{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.6rem}
+.part{background:#fff;border:2px solid #4f46e5;border-radius:.45rem;padding:.4rem .7rem;font-family:var(--mono);
+      font-size:.84rem;font-weight:700;color:#3730a3;animation:drop .25s ease}
+.part.solid{border-color:#16a34a;color:#15803d}
+
+/* ============ ADT BLACK BOX ============ */
+.adt{border:2px solid var(--line);border-radius:.85rem;overflow:hidden;margin:1.1rem 0;background:#fff}
+.adth{background:#0f172a;color:#fff;padding:.8rem 1rem;display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.adth b{font-size:.92rem;font-weight:800}
+.adth .lbl2{font-size:.62rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8}
+.adtb{padding:1rem;display:grid;gap:1rem}
+@media(min-width:760px){.adtb{grid-template-columns:1fr 1fr}}
+.face{border:2px solid var(--line);border-radius:.7rem;padding:.9rem;background:#f8fafc}
+.face h5{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:.6rem}
+.impl{border:2px dashed var(--line-strong);border-radius:.7rem;padding:.9rem;background:#fff;transition:.3s}
+.impl.hidden2{filter:blur(7px);opacity:.45;pointer-events:none;user-select:none}
+.impl h5{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.6rem}
+.implsw{display:flex;gap:.4rem;margin-bottom:.7rem}
+.implsw button{appearance:none;font-family:inherit;font-size:.7rem;font-weight:700;padding:.3rem .65rem;
+                border-radius:.4rem;border:1px solid var(--line);background:#fff;color:var(--ink-mute);cursor:pointer}
+.implsw button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.stackview{display:flex;flex-direction:column-reverse;gap:.25rem;min-height:120px;justify-content:flex-start}
+.sbox{border:2px solid #4f46e5;background:#eef2ff;border-radius:.35rem;padding:.32rem;text-align:center;
+      font-family:var(--mono);font-weight:700;color:#3730a3;font-size:.85rem;animation:drop .22s}
+.listview{display:flex;flex-wrap:wrap;gap:.2rem;align-items:center;min-height:120px}
+.lnode{display:flex;align-items:center;gap:.2rem}
+.lnode b{border:2px solid #0891b2;background:#ecfeff;border-radius:.35rem;padding:.3rem .5rem;font-family:var(--mono);
+         font-weight:700;color:#0e7490;font-size:.82rem;animation:drop .22s}
+.lnode i{color:#94a3b8;font-style:normal;font-size:.75rem}
+.adtfoot{padding:.85rem 1rem;background:#f8fafc;border-top:1px solid var(--line);font-size:.84rem;color:var(--ink-soft)}
+
+/* ============ OPERATIONS ============ */
+.opbar{display:flex;flex-wrap:wrap;gap:.35rem;margin:.9rem 0}
+.opbtn{appearance:none;font-family:inherit;font-size:.76rem;font-weight:700;padding:.42rem .8rem;border-radius:999px;
+       border:1px solid var(--line);background:#fff;color:var(--ink-mute);cursor:pointer;transition:.15s}
+.opbtn:hover{border-color:var(--line-strong);color:var(--ink)}
+.opbtn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.opstage{border:1px solid var(--line);border-radius:.7rem;padding:1rem;background:#f8fafc;margin:.8rem 0}
+.opdesc{font-size:.87rem;color:var(--ink-soft);min-height:3rem;line-height:1.65}
+.opdesc b{color:var(--ink)}
+
+/* ============ TRADEOFF SLIDER ============ */
+.trade{border:1px solid var(--line);border-radius:.75rem;padding:1rem;background:#f8fafc;margin:1.1rem 0}
+.trade input[type=range]{width:100%;accent-color:var(--accent);margin:.7rem 0}
+.tstats{display:grid;gap:.5rem;margin-top:.7rem}
+@media(min-width:560px){.tstats{grid-template-columns:1fr 1fr}}
+.tstat{border:1px solid var(--line);border-radius:.55rem;padding:.7rem;background:#fff;text-align:center}
+.tstat .tk{font-size:.6rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute)}
+.tstat .tv{font-family:var(--mono);font-size:1.35rem;font-weight:700;margin-top:.15rem}
+.tstat.fast .tv{color:#15803d}.tstat.waste .tv{color:#be123c}
+
+/* ============ PREV / INDEX / NEXT ============ */
+.pagenav{display:grid;gap:.6rem;margin:2.6rem 0 0}
+@media(min-width:700px){.pagenav{grid-template-columns:1fr auto 1fr;align-items:stretch}}
+.pn{display:flex;align-items:center;gap:.75rem;border:1px solid var(--line);border-radius:.75rem;padding:.85rem 1rem;
+    background:#fff;text-decoration:none;color:inherit;transition:.16s;box-shadow:var(--sh-sm);min-height:64px}
+a.pn:hover{border-color:var(--accent);box-shadow:var(--sh-md);transform:translateY(-2px)}
+.pn.off{opacity:.4;pointer-events:none;border-style:dashed;background:transparent;box-shadow:none}
+.pn .ar{font-size:1.1rem;color:var(--accent);flex:0 0 auto;font-weight:700}
+.pn.off .ar{color:#cbd5e1}
+.pn .tx{min-width:0;flex:1}
+.pn .tx em{font-style:normal;display:block;font-size:.6rem;font-weight:800;letter-spacing:.11em;
+           text-transform:uppercase;color:var(--ink-mute)}
+.pn .tx b{display:block;font-size:.86rem;font-weight:700;line-height:1.35;margin-top:.12rem}
+.pn.nx{text-align:right}
+.pn.nx .ar{order:2}
+.pn.nx .tx{order:1}
+.pn.home{justify-content:center;text-align:center;flex-direction:column;gap:.2rem;padding:.85rem 1.4rem;min-width:120px}
+.pn.home .ar{font-size:1.2rem;color:var(--ink-mute)}
+.pn.home b{font-size:.76rem}
+
+/* ============ RESPONSIVE HARDENING ============ */
+img,svg,video,canvas{max-width:100%;height:auto}
+pre,code,.mono{overflow-wrap:break-word}
+pre.code{white-space:pre;word-break:normal}
+table{min-width:0}
+.tw table{min-width:480px}
+@media(max-width:420px){
+  .wrap{padding:0 .8rem}
+  .card{padding:1.15rem .9rem;border-radius:.8rem}
+  .card.numbered{padding-top:1.9rem}
+  .card>.badge{left:.9rem;width:2.1rem;height:2.1rem;font-size:.85rem}
+  .box{padding:.8rem .85rem}
+  .bridge{padding:1rem .9rem}
+  pre.code{font-size:.7rem;padding:.8rem .7rem}
+  .hero{padding:2.2rem 0 2.4rem}
+  .timechip{display:none}
+  .hdr-row{gap:.4rem}
+}
+@media(max-width:340px){ .bit{width:30px} .byte{width:26px;height:26px;line-height:26px} }
+
+/* footer + pagenav centring */
+.pagenav{margin:2.6rem auto 0 !important}
+.pagefoot .fin{justify-content:center;text-align:center}
+@media(min-width:700px){.pagefoot .fin{justify-content:space-between;text-align:left}}
+.pagefoot .dept{text-align:center}
+@media(min-width:700px){.pagefoot .dept{text-align:right}}
+@media(max-width:699px){
+  .pagenav{grid-template-columns:1fr}
+  .pn{justify-content:flex-start}
+  .pn.nx{text-align:left}
+  .pn.nx .ar{order:0}.pn.nx .tx{order:1}
+  .pn.home{flex-direction:row;justify-content:center;gap:.5rem}
+}
+
+/* ============ FLOATING JUMP DRAWER ============ */
+.fab{position:fixed;right:.7rem;bottom:.7rem;z-index:90;display:flex;flex-direction:column;gap:.4rem}
+.fab button{width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;display:grid;place-items:center;
+            font-size:1.05rem;box-shadow:var(--sh-lg);transition:transform .15s,filter .15s;font-family:inherit}
+.fab button:hover{transform:scale(1.07)}
+.fab .fmenu{background:var(--acc,#4f46e5);color:#fff;font-size:1.15rem}
+.fab .fup,.fab .fdn{background:rgba(15,23,42,.92);color:#e2e8f0;width:38px;height:38px;font-size:.9rem;margin:0 3px}
+@media(max-width:520px){.fab .fup,.fab .fdn{display:none}}
+
+.scrim{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:95;opacity:0;pointer-events:none;transition:opacity .22s}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;right:0;top:0;bottom:0;width:min(340px,86vw);background:#fff;z-index:96;
+        box-shadow:-8px 0 30px rgba(15,23,42,.22);transform:translateX(105%);transition:transform .26s cubic-bezier(.4,0,.2,1);
+        display:flex;flex-direction:column;overflow:hidden}
+.drawer.on{transform:none}
+.drawer .dh{background:linear-gradient(140deg,var(--h1,#0f172a),var(--h3,#312e81));color:#fff;padding:1.05rem 1.1rem;flex:0 0 auto}
+.drawer .dh p{font-size:.6rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:#a5b4fc;margin:0 0 .2rem}
+.drawer .dh b{font-size:1rem;font-weight:800;display:block;line-height:1.3}
+.drawer .dx{position:absolute;right:.7rem;top:.7rem;background:rgba(255,255,255,.14);border:none;color:#fff;
+            width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem;line-height:1}
+.drawer .db{overflow-y:auto;padding:.85rem;flex:1}
+.drawer .grp{font-size:.6rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);
+             margin:.9rem .2rem .45rem;display:flex;align-items:center;gap:.45rem}
+.drawer .grp:first-child{margin-top:0}
+.drawer .grp span{height:1px;background:var(--line);flex:1}
+.drawer a.dl,.drawer button.dl{display:flex;align-items:center;gap:.55rem;width:100%;text-align:left;font-family:inherit;
+     border:1px solid var(--line);background:#fff;border-radius:.55rem;padding:.55rem .7rem;margin-bottom:.3rem;
+     text-decoration:none;color:var(--ink-soft);font-size:.82rem;font-weight:600;cursor:pointer;transition:.14s;line-height:1.4}
+.drawer a.dl:hover,.drawer button.dl:hover{border-color:var(--acc,#4f46e5);color:var(--ink);transform:translateX(2px)}
+.drawer a.dl.here{background:#eef2ff;border-color:#4f46e5;color:#3730a3;font-weight:800}
+.drawer .dn2{font-family:var(--mono);font-size:.62rem;font-weight:700;color:#fff;background:#94a3b8;border-radius:.28rem;
+             padding:.15rem .35rem;flex:0 0 auto;min-width:1.5rem;text-align:center}
+.drawer a.dl.here .dn2{background:#4f46e5}
+.drawer .home2{background:var(--h1,#0f172a);color:#fff;border-color:var(--h1,#0f172a);justify-content:center;font-weight:800}
+.drawer .home2:hover{color:#fff;filter:brightness(1.2)}
+.drawer .dsec{font-size:.78rem;padding:.42rem .7rem}
+.drawer .dsec .dn2{background:#e2e8f0;color:#64748b}
+
+/* ============ DIG DEEPER — richer look (all pages) ============ */
+.digwrap{margin:1.5rem 0}
+.dighead{display:flex;align-items:center;gap:.55rem;font-size:.64rem;font-weight:800;letter-spacing:.14em;
+         text-transform:uppercase;color:var(--ink-mute);margin-bottom:.7rem}
+.dighead::before{content:"";width:16px;height:16px;border-radius:5px;flex:0 0 auto;
+  background:linear-gradient(135deg,var(--accent,#4f46e5),color-mix(in srgb,var(--accent,#4f46e5) 45%,#fff))}
+.dighead span{height:1px;background:linear-gradient(90deg,var(--line),transparent);flex:1}
+
+details.dig{border:1px solid var(--line);border-radius:.75rem;background:#fff;margin-bottom:.55rem;
+            overflow:hidden;position:relative;transition:border-color .2s,box-shadow .2s,transform .2s}
+details.dig::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,var(--accent,#4f46e5),transparent);opacity:0;transition:opacity .25s}
+details.dig:hover{border-color:var(--line-strong);transform:translateX(2px)}
+details.dig[open]{border-color:color-mix(in srgb,var(--accent,#4f46e5) 40%,var(--line));
+                  box-shadow:0 6px 20px -10px color-mix(in srgb,var(--accent,#4f46e5) 60%,transparent)}
+details.dig[open]::before{opacity:1}
+
+details.dig>summary{cursor:pointer;padding:.8rem 2.5rem .8rem 1rem;font-weight:700;font-size:.87rem;
+  list-style:none;display:flex;align-items:center;gap:.65rem;color:var(--ink);position:relative;
+  background:linear-gradient(180deg,#fff,#fafbfd);transition:background .18s;line-height:1.45}
+details.dig>summary::-webkit-details-marker{display:none}
+details.dig>summary:hover{background:#f5f8fc}
+details.dig>summary .dicon{width:26px;height:26px;border-radius:8px;flex:0 0 auto;display:grid;place-items:center;
+  font-size:.78rem;font-weight:800;color:#fff;
+  background:linear-gradient(135deg,var(--accent,#4f46e5),color-mix(in srgb,var(--accent,#4f46e5) 60%,#000));
+  box-shadow:0 2px 6px -1px color-mix(in srgb,var(--accent,#4f46e5) 70%,transparent);transition:transform .25s}
+details.dig[open]>summary .dicon{transform:rotate(-8deg) scale(1.06)}
+details.dig>summary::after{content:"";position:absolute;right:1rem;top:50%;width:9px;height:9px;
+  border-right:2.4px solid var(--accent,#4f46e5);border-bottom:2.4px solid var(--accent,#4f46e5);
+  transform:translateY(-70%) rotate(45deg);transition:transform .25s;opacity:.75}
+details.dig[open]>summary::after{transform:translateY(-30%) rotate(225deg)}
+details.dig[open]>summary{border-bottom:1px solid color-mix(in srgb,var(--accent,#4f46e5) 22%,var(--line))}
+details.dig>div{padding:1rem 1.1rem;font-size:.87rem;color:var(--ink-soft);line-height:1.75;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--accent,#4f46e5) 4%,#fff),#fff)}
+details.dig>div b{color:var(--ink)}
+
+/* ============ LIGHT CODE THEME (default) + toggle ============ */
+body.codelight pre.code,
+body.codelight .carr-code,
+body.codelight .codepane,
+body.codelight .fboard,
+body.codelight .findbug,
+body.codelight .exactbox{
+  background:#f8fafc;color:#334155;border:1px solid #e2e8f0;box-shadow:inset 0 1px 0 #fff}
+body.codelight pre.code .k,body.codelight .carr-code .k,body.codelight .codepane .k{color:#7c3aed}
+body.codelight pre.code .t,body.codelight .carr-code .t,body.codelight .codepane .t{color:#b45309}
+body.codelight pre.code .f,body.codelight .carr-code .f,body.codelight .codepane .f{color:#0369a1}
+body.codelight pre.code .n,body.codelight .carr-code .n,body.codelight .codepane .n{color:#c2410c}
+body.codelight pre.code .c,body.codelight .carr-code .c,body.codelight .codepane .c{color:#94a3b8}
+body.codelight pre.code .s{color:#15803d}
+body.codelight .carr-code .cl{color:#334155}
+body.codelight .carr-code .cl.cur{background:rgba(2,132,199,.14);box-shadow:inset 3px 0 0 #0284c7}
+body.codelight .carr-code .cl.done{background:rgba(148,163,184,.12)}
+body.codelight .codepane .ln{color:#334155}
+body.codelight .codepane .ln.newest{background:rgba(13,148,136,.14);box-shadow:inset 2px 0 0 #0d9488}
+body.codelight .codepane .cursor{background:#0d9488}
+body.codelight .fboard .fline{color:#334155}
+body.codelight .fboard .fline.dim{color:#94a3b8}
+body.codelight .fboard .fv{color:#0369a1}
+body.codelight .fboard .fk{color:#b45309}
+body.codelight .fboard .fr{color:#15803d}
+body.codelight .fboard .fc{color:#94a3b8}
+body.codelight .outpane{background:#f1f5f9;color:#15803d;border:1px solid #e2e8f0}
+body.codelight .findbug{color:#334155}
+body.codelight .findbug .fbline{background:rgba(148,163,184,.10)}
+body.codelight .findbug .tok{border-bottom-color:#cbd5e1}
+body.codelight .findbug .tok:hover{background:#e2e8f0}
+body.codelight .findbug .tok.got{background:#dcfce7;color:#15803d;border-bottom-color:#22c55e}
+body.codelight .findbug .fix{color:#15803d}
+body.codelight .exactbox{color:#334155}
+body.codelight .exactbox .hi{color:#be123c}
+body.codelight .exactbox .lo{color:#94a3b8}
+
+.codetog{appearance:none;border:1px solid #334155;background:transparent;color:#94a3b8;border-radius:.45rem;
+         font-family:inherit;font-size:.68rem;font-weight:700;padding:.3rem .6rem;cursor:pointer;
+         white-space:nowrap;transition:.15s;flex:0 0 auto}
+.codetog:hover{color:#e2e8f0;border-color:#64748b}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">CSE-2321 · Revision</p>
+    <h1>Interview <em>Question Bank</em></h1>
+    <p class="hero-lede">Every technical question from the real 61-minute interview in Class 1, with a model answer — organised by the segment that teaches it. Revise a topic the week you learn it.</p>
+    <div class="byline">
+      <span class="av">JA</span>
+      <span class="who">Jamil As-ad<span>Lecturer, Dept. of CSE &middot; International Islamic University Chittagong</span></span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" style="padding-top:2.2rem">
+
+<div class="box info" style="margin-bottom:1.6rem">
+  <p class="bt">How to use this</p>
+  <p style="margin:0">Do not read it all today. When you finish a segment, come back and open just that segment's questions — you should be able to answer them without looking. If you cannot, that segment is not finished.</p>
+</div>
+
+<article class="card" style="--accent:#0284c7">
+  <p class="kicker"><span class="sgtag sg2">Segment 2</span> <span class="sgtag sg3">Segment 3</span></p>
+  <h2>Arrays &amp; Linked Lists</h2>
+
+  <details class="dig"><summary><span class="dicon">?</span>Array vs linked list — which is better?</summary><div>
+    <b>Neither. It depends on what you do most.</b> That answer alone scores marks, because the question is a trap for anyone who memorised one side.<br><br>
+    <b>Array:</b> instant access to any position (<span class="mono">a[i]</span> is one step, because the memory is contiguous). But inserting in the middle means shifting everything after it — O(n). Fixed size.<br>
+    <b>Linked list:</b> inserting is O(1) <em>once you are standing there</em>. But getting there means walking from the head — O(n). No jumping. And every node costs an extra pointer of memory.
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span>What about inserting in the middle? Cover all the scenarios.</summary><div>
+    This was the explicit follow-up in the transcript. Answer it as three cases:<br><br>
+    <b>1. You already have a pointer to the node.</b> Linked list wins outright — O(1) rewiring vs O(n) shifting.<br>
+    <b>2. You must search for the position first.</b> Both are O(n). The array often wins in practice because contiguous memory is far friendlier to the CPU cache.<br>
+    <b>3. The data is sorted and you can binary search.</b> Array wins clearly — O(log n) to find plus O(n) to shift, versus O(n) just to walk the list.<br><br>
+    <b>Say the last line out loud:</b> "so the linked list only wins when I already hold the position."
+  </div></details>
+</article>
+
+<article class="card" style="--accent:#0d9488">
+  <p class="kicker"><span class="sgtag sg4">Segment 4</span> <span class="sgtag sg5">Segment 5</span></p>
+  <h2>Stacks, Recursion &amp; Queues</h2>
+
+  <details class="dig"><summary><span class="dicon">?</span>Stack vs queue — the difference, and when you use each</summary><div>
+    <b>Stack is LIFO</b> — last in, first out. Insert and remove at one end only, called the <b>top</b>. Use it when the <b>most recent</b> thing matters: undo, function calls, matching brackets, the browser back button.<br><br>
+    <b>Queue is FIFO</b> — first in, first out. Insert at the rear, remove from the front. Use it when <b>order of arrival</b> matters: print jobs, request queues, spreading level by level through a graph.<br><br>
+    <b>Memory aid:</b> stack is a pile of plates, queue is a line at the bus stop.
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span>What is a priority queue? How is it different from a queue?</summary><div>
+    A normal queue serves in <b>arrival order</b>. A priority queue serves in <b>importance order</b> — whoever is most urgent goes next, no matter when they arrived.<br><br>
+    <b>The picture:</b> a hospital emergency room. Not first come first served. Most serious first.<br><br>
+    <b>The follow-up:</b> "how would you build it?" A sorted list makes insert slow. An unsorted list makes extract slow. A <b>heap</b> makes both O(log n) — which is exactly why the heap exists.
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span>Reverse a string using recursion</summary><div>
+    They want to see whether you can find a <b>base case</b> and shrink the problem.<br><br>
+    <span class="mono">reverse(s):<br>
+    &nbsp;&nbsp;if s is empty or has one character &rarr; return s<br>
+    &nbsp;&nbsp;return reverse(s without first char) + first char</span><br><br>
+    <b>Give the complexity before they ask:</b> O(n) calls and O(n) stack space. If they ask for it without recursion, use <b>two pointers</b> swapping from both ends — O(n) time, O(1) space.
+  </div></details>
+</article>
+
+<article class="card" style="--accent:#ca8a04">
+  <p class="kicker"><span class="sgtag sg6">Segment 6</span></p>
+  <h2>Sorting</h2>
+
+  <details class="dig"><summary><span class="dicon">?</span>Which sorting algorithm is best?</summary><div>
+    Never answer with one name. Answer <b>"it depends on the data"</b> and give three cases:<br><br>
+    <b>Nearly sorted</b> → insertion sort. O(n) when the data is almost in order.<br>
+    <b>Small range of integers</b> (ages 1–100) → counting sort or radix sort. They do not compare at all, so they beat the O(n log n) barrier.<br>
+    <b>Large data, tight memory, worst case must be guaranteed</b> → heapsort. In-place and O(n log n) guaranteed.<br><br>
+    This is Question 3(b) on the Spring 2026 final paper, almost word for word.
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span>Compare quick sort and merge sort <span class="subtle">(Semester 4)</span></summary><div>
+    <b>Merge sort:</b> always O(n log n), <b>stable</b>, but needs O(n) extra memory for merging.<br>
+    <b>Quick sort:</b> O(n log n) on average and usually faster in practice (better cache behaviour, sorts in place), but O(n²) in the worst case and not stable. A random pivot makes the worst case very unlikely.<br><br>
+    <b>The one-liner:</b> "quick sort is usually faster; merge sort is the one you pick when you need a guarantee or stability."<br><br>
+    <span class="sgtag sgS4">Taught in Semester 4</span>
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span>Which strategy does merge sort use? Explain divide and conquer. <span class="subtle">(Semester 4)</span></summary><div>
+    <b>Divide and conquer</b>, in three steps: <b>divide</b> the problem into smaller pieces of the same kind, <b>conquer</b> each piece (usually by recursion), <b>combine</b> the answers.<br><br>
+    Merge sort: split the array in half, sort each half recursively, then <b>merge</b> the two sorted halves. The merge is the clever part — walking two sorted lists with two pointers, always taking the smaller front element.<br><br>
+    <span class="sgtag sgS4">Taught in Semester 4</span>
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span>Name one greedy algorithm and explain it <span class="subtle">(Semester 4)</span></summary><div>
+    Pick one you can explain fully. <b>Activity selection</b> is the cleanest:<br><br>
+    Given activities with start and finish times, choose the most that do not overlap. <b>Greedy choice:</b> always take the activity that <b>finishes earliest</b> among those still compatible. Sort by finish time and sweep once.<br><br>
+    <b>Then say why greedy is risky:</b> it only works when the problem has the <em>greedy-choice property</em>. Fractional knapsack works greedily; 0/1 knapsack does not, and that failure is exactly what motivates dynamic programming.<br><br>
+    <span class="sgtag sgS4">Taught in Semester 4</span>
+  </div></details>
+</article>
+
+<article class="card" style="--accent:#dc2626">
+  <p class="kicker"><span class="sgtag sg8">Segment 8</span></p>
+  <h2>Trees &amp; Heaps</h2>
+
+  <details class="dig"><summary><span class="dicon">?</span>What is a heap? What is heapify?</summary><div>
+    A <b>heap</b> is a complete binary tree where every parent is better than its children — smaller in a <b>min-heap</b>, larger in a <b>max-heap</b>. It is stored in a plain array with no pointers: the children of index <span class="mono">i</span> sit at <span class="mono">2i</span> and <span class="mono">2i+1</span>.<br><br>
+    <b>Heapify</b> is the repair operation. After removing the root, put the last element on top and let it <b>sink down</b>, swapping with its better child until the heap rule holds again — O(log n).<br><br>
+    <b>The trap they love:</b> building a heap from n elements is <b>O(n)</b>, not O(n log n).
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span>Perfect vs full vs complete binary tree</summary><div>
+    <b>Full:</b> every node has <b>0 or 2</b> children. Never exactly one.<br>
+    <b>Complete:</b> every level filled except possibly the last, and the last fills <b>left to right</b>. This is the shape a heap must have.<br>
+    <b>Perfect:</b> every level completely filled, all leaves at the same depth. A perfect tree is both full and complete.<br><br>
+    <b>Win the question with:</b> "a heap must be complete, which is why it can live in an array with no gaps."
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span>How does a BST work? Why is search sometimes O(n)?</summary><div>
+    A <b>binary search tree</b> keeps everything smaller than a node on its left and everything larger on its right. To search, compare once and throw away half the tree — O(height).<br><br>
+    <b>The catch:</b> height is only log n if the tree is <b>balanced</b>. Insert 1, 2, 3, 4, 5 in order and every node goes right — you have built a linked list wearing a tree costume. Now search is O(n).<br><br>
+    <b>That failure is exactly why AVL and red-black trees exist.</b> Saying that shows you understand the <em>reason</em> for the next topic.
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span>Name the tree traversals and say what each is for</summary><div>
+    <b>Inorder</b> (left, node, right) — on a BST this gives the values <b>in sorted order</b>. That is the one they want.<br>
+    <b>Preorder</b> (node, left, right) — copying or serialising a tree.<br>
+    <b>Postorder</b> (left, right, node) — deleting a tree, or evaluating an expression tree.<br>
+    <b>Level order</b> — level by level using a <b>queue</b>. This is BFS on a tree.<br><br>
+    <b>The transcript's follow-up:</b> "which graph algorithm can we use?" Answer: the first three are <b>DFS</b>, level order is <b>BFS</b>. A tree is just a graph with no cycles.
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span>Find the 3 smallest elements in a large array — then optimise it</summary><div>
+    Asked in the transcript including the "now optimise" follow-up. Three steps:<br><br>
+    <b>1. Obvious:</b> sort and take the first 3 — O(n log n).<br>
+    <b>2. Better:</b> keep a <b>max-heap of size 3</b>. Walk the array once; if a number is smaller than the heap's top, replace it. O(n log 3) = <b>O(n)</b>, using only <b>3 slots</b> of memory regardless of array size.<br>
+    <b>3. Say the tradeoff:</b> sorting also gives you everything else in order; the heap gives only the 3. If 3 is all you need, do not pay for the rest.<br><br>
+    That is Question 4(d) on your final paper with different numbers.
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span>Can you turn a linked list into a BST?</summary><div>
+    The interviewer skipped this one as ambiguous — but it is worth knowing, and the ambiguity is the answer.<br><br>
+    <b>If the list is sorted:</b> take the <b>middle</b> node as the root, recurse on the left half and the right half. That gives a <b>balanced</b> BST in O(n).<br>
+    <b>If it is unsorted:</b> you must insert nodes one at a time — O(n log n) at best, O(n²) if they arrive in sorted order and the tree degenerates.<br><br>
+    <b>The good answer starts by asking:</b> "is the list sorted?" That is what the interviewer was actually testing.
+  </div></details>
+</article>
+
+<article class="card" style="--accent:#475569">
+  <p class="kicker"><span class="sgtag sgS4">Semester 4 · Algorithms</span></p>
+  <h2>Graphs</h2>
+
+  <details class="dig"><summary><span class="dicon">?</span>Graph traversal — BFS and DFS</summary><div>
+    <b>BFS</b> uses a <b>queue</b> and explores level by level. It finds the <b>shortest path in an unweighted graph</b>.<br>
+    <b>DFS</b> uses a <b>stack</b> (or recursion) and goes as deep as possible before backtracking. It is used for cycle detection, topological sort and finding connected components.<br><br>
+    Both are O(V + E) with an adjacency list. <b>The connection to say out loud:</b> "level-order traversal of a tree <em>is</em> BFS — a tree is just a graph with no cycles."
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span>What is a spanning tree? A minimum spanning tree?</summary><div>
+    A <b>spanning tree</b> connects all V vertices of a graph using exactly <b>V−1 edges</b> and no cycles.<br>
+    A <b>minimum spanning tree</b> is the spanning tree with the smallest total edge weight.<br><br>
+    <b>Two algorithms:</b> <b>Kruskal</b> sorts all edges and adds the cheapest that does not create a cycle (using union-find). <b>Prim</b> grows one tree outward, always taking the cheapest edge leaving it (using a priority queue).<br><br>
+    <b>Real use:</b> laying cable or road to connect every town at the lowest total cost.
+  </div></details>
+</article>
+
+</main>
+
+<nav class="pagenav wrap" style="padding-bottom:0">
+  <div class="pn pv off"><span class="ar">&larr;</span><span class="tx"><em>Previous</em><b>&mdash;</b></span></div>
+  <a class="pn home" href="../index.html"><span class="ar">&#9783;</span><b>All classes</b></a>
+  <div class="pn nx off"><span class="ar">&rarr;</span><span class="tx"><em>Next</em><b>&mdash;</b></span></div>
+</nav>
+<footer class="pagefoot">
+  <div class="wrap fin">
+    <div class="fw"><span class="av">JA</span><span class="nm">Jamil As-ad<span>Lecturer, Dept. of CSE</span></span></div>
+    <p class="dept"><a href="../index.html">&larr; All classes</a> &nbsp;&middot;&nbsp; Data Structures &middot; CSE-2321 &middot; International Islamic University Chittagong</p>
+  </div>
+</footer>
+<script>
+function jump(){}
+
+/* ---------- FLOATING JUMP DRAWER ---------- */
+(function(){
+  var CLASSES=[
+    ['1','Why do we need data structures?','01-why-data-structures.html'],
+    ['2','Data, data structures and the ADT','02-data-and-adt.html'],
+    ['3','What your data looks like in memory','03-data-in-memory.html'],
+    ['4','Algorithms — and how we write them','04-algorithms-and-notation.html'],
+    ['5','Time & space complexity','05-time-and-space-complexity.html']
+  ];
+  var here=(location.pathname.split('/').pop()||'');
+  var base = /2321-theory/.test(location.pathname) ? '' : '../2321-theory/01-introduction/';
+  var root = /2321-theory|2322-lab/.test(location.pathname) ? '../../index.html' : '../index.html';
+
+  var scrim=document.createElement('div'); scrim.className='scrim';
+  var dr=document.createElement('aside'); dr.className='drawer';
+  dr.setAttribute('aria-hidden','true');
+
+  var secs='';
+  var cards=document.querySelectorAll('.panel:not([hidden]) .card');
+  for(var i=0;i<cards.length;i++){
+    var h=cards[i].querySelector('h2');
+    if(!h)continue;
+    var b=cards[i].querySelector('.badge');
+    secs+='<button class="dl dsec" data-jump="'+i+'"><span class="dn2">'+(b?b.textContent:(i+1))+'</span>'+
+          h.textContent.trim()+'</button>';
+  }
+
+  var links=CLASSES.map(function(c){
+    var on = c[2] && here===c[2];
+    if(!c[2]) return '<span class="dl" style="opacity:.45;cursor:default"><span class="dn2">'+c[0]+'</span>'+c[1]+' — soon</span>';
+    return '<a class="dl'+(on?' here':'')+'" href="'+base+c[2]+'"><span class="dn2">'+c[0]+'</span>'+c[1]+'</a>';
+  }).join('');
+
+  dr.innerHTML='<div class="dh"><p>CSE-2321 · Segment 1</p><b>Jump to</b>'+
+    '<button class="dx" aria-label="Close">✕</button></div>'+
+    '<div class="db">'+
+      '<a class="dl home2" href="'+root+'">☰ &nbsp;All classes &amp; the full course</a>'+
+      '<p class="grp">Segment 1 · Introduction<span></span></p>'+links+
+      (secs?'<p class="grp">On this page<span></span></p>'+secs:'')+
+    '</div>';
+
+  var fab=document.createElement('div'); fab.className='fab';
+  fab.innerHTML='<button class="fup" aria-label="Previous section">↑</button>'+
+                '<button class="fdn" aria-label="Next section">↓</button>'+
+                '<button class="fmenu" aria-label="Open navigation">☰</button>';
+  document.body.appendChild(scrim); document.body.appendChild(dr); document.body.appendChild(fab);
+
+  function open(v){
+    dr.classList.toggle('on',v); scrim.classList.toggle('on',v);
+    dr.setAttribute('aria-hidden', v?'false':'true');
+    document.body.style.overflow = v?'hidden':'';
+  }
+  fab.querySelector('.fmenu').onclick=function(){open(!dr.classList.contains('on'));};
+  fab.querySelector('.fup').onclick=function(){jump(-1);};
+  fab.querySelector('.fdn').onclick=function(){jump(1);};
+  dr.querySelector('.dx').onclick=function(){open(false);};
+  scrim.onclick=function(){open(false);};
+  dr.addEventListener('click',function(e){
+    var b=e.target.closest('[data-jump]'); if(!b)return;
+    open(false);
+    var c=document.querySelectorAll('.panel:not([hidden]) .card')[+b.dataset.jump];
+    if(c) setTimeout(function(){window.scrollTo({top:Math.max(c.offsetTop-80,0),behavior:'smooth'});},180);
+  });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') open(false); });
+})();
+
+
+/* ---------- CODE THEME TOGGLE ---------- */
+(function(){
+  var KEY='dsa-code-theme';
+  var saved=null; try{saved=localStorage.getItem(KEY);}catch(e){}
+  if(saved!=='dark') document.body.classList.add('codelight');
+  var tabs=document.querySelector('.tabs');
+  if(!tabs)return;
+  var b=document.createElement('button');
+  b.className='codetog'; b.type='button';
+  function label(){ b.textContent = document.body.classList.contains('codelight') ? '🌙 Dark code' : '☀ Light code'; }
+  label();
+  b.addEventListener('click',function(){
+    document.body.classList.toggle('codelight');
+    try{localStorage.setItem(KEY, document.body.classList.contains('codelight')?'light':'dark');}catch(e){}
+    label();
+  });
+  tabs.appendChild(b);
+})();
+
+</script>
+</body></html>

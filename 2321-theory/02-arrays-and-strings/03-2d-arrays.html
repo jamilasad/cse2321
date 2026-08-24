@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2D Arrays, Matrices &amp; Sparse — CSE-2321 Segment 2, Class 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --mono:'Fira Code',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  --bn:'Noto Serif Bengali','Kalpurush','SolaimanLipi','Nirmala UI',serif;
+  --bg:#f1f5f9; --panel:#ffffff; --ink:#1e293b; --ink-soft:#475569; --ink-mute:#64748b;
+  --line:#e2e8f0; --line-strong:#cbd5e1; --dark:#0f172a; --dark-2:#1e293b;
+  --accent:#4f46e5;
+  --r:1rem; --r-sm:.6rem;
+  --sh-sm:0 1px 2px rgba(15,23,42,.06),0 1px 3px rgba(15,23,42,.04);
+  --sh-md:0 4px 6px -1px rgba(15,23,42,.07),0 2px 4px -2px rgba(15,23,42,.05);
+  --sh-lg:0 12px 28px -8px rgba(15,23,42,.18);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
+body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.65;font-size:16px;
+     -webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3,h4{line-height:1.25;margin:0}
+p{margin:0 0 1rem}
+p:last-child{margin-bottom:0}
+a{color:var(--accent)}
+.mono{font-family:var(--mono)}
+.bn{font-family:var(--bn);line-height:1.95;font-size:1.02rem}
+.wrap{max-width:1080px;margin:0 auto;padding:0 1rem}
+@media(min-width:768px){ .wrap{padding:0 1.75rem} body{font-size:16.5px} }
+
+/* ============ HEADER + TABS ============ */
+.topbar{position:sticky;top:0;z-index:60;background:rgba(15,23,42,.97);backdrop-filter:blur(10px);
+        border-bottom:1px solid #334155;color:#e2e8f0}
+.topbar-in{max-width:1080px;margin:0 auto;padding:.6rem 1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+@media(min-width:768px){.topbar-in{padding:.7rem 1.75rem}}
+.brand{display:flex;align-items:center;gap:.6rem;min-width:0}
+.brand-badge{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#6366f1,#8b5cf6);
+             display:grid;place-items:center;font-weight:900;font-size:.8rem;color:#fff;flex:0 0 auto}
+.brand-t{font-size:.78rem;font-weight:800;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand-s{font-size:.66rem;color:#94a3b8;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.tabs{display:flex;gap:.3rem;margin-left:auto;overflow-x:auto;scrollbar-width:none;padding:2px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{appearance:none;border:1px solid transparent;background:transparent;color:#94a3b8;font-family:inherit;
+     font-size:.78rem;font-weight:700;padding:.42rem .85rem;border-radius:.5rem;cursor:pointer;white-space:nowrap;
+     transition:background .15s,color .15s}
+.tab:hover{color:#e2e8f0;background:#1e293b}
+.tab[aria-selected="true"]{background:#e2e8f0;color:#0f172a}
+.tab:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px solid #818cf8;outline-offset:2px}
+.panel[hidden]{display:none}
+
+/* progress rail */
+.rail{height:3px;background:#1e293b;position:relative;overflow:hidden}
+.rail>i{position:absolute;inset:0 100% 0 0;background:linear-gradient(90deg,#6366f1,#22d3ee);transition:right .1s linear}
+
+/* ============ HERO ============ */
+.hero{background:linear-gradient(160deg,#0f172a 0%,#1e1b4b 55%,#312e81 100%);color:#e2e8f0;
+      padding:3rem 0 3.4rem;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;width:520px;height:520px;right:-180px;top:-200px;border-radius:50%;
+             background:radial-gradient(circle,rgba(99,102,241,.32),transparent 68%)}
+.hero .wrap{position:relative;z-index:1}
+.eyebrow{font-size:.68rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#a5b4fc;margin-bottom:.9rem}
+.hero h1{font-size:clamp(1.85rem,6.4vw,3.4rem);font-weight:900;letter-spacing:-.025em;margin-bottom:1rem}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,#818cf8,#22d3ee);-webkit-background-clip:text;
+            background-clip:text;color:transparent}
+.hero-lede{font-size:clamp(1rem,2.5vw,1.15rem);color:#cbd5e1;max-width:44rem}
+.arc{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1.6rem}
+.arc span{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:.4rem .7rem;
+          border-radius:999px;border:1px solid rgba(148,163,184,.35);color:#cbd5e1;background:rgba(15,23,42,.4)}
+.arc span b{color:#fff}
+.hero-meta{display:flex;flex-wrap:wrap;gap:1.4rem;margin-top:1.8rem;font-size:.8rem;color:#94a3b8}
+.hero-meta b{color:#e2e8f0;display:block;font-size:1.05rem;font-weight:800}
+
+/* ============ CARDS ============ */
+main{padding:2.6rem 0 4rem}
+.card{background:var(--panel);border-radius:var(--r);box-shadow:var(--sh-md);padding:1.5rem 1.25rem;
+      margin-bottom:2.6rem;position:relative;border-top:4px solid var(--accent)}
+@media(min-width:768px){.card{padding:2rem 2.25rem}}
+.card>.badge{position:absolute;top:-1.15rem;left:1.25rem;width:2.4rem;height:2.4rem;border-radius:50%;
+             background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:900;font-size:1rem;
+             border:4px solid var(--bg);z-index:2}
+@media(min-width:768px){.card>.badge{left:2rem}}
+.card.numbered{padding-top:2.1rem}
+@media(min-width:768px){.card.numbered{padding-top:2.4rem}}
+.kicker{font-size:.66rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:.45rem}
+.card h2{font-size:clamp(1.2rem,3.6vw,1.7rem);font-weight:800;letter-spacing:-.015em;margin-bottom:.35rem}
+.card h3{font-size:1.02rem;font-weight:800;margin:1.5rem 0 .5rem}
+.subtle{color:var(--ink-mute);font-size:.85rem;font-weight:600}
+.timechip{display:inline-flex;align-items:center;gap:.35rem;font-size:.68rem;font-weight:800;letter-spacing:.05em;
+          padding:.24rem .6rem;border-radius:999px;background:#f1f5f9;color:var(--ink-mute);border:1px solid var(--line)}
+.hdr-row{display:flex;align-items:flex-start;gap:1rem;flex-wrap:wrap;justify-content:space-between;margin-bottom:1.1rem}
+
+/* ============ DARK "SO WHAT" PANEL ============ */
+.bridge{background:linear-gradient(135deg,#0f172a,#1e293b);border-left:5px solid var(--accent);
+        border-radius:.85rem;padding:1.25rem 1.1rem;color:#cbd5e1;margin:1.4rem 0;box-shadow:var(--sh-md)}
+@media(min-width:768px){.bridge{padding:1.5rem 1.6rem}}
+.bridge .lbl{font-size:.64rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#818cf8;margin-bottom:.5rem}
+.bridge p{margin-bottom:.7rem}
+.bridge strong,.bridge b{color:#fff}
+.bridge .say{font-size:clamp(1.02rem,2.9vw,1.28rem);font-weight:800;color:#fff;line-height:1.45}
+
+/* ============ GENERIC BOXES ============ */
+.box{background:#f8fafc;border:1px solid var(--line);border-radius:.8rem;padding:1rem 1.1rem;margin:1rem 0}
+.box.warn{background:#fffbeb;border-color:#fde68a}
+.box.bad{background:#fff1f2;border-color:#fecdd3}
+.box.good{background:#f0fdf4;border-color:#bbf7d0}
+.box.info{background:#eff6ff;border-color:#bfdbfe}
+.box .bt{font-weight:800;font-size:.8rem;letter-spacing:.02em;margin-bottom:.35rem;display:flex;align-items:center;gap:.4rem}
+.box.warn .bt{color:#b45309}.box.bad .bt{color:#be123c}.box.good .bt{color:#15803d}.box.info .bt{color:#1d4ed8}
+.box p{font-size:.9rem;margin-bottom:.5rem}
+.grid2{display:grid;gap:1rem}
+@media(min-width:720px){.grid2{grid-template-columns:1fr 1fr}}
+.grid3{display:grid;gap:.8rem}
+@media(min-width:720px){.grid3{grid-template-columns:repeat(3,1fr)}}
+
+/* ============ TABLES ============ */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:1.1rem 0;border:1px solid var(--line);border-radius:.8rem;background:#fff}
+table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:520px}
+th{background:#f8fafc;text-align:left;font-weight:800;font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;
+   color:var(--ink-mute);padding:.65rem .85rem;border-bottom:1px solid var(--line)}
+td{padding:.7rem .85rem;border-bottom:1px solid #f1f5f9;vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.num{font-family:var(--mono);font-weight:600;white-space:nowrap}
+.hl-bad{color:#be123c;font-weight:800}
+.hl-good{color:#15803d;font-weight:800}
+
+/* ============ CODE ============ */
+pre.code{font-family:var(--mono);font-size:.78rem;line-height:1.75;background:#0f172a;color:#e2e8f0;
+         padding:1rem;border-radius:.7rem;overflow-x:auto;margin:.8rem 0}
+@media(min-width:768px){pre.code{font-size:.83rem}}
+.k{color:#c4b5fd}.t{color:#fcd34d}.f{color:#7dd3fc}.n{color:#fdba74}.c{color:#64748b;font-style:italic}.s{color:#86efac}
+
+/* ============ BUTTONS ============ */
+.btn{appearance:none;font-family:inherit;font-weight:800;font-size:.82rem;padding:.6rem 1.15rem;border-radius:.55rem;
+     cursor:pointer;border:none;background:var(--accent);color:#fff;box-shadow:var(--sh-sm);
+     transition:filter .15s,transform .1s}
+.btn:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn.ghost{background:#fff;color:var(--ink-soft);border:2px solid var(--line)}
+.btn.ghost:hover:not(:disabled){border-color:var(--line-strong);color:var(--ink)}
+.btn.sm{font-size:.74rem;padding:.42rem .8rem}
+.btnrow{display:flex;flex-wrap:wrap;gap:.5rem;margin:.9rem 0}
+
+/* ============ QUIZ ============ */
+.quiz{border:2px solid #e2e8f0;border-radius:.85rem;overflow:hidden;margin:1.3rem 0;background:#fff}
+.quiz .qh{background:#f8fafc;padding:.75rem 1rem;font-size:.66rem;font-weight:800;letter-spacing:.12em;
+          text-transform:uppercase;color:var(--ink-mute);border-bottom:1px solid var(--line)}
+.quiz .qq{padding:1rem;font-weight:700;font-size:.95rem}
+.qopts{display:grid;gap:.45rem;padding:0 1rem 1rem}
+.qopt{appearance:none;text-align:left;font-family:inherit;font-size:.87rem;font-weight:600;padding:.65rem .85rem;
+      border:2px solid var(--line);border-radius:.55rem;background:#fff;color:var(--ink-soft);cursor:pointer;transition:.15s}
+.qopt:hover:not(:disabled){border-color:var(--line-strong);background:#f8fafc}
+.qopt.ok{border-color:#22c55e;background:#f0fdf4;color:#15803d}
+.qopt.no{border-color:#f43f5e;background:#fff1f2;color:#be123c}
+.qopt:disabled{cursor:default}
+.qexp{display:none;padding:1rem;background:#0f172a;color:#cbd5e1;font-size:.87rem;border-top:1px solid var(--line)}
+.qexp.show{display:block}
+.qexp b{color:#fff}
+
+/* ============ TRANSCRIPT MAPPER ============ */
+.tmap{display:grid;gap:.45rem}
+.trow{display:flex;align-items:center;gap:.7rem;padding:.6rem .8rem;border:1px solid var(--line);border-radius:.55rem;
+      background:#fff;cursor:pointer;transition:.18s;text-align:left;font-family:inherit;width:100%;appearance:none}
+.trow:hover{border-color:var(--line-strong);transform:translateX(3px)}
+.trow .tq{flex:1;font-size:.86rem;font-weight:600;color:var(--ink-soft);min-width:0}
+.trow .tw2{font-size:.66rem;font-weight:800;letter-spacing:.04em;padding:.24rem .55rem;border-radius:999px;
+          background:#f1f5f9;color:#94a3b8;white-space:nowrap;opacity:0;transition:opacity .3s}
+.trow.on{border-color:#6366f1;background:#eef2ff}
+.trow.on .tq{color:#1e293b}
+.trow.on .tw2{opacity:1;background:#4f46e5;color:#fff}
+
+/* ============ GUESS WIDGET ============ */
+.guess{display:grid;gap:.5rem;margin:1rem 0}
+.gopt{appearance:none;font-family:inherit;text-align:left;padding:.8rem 1rem;border:2px solid var(--line);
+      border-radius:.6rem;background:#fff;cursor:pointer;font-weight:700;font-size:.92rem;color:var(--ink-soft);transition:.15s}
+.gopt:hover:not(:disabled){border-color:#818cf8;background:#eef2ff}
+.gopt.picked{border-color:#4f46e5;background:#eef2ff;color:#312e81}
+.gopt.truth{border-color:#22c55e;background:#f0fdf4;color:#15803d}
+.gopt:disabled{cursor:default}
+.bignum{font-family:var(--mono);font-size:clamp(2rem,10vw,4.2rem);font-weight:700;line-height:1;letter-spacing:-.03em}
+.reveal{background:linear-gradient(135deg,#0f172a,#312e81);color:#fff;border-radius:.9rem;padding:1.6rem 1.1rem;
+        text-align:center;margin:1.1rem 0;display:none}
+.reveal.show{display:block;animation:pop .5s ease}
+@keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+.reveal .cap{font-size:.68rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#a5b4fc;margin-bottom:.6rem}
+.reveal .sub{color:#c7d2fe;font-size:.88rem;margin-top:.7rem}
+
+/* ============ RACE / COUNTERS ============ */
+.race{display:grid;gap:.9rem;margin:1.1rem 0}
+@media(min-width:720px){.race{grid-template-columns:1fr 1fr}}
+.lane{border:2px solid var(--line);border-radius:.85rem;padding:1rem;background:#fff}
+.lane.win{border-color:#22c55e;background:#f0fdf4}
+.lane.lose{border-color:#fb7185;background:#fff1f2}
+.lane h4{font-size:.9rem;font-weight:800;margin-bottom:.15rem}
+.lane .way{font-size:.7rem;font-weight:700;color:var(--ink-mute);margin-bottom:.7rem}
+.meter{height:12px;border-radius:999px;background:#e2e8f0;overflow:hidden;margin:.6rem 0}
+.meter>i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#6366f1,#22d3ee);transition:width .08s linear}
+.lane.lose .meter>i{background:linear-gradient(90deg,#f43f5e,#fb923c)}
+.lane.win .meter>i{background:linear-gradient(90deg,#16a34a,#4ade80)}
+.count{font-family:var(--mono);font-size:1.35rem;font-weight:700;letter-spacing:-.02em}
+.pct{font-family:var(--mono);font-size:.74rem;color:var(--ink-mute);font-weight:600}
+.verdict{font-weight:800;font-size:.82rem;margin-top:.5rem;min-height:1.2rem}
+
+/* ============ STACK TOY ============ */
+.stacks{display:grid;gap:1rem;margin:1rem 0}
+@media(min-width:600px){.stacks{grid-template-columns:1fr 1fr}}
+.stk{border:2px solid var(--line);border-radius:.8rem;background:#f8fafc;padding:.9rem;min-height:210px;
+     display:flex;flex-direction:column}
+.stk h5{font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);
+        margin-bottom:.6rem;text-align:center}
+.stk.flash{animation:flash .55s ease}
+@keyframes flash{0%,100%{background:#f8fafc;border-color:var(--line)}40%{background:#fee2e2;border-color:#f87171}}
+.cells{display:flex;flex-direction:column-reverse;gap:.3rem;flex:1;justify-content:flex-start}
+.cell{background:#fff;border:2px solid #6366f1;border-radius:.4rem;padding:.4rem;text-align:center;
+      font-family:var(--mono);font-weight:700;font-size:.95rem;color:#4338ca;animation:drop .25s ease}
+.stk.redo .cell{border-color:#f59e0b;color:#b45309}
+@keyframes drop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.empty{color:#cbd5e1;font-size:.78rem;text-align:center;font-weight:700;margin:auto 0}
+.typed{font-family:var(--mono);font-size:1.1rem;font-weight:700;background:#0f172a;color:#e2e8f0;padding:.7rem .9rem;
+       border-radius:.5rem;min-height:2.9rem;word-break:break-all;letter-spacing:.02em}
+.typed .car{display:inline-block;width:2px;height:1.05em;background:#22d3ee;vertical-align:-2px;animation:bl 1s steps(2) infinite}
+@keyframes bl{50%{opacity:0}}
+
+/* ============ PLATFORM CARDS ============ */
+.plat{display:grid;gap:1rem;margin:1.2rem 0}
+@media(min-width:760px){.plat{grid-template-columns:1fr 1fr}}
+.pcard{border:2px solid var(--line);border-radius:.9rem;overflow:hidden;background:#fff}
+.pcard .ph{padding:1rem 1.1rem;color:#fff}
+.pcard.lc .ph{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.pcard.cf .ph{background:linear-gradient(135deg,#1d4ed8,#3b82f6)}
+.pcard .ph h4{font-size:1.15rem;font-weight:900}
+.pcard .ph p{font-size:.78rem;opacity:.92;margin:0}
+.pcard .pb{padding:1rem 1.1rem}
+.pcard dl{margin:0;display:grid;gap:.6rem}
+.pcard dt{font-size:.63rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute)}
+.pcard dd{margin:.1rem 0 0;font-size:.86rem;font-weight:600;color:var(--ink-soft)}
+
+/* ============ MISC ============ */
+.shot{border-radius:.7rem;border:1px solid var(--line);max-width:100%;height:auto;display:block;box-shadow:var(--sh-md)}
+figure{margin:1rem 0}
+figcaption{font-size:.74rem;color:var(--ink-mute);margin-top:.5rem;font-weight:600}
+details{border:1px solid var(--line);border-radius:.6rem;background:#fff;margin:.7rem 0;overflow:hidden}
+details>summary{cursor:pointer;padding:.75rem 1rem;font-weight:700;font-size:.87rem;background:#f8fafc;list-style:none;
+                display:flex;align-items:center;gap:.5rem}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"+";font-family:var(--mono);font-weight:700;color:var(--accent);width:1rem}
+details[open]>summary::before{content:"–"}
+details>div{padding:1rem;border-top:1px solid var(--line);font-size:.88rem}
+ul.tight,ol.tight{margin:.6rem 0;padding-left:1.3rem}
+ul.tight li,ol.tight li{margin-bottom:.4rem;font-size:.9rem}
+.note13{background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;border-radius:.85rem;
+        padding:1.1rem;margin:1.3rem 0;display:flex;gap:.9rem;align-items:flex-start}
+.note13 .ic{font-size:1.5rem;line-height:1;flex:0 0 auto}
+.note13 b{color:#92400e}
+.note13 p{font-size:.88rem;color:#78350f;margin:0}
+.sec-nav{position:fixed;right:.6rem;bottom:.6rem;z-index:50;display:flex;gap:.35rem;background:rgba(15,23,42,.94);
+         padding:.35rem;border-radius:.6rem;box-shadow:var(--sh-lg)}
+.sec-nav button{appearance:none;border:none;background:transparent;color:#94a3b8;font-size:1rem;cursor:pointer;
+                padding:.3rem .5rem;border-radius:.35rem;line-height:1}
+.sec-nav button:hover{background:#334155;color:#fff}
+@media print{.topbar,.sec-nav{display:none}.card{break-inside:avoid;box-shadow:none;border:1px solid #ccc}}
+
+/* ============ CLASS 3 · ALGORITHM NOTATION ============ */
+.algo{background:#fff;border:2px solid var(--line);border-radius:.8rem;overflow:hidden;margin:1rem 0;
+      font-family:var(--mono);font-size:clamp(.72rem,2.9vw,.88rem);line-height:1.9}
+.algo .ahead{background:#fffbeb;border-bottom:2px solid #fde68a;padding:.8rem 1rem;font-family:var(--sans);
+             font-size:.82rem;color:#78350f;line-height:1.6}
+.algo .ahead b{color:#92400e}
+.algo .body{padding:.7rem .4rem}
+.algo .st{display:block;padding:.22rem .7rem;border-radius:.3rem;white-space:pre-wrap;transition:background .2s;color:#334155}
+.algo .st.cur{background:#fef3c7;box-shadow:inset 3px 0 0 #d97706;font-weight:700;color:#78350f}
+.algo .st.done{color:#94a3b8}
+.algo .st .cm{color:#0891b2;font-style:italic}
+.algo .st .kw{color:#be123c;font-weight:700}
+.algo .st .vr{color:#7c3aed;font-weight:700}
+.algo .st .op{color:#d97706;font-weight:700}
+
+/* variable watch */
+.vars{display:grid;gap:.45rem;margin:.9rem 0}
+@media(min-width:540px){.vars{grid-template-columns:repeat(4,1fr)}}
+.vcell{border:1px solid var(--line);border-radius:.5rem;padding:.5rem;text-align:center;background:#f8fafc;transition:.2s}
+.vcell.bump{background:#fef3c7;border-color:#fbbf24;transform:scale(1.05)}
+.vcell .vk{font-family:var(--mono);font-size:.62rem;font-weight:800;letter-spacing:.08em;color:var(--ink-mute)}
+.vcell .vv{font-family:var(--mono);font-size:1.2rem;font-weight:700;color:var(--ink)}
+.arr{display:flex;gap:.3rem;flex-wrap:wrap;margin:.8rem 0;justify-content:center}
+.acell{min-width:46px;border:2px solid var(--line);border-radius:.4rem;background:#fff;text-align:center;padding:.35rem .2rem;transition:.2s}
+.acell .ai{font-family:var(--mono);font-size:.55rem;color:#94a3b8;font-weight:700}
+.acell .av{font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--ink)}
+.acell.look{border-color:#d97706;background:#fffbeb;transform:translateY(-3px)}
+.acell.best{border-color:#16a34a;background:#f0fdf4}
+.acell.best .av{color:#15803d}
+
+/* spot the mistake */
+.findbug{background:#0f172a;border-radius:.7rem;padding:1rem;font-family:var(--mono);
+         font-size:clamp(.72rem,2.9vw,.88rem);line-height:2.1;color:#cbd5e1;margin:1rem 0;overflow-x:auto}
+.findbug .tok{cursor:pointer;border-radius:3px;padding:1px 3px;transition:.15s;border-bottom:2px dotted #475569}
+.findbug .tok:hover{background:#1e293b;border-bottom-color:#94a3b8}
+.findbug .tok.got{background:#14532d;color:#86efac;border-bottom:2px solid #22c55e;cursor:default}
+.findbug .tok.miss{background:#7f1d1d;color:#fecaca;animation:shake .35s}
+.findbug .fix{color:#86efac;font-weight:700}
+.bugbar{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;margin:.8rem 0}
+.bugbar .cnt{font-family:var(--mono);font-weight:700;font-size:1.05rem;color:var(--ink)}
+.bugbar .dots{display:flex;gap:.28rem}
+.bugbar .dots i{width:11px;height:11px;border-radius:50%;background:#e2e8f0;display:block}
+.bugbar .dots i.on{background:#16a34a}
+.buglog{font-size:.82rem;color:var(--ink-soft);min-height:1.4rem;font-weight:600}
+
+/* halving */
+.halve{margin:1rem 0}
+.hbar{height:34px;background:linear-gradient(90deg,#d97706,#f59e0b);border-radius:.4rem;
+      transition:width .45s cubic-bezier(.4,0,.2,1);display:grid;place-items:center;color:#fff;
+      font-family:var(--mono);font-weight:700;font-size:.85rem;min-width:42px;box-shadow:var(--sh-sm)}
+.htrack{background:#f1f5f9;border-radius:.4rem;padding:3px;border:1px solid var(--line)}
+.hsteps{display:flex;gap:.3rem;flex-wrap:wrap;margin:.8rem 0}
+.hstep{font-family:var(--mono);font-size:.72rem;font-weight:700;padding:.28rem .55rem;border-radius:.35rem;
+       background:#fef3c7;color:#92400e;border:1px solid #fde68a;animation:drop .25s}
+
+/* expansion chips */
+.expand{font-family:var(--mono);font-size:clamp(.8rem,3.2vw,1.05rem);font-weight:700;line-height:2;
+        background:#f8fafc;border:1px solid var(--line);border-radius:.6rem;padding:.9rem;margin:.9rem 0;
+        overflow-x:auto;white-space:nowrap}
+.expand .eq{color:#d97706}
+.expand .res{color:#15803d;font-size:1.15em}
+.fibrow{display:flex;gap:.35rem;flex-wrap:wrap;margin:.9rem 0}
+.fib{min-width:52px;text-align:center;border:2px solid var(--line);border-radius:.45rem;padding:.35rem .2rem;background:#fff}
+.fib .fi{font-family:var(--mono);font-size:.55rem;color:#94a3b8;font-weight:700}
+.fib .fv{font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--ink)}
+.fib.add{border-color:#d97706;background:#fffbeb}
+.fib.add .fv{color:#b45309}
+.fib.newv{border-color:#16a34a;background:#f0fdf4;animation:drop .3s}
+.fib.newv .fv{color:#15803d}
+
+/* control structure cards */
+.cs{border:2px solid var(--line);border-radius:.8rem;overflow:hidden;background:#fff;margin-bottom:.9rem}
+.cs .csh{padding:.65rem 1rem;font-weight:800;font-size:.85rem;display:flex;align-items:center;gap:.5rem}
+.cs.seq .csh{background:#eff6ff;color:#1d4ed8;border-bottom:1px solid #bfdbfe}
+.cs.sel .csh{background:#f5f3ff;color:#6d28d9;border-bottom:1px solid #ddd6fe}
+.cs.itr .csh{background:#ecfdf5;color:#047857;border-bottom:1px solid #a7f3d0}
+.cs .csb{padding:.9rem 1rem;font-family:var(--mono);font-size:clamp(.72rem,2.9vw,.85rem);line-height:1.95;
+         white-space:pre-wrap;color:#334155}
+.cs .csn{padding:.7rem 1rem;background:#f8fafc;border-top:1px solid var(--line);font-size:.8rem;color:var(--ink-soft)}
+
+/* ============ SHARED BYLINE (all pages) ============ */
+.byline{display:flex;align-items:center;gap:.75rem;margin-top:1.9rem;padding-top:1.15rem;
+        border-top:1px solid rgba(148,163,184,.22)}
+.byline .av{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.11);
+            border:1px solid rgba(148,163,184,.3);display:grid;place-items:center;
+            font-weight:800;font-size:.7rem;color:#fff;letter-spacing:.03em;flex:0 0 auto}
+.byline .who{font-size:.82rem;font-weight:700;color:#e2e8f0;line-height:1.4;min-width:0}
+.byline .who span{display:block;font-size:.7rem;font-weight:500;color:#94a3b8}
+.pagefoot{border-top:1px solid var(--line);background:#fff;padding:1.7rem 0 2.2rem;margin-top:2rem}
+.pagefoot .fin{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;justify-content:space-between}
+.pagefoot .fw{display:flex;align-items:center;gap:.7rem}
+.pagefoot .av{width:34px;height:34px;border-radius:50%;background:#0f172a;color:#fff;display:grid;
+              place-items:center;font-weight:800;font-size:.68rem;flex:0 0 auto}
+.pagefoot .nm{font-size:.8rem;font-weight:700;color:var(--ink);line-height:1.4}
+.pagefoot .nm span{display:block;font-size:.7rem;font-weight:500;color:var(--ink-mute)}
+.pagefoot .dept{font-size:.72rem;color:var(--ink-mute);font-weight:600}
+.pagefoot a{color:var(--ink-mute);text-decoration:none;font-weight:700}
+.pagefoot a:hover{color:var(--accent)}
+
+
+/* ============ PREV / INDEX / NEXT ============ */
+.pagenav{display:grid;gap:.6rem;margin:2.6rem 0 0}
+@media(min-width:700px){.pagenav{grid-template-columns:1fr auto 1fr;align-items:stretch}}
+.pn{display:flex;align-items:center;gap:.75rem;border:1px solid var(--line);border-radius:.75rem;padding:.85rem 1rem;
+    background:#fff;text-decoration:none;color:inherit;transition:.16s;box-shadow:var(--sh-sm);min-height:64px}
+a.pn:hover{border-color:var(--accent);box-shadow:var(--sh-md);transform:translateY(-2px)}
+.pn.off{opacity:.4;pointer-events:none;border-style:dashed;background:transparent;box-shadow:none}
+.pn .ar{font-size:1.1rem;color:var(--accent);flex:0 0 auto;font-weight:700}
+.pn.off .ar{color:#cbd5e1}
+.pn .tx{min-width:0;flex:1}
+.pn .tx em{font-style:normal;display:block;font-size:.6rem;font-weight:800;letter-spacing:.11em;
+           text-transform:uppercase;color:var(--ink-mute)}
+.pn .tx b{display:block;font-size:.86rem;font-weight:700;line-height:1.35;margin-top:.12rem}
+.pn.nx{text-align:right}
+.pn.nx .ar{order:2}
+.pn.nx .tx{order:1}
+.pn.home{justify-content:center;text-align:center;flex-direction:column;gap:.2rem;padding:.85rem 1.4rem;min-width:120px}
+.pn.home .ar{font-size:1.2rem;color:var(--ink-mute)}
+.pn.home b{font-size:.76rem}
+
+/* ============ RESPONSIVE HARDENING ============ */
+img,svg,video,canvas{max-width:100%;height:auto}
+pre,code,.mono{overflow-wrap:break-word}
+pre.code{white-space:pre;word-break:normal}
+table{min-width:0}
+.tw table{min-width:480px}
+@media(max-width:420px){
+  .wrap{padding:0 .8rem}
+  .card{padding:1.15rem .9rem;border-radius:.8rem}
+  .card.numbered{padding-top:1.9rem}
+  .card>.badge{left:.9rem;width:2.1rem;height:2.1rem;font-size:.85rem}
+  .box{padding:.8rem .85rem}
+  .bridge{padding:1rem .9rem}
+  pre.code{font-size:.7rem;padding:.8rem .7rem}
+  .hero{padding:2.2rem 0 2.4rem}
+  .timechip{display:none}
+  .hdr-row{gap:.4rem}
+}
+@media(max-width:340px){ .bit{width:30px} .byte{width:26px;height:26px;line-height:26px} }
+
+/* footer + pagenav centring */
+.pagenav{margin:2.6rem auto 0 !important}
+.pagefoot .fin{justify-content:center;text-align:center}
+@media(min-width:700px){.pagefoot .fin{justify-content:space-between;text-align:left}}
+.pagefoot .dept{text-align:center}
+@media(min-width:700px){.pagefoot .dept{text-align:right}}
+@media(max-width:699px){
+  .pagenav{grid-template-columns:1fr}
+  .pn{justify-content:flex-start}
+  .pn.nx{text-align:left}
+  .pn.nx .ar{order:0}.pn.nx .tx{order:1}
+  .pn.home{flex-direction:row;justify-content:center;gap:.5rem}
+}
+
+/* ============ FLOATING JUMP DRAWER ============ */
+.fab{position:fixed;right:.7rem;bottom:.7rem;z-index:90;display:flex;flex-direction:column;gap:.4rem}
+.fab button{width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;display:grid;place-items:center;
+            font-size:1.05rem;box-shadow:var(--sh-lg);transition:transform .15s,filter .15s;font-family:inherit}
+.fab button:hover{transform:scale(1.07)}
+.fab .fmenu{background:var(--acc,#4f46e5);color:#fff;font-size:1.15rem}
+.fab .fup,.fab .fdn{background:rgba(15,23,42,.92);color:#e2e8f0;width:38px;height:38px;font-size:.9rem;margin:0 3px}
+@media(max-width:520px){.fab .fup,.fab .fdn{display:none}}
+
+.scrim{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:95;opacity:0;pointer-events:none;transition:opacity .22s}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;right:0;top:0;bottom:0;width:min(340px,86vw);background:#fff;z-index:96;
+        box-shadow:-8px 0 30px rgba(15,23,42,.22);transform:translateX(105%);transition:transform .26s cubic-bezier(.4,0,.2,1);
+        display:flex;flex-direction:column;overflow:hidden}
+.drawer.on{transform:none}
+.drawer .dh{background:linear-gradient(140deg,var(--h1,#0f172a),var(--h3,#312e81));color:#fff;padding:1.05rem 1.1rem;flex:0 0 auto}
+.drawer .dh p{font-size:.6rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:#a5b4fc;margin:0 0 .2rem}
+.drawer .dh b{font-size:1rem;font-weight:800;display:block;line-height:1.3}
+.drawer .dx{position:absolute;right:.7rem;top:.7rem;background:rgba(255,255,255,.14);border:none;color:#fff;
+            width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem;line-height:1}
+.drawer .db{overflow-y:auto;padding:.85rem;flex:1}
+.drawer .grp{font-size:.6rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);
+             margin:.9rem .2rem .45rem;display:flex;align-items:center;gap:.45rem}
+.drawer .grp:first-child{margin-top:0}
+.drawer .grp span{height:1px;background:var(--line);flex:1}
+.drawer a.dl,.drawer button.dl{display:flex;align-items:center;gap:.55rem;width:100%;text-align:left;font-family:inherit;
+     border:1px solid var(--line);background:#fff;border-radius:.55rem;padding:.55rem .7rem;margin-bottom:.3rem;
+     text-decoration:none;color:var(--ink-soft);font-size:.82rem;font-weight:600;cursor:pointer;transition:.14s;line-height:1.4}
+.drawer a.dl:hover,.drawer button.dl:hover{border-color:var(--acc,#4f46e5);color:var(--ink);transform:translateX(2px)}
+.drawer a.dl.here{background:#eef2ff;border-color:#4f46e5;color:#3730a3;font-weight:800}
+.drawer .dn2{font-family:var(--mono);font-size:.62rem;font-weight:700;color:#fff;background:#94a3b8;border-radius:.28rem;
+             padding:.15rem .35rem;flex:0 0 auto;min-width:1.5rem;text-align:center}
+.drawer a.dl.here .dn2{background:#4f46e5}
+.drawer .home2{background:var(--h1,#0f172a);color:#fff;border-color:var(--h1,#0f172a);justify-content:center;font-weight:800}
+.drawer .home2:hover{color:#fff;filter:brightness(1.2)}
+.drawer .dsec{font-size:.78rem;padding:.42rem .7rem}
+.drawer .dsec .dn2{background:#e2e8f0;color:#64748b}
+
+/* ---- flowchart shapes gallery ---- */
+.shapes{display:grid;gap:.6rem;margin:1rem 0}
+@media(min-width:520px){.shapes{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:860px){.shapes{grid-template-columns:repeat(5,1fr)}}
+figure.shp{margin:0;border:1px solid var(--line);border-radius:.6rem;background:#fff;padding:.6rem;text-align:center}
+figure.shp svg{width:100%;height:auto;max-height:56px}
+figure.shp figcaption{margin-top:.4rem}
+figure.shp figcaption b{display:block;font-size:.78rem;font-weight:800;color:var(--ink)}
+figure.shp figcaption span{display:block;font-size:.68rem;color:var(--ink-mute);line-height:1.4;margin-top:.1rem}
+
+/* ---- running flowchart ---- */
+.fcwrap{display:grid;gap:1rem;margin:1.1rem 0;align-items:start}
+@media(min-width:780px){.fcwrap{grid-template-columns:minmax(0,320px) 1fr}}
+#fcsvg{width:100%;height:auto;max-width:340px;margin:0 auto;display:block;
+       border:1px solid var(--line);border-radius:.7rem;background:#fff;padding:.4rem}
+.fcn rect,.fcn path{fill:#f8fafc;stroke:#cbd5e1;stroke-width:2.5;transition:fill .25s,stroke .25s}
+.fcn text{font-family:Inter,sans-serif;font-size:12px;font-weight:700;fill:#64748b;text-anchor:middle;transition:fill .25s}
+.fcn.io rect,.fcn.io path{fill:#eff6ff;stroke:#93c5fd}
+.fcn.pr rect{fill:#f5f3ff;stroke:#c4b5fd}
+.fcn.de path{fill:#fffbeb;stroke:#fcd34d}
+.fcn.ok path{fill:#f0fdf4;stroke:#86efac}
+.fcn.no path{fill:#fff1f2;stroke:#fda4af}
+.fcn.cur rect,.fcn.cur path{fill:#e11d48;stroke:#9f1239}
+.fcn.cur text{fill:#fff}
+.fcedges line,.fcedges path{transition:stroke .25s}
+.fcside{min-width:0}
+.fclbl{font-size:.6rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-mute);margin:0 0 .4rem}
+.fcside .arr{justify-content:flex-start}
+.fcside .acell{min-width:44px}
+.fcside .acell.look{border-color:#e11d48;background:#fff1f2}
+.fcside .acell.look .av{color:#be123c}
+.fcside .acell.hitv{border-color:#16a34a;background:#dcfce7}
+.fcside .acell.hitv .av{color:#15803d}
+.vars{display:grid;gap:.45rem;margin:.8rem 0}
+.vcell{border:1px solid var(--line);border-radius:.5rem;padding:.45rem;text-align:center;background:#f8fafc}
+.vcell .vk{font-family:var(--mono);font-size:.6rem;font-weight:800;letter-spacing:.08em;color:var(--ink-mute)}
+.vcell .vv{font-family:var(--mono);font-size:1.15rem;font-weight:700;color:var(--ink)}
+
+.btn.ghost{background:#fff !important;color:var(--ink-soft) !important;border:2px solid var(--line) !important;box-shadow:none !important}
+.btn.ghost:hover:not(:disabled){border-color:var(--line-strong) !important;color:var(--ink) !important}
+
+/* ---- verdict cards ---- */
+.verdictgrid{display:grid;gap:.6rem;margin-top:.7rem}
+@media(min-width:560px){.verdictgrid{grid-template-columns:1fr 1fr}}
+.vcard{border:2px solid var(--line);border-radius:.6rem;padding:.8rem;text-align:center;background:#fff;transition:.25s}
+.vcard .vk{font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-mute);margin:0}
+.vcard .vv{font-family:var(--mono);font-size:1.2rem;font-weight:700;margin:.2rem 0 0;word-break:break-all}
+.vcard .vd{font-size:.74rem;font-weight:800;margin:.3rem 0 0}
+.vcard.pass{border-color:#86efac;background:#f0fdf4}.vcard.pass .vv,.vcard.pass .vd{color:#15803d}
+.vcard.fail{border-color:#fda4af;background:#fff1f2}.vcard.fail .vv,.vcard.fail .vd{color:#be123c}
+
+/* ---- factor pairs ---- */
+.pairs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin:1rem 0}
+.pr2{border:2px solid var(--line);border-radius:.5rem;background:#fff;padding:.45rem .7rem;font-family:var(--mono);
+     font-size:.9rem;font-weight:700;color:var(--ink-soft);transition:.2s}
+.pr2.turn{border-color:#ea580c;background:#fff7ed;color:#c2410c;transform:scale(1.06)}
+.pr2.dup{opacity:.45;text-decoration:line-through}
+
+/* ---- folding ---- */
+.fold{display:flex;align-items:flex-end;gap:.35rem;flex-wrap:wrap;margin:1rem 0;min-height:60px}
+.fd{background:linear-gradient(180deg,#22d3ee,#0891b2);border-radius:.3rem;min-width:26px;display:grid;place-items:center;
+    color:#fff;font-family:var(--mono);font-size:.68rem;font-weight:700;transition:.35s;padding:.3rem .2rem;animation:drop .25s}
+
+/* ---- calculator ---- */
+.calcgrid{display:grid;gap:.9rem;margin:1rem 0}
+@media(min-width:640px){.calcgrid{grid-template-columns:1fr 1.4fr}}
+.verdictbox{border:2px solid var(--line);border-radius:.7rem;padding:1rem;background:#f8fafc;margin:.6rem 0 0;text-align:center}
+.verdictbox.pass{border-color:#86efac;background:#f0fdf4}
+.verdictbox.fail{border-color:#fda4af;background:#fff1f2}
+.verdictbox .vbig{font-family:var(--mono);font-size:1.5rem;font-weight:700;margin:0}
+.verdictbox .vsub{font-size:.85rem;margin:.35rem 0 0;font-weight:700}
+
+/* ---- hierarchy ---- */
+.hier{display:grid;gap:.35rem;margin:1rem 0}
+.hr2{display:flex;align-items:center;gap:.7rem;border:1px solid var(--line);border-radius:.5rem;background:#fff;padding:.5rem .8rem}
+.hr2 .hb{height:12px;border-radius:999px;flex:0 0 auto;transition:width .4s}
+.hr2 .hn{font-family:var(--mono);font-size:.86rem;font-weight:700;min-width:5.6rem;flex:0 0 auto}
+.hr2 .hd{font-size:.76rem;color:var(--ink-mute);font-weight:600}
+
+/* ---- copy bar ---- */
+.copybar{display:grid;gap:.35rem;margin:1rem 0 .5rem}
+.cprow{display:flex;justify-content:space-between;gap:.8rem;border:1px solid var(--line);border-radius:.45rem;
+       background:#fff;padding:.45rem .7rem}
+.cpl{font-size:.78rem;color:var(--ink-mute);font-weight:700}
+.cpv{font-weight:700;font-size:.95rem;text-align:right;word-break:break-all;max-width:62%}
+
+.hero-lede{max-width:60rem}
+.arc span{white-space:nowrap}
+.hero-meta div{white-space:nowrap}
+@media(max-width:520px){.hero-meta div{white-space:normal}}
+
+/* ============ DIG DEEPER — richer look (all pages) ============ */
+.digwrap{margin:1.5rem 0}
+.dighead{display:flex;align-items:center;gap:.55rem;font-size:.64rem;font-weight:800;letter-spacing:.14em;
+         text-transform:uppercase;color:var(--ink-mute);margin-bottom:.7rem}
+.dighead::before{content:"";width:16px;height:16px;border-radius:5px;flex:0 0 auto;
+  background:linear-gradient(135deg,var(--accent,#4f46e5),color-mix(in srgb,var(--accent,#4f46e5) 45%,#fff))}
+.dighead span{height:1px;background:linear-gradient(90deg,var(--line),transparent);flex:1}
+
+details.dig{border:1px solid var(--line);border-radius:.75rem;background:#fff;margin-bottom:.55rem;
+            overflow:hidden;position:relative;transition:border-color .2s,box-shadow .2s,transform .2s}
+details.dig::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,var(--accent,#4f46e5),transparent);opacity:0;transition:opacity .25s}
+details.dig:hover{border-color:var(--line-strong);transform:translateX(2px)}
+details.dig[open]{border-color:color-mix(in srgb,var(--accent,#4f46e5) 40%,var(--line));
+                  box-shadow:0 6px 20px -10px color-mix(in srgb,var(--accent,#4f46e5) 60%,transparent)}
+details.dig[open]::before{opacity:1}
+
+details.dig>summary{cursor:pointer;padding:.8rem 2.5rem .8rem 1rem;font-weight:700;font-size:.87rem;
+  list-style:none;display:flex;align-items:center;gap:.65rem;color:var(--ink);position:relative;
+  background:linear-gradient(180deg,#fff,#fafbfd);transition:background .18s;line-height:1.45}
+details.dig>summary::-webkit-details-marker{display:none}
+details.dig>summary:hover{background:#f5f8fc}
+details.dig>summary .dicon{width:26px;height:26px;border-radius:8px;flex:0 0 auto;display:grid;place-items:center;
+  font-size:.78rem;font-weight:800;color:#fff;
+  background:linear-gradient(135deg,var(--accent,#4f46e5),color-mix(in srgb,var(--accent,#4f46e5) 60%,#000));
+  box-shadow:0 2px 6px -1px color-mix(in srgb,var(--accent,#4f46e5) 70%,transparent);transition:transform .25s}
+details.dig[open]>summary .dicon{transform:rotate(-8deg) scale(1.06)}
+details.dig>summary::after{content:"";position:absolute;right:1rem;top:50%;width:9px;height:9px;
+  border-right:2.4px solid var(--accent,#4f46e5);border-bottom:2.4px solid var(--accent,#4f46e5);
+  transform:translateY(-70%) rotate(45deg);transition:transform .25s;opacity:.75}
+details.dig[open]>summary::after{transform:translateY(-30%) rotate(225deg)}
+details.dig[open]>summary{border-bottom:1px solid color-mix(in srgb,var(--accent,#4f46e5) 22%,var(--line))}
+details.dig>div{padding:1rem 1.1rem;font-size:.87rem;color:var(--ink-soft);line-height:1.75;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--accent,#4f46e5) 4%,#fff),#fff)}
+details.dig>div b{color:var(--ink)}
+
+/* ---- problem cards ---- */
+details.prob{border:1px solid var(--line);border-radius:.7rem;background:#fff;margin:.9rem 0;overflow:hidden;
+             transition:border-color .2s,box-shadow .2s}
+details.prob[open]{box-shadow:0 6px 20px -12px rgba(15,23,42,.35)}
+details.prob.cf[open]{border-color:#93c5fd}
+details.prob.lc[open]{border-color:#fcd34d}
+details.prob>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:.7rem;
+                     padding:.7rem .9rem;font-size:.87rem;font-weight:700;color:var(--ink);
+                     background:linear-gradient(180deg,#fff,#fafbfd);position:relative}
+details.prob>summary::-webkit-details-marker{display:none}
+details.prob>summary::after{content:"";position:absolute;right:.95rem;width:8px;height:8px;
+  border-right:2.2px solid #94a3b8;border-bottom:2.2px solid #94a3b8;transform:rotate(45deg) translateY(-2px);transition:transform .25s}
+details.prob[open]>summary::after{transform:rotate(225deg) translateY(-2px)}
+.plogo{width:30px;height:30px;border-radius:7px;flex:0 0 auto;display:grid;place-items:center;padding:5px}
+.plogo svg{width:100%;height:100%;display:block}
+details.prob.cf .plogo{background:#eff6ff}
+details.prob.lc .plogo{background:#fffbeb}
+.psrc{font-size:.6rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;padding:.2rem .5rem;
+      border-radius:999px;margin-right:1.4rem;white-space:nowrap;flex:0 0 auto}
+details.prob.cf .psrc{background:#dbeafe;color:#1d4ed8}
+details.prob.lc .psrc{background:#fef3c7;color:#b45309}
+details.prob>div{padding:.9rem 1rem 1rem;border-top:1px solid var(--line);font-size:.86rem;line-height:1.7;color:var(--ink-soft)}
+.plink{display:inline-flex;align-items:center;gap:.4rem;margin-top:.7rem;font-size:.8rem;font-weight:800;
+       text-decoration:none;border-radius:.45rem;padding:.42rem .8rem;color:#fff}
+details.prob.cf .plink{background:#1d4ed8}
+details.prob.lc .plink{background:#d97706}
+.plink:hover{filter:brightness(1.12)}
+.pconstraint{font-family:var(--mono);font-size:.78rem;background:#f1f5f9;border-radius:.35rem;padding:.15rem .45rem;color:#334155}
+
+/* ---- goals box ---- */
+.goals{border:2px solid #fecdd3;border-radius:.9rem;background:linear-gradient(180deg,#fff5f6,#fff);
+       padding:1.1rem 1.2rem;margin-bottom:2.2rem}
+.goals .gh{display:flex;align-items:center;gap:.6rem;margin:0 0 .9rem}
+.goals .gh i{font-style:normal;width:32px;height:32px;border-radius:9px;background:#e11d48;color:#fff;
+             display:grid;place-items:center;font-size:1rem;flex:0 0 auto}
+.goals .gh b{font-size:.95rem;font-weight:800;color:#9f1239}
+.goals ol{list-style:none;counter-reset:g;margin:0;padding:0;display:grid;gap:.55rem}
+.goals li{counter-increment:g;display:flex;gap:.65rem;align-items:flex-start;font-size:.9rem;line-height:1.6;color:var(--ink-soft)}
+.goals li::before{content:counter(g);width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #fda4af;
+  color:#be123c;font-size:.7rem;font-weight:800;display:grid;place-items:center;flex:0 0 auto;margin-top:.1rem}
+.goals li b{color:var(--ink)}
+
+/* ---- factor pairs, one per line ---- */
+.pairlist{display:grid;gap:.28rem;margin:1rem 0;max-width:420px;margin-left:auto;margin-right:auto}
+.pl{display:flex;align-items:center;gap:.6rem;border:1px solid var(--line);border-radius:.45rem;
+    background:#fff;padding:.4rem .75rem;font-family:var(--mono);font-size:.92rem;font-weight:700;color:var(--ink-soft)}
+.pl .plx{flex:1}
+.pl .pln{font-size:.62rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:.15rem .45rem;
+         border-radius:999px;white-space:nowrap}
+.pl.turn{border-color:#ea580c;background:#fff7ed;color:#c2410c;border-width:2px}
+.pl.turn .pln{background:#ea580c;color:#fff}
+.pl.dup{opacity:.5}
+.pl.dup .pln{background:#f1f5f9;color:#94a3b8}
+.pl.pre .pln{background:#dcfce7;color:#15803d}
+
+/* ---- hierarchy: no overflow ---- */
+.hier{display:grid;gap:.4rem;margin:1rem 0 0}
+.hr2{display:grid;grid-template-columns:5.6rem 1fr;gap:.5rem .7rem;align-items:center;
+     border:1px solid var(--line);border-radius:.55rem;background:#fff;padding:.55rem .8rem}
+.hr2 .hn{font-family:var(--mono);font-size:.85rem;font-weight:700}
+.hr2 .hbwrap{height:12px;border-radius:999px;background:#f1f5f9;overflow:hidden}
+.hr2 .hb{height:100%;border-radius:999px;display:block}
+.hr2 .hd{grid-column:1/-1;font-size:.75rem;color:var(--ink-mute);font-weight:600;line-height:1.45}
+@media(min-width:620px){
+  .hr2{grid-template-columns:5.6rem minmax(80px,1fr) 1.5fr}
+  .hr2 .hd{grid-column:auto}
+}
+
+/* ---- reveal-the-optimisation ---- */
+.thinkbox{border:2px dashed #cbd5e1;border-radius:.7rem;background:#f8fafc;padding:1rem;text-align:center;margin:.9rem 0}
+.thinkbox p{font-size:.88rem;color:var(--ink-soft);margin:0 0 .7rem}
+.thinkbox p b{color:var(--ink)}
+.revealed{display:none}
+.revealed.on{display:block;animation:pop .35s ease}
+/* ============ CLASS 3 · ALGORITHM NOTATION ============ */
+.algo{background:#fff;border:2px solid var(--line);border-radius:.8rem;overflow:hidden;margin:1rem 0;
+      font-family:var(--mono);font-size:clamp(.72rem,2.9vw,.88rem);line-height:1.9}
+.algo .ahead{background:#fffbeb;border-bottom:2px solid #fde68a;padding:.8rem 1rem;font-family:var(--sans);
+             font-size:.82rem;color:#78350f;line-height:1.6}
+.algo .ahead b{color:#92400e}
+.algo .body{padding:.7rem .4rem}
+.algo .st{display:block;padding:.22rem .7rem;border-radius:.3rem;white-space:pre-wrap;transition:background .2s;color:#334155}
+.algo .st.cur{background:#fef3c7;box-shadow:inset 3px 0 0 #d97706;font-weight:700;color:#78350f}
+.algo .st.done{color:#94a3b8}
+.algo .st .cm{color:#0891b2;font-style:italic}
+.algo .st .kw{color:#be123c;font-weight:700}
+.algo .st .vr{color:#7c3aed;font-weight:700}
+.algo .st .op{color:#d97706;font-weight:700}
+
+/* ============ SEGMENT 2 · LINEAR ARRAYS ============ */
+/* array strip */
+.astrip{display:flex;gap:3px;flex-wrap:wrap;justify-content:center;margin:1.1rem 0}
+.acell2{width:60px;flex:0 0 auto;text-align:center;cursor:pointer;transition:.2s}
+.acell2 .ai2{font-family:var(--mono);font-size:.6rem;font-weight:700;color:#94a3b8;display:block;margin-bottom:2px}
+.acell2 .ab2{height:44px;border:2px solid #cbd5e1;border-radius:.35rem;background:#fff;display:grid;place-items:center;
+             font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--ink);transition:.2s}
+.acell2 .aa2{font-family:var(--mono);font-size:.55rem;color:#cbd5e1;display:block;margin-top:3px}
+.acell2:hover .ab2{border-color:#7dd3fc;transform:translateY(-2px)}
+.acell2.sel .ab2{border-color:#0284c7;background:#e0f2fe;color:#075985;transform:translateY(-4px);
+                 box-shadow:0 6px 16px -6px rgba(2,132,199,.6)}
+.acell2.sel .ai2,.acell2.sel .aa2{color:#0284c7;font-weight:800}
+.acell2.lbub .ab2{border-color:#f59e0b;background:#fffbeb}
+.acell2.walk .ab2{border-color:#16a34a;background:#dcfce7}
+.acell2.done2 .ab2{opacity:.45}
+.acell2.hitc .ab2{border-color:#16a34a;background:#bbf7d0;color:#14532d}
+
+/* formula board */
+.fboard{background:#0f172a;border-radius:.75rem;padding:1.1rem 1rem;margin:1rem 0;font-family:var(--mono);
+        color:#e2e8f0;overflow-x:auto}
+.fline{display:block;white-space:pre;font-size:clamp(.78rem,3.2vw,1rem);line-height:2.2;letter-spacing:.01em}
+.fline.dim{color:#64748b}
+.fline .fv{color:#38bdf8;font-weight:700}
+.fline .fk{color:#fbbf24;font-weight:700}
+.fline .fr{color:#4ade80;font-weight:700;font-size:1.15em}
+.fline .fc{color:#64748b}
+
+/* control row */
+.ctrls{display:grid;gap:.6rem;margin:1rem 0}
+@media(min-width:600px){.ctrls{grid-template-columns:repeat(4,1fr)}}
+.ctrl{border:1px solid var(--line);border-radius:.55rem;background:#fff;padding:.5rem .6rem}
+.ctrl label{display:block;font-size:.58rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-mute)}
+.ctrl input{width:100%;border:none;outline:none;font-family:var(--mono);font-size:1.05rem;font-weight:700;
+            color:var(--ink);background:transparent;margin-top:.1rem;padding:0}
+.ctrl input:focus{color:#0284c7}
+
+/* two-cell compare */
+.cmp2{display:grid;gap:.7rem;margin:1rem 0}
+@media(min-width:560px){.cmp2{grid-template-columns:1fr 1fr}}
+.cmpc{border:2px solid var(--line);border-radius:.7rem;padding:.85rem;background:#fff;text-align:center}
+.cmpc .ck{font-size:.6rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-mute);margin:0}
+.cmpc .cf2{font-family:var(--mono);font-size:.78rem;color:var(--ink-soft);margin:.4rem 0;line-height:1.7}
+.cmpc .cw{font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#15803d;margin:.2rem 0 0}
+.cmpc .cs2{font-size:.72rem;font-weight:700;color:#15803d;margin:.15rem 0 0}
+
+/* traversal watch */
+.twatch{display:grid;gap:.5rem;margin:.9rem 0}
+@media(min-width:520px){.twatch{grid-template-columns:repeat(3,1fr)}}
+.tw2{border:1px solid var(--line);border-radius:.55rem;background:#f8fafc;padding:.6rem;text-align:center}
+.tw2 .tk2{font-family:var(--mono);font-size:.6rem;font-weight:800;letter-spacing:.08em;color:var(--ink-mute)}
+.tw2 .tv2{font-family:var(--mono);font-size:1.3rem;font-weight:700;color:var(--ink);margin-top:.1rem}
+.tw2.hit2{background:#dcfce7;border-color:#86efac}
+.tw2.hit2 .tv2{color:#15803d}
+
+/* ---- code-driven array demo ---- */
+.codearr{display:grid;gap:1rem;margin:1.1rem 0}
+@media(min-width:800px){.codearr{grid-template-columns:.85fr 1.15fr;align-items:start}}
+.carr-code{background:#0f172a;border-radius:.65rem;padding:.9rem 1rem;font-family:var(--mono);
+           font-size:.86rem;line-height:2.1;color:#e2e8f0}
+.carr-code .cl{display:block;white-space:pre;border-radius:3px;padding:0 .4rem;margin:0 -.4rem;transition:.25s}
+.carr-code .cl.done{background:rgba(148,163,184,.10)}
+.carr-code .cl.cur{background:rgba(56,189,248,.24);box-shadow:inset 3px 0 0 #38bdf8;font-weight:700}
+.carr-code .k{color:#c4b5fd}.carr-code .t{color:#fcd34d}.carr-code .n{color:#fdba74}.carr-code .c{color:#64748b;font-style:italic}
+.memcells{display:flex;gap:3px;flex-wrap:wrap;justify-content:center}
+.mc{width:52px;flex:0 0 auto;text-align:center}
+.mc .mi{font-family:var(--mono);font-size:.6rem;font-weight:700;color:#94a3b8;display:block;margin-bottom:2px}
+.mc .mb{height:42px;border:2px solid #cbd5e1;border-radius:.35rem;background:#fff;display:grid;place-items:center;
+        font-family:var(--mono);font-size:.9rem;font-weight:700;color:var(--ink);transition:.3s}
+.mc.garbage .mb{color:#94a3b8;font-style:italic;font-size:.76rem;background:#f8fafc;border-style:dashed}
+.mc.set .mb{border-color:#16a34a;background:#dcfce7;color:#15803d;animation:pop2 .4s ease}
+.mc.touch .mb{border-color:#0284c7;background:#e0f2fe;box-shadow:0 0 0 3px rgba(2,132,199,.25)}
+.mc .ma{font-family:var(--mono);font-size:.53rem;color:#cbd5e1;display:block;margin-top:3px}
+
+/* ---- derivation table ---- */
+.deriv{display:grid;gap:.35rem;margin:1rem 0}
+.drow{display:grid;grid-template-columns:auto 1fr;gap:.5rem .8rem;align-items:center;border:1px solid var(--line);
+      border-radius:.5rem;background:#fff;padding:.5rem .8rem;opacity:.22;transform:translateY(4px);
+      transition:opacity .35s,transform .35s,border-color .3s,background .3s}
+.drow.on{opacity:1;transform:none}
+@media(min-width:620px){.drow{grid-template-columns:6.5rem 6rem 8rem 1fr}}
+.drow span{font-family:var(--mono);font-size:.84rem;font-weight:700;color:var(--ink-soft)}
+.drow .dlbl{color:var(--ink-mute);font-family:var(--sans);font-size:.75rem;font-weight:700}
+.drow .dskip{color:#d97706}
+.drow .daddr{color:#0369a1;font-weight:800}
+.drow.final{border-color:#0284c7;background:#f0f9ff;border-width:2px}
+.drow.final .daddr{color:#075985;font-size:.95rem}
+.drow.final .dlbl{color:#0369a1;font-weight:800}
+.dhead{display:grid;grid-template-columns:auto 1fr;gap:.5rem .8rem;padding:0 .8rem .1rem;
+       font-size:.58rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-mute)}
+@media(min-width:620px){.dhead{grid-template-columns:6.5rem 6rem 8rem 1fr}}
+@media(max-width:619px){.dhead{display:none}}
+
+/* ============ SEGMENT 2 · CLASS 2 ============ */
+.opstrip{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;margin:1.1rem 0;min-height:74px}
+.oc{width:56px;flex:0 0 auto;text-align:center;transition:.32s}
+.oc .oi{font-family:var(--mono);font-size:.6rem;font-weight:700;color:#94a3b8;display:block;margin-bottom:2px}
+.oc .ob{height:46px;border:2px solid #cbd5e1;border-radius:.35rem;background:#fff;display:grid;place-items:center;
+        font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--ink);transition:.32s}
+.oc.moving .ob{border-color:#7c3aed;background:#f5f3ff;color:#5b21b6;transform:translateY(-6px);
+               box-shadow:0 8px 16px -8px rgba(124,58,237,.7)}
+.oc.newv2 .ob{border-color:#16a34a;background:#dcfce7;color:#15803d;animation:pop2 .4s ease}
+.oc.gone2 .ob{border-color:#fda4af;background:#fff1f2;color:#be123c;opacity:.55;text-decoration:line-through}
+.oc.empty2 .ob{border-style:dashed;border-color:#e2e8f0;background:#fafbfc;color:#cbd5e1}
+.oc.cmp .ob{border-color:#d97706;background:#fffbeb;color:#92400e}
+.oc.swapd .ob{border-color:#16a34a;background:#dcfce7;color:#15803d}
+.oc.locked .ob{border-color:#86efac;background:#f0fdf4;opacity:.75}
+.oc.found2 .ob{border-color:#16a34a;background:#bbf7d0;color:#14532d;box-shadow:0 0 0 3px rgba(22,163,74,.3)}
+.oc.sent .ob{border-color:#a855f7;background:#faf5ff;color:#7e22ce;border-style:dashed}
+
+/* counters */
+.cnts{display:grid;gap:.5rem;margin:.9rem 0}
+@media(min-width:520px){.cnts{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}}
+.cnt2{border:2px solid var(--line);border-radius:.6rem;background:#fff;padding:.6rem;text-align:center}
+.cnt2 .ck2{font-size:.58rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-mute);margin:0}
+.cnt2 .cv3{font-family:var(--mono);font-size:1.55rem;font-weight:700;color:var(--ink);margin:.1rem 0 0}
+.cnt2.c-c{border-color:#fcd34d;background:#fffbeb}.cnt2.c-c .cv3{color:#b45309}
+.cnt2.c-d{border-color:#86efac;background:#f0fdf4}.cnt2.c-d .cv3{color:#15803d}
+.cnt2.c-p{border-color:#bfdbfe;background:#eff6ff}.cnt2.c-p .cv3{color:#1d4ed8}
+
+/* word input */
+.wordbar{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;justify-content:center;margin:.9rem 0}
+.wordbar input{font-family:var(--mono);font-size:1.1rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+               padding:.5rem .8rem;border:2px solid var(--line);border-radius:.5rem;width:190px;text-align:center;color:var(--ink)}
+.wordbar input:focus{border-color:#d97706;outline:none}
+
+/* pass tracker */
+.passes{display:grid;gap:.3rem;margin:.8rem 0;max-width:460px;margin-left:auto;margin-right:auto}
+.prow{display:flex;align-items:center;gap:.6rem;border:1px solid var(--line);border-radius:.45rem;background:#fff;
+      padding:.36rem .7rem;font-family:var(--mono);font-size:.82rem}
+.prow .pn2{font-weight:800;color:var(--ink-mute);min-width:3.6rem}
+.prow .pw{flex:1;letter-spacing:.14em;font-weight:700;color:var(--ink)}
+.prow .pc{font-size:.7rem;color:#b45309;font-weight:700}
+.prow.cur2{border-color:#d97706;background:#fffbeb}
+.prow.donep{opacity:.6}
+
+/* ============ SEGMENT 2 · CLASS 3 ============ */
+.gridwrap{overflow-x:auto;padding:.2rem}
+.mgrid{display:grid;gap:3px;margin:0 auto;width:max-content}
+.gc{width:56px;height:44px;border:2px solid #cbd5e1;border-radius:.3rem;background:#fff;display:grid;
+    place-items:center;font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--ink);
+    cursor:pointer;transition:.18s;position:relative}
+.gc:hover{border-color:#7dd3fc;transform:translateY(-2px)}
+.gc.sel2{border-color:#0284c7;background:#e0f2fe;color:#075985;box-shadow:0 0 0 3px rgba(2,132,199,.3);z-index:2}
+.gc.rowlit{background:#eff6ff;border-color:#93c5fd}
+.gc.collit{background:#fef3c7;border-color:#fcd34d}
+.gc .gidx{position:absolute;top:2px;left:4px;font-size:.5rem;color:#94a3b8;font-weight:700}
+.gc.sel2 .gidx{color:#0284c7}
+.ghdr{width:56px;height:22px;display:grid;place-items:center;font-family:var(--mono);font-size:.6rem;
+      font-weight:800;color:#94a3b8}
+.gside{width:34px;height:44px;display:grid;place-items:center;font-family:var(--mono);font-size:.6rem;
+       font-weight:800;color:#94a3b8}
+
+/* linear strips */
+.lin{margin:.9rem 0}
+.linlbl{display:flex;align-items:center;gap:.5rem;font-size:.62rem;font-weight:800;letter-spacing:.09em;
+        text-transform:uppercase;margin-bottom:.35rem}
+.linlbl.row{color:#1d4ed8}.linlbl.col{color:#b45309}
+.linlbl span{height:1px;flex:1}
+.linlbl.row span{background:#bfdbfe}.linlbl.col span{background:#fde68a}
+.linstrip{display:flex;gap:2px;overflow-x:auto;padding-bottom:.25rem}
+.ls2{min-width:32px;flex:1 1 0;text-align:center}
+.ls2 .lb2{height:30px;border:2px solid #e2e8f0;border-radius:.25rem;background:#fff;display:grid;place-items:center;
+          font-family:var(--mono);font-size:.62rem;font-weight:700;color:#94a3b8;transition:.2s;white-space:nowrap}
+.linstrip.row .ls2.on .lb2{border-color:#2563eb;background:#dbeafe;color:#1e3a8a;transform:translateY(-3px)}
+.linstrip.col .ls2.on .lb2{border-color:#d97706;background:#fef3c7;color:#92400e;transform:translateY(-3px)}
+.ls2 .la2{font-family:var(--mono);font-size:.48rem;color:#cbd5e1;display:block;margin-top:2px}
+.ls2.on .la2{color:var(--ink-soft);font-weight:800}
+
+/* sparse */
+.spgrid{display:grid;gap:2px;width:max-content;margin:0 auto}
+.spc{width:34px;height:30px;border:1px solid #e2e8f0;border-radius:.2rem;display:grid;place-items:center;
+     font-family:var(--mono);font-size:.72rem;color:#cbd5e1;background:#fafbfc;transition:.2s}
+.spc.nz{background:#dcfce7;border-color:#16a34a;color:#15803d;font-weight:800}
+.spstats{display:grid;gap:.5rem;margin:.9rem 0}
+@media(min-width:560px){.spstats{grid-template-columns:repeat(3,1fr)}}
+
+/* ============ LIGHT CODE THEME (default) + toggle ============ */
+body.codelight pre.code,
+body.codelight .carr-code,
+body.codelight .codepane,
+body.codelight .fboard,
+body.codelight .findbug,
+body.codelight .exactbox{
+  background:#f8fafc;color:#334155;border:1px solid #e2e8f0;box-shadow:inset 0 1px 0 #fff}
+body.codelight pre.code .k,body.codelight .carr-code .k,body.codelight .codepane .k{color:#7c3aed}
+body.codelight pre.code .t,body.codelight .carr-code .t,body.codelight .codepane .t{color:#b45309}
+body.codelight pre.code .f,body.codelight .carr-code .f,body.codelight .codepane .f{color:#0369a1}
+body.codelight pre.code .n,body.codelight .carr-code .n,body.codelight .codepane .n{color:#c2410c}
+body.codelight pre.code .c,body.codelight .carr-code .c,body.codelight .codepane .c{color:#94a3b8}
+body.codelight pre.code .s{color:#15803d}
+body.codelight .carr-code .cl{color:#334155}
+body.codelight .carr-code .cl.cur{background:rgba(2,132,199,.14);box-shadow:inset 3px 0 0 #0284c7}
+body.codelight .carr-code .cl.done{background:rgba(148,163,184,.12)}
+body.codelight .codepane .ln{color:#334155}
+body.codelight .codepane .ln.newest{background:rgba(13,148,136,.14);box-shadow:inset 2px 0 0 #0d9488}
+body.codelight .codepane .cursor{background:#0d9488}
+body.codelight .fboard .fline{color:#334155}
+body.codelight .fboard .fline.dim{color:#94a3b8}
+body.codelight .fboard .fv{color:#0369a1}
+body.codelight .fboard .fk{color:#b45309}
+body.codelight .fboard .fr{color:#15803d}
+body.codelight .fboard .fc{color:#94a3b8}
+body.codelight .outpane{background:#f1f5f9;color:#15803d;border:1px solid #e2e8f0}
+body.codelight .findbug{color:#334155}
+body.codelight .findbug .fbline{background:rgba(148,163,184,.10)}
+body.codelight .findbug .tok{border-bottom-color:#cbd5e1}
+body.codelight .findbug .tok:hover{background:#e2e8f0}
+body.codelight .findbug .tok.got{background:#dcfce7;color:#15803d;border-bottom-color:#22c55e}
+body.codelight .findbug .fix{color:#15803d}
+body.codelight .exactbox{color:#334155}
+body.codelight .exactbox .hi{color:#be123c}
+body.codelight .exactbox .lo{color:#94a3b8}
+
+.codetog{appearance:none;border:1px solid #334155;background:transparent;color:#94a3b8;border-radius:.45rem;
+         font-family:inherit;font-size:.68rem;font-weight:700;padding:.3rem .6rem;cursor:pointer;
+         white-space:nowrap;transition:.15s;flex:0 0 auto}
+.codetog:hover{color:#e2e8f0;border-color:#64748b}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <span class="brand-badge" style="background:linear-gradient(135deg,#0284c7,#38bdf8)">03</span>
+      <span>
+        <span class="brand-s">CSE-2321 · Segment 2 · Class 3</span>
+        <span class="brand-t">2D Arrays, Matrices &amp; Sparse</span>
+      </span>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-tab="lesson">Lesson</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="exam">Exam &amp; Interview</button>
+    </div>
+  </div>
+  <div class="rail"><i id="rail"></i></div>
+</div>
+
+<section class="panel" id="p-lesson">
+
+<header class="hero" style="background:linear-gradient(160deg,#0f172a 0%,#0c3a5e 55%,#0369a1 100%)">
+  <div class="wrap">
+    <p class="eyebrow" style="color:#7dd3fc">Data Structures · Segment 2 · Class 3</p>
+    <h1>2D arrays, matrices <em>&amp; sparse</em></h1>
+    <p class="hero-lede">Memory is a <b>straight line</b>. A table is a <b>rectangle</b>. Something has to give — and the way it gives is the single most-asked question on the Mid Term paper.</p>
+    <div class="arc">
+      <span>Rows &amp; columns</span><span>Flattening</span><span>Row-major</span><span>Column-major</span><span>3D</span><span>Sparse</span>
+    </div>
+    <div class="hero-meta">
+      <div><b>4 of 4</b>papers ask this exact question</div>
+      <div><b>2 orders</b>row-major and column-major</div>
+      <div><b>65 min</b>7 sections</div>
+    </div>
+    <div class="byline">
+      <span class="av">JA</span>
+      <span class="who">Jamil As-ad<span>Lecturer, Dept. of CSE &middot; International Islamic University Chittagong</span></span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<div class="box bad" style="margin-bottom:2.2rem">
+  <p class="bt">🎓 Read this before anything else</p>
+  <p style="margin:0">This question has appeared on <b>every single Mid Term paper</b> we have:<br><br>
+  <b>Autumn 2025</b> — A(4:12, 7:14), Base 300, w 8, find A[6,10] &nbsp;·&nbsp; <b>Spring 2025</b> — the same array, Base 500, w 4<br>
+  <b>Spring 2024</b> — B(1:8, &minus;5:5, &minus;10:5), find B[2,&minus;3,2] &nbsp;·&nbsp; <b>Spring 2023</b> — A(3:10, 1:10, &minus;3:10), find A[8,6,4]<br><br>
+  <b>Worth 2.5 to 3 marks, every time.</b> By the end of this class you will do it in under a minute.</p>
+</div>
+
+<!-- ============ 1 · WHAT IS A 2D ARRAY ============ -->
+<article class="card numbered" id="s1" style="--accent:#0284c7">
+  <span class="badge">1</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 1</p><h2>From one dimension to two</h2></div>
+    <span class="timechip">⏱ 7 min</span>
+  </div>
+
+  <div class="box info">
+    <p class="bt">Definition</p>
+    <p style="margin:0">A two-dimensional <b>m &times; n</b> array A is a collection of <b>m &middot; n</b> data elements such that each element is specified by a <b>pair of integers</b> (such as J, K) called <b>subscripts</b>.<br><br>
+    The element with first subscript J and second subscript K is written <span class="mono">A[J, K]</span> or <span class="mono">A[J][K]</span>.</p>
+  </div>
+
+  <p>The same thing has three names depending on who is talking:</p>
+  <div class="grid3">
+    <div class="box" style="margin:0"><p class="bt">In programming</p><p style="margin:0">a <b>two-dimensional array</b></p></div>
+    <div class="box" style="margin:0"><p class="bt">In mathematics</p><p style="margin:0">a <b>matrix</b></p></div>
+    <div class="box" style="margin:0"><p class="bt">In business</p><p style="margin:0">a <b>table</b></p></div>
+  </div>
+  <p class="subtle" style="margin-top:.8rem">Which is why 2D arrays are sometimes called <b>matrix arrays</b>.</p>
+
+  <div class="box">
+    <p class="bt">The convention — get this right or every answer is wrong</p>
+    <p style="margin:0"><span class="mono">A[J, K]</span> means <b>row J, column K</b>. <b>Row first, always.</b><br><br>
+    So in an m &times; n array, <b>m is the number of rows</b> and <b>n is the number of columns</b>.</p>
+  </div>
+
+  <p>Here is the MARKS example from the lecture: <b>25 students, 4 tests</b> — a 25 &times; 4 array. Every student gets a row; every test gets a column.</p>
+
+  <div class="gridwrap"><div class="mgrid" id="introgrid"></div></div>
+  <p class="subtle" style="text-align:center">A 5 &times; 4 slice of it. <span class="mono">MARKS[3, 2]</span> is the 3rd student's 2nd test.</p>
+</article>
+
+<!-- ============ 2 · FLATTENING ============ -->
+<article class="card numbered" id="s2" style="--accent:#7c3aed">
+  <span class="badge">2</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 2 · the whole problem</p><h2>Memory is a line. A table is not.</h2></div>
+    <span class="timechip">⏱ 12 min</span>
+  </div>
+
+  <p>Go back to Segment 1. RAM is <b>one long strip of numbered boxes</b> — there is no such thing as "up" or "down" in it. But a 2D array has rows and columns.</p>
+
+  <div class="bridge" style="--accent:#7c3aed">
+    <p class="lbl">So here is the question the computer must answer</p>
+    <p class="say">In what <b>order</b> do you lay a rectangle out along a straight line?</p>
+    <p style="margin-top:.9rem">There are exactly two sensible answers, and every language picks one.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="box info" style="margin:0">
+      <p class="bt">Row-major order</p>
+      <p style="margin:0">Store <b>row 1 completely</b>, then row 2, then row 3 …<br><br>
+      Used by <b>C, C++, Java, Python</b>.</p>
+    </div>
+    <div class="box warn" style="margin:0">
+      <p class="bt">Column-major order</p>
+      <p style="margin:0">Store <b>column 1 completely</b>, then column 2, then column 3 …<br><br>
+      Used by <b>FORTRAN, MATLAB, R</b>.</p>
+    </div>
+  </div>
+
+  <h3>Watch it flatten</h3>
+  <p><b>Click any cell in the grid</b> — or press Play to watch the whole rectangle unroll into a line, both ways at once.</p>
+
+  <div class="ctrls" style="grid-template-columns:1fr 1fr">
+    <div class="ctrl"><label>m — rows</label><input id="g-m" type="number" value="3" min="1" max="6"></div>
+    <div class="ctrl"><label>n — columns</label><input id="g-n" type="number" value="4" min="1" max="6"></div>
+  </div>
+
+  <div class="gridwrap"><div class="mgrid" id="mapgrid"></div></div>
+
+  <div class="lin">
+    <p class="linlbl row">Row-major — row by row<span></span></p>
+    <div class="linstrip row" id="rowstrip"></div>
+  </div>
+  <div class="lin">
+    <p class="linlbl col">Column-major — column by column<span></span></p>
+    <div class="linstrip col" id="colstrip"></div>
+  </div>
+
+  <p class="opdesc" id="mapmsg" style="text-align:center">Click a cell above.</p>
+  <div class="btnrow" style="justify-content:center">
+    <button class="btn" id="map-play" style="background:#7c3aed">▶ Unroll it</button>
+    <button class="btn ghost sm" id="map-reset">Reset</button>
+  </div>
+
+  <div class="box good">
+    <p class="bt">Look at what changed and what did not</p>
+    <p style="margin:0"><b>The grid is identical.</b> Same 12 values, same rows, same columns. Only the <b>order they were written into memory</b> differs.<br><br>
+    That is the entire idea. <b>Row-major and column-major are not two data structures — they are two ways of writing down the same one.</b></p>
+  </div>
+</article>
+
+<!-- ============ 3 · DERIVING THE FORMULA ============ -->
+<article class="card numbered" id="s3" style="--accent:#0284c7">
+  <span class="badge">3</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 3</p><h2>Deriving the address formula</h2></div>
+    <span class="timechip">⏱ 10 min</span>
+  </div>
+
+  <p>You already know the 1D formula from Class 1:</p>
+  <p class="mono" style="text-align:center;font-size:1.05rem;font-weight:800;color:#0369a1">LOC(LA[K]) = BASE + w (K &minus; LB)</p>
+  <p>The 2D version is the <b>same idea</b>. The only new question is: <b>how many elements do I skip to reach A[J, K]?</b></p>
+
+  <div class="box info">
+    <p class="bt">Row-major — count the skipping</p>
+    <p style="margin:0">To reach row J, you must skip <b>all the complete rows before it</b>. There are <b>(J &minus; 1)</b> of them, and each holds <b>N</b> elements (N = number of columns).<br><br>
+    Then, inside row J, you skip <b>(K &minus; 1)</b> more to reach column K.<br><br>
+    <b>Total skipped = N(J &minus; 1) + (K &minus; 1)</b></p>
+  </div>
+
+  <p class="mono" style="text-align:center;font-size:clamp(.85rem,3.6vw,1.1rem);font-weight:800;color:#1d4ed8;background:#eff6ff;border:2px solid #bfdbfe;border-radius:.6rem;padding:.8rem">
+    Row-major: &nbsp; LOC(A[J,K]) = Base(A) + w [ N(J &minus; 1) + (K &minus; 1) ]</p>
+
+  <div class="box warn">
+    <p class="bt">Column-major — mirror everything</p>
+    <p style="margin:0">Now you skip whole <b>columns</b>. There are <b>(K &minus; 1)</b> complete columns before column K, and each holds <b>M</b> elements (M = number of <b>rows</b>).<br><br>
+    Then inside the column you skip <b>(J &minus; 1)</b>.</p>
+  </div>
+
+  <p class="mono" style="text-align:center;font-size:clamp(.85rem,3.6vw,1.1rem);font-weight:800;color:#b45309;background:#fffbeb;border:2px solid #fde68a;border-radius:.6rem;padding:.8rem">
+    Column-major: &nbsp; LOC(A[J,K]) = Base(A) + w [ M(K &minus; 1) + (J &minus; 1) ]</p>
+
+  <div class="box good">
+    <p class="bt">The one-line way to remember which is which</p>
+    <p style="margin:0"><b>Row-major multiplies by N</b> (the number of columns) — because a whole <b>row</b> is N elements long.<br>
+    <b>Column-major multiplies by M</b> (the number of rows) — because a whole <b>column</b> is M elements long.<br><br>
+    <b>You multiply by the length of the thing you are skipping over.</b> Get that and you never have to memorise either formula.</p>
+  </div>
+
+  <h3>The lecture's worked example</h3>
+  <div class="box">
+    <p style="margin:0">25 students are given 4 tests, stored in a <b>25 &times; 4</b> array MARKS. <b>Base(MARKS) = 100</b>, <b>w = 4</b> bytes, <b>row-major</b>. Find the address of MARKS[10, 2] — the 10th student's 2nd test.</p>
+  </div>
+  <div class="fboard">
+    <span class="fline">LOC(MARKS[<span class="fk">10</span>,<span class="fk">2</span>]) = Base + w [ N(J &minus; 1) + (K &minus; 1) ]</span>
+    <span class="fline">                    = <span class="fv">100</span> + <span class="fv">4</span> [ <span class="fv">4</span>(<span class="fk">10</span> &minus; 1) + (<span class="fk">2</span> &minus; 1) ]</span>
+    <span class="fline">                    = 100 + 4 [ 36 + 1 ]</span>
+    <span class="fline">                    = 100 + 4 &times; 37</span>
+    <span class="fline">                    = <span class="fr">248</span></span>
+  </div>
+  <p class="subtle">If MARKS were stored in <b>column-major</b> order instead: 100 + 4[25(2&minus;1) + (10&minus;1)] = 100 + 4[25 + 9] = <b>236</b>. Same element, different address — because the layout is different.</p>
+</article>
+
+<!-- ============ 4 · EFFECTIVE INDICES ============ -->
+<article class="card numbered" id="s4" style="--accent:#e11d48">
+  <span class="badge">4</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 4 · the exam form</p><h2>When the bounds don't start at 1</h2></div>
+    <span class="timechip">⏱ 14 min</span>
+  </div>
+
+  <p>Every exam question gives you something like <span class="mono">A(4:12, 7:14)</span>. The rows start at <b>4</b>, not 1. So <span class="mono">(J &minus; 1)</span> is wrong — you must subtract the <b>real</b> lower bound.</p>
+
+  <div class="box info">
+    <p class="bt">Effective indices</p>
+    <p style="margin:0">The <b>effective index</b> is how far along a dimension you actually are:<br><br>
+    <span class="mono" style="font-weight:800">E<sub>1</sub> = J &minus; LB<sub>1</sub></span> &nbsp;&nbsp;&nbsp; <span class="mono" style="font-weight:800">E<sub>2</sub> = K &minus; LB<sub>2</sub></span><br><br>
+    And the lengths are the usual <span class="mono">UB &minus; LB + 1</span> from Class 1:<br><br>
+    <span class="mono" style="font-weight:800">M = UB<sub>1</sub> &minus; LB<sub>1</sub> + 1</span> &nbsp;&nbsp;&nbsp; <span class="mono" style="font-weight:800">N = UB<sub>2</sub> &minus; LB<sub>2</sub> + 1</span><br><br>
+    Then the formulas become <b>Base + w [ N&middot;E<sub>1</sub> + E<sub>2</sub> ]</b> for row-major and <b>Base + w [ M&middot;E<sub>2</sub> + E<sub>1</sub> ]</b> for column-major.</p>
+  </div>
+
+  <p><b>Set up any exam question here.</b> It works the whole thing out, step by step, exactly as you should write it.</p>
+
+  <div class="ctrls">
+    <div class="ctrl"><label>LB₁ (rows from)</label><input id="e-lb1" type="number" value="4"></div>
+    <div class="ctrl"><label>UB₁ (rows to)</label><input id="e-ub1" type="number" value="12"></div>
+    <div class="ctrl"><label>LB₂ (cols from)</label><input id="e-lb2" type="number" value="7"></div>
+    <div class="ctrl"><label>UB₂ (cols to)</label><input id="e-ub2" type="number" value="14"></div>
+    <div class="ctrl"><label>Base(A)</label><input id="e-base" type="number" value="300"></div>
+    <div class="ctrl"><label>w — bytes</label><input id="e-w" type="number" value="8"></div>
+    <div class="ctrl"><label>J — which row</label><input id="e-j" type="number" value="6"></div>
+    <div class="ctrl"><label>K — which column</label><input id="e-k" type="number" value="10"></div>
+  </div>
+
+  <div class="btnrow">
+    <button class="btn sm" data-ex="4,12,7,14,300,8,6,10" style="background:#e11d48">Autumn 2025</button>
+    <button class="btn sm ghost" data-ex="4,12,7,14,500,4,6,10">Spring 2025</button>
+    <button class="btn sm ghost" data-ex="1,25,1,4,100,4,10,2">MARKS 25×4</button>
+    <button class="btn sm ghost" id="e-order">Order: row-major</button>
+  </div>
+
+  <div class="fboard" id="eboard"></div>
+
+  <div class="box bad">
+    <p class="bt">⚠ The three mistakes that cost marks every year</p>
+    <p style="margin:0"><b>1.</b> Using <span class="mono">(J &minus; 1)</span> when LB₁ is not 1. For A(4:12, …) row 6 is the <b>3rd</b> row, so E₁ = 2, not 5.<br>
+    <b>2.</b> Multiplying by M instead of N in row-major. You skip whole <b>rows</b>, and a row is <b>N</b> long.<br>
+    <b>3.</b> Forgetting the <b>+1</b> in the lengths. 12 &minus; 4 = 8, but there are <b>9</b> rows.</p>
+  </div>
+
+  <div class="quiz" data-q="q1">
+    <div class="qh">Quick check</div>
+    <div class="qq">For <span class="mono">A(4:12, 7:14)</span>, how many elements are there in total?</div>
+    <div class="qopts">
+      <button class="qopt" data-a="0">56</button>
+      <button class="qopt" data-a="1" data-ok="1">72</button>
+      <button class="qopt" data-a="2">63</button>
+    </div>
+    <div class="qexp"><b>72.</b> Rows: 12 &minus; 4 + 1 = <b>9</b>. Columns: 14 &minus; 7 + 1 = <b>8</b>. Total = 9 &times; 8 = <b>72</b>.<br><br>56 comes from forgetting both "+1"s (8 &times; 7). This is part (i) of the exam question, and it is worth a mark on its own.</div>
+  </div>
+</article>
+
+<!-- ============ 5 · THREE DIMENSIONS ============ -->
+<article class="card numbered" id="s5" style="--accent:#7c3aed">
+  <span class="badge">5</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 5</p><h2>Three dimensions — same idea, one more layer</h2></div>
+    <span class="timechip">⏱ 10 min</span>
+  </div>
+
+  <div class="box bad">
+    <p class="bt">🎓 Two of the four papers use a 3D array</p>
+    <p style="margin:0"><b>Spring 2024:</b> <em>"Consider an array B(1:8, &minus;5:5, &minus;10:5). Find the length of each dimension and the number of elements. Suppose Base(B) = 150 and w = 4. Find the effective indices E₁, E₂, E₃ and the address of B[2, &minus;3, 2] assuming row-major order."</em><br><br>
+    <b>Spring 2023:</b> the same with <span class="mono">A(3:10, 1:10, &minus;3:10)</span> and <span class="mono">A[8, 6, 4]</span>.</p>
+  </div>
+
+  <p>Do not panic. <b>It is the same counting</b>, one level deeper. Picture a stack of tables: to reach a cell you skip whole <b>tables</b>, then whole <b>rows</b>, then individual <b>cells</b>.</p>
+
+  <p class="mono" style="text-align:center;font-size:clamp(.78rem,3.2vw,1rem);font-weight:800;color:#5b21b6;background:#f5f3ff;border:2px solid #ddd6fe;border-radius:.6rem;padding:.8rem">
+    LOC = Base + w [ ( E<sub>1</sub> &times; L<sub>2</sub> + E<sub>2</sub> ) &times; L<sub>3</sub> + E<sub>3</sub> ]</p>
+
+  <div class="box info">
+    <p class="bt">Read it from the inside out</p>
+    <p style="margin:0"><b>E₁ × L₂</b> — skip E₁ whole slabs, each L₂ rows tall<br>
+    <b>+ E₂</b> — then skip E₂ more rows<br>
+    <b>× L₃</b> — every one of those rows is L₃ elements long<br>
+    <b>+ E₃</b> — finally skip E₃ elements inside the row<br><br>
+    <b>Same principle every time: multiply by the length of what you are skipping.</b></p>
+  </div>
+
+  <p><b>Try the two real questions.</b></p>
+
+  <div class="ctrls">
+    <div class="ctrl"><label>Dim 1 · LB : UB</label><input id="t-d1" value="1:8"></div>
+    <div class="ctrl"><label>Dim 2 · LB : UB</label><input id="t-d2" value="-5:5"></div>
+    <div class="ctrl"><label>Dim 3 · LB : UB</label><input id="t-d3" value="-10:5"></div>
+    <div class="ctrl"><label>Base &nbsp;·&nbsp; w</label><input id="t-bw" value="150 4"></div>
+  </div>
+  <div class="ctrls" style="grid-template-columns:1fr 1fr 1fr">
+    <div class="ctrl"><label>J</label><input id="t-j" type="number" value="2"></div>
+    <div class="ctrl"><label>K</label><input id="t-k" type="number" value="-3"></div>
+    <div class="ctrl"><label>L</label><input id="t-l" type="number" value="2"></div>
+  </div>
+  <div class="btnrow">
+    <button class="btn sm" data-tex="1:8|-5:5|-10:5|150 4|2|-3|2" style="background:#7c3aed">Spring 2024</button>
+    <button class="btn sm ghost" data-tex="3:10|1:10|-3:10|200 4|8|6|4">Spring 2023</button>
+  </div>
+
+  <div class="fboard" id="tboard"></div>
+</article>
+
+<!-- ============ 6 · SPARSE ============ -->
+<article class="card numbered" id="s6" style="--accent:#16a34a">
+  <span class="badge">6</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 6</p><h2>Sparse matrices — when most of it is zero</h2></div>
+    <span class="timechip">⏱ 9 min</span>
+  </div>
+
+  <p>A <b>sparse matrix</b> is one where <b>most elements are zero</b>. They turn up constantly — a matrix of who-follows-whom on Facebook, or which student took which optional course.</p>
+
+  <p>Drag the slider and watch the waste grow.</p>
+
+  <div class="trade" style="background:#f8fafc">
+    <label for="sp-fill" style="font-size:.82rem;font-weight:700;color:var(--ink-soft)">Non-zero elements: <b id="sp-pct" class="mono">10%</b></label>
+    <input type="range" id="sp-fill" min="2" max="60" step="2" value="10">
+  </div>
+
+  <div class="gridwrap"><div class="spgrid" id="spgrid"></div></div>
+
+  <div class="spstats">
+    <div class="cnt2"><p class="ck2">Full 2D array</p><p class="cv3" id="sp-full">—</p></div>
+    <div class="cnt2 c-d"><p class="ck2">Triplet form</p><p class="cv3" id="sp-trip">—</p></div>
+    <div class="cnt2 c-c"><p class="ck2">Memory saved</p><p class="cv3" id="sp-save">—</p></div>
+  </div>
+  <p class="opdesc" id="sp-msg" style="text-align:center"></p>
+
+  <div class="box info">
+    <p class="bt">The triplet representation</p>
+    <p style="margin:0">Instead of storing every cell, store <b>only the non-zero ones</b> — each as a triple:<br><br>
+    <span class="mono" style="font-weight:800">( row , column , value )</span><br><br>
+    Plus one header row recording the dimensions and how many non-zeros there are. Everything not listed is understood to be <b>0</b>.</p>
+  </div>
+
+  <div class="tw">
+  <table>
+    <thead><tr><th>Row</th><th>Column</th><th>Value</th></tr></thead>
+    <tbody id="triplet"></tbody>
+  </table>
+  </div>
+
+  <div class="box warn">
+    <p class="bt">⚠ It is not free</p>
+    <p style="margin:0">Each triple stores <b>three</b> numbers instead of one. So the triplet form only wins when <b>fewer than about a third</b> of the elements are non-zero. Push the slider past 33% and watch the saving turn negative.<br><br>
+    You also <b>lose O(1) access</b> — to read A[J,K] you now have to <b>search</b> the triplet list instead of calculating an address. <b>Classic time&ndash;space tradeoff, once again.</b></p>
+  </div>
+
+  <div class="digwrap" style="--accent:#16a34a">
+    <p class="dighead">Dig deeper<span></span></p>
+    <details class="dig"><summary><span class="dicon">?</span>Special sparse shapes worth knowing</summary><div>
+      Some matrices are sparse in a <b>predictable pattern</b>, and then you can do better than triplets:<br><br>
+      <b>Diagonal matrix</b> — only the main diagonal is non-zero. Store just <b>n</b> values in a 1D array.<br>
+      <b>Tri-diagonal</b> — the diagonal plus the band either side. Store about <b>3n</b>.<br>
+      <b>Upper / lower triangular</b> — everything above or below the diagonal is zero. Store <b>n(n+1)/2</b> — a little under half.<br><br>
+      <b>The idea is always the same:</b> if you can <em>predict</em> where the zeros are, you do not have to store them <em>or</em> their coordinates.
+    </div></details>
+    <details class="dig"><summary><span class="dicon">?</span>Where do sparse matrices actually appear?</summary><div>
+      <b>Social networks.</b> Rows and columns are users; a 1 means "follows". With 3 billion users and a few hundred follows each, well over 99.99% is zero.<br><br>
+      <b>Search engines.</b> Documents against words — most documents contain almost none of the vocabulary.<br><br>
+      <b>Recommendation systems.</b> Users against films — you have rated a handful out of thousands.<br><br>
+      In every case, storing the full matrix is <b>physically impossible</b>, so sparse representation is not an optimisation — it is the only way the system can exist at all.
+    </div></details>
+  </div>
+</article>
+
+<!-- ============ CLOSING ============ -->
+<article class="card numbered" id="s7" style="--accent:#0284c7">
+  <span class="badge">7</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Before you go</p><h2>The exam answer, in five lines</h2></div>
+    <span class="timechip">⏱ 3 min</span>
+  </div>
+
+  <div class="box good">
+    <p class="bt">Whatever array they give you, write these five lines</p>
+    <p style="margin:0" class="mono">
+    <b>1.</b> Lengths &nbsp;&nbsp; M = UB₁ &minus; LB₁ + 1 &nbsp;·&nbsp; N = UB₂ &minus; LB₂ + 1<br>
+    <b>2.</b> Total &nbsp;&nbsp;&nbsp;&nbsp; M &times; N<br>
+    <b>3.</b> Effective &nbsp; E₁ = J &minus; LB₁ &nbsp;·&nbsp; E₂ = K &minus; LB₂<br>
+    <b>4.</b> Substitute &nbsp; Base + w [ N&middot;E₁ + E₂ ] &nbsp;&nbsp;(row-major)<br>
+    <b>5.</b> Arithmetic &nbsp; one number
+    </p>
+  </div>
+
+  <div class="grid2">
+    <div class="box info" style="margin:0"><p class="bt">Row-major</p><p class="mono" style="margin:0;font-weight:800">Base + w[ N&middot;E₁ + E₂ ]</p><p style="margin:.4rem 0 0">Multiply by <b>N</b>, the number of columns — a row is N long.</p></div>
+    <div class="box warn" style="margin:0"><p class="bt">Column-major</p><p class="mono" style="margin:0;font-weight:800">Base + w[ M&middot;E₂ + E₁ ]</p><p style="margin:.4rem 0 0">Multiply by <b>M</b>, the number of rows — a column is M long.</p></div>
+  </div>
+
+  <div class="bridge" style="--accent:#0284c7">
+    <p class="lbl">One idea, three classes</p>
+    <p class="say">1D, 2D, 3D — it has been the same sentence every time: <b>Base, plus w times how many elements you skipped.</b></p>
+    <p style="margin-top:.9rem">Only the counting of "how many you skipped" gets harder. The formula never actually changed.</p>
+  </div>
+
+  <div class="box">
+    <p class="bt">Next class</p>
+    <p style="margin:0"><b>Class 4 — Strings &amp; pattern matching.</b><br>
+    Substrings, length and concatenation · the C++ <span class="mono">string</span> operations you will actually use · and naive pattern matching — counting comparisons, the last of the four guaranteed Mid Term questions.</p>
+  </div>
+</article>
+
+</main>
+</section>
+
+<!-- ==================== EXAM & INTERVIEW ==================== -->
+<section class="panel" id="p-exam" hidden>
+<header class="hero" style="background:linear-gradient(160deg,#0f172a 0%,#4c0519 55%,#881337 100%)">
+  <div class="wrap">
+    <p class="eyebrow" style="color:#fda4af">Exam &amp; Interview · CSE-2321</p>
+    <h1>The question on <em>every single paper</em></h1>
+    <p class="hero-lede">Four papers, four address-calculation questions. Here are all four, fully worked, exactly as you should write them.</p>
+    <div class="byline">
+      <span class="av">JA</span>
+      <span class="who">Jamil As-ad<span>Lecturer, Dept. of CSE &middot; International Islamic University Chittagong</span></span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<article class="card" style="--accent:#e11d48">
+  <p class="kicker">All four, worked</p>
+  <h2>Every address question we have on record</h2>
+
+  <details class="dig" open><summary><span class="dicon">?</span><b>Autumn 2025 Q2(b)</b> — A(4:12, 7:14), Base 300, w 8, row-major <span class="subtle">[3 marks]</span></summary><div>
+    <em>"Consider a 2D array A(4:12, 7:14). i. Find the length of each dimension and the total number of elements in A. ii. If Base(A) = 300 and w = 8 bytes per memory cell, calculate the address of the element A[6, 10] assuming row-major storage order."</em><br><br>
+    <b>(i) Lengths</b><br>
+    <span class="mono">M = 12 &minus; 4 + 1 = <b>9</b> rows &nbsp;&nbsp; N = 14 &minus; 7 + 1 = <b>8</b> columns<br>
+    Total = 9 &times; 8 = <b>72</b> elements</span><br><br>
+    <b>(ii) Effective indices</b><br>
+    <span class="mono">E₁ = 6 &minus; 4 = <b>2</b> &nbsp;&nbsp; E₂ = 10 &minus; 7 = <b>3</b></span><br><br>
+    <b>Address, row-major</b><br>
+    <span class="mono">
+    LOC(A[6,10]) = Base + w [ N&middot;E₁ + E₂ ]<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 300 + 8 [ 8&times;2 + 3 ]<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 300 + 8 &times; 19<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <b>452</b>
+    </span><br><br>
+    <span class="subtle">Column-major, if they had asked: 300 + 8[9&times;3 + 2] = <b>532</b>.</span>
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span><b>Spring 2025 Q2(b)</b> — same array, Base 500, w 4 <span class="subtle">[2.5 marks]</span></summary><div>
+    Identical array, only Base and w change.<br><br>
+    <span class="mono">M = 9, N = 8, total = 72<br>
+    E₁ = 6 &minus; 4 = 2 &nbsp;&nbsp; E₂ = 10 &minus; 7 = 3<br>
+    LOC = 500 + 4[8&times;2 + 3] = 500 + 4&times;19 = <b>576</b></span><br><br>
+    <b>Notice how little changes.</b> Learn the five-line method once and the numbers are just arithmetic.
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span><b>Spring 2024 Q2(b)</b> — 3D: B(1:8, &minus;5:5, &minus;10:5) <span class="subtle">[2.5 marks]</span></summary><div>
+    <em>"Consider an array B(1:8, &minus;5:5, &minus;10:5). i. Find the length of each dimension and the number of elements in B. ii. Suppose Base(B) = 150 and w = 4 words per memory cell for B. Find the effective indices E₁, E₂, E₃ and the address of the element B[2, &minus;3, 2] assuming B is stored in row-major order."</em><br><br>
+    <b>(i) Lengths</b><br>
+    <span class="mono">L₁ = 8 &minus; 1 + 1 = <b>8</b><br>
+    L₂ = 5 &minus; (&minus;5) + 1 = <b>11</b><br>
+    L₃ = 5 &minus; (&minus;10) + 1 = <b>16</b><br>
+    Total = 8 &times; 11 &times; 16 = <b>1,408</b> elements</span><br><br>
+    <b>(ii) Effective indices</b><br>
+    <span class="mono">E₁ = 2 &minus; 1 = <b>1</b> &nbsp;&nbsp; E₂ = &minus;3 &minus; (&minus;5) = <b>2</b> &nbsp;&nbsp; E₃ = 2 &minus; (&minus;10) = <b>12</b></span><br><br>
+    <b>Address</b><br>
+    <span class="mono">
+    LOC = Base + w [ ( E₁&times;L₂ + E₂ ) &times; L₃ + E₃ ]<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 150 + 4 [ ( 1&times;11 + 2 ) &times; 16 + 12 ]<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 150 + 4 [ 13 &times; 16 + 12 ]<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 150 + 4 [ 208 + 12 ]<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 150 + 4 &times; 220<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <b>1,030</b>
+    </span><br><br>
+    <b>⚠ Watch the negative bounds.</b> &minus;3 &minus; (&minus;5) = &minus;3 + 5 = <b>2</b>, not &minus;8. Subtracting a negative adds.
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span><b>Spring 2023 Q2(b)</b> — 3D: A(3:10, 1:10, &minus;3:10) <span class="subtle">[3 marks]</span></summary><div>
+    <em>"Consider an array A(3:10, 1:10, &minus;3:10). i. Find the length of each dimension and the number of elements in A. ii. Suppose Base(A) = 200 and w = 4. Find the effective indices E₁, E₂, E₃ and the address of A[8, 6, 4] assuming row-major order."</em><br><br>
+    <span class="mono">L₁ = 10 &minus; 3 + 1 = <b>8</b> &nbsp; L₂ = 10 &minus; 1 + 1 = <b>10</b> &nbsp; L₃ = 10 &minus; (&minus;3) + 1 = <b>14</b><br>
+    Total = 8 &times; 10 &times; 14 = <b>1,120</b><br><br>
+    E₁ = 8 &minus; 3 = <b>5</b> &nbsp; E₂ = 6 &minus; 1 = <b>5</b> &nbsp; E₃ = 4 &minus; (&minus;3) = <b>7</b><br><br>
+    LOC = 200 + 4 [ ( 5&times;10 + 5 ) &times; 14 + 7 ]<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 200 + 4 [ 55 &times; 14 + 7 ]<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 200 + 4 [ 770 + 7 ]<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 200 + 4 &times; 777 = <b>3,308</b></span>
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span><b>Explain row-major and column-major</b> — Autumn 2025 Q2(a) <span class="subtle">[3 marks]</span></summary><div>
+    <em>"Explain how to represent a two-dimensional array in computer memory using row-major order and column-major order. Illustrate your answer with an appropriate example or diagram."</em><br><br>
+    <b>Model answer.</b> Computer memory is a <b>one-dimensional</b> sequence of addressed cells, but a 2D array is a rectangle of rows and columns. The array must therefore be <b>linearised</b> — written out in some fixed order — and there are two conventions.<br><br>
+    <b>Row-major order</b> stores the array <b>row by row</b>: all of row 1, then all of row 2, and so on. Used by C, C++ and Java.<br>
+    <b>Column-major order</b> stores it <b>column by column</b>: all of column 1, then column 2. Used by FORTRAN.<br><br>
+    <b>Example — a 2 × 3 array A:</b>
+    <div class="tw" style="margin:.6rem 0">
+    <table>
+      <thead><tr><th></th><th>col 1</th><th>col 2</th><th>col 3</th></tr></thead>
+      <tbody>
+        <tr><td><b>row 1</b></td><td class="num">10</td><td class="num">20</td><td class="num">30</td></tr>
+        <tr><td><b>row 2</b></td><td class="num">40</td><td class="num">50</td><td class="num">60</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <span class="mono">Row-major in memory:&nbsp;&nbsp;&nbsp; 10 20 30 40 50 60<br>
+    Column-major in memory: 10 40 20 50 30 60</span><br><br>
+    Then give the two address formulas and you have the full 3 marks.
+  </div></details>
+
+  <div class="box good">
+    <p class="bt">✅ The pattern across all four years</p>
+    <p style="margin:0">Part (i) is always <b>lengths and total</b> — pure <span class="mono">UB &minus; LB + 1</span> from Class 1. Part (ii) is always <b>effective indices then substitute</b>. It has been <b>row-major every single time</b>, but learn column-major anyway — it is one swap of M and N.</p>
+  </div>
+</article>
+
+<article class="card" style="--accent:#4f46e5">
+  <p class="kicker">Interview</p>
+  <h2>What they ask about 2D arrays</h2>
+
+  <details class="dig"><summary><span class="dicon">?</span>Why does looping over a 2D array row by row run faster than column by column?</summary><div>
+    A genuinely common interview question, and Segment 1 already gave you the answer.<br><br>
+    In C++ arrays are <b>row-major</b>, so a row is <b>contiguous</b> in memory. Walking along a row reads neighbouring bytes, and the CPU pulls a whole <b>cache line</b> at a time — so most reads are already in cache.<br><br>
+    Walking down a <b>column</b> jumps N elements each step, so nearly every read is a fresh trip to RAM — <b>60–100 ns instead of ~1 ns</b>.<br><br>
+    <b>Same Big-O. Very different real time.</b> That distinction — complexity versus constant factor — is exactly what the question tests.
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span>Is a 2D array really two-dimensional in memory?</summary><div>
+    <b>No.</b> Memory has one dimension only. The rectangle exists in your head and in the notation; the machine sees a single line and does arithmetic to fake the second dimension.<br><br>
+    "<span class="mono">A[J][K]</span> is just syntax for <span class="mono">Base + w(N&middot;E₁ + E₂)</span>."<br><br>
+    That is why <span class="mono">int a[3][4]</span> and <span class="mono">int a[12]</span> occupy exactly the same 48 bytes.
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span>When would you use a sparse representation?</summary><div>
+    <b>When most entries are zero and the matrix is too big to store fully.</b> The rule of thumb is under about <b>one third</b> non-zero — past that, the three numbers per triple cost more than the zeros you avoided.<br><br>
+    Give a concrete case: "a social graph of 3 billion users where each follows a few hundred — over 99.99% zero. The full matrix cannot exist; the sparse form is a few hundred billion triples."<br><br>
+    <b>Then state the cost:</b> you lose O(1) access. Reading A[J,K] becomes a search rather than a calculation.
+  </div></details>
+</article>
+
+</main>
+</section>
+
+<nav class="pagenav wrap" style="padding-bottom:0">
+  <a class="pn pv" href="02-array-operations.html"><span class="ar">&larr;</span><span class="tx"><em>Previous</em><b>Operations on an array</b></span></a>
+  <a class="pn home" href="../../index.html"><span class="ar">&#9783;</span><b>All classes</b></a>
+  <a class="pn nx" href="04-strings.html"><span class="ar">&rarr;</span><span class="tx"><em>Next</em><b>Strings &amp; pattern matching</b></span></a>
+</nav>
+
+<footer class="pagefoot">
+  <div class="wrap fin">
+    <div class="fw">
+      <span class="av">JA</span>
+      <span class="nm">Jamil As-ad<span>Lecturer, Dept. of CSE</span></span>
+    </div>
+    <p class="dept"><a href="../../index.html">&larr; All classes</a> &nbsp;·&nbsp; Data Structures · CSE-2321 · International Islamic University Chittagong</p>
+  </div>
+</footer>
+
+<div class="sec-nav" style="display:none">
+  <button id="nav-up">↑</button><button id="nav-down">↓</button><button id="nav-top">⤒</button>
+</div>
+<script>
+
+
+
+
+(function(){
+"use strict";
+var $=function(s,r){return (r||document).querySelector(s);};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+
+/* TABS */
+$$('.tab').forEach(function(t){t.addEventListener('click',function(){
+  $$('.tab').forEach(function(x){x.setAttribute('aria-selected','false');});
+  t.setAttribute('aria-selected','true');
+  $$('.panel').forEach(function(p){p.hidden=true;});
+  $('#p-'+t.dataset.tab).hidden=false; window.scrollTo({top:0,behavior:'instant'});
+});});
+
+/* RAIL */
+window.addEventListener('scroll',function(){
+  var h=document.documentElement,m=h.scrollHeight-h.clientHeight;
+  $('#rail').style.right=(100-(m>0?(h.scrollTop/m)*100:0))+'%';
+},{passive:true});
+
+function jump(d){
+  var s=$$('.panel:not([hidden]) .card'); if(!s.length)return;
+  var y=window.scrollY, cur=0, i;
+  for(i=0;i<s.length;i++){ if(s[i].offsetTop-120<=y) cur=i; }
+  var t=cur+d;
+  if(d<0 && y>s[cur].offsetTop-60) t=cur;      /* scrolled inside a card -> snap to its top first */
+  if(t<0){window.scrollTo({top:0,behavior:'smooth'});return;}
+  if(t>s.length-1)t=s.length-1;
+  window.scrollTo({top:Math.max(s[t].offsetTop-80,0),behavior:'smooth'});
+}
+$('#nav-down').onclick=function(){jump(1);};$('#nav-up').onclick=function(){jump(-1);};
+$('#nav-top').onclick=function(){window.scrollTo({top:0,behavior:'smooth'});};
+
+/* ---------- 1 · INTRO GRID ---------- */
+(function(){
+  var M=5,N=4,html='';
+  var g=$('#introgrid'); if(!g)return;
+  g.style.gridTemplateColumns='34px repeat('+N+',56px)';
+  html+='<div class="gside"></div>';
+  for(var k=1;k<=N;k++) html+='<div class="ghdr">test '+k+'</div>';
+  var vals=[[78,64,91,70],[55,80,62,88],[90,72,84,66],[45,58,73,60],[82,95,77,89]];
+  for(var j=1;j<=M;j++){
+    html+='<div class="gside">st '+j+'</div>';
+    for(k=1;k<=N;k++){
+      var sel = (j===3&&k===2) ? ' sel2' : '';
+      html+='<div class="gc'+sel+'" style="cursor:default"><span class="gidx">'+j+','+k+'</span>'+vals[j-1][k-1]+'</div>';
+    }
+  }
+  g.innerHTML=html;
+})();
+
+/* ---------- 2 · FLATTEN MAPPER ---------- */
+(function(){
+  var M=3,N=4,sel=null,tmr=null,order=[];
+  function build(){
+    M=Math.max(1,Math.min(6,+$('#g-m').value||3));
+    N=Math.max(1,Math.min(6,+$('#g-n').value||4));
+    sel=null; draw();
+  }
+  function label(j,k){ return j+','+k; }
+  function draw(){
+    var g=$('#mapgrid'); g.style.gridTemplateColumns='34px repeat('+N+',56px)';
+    var html='<div class="gside"></div>';
+    for(var k=1;k<=N;k++) html+='<div class="ghdr">col '+k+'</div>';
+    for(var j=1;j<=M;j++){
+      html+='<div class="gside">row '+j+'</div>';
+      for(k=1;k<=N;k++){
+        var cls='gc'+(sel&&sel.j===j&&sel.k===k?' sel2':'');
+        html+='<div class="'+cls+'" data-j="'+j+'" data-k="'+k+'"><span class="gidx">'+label(j,k)+'</span>'+((j-1)*N+k)*10+'</div>';
+      }
+    }
+    g.innerHTML=html;
+    $$('#mapgrid .gc').forEach(function(el){
+      el.addEventListener('click',function(){ sel={j:+el.dataset.j,k:+el.dataset.k}; draw(); });
+    });
+    // row-major strip
+    var r='',c='';
+    for(j=1;j<=M;j++) for(k=1;k<=N;k++){
+      var on = sel&&sel.j===j&&sel.k===k;
+      r+='<div class="ls2'+(on?' on':'')+'"><div class="lb2">'+label(j,k)+'</div><span class="la2">'+((j-1)*N+(k-1))+'</span></div>';
+    }
+    for(k=1;k<=N;k++) for(j=1;j<=M;j++){
+      var on2 = sel&&sel.j===j&&sel.k===k;
+      c+='<div class="ls2'+(on2?' on':'')+'"><div class="lb2">'+label(j,k)+'</div><span class="la2">'+((k-1)*M+(j-1))+'</span></div>';
+    }
+    $('#rowstrip').innerHTML=r; $('#colstrip').innerHTML=c;
+    $('#mapmsg').innerHTML = sel
+      ? 'Cell <b>['+sel.j+','+sel.k+']</b> sits at offset <b style="color:#1d4ed8">'+((sel.j-1)*N+(sel.k-1))+'</b> in row-major, but at offset <b style="color:#b45309">'+((sel.k-1)*M+(sel.j-1))+'</b> in column-major. <b>Same cell, different place in memory.</b>'
+      : 'Click a cell above.';
+  }
+  $('#map-play').onclick=function(){
+    if(tmr){clearInterval(tmr);tmr=null;this.textContent='▶ Unroll it';return;}
+    var seq=[],j,k;
+    for(j=1;j<=M;j++) for(k=1;k<=N;k++) seq.push({j:j,k:k});
+    var i=0; this.textContent='⏸ Pause';
+    var btn=this;
+    tmr=setInterval(function(){
+      if(i>=seq.length){clearInterval(tmr);tmr=null;btn.textContent='▶ Unroll it';return;}
+      sel=seq[i++]; draw();
+    },420);
+  };
+  $('#map-reset').onclick=function(){ clearInterval(tmr); tmr=null; $('#map-play').textContent='▶ Unroll it'; sel=null; draw(); };
+  $('#g-m').addEventListener('change',build);
+  $('#g-n').addEventListener('change',build);
+  build();
+})();
+
+/* ---------- 4 · EFFECTIVE INDEX CALCULATOR ---------- */
+(function(){
+  var rowMajor=true;
+  function v(id){ return parseInt($(id).value,10); }
+  function paint(){
+    var lb1=v('#e-lb1'),ub1=v('#e-ub1'),lb2=v('#e-lb2'),ub2=v('#e-ub2');
+    var base=v('#e-base'),w=v('#e-w'),J=v('#e-j'),K=v('#e-k');
+    if([lb1,ub1,lb2,ub2,base,w,J,K].some(isNaN)) return;
+    var M=ub1-lb1+1, N=ub2-lb2+1, E1=J-lb1, E2=K-lb2;
+    var inRange = J>=lb1&&J<=ub1&&K>=lb2&&K<=ub2;
+    var skipped = rowMajor ? N*E1+E2 : M*E2+E1;
+    var loc = base + w*skipped;
+    var f = rowMajor ? 'N&middot;E<sub>1</sub> + E<sub>2</sub>' : 'M&middot;E<sub>2</sub> + E<sub>1</sub>';
+    var sub = rowMajor ? N+'&times;'+E1+' + '+E2 : M+'&times;'+E2+' + '+E1;
+    $('#eboard').innerHTML=
+      '<span class="fline fc">// step 1 — lengths</span>'+
+      '<span class="fline">M = '+ub1+' &minus; '+lb1+' + 1 = <span class="fv">'+M+'</span> rows &nbsp;&nbsp; N = '+ub2+' &minus; '+lb2+' + 1 = <span class="fv">'+N+'</span> columns</span>'+
+      '<span class="fline">Total elements = '+M+' &times; '+N+' = <span class="fr">'+(M*N)+'</span></span>'+
+      '<span class="fline fc">// step 2 — effective indices</span>'+
+      '<span class="fline">E<sub>1</sub> = J &minus; LB<sub>1</sub> = '+J+' &minus; '+lb1+' = <span class="fk">'+E1+'</span> &nbsp;&nbsp; E<sub>2</sub> = K &minus; LB<sub>2</sub> = '+K+' &minus; '+lb2+' = <span class="fk">'+E2+'</span></span>'+
+      '<span class="fline fc">// step 3 — '+(rowMajor?'row':'column')+'-major address</span>'+
+      '<span class="fline">LOC = Base + w [ '+f+' ]</span>'+
+      '<span class="fline">    = <span class="fv">'+base+'</span> + <span class="fv">'+w+'</span> [ '+sub+' ]</span>'+
+      '<span class="fline">    = '+base+' + '+w+' &times; '+skipped+'</span>'+
+      '<span class="fline">    = <span class="fr">'+loc+'</span></span>'+
+      (inRange?'':'<span class="fline" style="color:#fca5a5">// ⚠ J or K is outside the declared bounds</span>');
+  }
+  ['#e-lb1','#e-ub1','#e-lb2','#e-ub2','#e-base','#e-w','#e-j','#e-k'].forEach(function(id){
+    $(id).addEventListener('input',paint);
+  });
+  $('#e-order').onclick=function(){ rowMajor=!rowMajor;
+    this.textContent='Order: '+(rowMajor?'row-major':'column-major');
+    this.classList.toggle('ghost',rowMajor); paint(); };
+  $$('[data-ex]').forEach(function(b){b.addEventListener('click',function(){
+    $$('[data-ex]').forEach(function(x){x.classList.add('ghost');}); b.classList.remove('ghost');
+    var p=b.dataset.ex.split(',');
+    ['#e-lb1','#e-ub1','#e-lb2','#e-ub2','#e-base','#e-w','#e-j','#e-k'].forEach(function(id,i){ $(id).value=p[i]; });
+    paint();
+  });});
+  paint();
+})();
+
+/* ---------- 5 · THREE DIMENSIONS ---------- */
+(function(){
+  function rng(s){ var p=String(s).split(':'); return [parseInt(p[0],10),parseInt(p[1],10)]; }
+  function paint(){
+    var d1=rng($('#t-d1').value), d2=rng($('#t-d2').value), d3=rng($('#t-d3').value);
+    var bw=String($('#t-bw').value).trim().split(/\s+/);
+    var base=parseInt(bw[0],10), w=parseInt(bw[1],10);
+    var J=parseInt($('#t-j').value,10), K=parseInt($('#t-k').value,10), L=parseInt($('#t-l').value,10);
+    if([d1[0],d1[1],d2[0],d2[1],d3[0],d3[1],base,w,J,K,L].some(isNaN)) return;
+    var L1=d1[1]-d1[0]+1, L2=d2[1]-d2[0]+1, L3=d3[1]-d3[0]+1;
+    var E1=J-d1[0], E2=K-d2[0], E3=L-d3[0];
+    var inner=E1*L2+E2, skipped=inner*L3+E3, loc=base+w*skipped;
+    $('#tboard').innerHTML=
+      '<span class="fline fc">// step 1 — length of each dimension</span>'+
+      '<span class="fline">L<sub>1</sub> = '+d1[1]+' &minus; ('+d1[0]+') + 1 = <span class="fv">'+L1+'</span> &nbsp; L<sub>2</sub> = '+d2[1]+' &minus; ('+d2[0]+') + 1 = <span class="fv">'+L2+'</span> &nbsp; L<sub>3</sub> = '+d3[1]+' &minus; ('+d3[0]+') + 1 = <span class="fv">'+L3+'</span></span>'+
+      '<span class="fline">Total elements = '+L1+' &times; '+L2+' &times; '+L3+' = <span class="fr">'+(L1*L2*L3).toLocaleString('en-US')+'</span></span>'+
+      '<span class="fline fc">// step 2 — effective indices</span>'+
+      '<span class="fline">E<sub>1</sub> = '+J+' &minus; ('+d1[0]+') = <span class="fk">'+E1+'</span> &nbsp; E<sub>2</sub> = '+K+' &minus; ('+d2[0]+') = <span class="fk">'+E2+'</span> &nbsp; E<sub>3</sub> = '+L+' &minus; ('+d3[0]+') = <span class="fk">'+E3+'</span></span>'+
+      '<span class="fline fc">// step 3 — row-major address</span>'+
+      '<span class="fline">LOC = Base + w [ ( E<sub>1</sub>&times;L<sub>2</sub> + E<sub>2</sub> ) &times; L<sub>3</sub> + E<sub>3</sub> ]</span>'+
+      '<span class="fline">    = '+base+' + '+w+' [ ( '+E1+'&times;'+L2+' + '+E2+' ) &times; '+L3+' + '+E3+' ]</span>'+
+      '<span class="fline">    = '+base+' + '+w+' [ '+inner+' &times; '+L3+' + '+E3+' ]</span>'+
+      '<span class="fline">    = '+base+' + '+w+' &times; '+skipped+'</span>'+
+      '<span class="fline">    = <span class="fr">'+loc.toLocaleString('en-US')+'</span></span>';
+  }
+  ['#t-d1','#t-d2','#t-d3','#t-bw','#t-j','#t-k','#t-l'].forEach(function(id){ $(id).addEventListener('input',paint); });
+  $$('[data-tex]').forEach(function(b){b.addEventListener('click',function(){
+    $$('[data-tex]').forEach(function(x){x.classList.add('ghost');}); b.classList.remove('ghost');
+    var p=b.dataset.tex.split('|');
+    $('#t-d1').value=p[0]; $('#t-d2').value=p[1]; $('#t-d3').value=p[2];
+    $('#t-bw').value=p[3]; $('#t-j').value=p[4]; $('#t-k').value=p[5]; $('#t-l').value=p[6];
+    paint();
+  });});
+  paint();
+})();
+
+/* ---------- 6 · SPARSE ---------- */
+(function(){
+  var R=6,C=8,cells=[];
+  function build(){
+    var pct=+$('#sp-fill').value;
+    $('#sp-pct').textContent=pct+'%';
+    var total=R*C, want=Math.max(1,Math.round(total*pct/100));
+    cells=[];
+    var idx=[]; for(var i=0;i<total;i++) idx.push(i);
+    // deterministic spread so it does not jump about while dragging
+    var step=total/want, picked={};
+    for(i=0;i<want;i++) picked[Math.floor(i*step)]=true;
+    var g=$('#spgrid'); g.style.gridTemplateColumns='repeat('+C+',34px)';
+    var html='', trip='', nz=0;
+    for(i=0;i<total;i++){
+      var r=Math.floor(i/C)+1, c=i%C+1;
+      if(picked[i]){ nz++;
+        var val=((i*37)%89)+10;
+        cells.push({r:r,c:c,v:val});
+        html+='<div class="spc nz">'+val+'</div>';
+        trip+='<tr><td class="num">'+r+'</td><td class="num">'+c+'</td><td class="num">'+val+'</td></tr>';
+      } else html+='<div class="spc">0</div>';
+    }
+    g.innerHTML=html;
+    $('#triplet').innerHTML=trip;
+    var full=total, tripCount=nz*3+3;
+    var saved=full-tripCount, pctSaved=Math.round(saved/full*100);
+    $('#sp-full').textContent=full+' cells';
+    $('#sp-trip').textContent=tripCount+' cells';
+    $('#sp-save').textContent=(saved>0?'+':'')+pctSaved+'%';
+    $('#sp-save').parentNode.className='cnt2 '+(saved>0?'c-c':'c-d');
+    $('#sp-msg').innerHTML = saved>0
+      ? '<b>'+nz+'</b> non-zeros out of '+full+'. Triplets need '+nz+'&times;3 + 3 header = <b>'+tripCount+'</b> numbers instead of '+full+' — a saving of <b>'+pctSaved+'%</b>.'
+      : '<b>'+nz+'</b> non-zeros out of '+full+'. Triplets would need <b>'+tripCount+'</b> numbers — <b>more than storing the whole matrix</b>. Too dense to be worth it.';
+  }
+  $('#sp-fill').addEventListener('input',build);
+  build();
+})();
+
+/* ---------- QUIZZES ---------- */
+$$('.quiz').forEach(function(q){
+  var o=$$('.qopt',q),e=$('.qexp',q);
+  o.forEach(function(b){b.addEventListener('click',function(){
+    o.forEach(function(x){x.disabled=true;if(x.dataset.ok)x.classList.add('ok');});
+    if(!b.dataset.ok)b.classList.add('no'); e.classList.add('show');
+  });});
+});
+document.addEventListener('keydown',function(e){
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+  if(e.key==='j'||e.key==='ArrowDown'){e.preventDefault();jump(1);}
+  if(e.key==='k'||e.key==='ArrowUp'){e.preventDefault();jump(-1);}
+});
+})();
+
+
+/* ---------- FLOATING JUMP DRAWER ---------- */
+(function(){
+  var CLASSES=[
+    ['1','Linear arrays & memory','01-linear-arrays.html'],
+    ['2','Operations on an array','02-array-operations.html'],
+    ['3','2D arrays, matrices & sparse','03-2d-arrays.html'],
+    ['4','Strings & pattern matching','04-strings.html']
+  ];
+  var here=(location.pathname.split('/').pop()||'');
+  var base = '';
+  var root = /2321-theory|2322-lab/.test(location.pathname) ? '../../index.html' : '../index.html';
+
+  var scrim=document.createElement('div'); scrim.className='scrim';
+  var dr=document.createElement('aside'); dr.className='drawer';
+  dr.setAttribute('aria-hidden','true');
+
+  var secs='';
+  var cards=document.querySelectorAll('.panel:not([hidden]) .card');
+  for(var i=0;i<cards.length;i++){
+    var h=cards[i].querySelector('h2');
+    if(!h)continue;
+    var b=cards[i].querySelector('.badge');
+    secs+='<button class="dl dsec" data-jump="'+i+'"><span class="dn2">'+(b?b.textContent:(i+1))+'</span>'+
+          h.textContent.trim()+'</button>';
+  }
+
+  var links=CLASSES.map(function(c){
+    var on = c[2] && here===c[2];
+    if(!c[2]) return '<span class="dl" style="opacity:.45;cursor:default"><span class="dn2">'+c[0]+'</span>'+c[1]+' — soon</span>';
+    return '<a class="dl'+(on?' here':'')+'" href="'+base+c[2]+'"><span class="dn2">'+c[0]+'</span>'+c[1]+'</a>';
+  }).join('');
+
+  dr.innerHTML='<div class="dh"><p>CSE-2321 · Segment 2</p><b>Jump to</b>'+
+    '<button class="dx" aria-label="Close">✕</button></div>'+
+    '<div class="db">'+
+      '<a class="dl home2" href="'+root+'">☰ &nbsp;All classes &amp; the full course</a>'+
+      '<p class="grp">Segment 2 · Arrays &amp; Strings<span></span></p>'+links+
+      (secs?'<p class="grp">On this page<span></span></p>'+secs:'')+
+    '</div>';
+
+  var fab=document.createElement('div'); fab.className='fab';
+  fab.innerHTML='<button class="fup" aria-label="Previous section">↑</button>'+
+                '<button class="fdn" aria-label="Next section">↓</button>'+
+                '<button class="fmenu" aria-label="Open navigation">☰</button>';
+  document.body.appendChild(scrim); document.body.appendChild(dr); document.body.appendChild(fab);
+
+  function open(v){
+    dr.classList.toggle('on',v); scrim.classList.toggle('on',v);
+    dr.setAttribute('aria-hidden', v?'false':'true');
+    document.body.style.overflow = v?'hidden':'';
+  }
+  fab.querySelector('.fmenu').onclick=function(){open(!dr.classList.contains('on'));};
+  fab.querySelector('.fup').onclick=function(){jump(-1);};
+  fab.querySelector('.fdn').onclick=function(){jump(1);};
+  dr.querySelector('.dx').onclick=function(){open(false);};
+  scrim.onclick=function(){open(false);};
+  dr.addEventListener('click',function(e){
+    var b=e.target.closest('[data-jump]'); if(!b)return;
+    open(false);
+    var c=document.querySelectorAll('.panel:not([hidden]) .card')[+b.dataset.jump];
+    if(c) setTimeout(function(){window.scrollTo({top:Math.max(c.offsetTop-80,0),behavior:'smooth'});},180);
+  });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') open(false); });
+})();
+
+
+/* ---------- CODE THEME TOGGLE ---------- */
+(function(){
+  var KEY='dsa-code-theme';
+  var saved=null; try{saved=localStorage.getItem(KEY);}catch(e){}
+  if(saved!=='dark') document.body.classList.add('codelight');
+  var tabs=document.querySelector('.tabs');
+  if(!tabs)return;
+  var b=document.createElement('button');
+  b.className='codetog'; b.type='button';
+  function label(){ b.textContent = document.body.classList.contains('codelight') ? '🌙 Dark code' : '☀ Light code'; }
+  label();
+  b.addEventListener('click',function(){
+    document.body.classList.toggle('codelight');
+    try{localStorage.setItem(KEY, document.body.classList.contains('codelight')?'light':'dark');}catch(e){}
+    label();
+  });
+  tabs.appendChild(b);
+})();
+
+</script>
+</body>
+</html>

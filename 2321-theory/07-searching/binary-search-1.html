@@ -1,0 +1,1773 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Binary Search — Session One: The Boundary</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+            options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'] }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --card-color: #2563eb;
+        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: #334155; line-height: 1.6; }
+        .code-font { font-family: 'Fira Code', monospace; }
+
+        .info-card {
+            background: var(--card-bg); border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,.05), 0 2px 4px -1px rgba(0,0,0,.03);
+            padding: 2rem; margin-bottom: 2.5rem; position: relative;
+            border-top: 4px solid var(--card-color);
+        }
+        @media (max-width: 640px) { .info-card { padding: 1.25rem; padding-top: 2.5rem; } }
+
+        .step-badge {
+            background: var(--card-color); color: #fff; width: 2.5rem; height: 2.5rem; border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem;
+            position: absolute; top: -1.25rem; left: 2rem; border: 4px solid var(--bg-color); z-index: 10;
+        }
+
+        .socratic-bridge {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-left: 5px solid var(--card-color);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,.1);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        .btn-primary {
+            background: var(--card-color); color: #fff; padding: .55rem 1.1rem; border-radius: .5rem;
+            font-weight: 700; font-size: .875rem; border: none; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,.1);
+            transition: filter .15s, transform .1s;
+        }
+        .btn-primary:hover:not(:disabled) { filter: brightness(.9); transform: translateY(-1px); }
+        .btn-primary:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+        .btn-secondary {
+            background: #fff; color: #475569; padding: .55rem 1.1rem; border-radius: .5rem;
+            font-weight: 700; font-size: .875rem; border: 2px solid #e2e8f0; cursor: pointer; transition: all .15s;
+        }
+        .btn-secondary:hover:not(:disabled) { border-color: #94a3b8; color: #1e293b; }
+        .btn-secondary:disabled { opacity: .45; cursor: not-allowed; }
+
+        button:focus-visible, select:focus-visible, input:focus-visible, [tabindex]:focus-visible {
+            outline: 3px solid #6366f1; outline-offset: 2px;
+        }
+
+        /* ---------- code blocks, with a line the simulator can point at ---------- */
+        .code-block {
+            font-family: 'Fira Code', monospace; font-size: .85rem; line-height: 1.7;
+            padding: 1rem .5rem; border-radius: .5rem; background: #1e293b; color: #e2e8f0; overflow-x: auto;
+        }
+        .code-kw { color: #c678dd; } .code-type { color: #e5c07b; } .code-fn { color: #61afef; }
+        .code-num { color: #d19a66; } .code-comment { color: #7f848e; font-style: italic; }
+        .code-line { display: block; padding: 0 .6rem; border-radius: 3px; transition: background .18s; }
+        .code-line.active { background: rgba(251,191,36,.22); box-shadow: inset 3px 0 0 #fbbf24; }
+        .code-line.hit    { background: rgba(52,211,153,.20); box-shadow: inset 3px 0 0 #34d399; }
+
+        /* ---------- horizontal-scroll wrapper: centre when it fits, scroll-from-left when it doesn't ----------
+           A flex row with `justify-content: safe center` centres the cells when they fit and
+           falls back to start-alignment (no left-edge clipping) when they overflow on small screens. */
+        .cells-scroll { display: flex; overflow-x: auto; justify-content: safe center; }
+        .cells-scroll > .cellrow { flex: 0 0 auto; }
+
+        /* ---------- FIXED: fixed-height marker rows, so lo / hi / mid never clip ---------- */
+        .cellrow { display: inline-grid; grid-auto-flow: column; gap: 8px; padding: 2px; }
+        .cellcol { display: grid; grid-template-rows: 30px 18px 66px 30px 22px; justify-items: center; align-items: center; }
+
+        .cell {
+            width: 54px; height: 66px; border: 2px solid #cbd5e1; border-radius: .6rem; background: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font: 700 21px/1 'Fira Code', monospace; color: #334155;
+            transition: transform .18s, border-color .18s, background .18s, box-shadow .18s;
+        }
+        .cell.dim { opacity: .28; filter: grayscale(1); }
+        .cell.mid { border-color: #f59e0b; background: #fffbeb; transform: translateY(-2px) scale(1.08); box-shadow: 0 6px 16px rgba(245,158,11,.3); z-index: 5; }
+        .cell.hit { border-color: #10b981; background: #d1fae5; color: #065f46; transform: scale(1.08); box-shadow: 0 6px 16px rgba(16,185,129,.3); z-index: 5; }
+        .cell.one  { border-color: #10b981; background: #d1fae5; color: #065f46; }
+        .cell.zero { border-color: #fca5a5; background: #fef2f2; color: #b91c1c; }
+        .cell.ghost { border-style: dashed; border-color: #e2e8f0; color: #cbd5e1; background: #f8fafc; }
+        .cell.unknown { background: #f1f5f9; color: #94a3b8; }
+
+        .cell-dark { border-color: #334155; background: #1e293b; color: #64748b; }
+        .cell-dark.unknown { color: #475569; }
+        .cell-dark.one  { border-color: #34d399; background: #064e3b; color: #6ee7b7; }
+        .cell-dark.zero { border-color: #fb7185; background: #4c0519; color: #fda4af; }
+        .cell-dark.mid  { border-color: #fbbf24; box-shadow: 0 0 0 4px rgba(251,191,36,.25); transform: scale(1.1); z-index: 5; }
+
+        .idx { font: 600 13px/1 'Fira Code', monospace; color: #94a3b8; }
+        .idx-dark { color: #64748b; }
+
+        .ptr { font: 800 13px/1 'Inter', sans-serif; letter-spacing: .04em; text-transform: uppercase; padding: 4px 8px; border-radius: 5px; white-space: nowrap; }
+        .ptr-lo { background: #dbeafe; color: #1d4ed8; }
+        .ptr-hi { background: #fee2e2; color: #b91c1c; }
+        .ptr-mid{ background: #fef3c7; color: #b45309; }
+        .ptr-L  { background: #e2e8f0; color: #334155; }
+        .ptr-R  { background: #dbeafe; color: #1d4ed8; }
+
+        /* ---------- FIXED: projector-grade log panel ---------- */
+        .log {
+            background: #0f172a; color: #e2e8f0; border-radius: .75rem; padding: 1rem 1.25rem;
+            font: 500 .95rem/1.75 'Fira Code', monospace; border-left: 5px solid #64748b;
+            min-height: 5.5rem; text-align: left;
+        }
+        @media (max-width: 640px) { .log { font-size: .8rem; padding: .8rem; } }
+        .log b, .log strong { color: #fff; font-weight: 700; }
+        .log .ok  { color: #6ee7b7; font-weight: 700; }
+        .log .bad { color: #fda4af; font-weight: 700; }
+        .log .warn{ color: #fcd34d; font-weight: 700; }
+        .log .dimtext { color: #94a3b8; }
+        .log.good { border-left-color: #10b981; }
+        .log.err  { border-left-color: #f43f5e; }
+        .log.warnb{ border-left-color: #f59e0b; }
+
+        /* ---------- the rules the student unlocks by playing ---------- */
+        .rule {
+            border: 2px dashed #cbd5e1; border-radius: .6rem; padding: .7rem .9rem; background: #f8fafc;
+            font: 700 .85rem/1.4 'Fira Code', monospace; color: #cbd5e1; transition: all .35s; text-align: left;
+        }
+        .rule.on { border-style: solid; border-color: #10b981; background: #ecfdf5; color: #065f46; box-shadow: 0 4px 12px rgba(16,185,129,.15); }
+        .rule .lbl { display: block; font: 800 .6rem/1 'Inter'; letter-spacing: .1em; text-transform: uppercase; color: #94a3b8; margin-bottom: .35rem; }
+        .rule.on .lbl { color: #059669; }
+
+        .keyline { background: #fef08a; color: #713f12; font-weight: 800; padding: 2px 8px; border-radius: 4px; }
+
+        /* takeaway — the one idea to remember: warm highlighter with a solid underline accent */
+        .takeaway {
+            background: linear-gradient(180deg, rgba(254,240,138,0) 55%, #fde68a 55%);
+            padding: 0 3px; font-weight: 600; color: #422006;
+            box-decoration-break: clone; -webkit-box-decoration-break: clone;
+        }
+        /* curiosity hook — a confident tinted band that signals something new is coming */
+        .hook {
+            background: linear-gradient(135deg, #eef2ff 0%, #f0f9ff 100%);
+            border-left: 4px solid #6366f1; border-radius: 8px;
+            padding: .85rem 1.15rem; font-weight: 600; color: #3730a3;
+            box-shadow: 0 2px 8px rgba(99,102,241,.08);
+        }
+        /* inline change marker for before/after code edits */
+        .was { color: #94a3b8; text-decoration: line-through; }
+
+        /* quiz */
+        .quiz-card { background: #fff; border: 1px solid #e2e8f0; border-left: 5px solid #6366f1; border-radius: 1rem; padding: 1.5rem; margin-top: 2rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,.05); }
+        .quiz-tag { display: inline-flex; align-items: center; gap: .4rem; font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #4338ca; background: #eef2ff; padding: .25rem .7rem; border-radius: 999px; margin-bottom: .85rem; }
+        .quiz-q { font-weight: 700; color: #1e293b; margin-bottom: 1rem; font-size: .95rem; line-height: 1.5; }
+        .quiz-opts { display: flex; flex-direction: column; gap: .6rem; }
+        .quiz-opt { text-align: left; width: 100%; padding: .7rem 1rem; border: 2px solid #e2e8f0; border-radius: .6rem; background: #f8fafc; font-size: .9rem; font-weight: 600; color: #334155; cursor: pointer; transition: all .15s; }
+        .quiz-opt:hover:not(:disabled) { border-color: #6366f1; background: #eef2ff; }
+        .quiz-opt:disabled { cursor: default; }
+        .quiz-opt.correct { border-color: #22c55e; background: #dcfce7; color: #14532d; }
+        .quiz-opt.wrong { border-color: #ef4444; background: #fee2e2; color: #b91c1c; }
+        .quiz-explain { display: none; margin-top: 1rem; padding: .85rem 1rem; background: #f1f5f9; border-radius: .6rem; font-size: .85rem; color: #475569; line-height: 1.55; border: 1px solid #e2e8f0; }
+        .quiz-explain.show { display: block; }
+        .quiz-reset { margin-top: .75rem; font-size: .78rem; font-weight: 700; color: #64748b; background: none; border: none; cursor: pointer; padding: 0; }
+
+        .session-rule { display: flex; align-items: center; gap: 1rem; margin: 4rem 0 2.5rem; }
+        .session-rule hr { flex: 1; border: none; border-top: 2px dashed #cbd5e1; }
+        .session-rule span { font: 800 .72rem/1 'Inter'; letter-spacing: .18em; text-transform: uppercase; color: #64748b; white-space: nowrap; }
+
+        .crumb { cursor: pointer; }
+        .crumb.active { color: #1e293b; }
+        .crumb.active i { color: var(--card-color); }
+
+        .grid > div { min-width: 0; }   /* grid items must be shrinkable, or code blocks punch through the track */
+        details > summary { cursor: pointer; list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+
+        /* miniature 0/1 row — the same story as a full strip, inline in a sentence (ported from Session Two) */
+        .mini-cells { display: inline-flex; gap: 3px; vertical-align: middle; margin: 0 .15rem; flex-wrap: wrap; }
+        .mini-cells b { display: inline-flex; align-items: center; justify-content: center; width: 21px; height: 21px; border-radius: 5px; border: 1.5px solid; font: 700 11px/1 'Fira Code', monospace; }
+        .mini-cells b.z { border-color: #fca5a5; background: #fef2f2; color: #b91c1c; }
+        .mini-cells b.o { border-color: #6ee7b7; background: #d1fae5; color: #065f46; }
+        .mini-cells b.dip { box-shadow: 0 0 0 2px rgba(225,29,72,.5); }
+        .mini-cells.lg { gap: 5px; } .mini-cells.lg b { width: 32px; height: 32px; border-radius: 8px; font-size: 15px; border-width: 2px; }
+        /* on dark panels (socratic bridge, logs) the pale chips need stronger borders */
+        .socratic-bridge .mini-cells b.z, .log .mini-cells b.z { border-color: #f87171; }
+
+        /* the found-but-ambiguous / answer cell — pulsing ring (ported from Session Two) */
+        .cell.boundary { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,.45); animation: pulseB .9s ease-in-out infinite; }
+        @keyframes pulseB { 0%,100% { box-shadow: 0 0 0 3px rgba(124,58,237,.45); } 50% { box-shadow: 0 0 0 6px rgba(124,58,237,.18); } }
+        /* same value, different index — the duplicates the classic search cannot tell apart */
+        .cell.twin { border-style: dashed; border-color: #a78bfa; background: #f5f3ff; color: #6d28d9; }
+
+        /* synchronized flash: the value you set, the result, and the cell holding it light up together */
+        .flash-target { display: inline-block; border-radius: 6px; --flash-color: #0369a1; --flash-bg: transparent; }
+        .flash-target.flashing, .cell.flashing { animation: neonFlash 1.15s ease-out; }
+        .cell.flashing { z-index: 6; }
+        .cell.one  { --flash-color: #065f46; --flash-bg: #d1fae5; }
+        .cell.zero { --flash-color: #b91c1c; --flash-bg: #fef2f2; }
+        @keyframes neonFlash {
+            0%   { background: var(--flash-bg); color: var(--flash-color); box-shadow: 0 0 0 0 rgba(56,189,248,0); }
+            14%  { background: #7dd3fc; color: #082f49; box-shadow: 0 0 18px 4px rgba(56,189,248,.6), 0 0 5px rgba(125,211,252,.7); }
+            50%  { background: #7dd3fc; color: #082f49; box-shadow: 0 0 16px 3px rgba(56,189,248,.4), 0 0 4px rgba(125,211,252,.5); }
+            100% { background: var(--flash-bg); color: var(--flash-color); box-shadow: 0 0 0 0 rgba(56,189,248,0); }
+        }
+
+        /* slider styled like Session Two's simulators */
+        .sim-slider { width: 100%; accent-color: #0284c7; height: 6px; }
+
+        /* LeetCode problem badge (ported from Session Two) */
+        .lc-badge { display: inline-flex; align-items: center; gap: .5rem; text-decoration: none; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: .45rem .7rem; font: 700 .8rem/1 'Inter', sans-serif; color: #334155; box-shadow: 0 1px 2px rgba(15,23,42,.06); transition: border-color .18s, box-shadow .18s, transform .18s; }
+        .lc-badge:hover { border-color: #cbd5e1; box-shadow: 0 4px 12px -4px rgba(15,23,42,.18); transform: translateY(-1px); }
+
+        /* interview table — academic register: booktabs-style rules, quiet chips, plain dots.
+           Color lives only in small brand marks; the table itself stays ink-on-paper. */
+        .itable-wrap { border: 1px solid #e2e8f0; border-radius: 12px; overflow-x: auto; background: #fff; }
+        .itable { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 620px; }
+        .itable th { font: 700 .68rem/1 'Inter', sans-serif; text-transform: uppercase; letter-spacing: .09em; color: #475569; text-align: left; padding: .85rem 1rem; background: #f8fafc; border-bottom: 2px solid #cbd5e1; white-space: nowrap; }
+        .itable td { padding: .85rem 1rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        .itable tbody tr:last-child td { border-bottom: none; }
+        .itable tbody tr:hover { background: #f8fafc; }
+        .prob-link { font: 700 .9rem/1.35 'Inter', sans-serif; color: #0f172a; text-decoration: none; }
+        .prob-link:hover { color: #4f46e5; text-decoration: underline; text-underline-offset: 3px; }
+        .lc-num { display: inline-flex; align-items: center; gap: .3rem; margin-left: .35rem; font: 700 .68rem/1 'Fira Code', monospace; color: #475569; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 3px 6px; vertical-align: middle; }
+        .co { display: inline-flex; align-items: center; gap: .35rem; background: #fff; border: 1px solid #e2e8f0; border-radius: 999px; padding: .28rem .6rem; margin: 2px 4px 2px 0; font: 600 .72rem/1 'Inter', sans-serif; color: #334155; white-space: nowrap; }
+        .co i { font-size: .85rem; }
+        .co-amazon i { color: #ff9900; } .co-google i { color: #4285f4; } .co-microsoft i { color: #00a4ef; }
+        .co-apple i { color: #111827; } .co-meta i { color: #0866ff; } .co i { color: #64748b; }
+        .built { display: inline-flex; align-items: center; gap: .25rem; border-radius: 999px; padding: 3px 8px; margin-left: .35rem; font: 800 .62rem/1 'Inter', sans-serif; text-transform: uppercase; letter-spacing: .05em; vertical-align: middle; background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
+        .freq { display: inline-flex; gap: 5px; align-items: center; }
+        .freq b { display: block; width: 10px; height: 10px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 1.5px #94a3b8; }
+        .freq b.on { background: #1e293b; box-shadow: none; }
+        .freq-tag { display: block; font: 700 .58rem/1 'Inter', sans-serif; text-transform: uppercase; letter-spacing: .08em; margin-top: 5px; color: #64748b; }
+
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+        @media print { #sticky-progress-container, .btn-primary, .btn-secondary { display: none !important; } .info-card { break-inside: avoid; box-shadow: none; border: 1px solid #cbd5e1; } }
+    </style>
+</head>
+
+<body>
+<a href="../../index.html" style="position:fixed;left:12px;top:12px;z-index:9999;display:inline-flex;align-items:center;gap:.4rem;background:rgba(15,23,42,.94);color:#e2e8f0;font:700 12px/1 Inter,system-ui,sans-serif;padding:8px 12px;border-radius:8px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.25)">&larr; All classes</a>
+
+
+<div id="sticky-progress-container" class="fixed top-0 left-0 w-full z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-200 transition-transform duration-300 transform -translate-y-full">
+    <div class="h-1 w-full bg-slate-100"><div id="scroll-progress-bar" class="h-full w-0" style="background: var(--card-color); transition: width .15s ease-out;"></div></div>
+    <div class="max-w-6xl mx-auto px-4 py-2 flex items-center gap-1.5 overflow-x-auto custom-scrollbar whitespace-nowrap text-xs font-bold text-slate-400">
+        <span class="crumb" data-for="section-duplicates"><i class="fas fa-clone" aria-hidden="true"></i> Duplicates</span> <i class="fas fa-chevron-right text-[9px] mx-1" aria-hidden="true"></i>
+        <span class="crumb" data-for="section-invent"><i class="fas fa-gamepad" aria-hidden="true"></i> Invent It</span> <i class="fas fa-chevron-right text-[9px] mx-1" aria-hidden="true"></i>
+        <span class="crumb" data-for="section-template"><i class="fas fa-code" aria-hidden="true"></i> Template</span> <i class="fas fa-chevron-right text-[9px] mx-1" aria-hidden="true"></i>
+        <span class="crumb" data-for="section-sentinels"><i class="fas fa-flag" aria-hidden="true"></i> Sentinels</span> <i class="fas fa-chevron-right text-[9px] mx-1" aria-hidden="true"></i>
+        <span class="crumb" data-for="section-check"><i class="fas fa-check-double" aria-hidden="true"></i> The check</span> <i class="fas fa-chevron-right text-[9px] mx-1" aria-hidden="true"></i>
+        <span class="crumb" data-for="section-liar"><i class="fas fa-mask" aria-hidden="true"></i> Monotone</span> <i class="fas fa-chevron-right text-[9px] mx-1" aria-hidden="true"></i>
+        <span class="crumb" data-for="section-bounds"><i class="fas fa-arrows-left-right-to-line" aria-hidden="true"></i> Bounds</span>
+    </div>
+</div>
+
+<main class="max-w-5xl mx-auto px-4 py-10 md:px-8">
+
+    <div class="mb-12 bg-slate-900 rounded-2xl p-6 md:p-8 text-white shadow-lg flex flex-col md:flex-row items-center gap-6">
+        <div class="w-16 h-16 bg-white text-slate-900 rounded-full flex items-center justify-center font-bold text-2xl shrink-0">JA</div>
+        <div class="text-center md:text-left">
+            <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Lesson Plan Prepared By</p>
+            <h2 class="text-2xl font-extrabold mb-1">Jamil As-ad</h2>
+            <p class="text-slate-300 text-sm">Lecturer, Dept. of CSE, International Islamic University Chittagong</p>
+        </div>
+    </div>
+
+
+    <header class="mb-10 text-center">
+        <p class="text-xs font-bold uppercase tracking-widest text-blue-600 mb-3">Advanced Binary Search &middot; Session One of Two</p>
+        <h1 class="text-3xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">The Boundary</h1>
+        <h2 class="text-lg md:text-2xl font-bold text-blue-600 mb-6 code-font">From "which occurrence?" to lower_bound and upper_bound</h2>
+        <p class="text-base md:text-lg text-slate-600 max-w-3xl mx-auto">
+            Classic binary search tells you <em>whether</em> a value exists. In this session we rebuild it to find a <strong>boundary</strong> instead — the exact position where a condition first becomes true. That single shift turns binary search into a tool for counting duplicates, inserting in order, and computing floor and ceiling, and it sets up the bigger idea in Session Two.
+        </p>
+    </header>
+
+    <div class="info-card" style="--card-color: #0d9488;">
+        <div class="step-badge"><i class="fas fa-bullseye text-sm" aria-hidden="true"></i></div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-2 flex items-center gap-2"><i class="fas fa-rocket text-teal-600" aria-hidden="true"></i> Session One &mdash; Learning Outcomes</h2>
+        <p class="text-sm text-slate-500 mb-6">By the end of this session, students will be able to:</p>
+        <div class="flex flex-col gap-3">
+            <div class="border-l-4 border-teal-500 bg-slate-50 py-3 px-4 rounded-r-xl shadow-sm flex items-center gap-4">
+                <div class="bg-teal-100 text-teal-700 rounded-full w-6 h-6 flex items-center justify-center font-bold shrink-0 text-xs">1</div>
+                <p class="text-sm md:text-base text-slate-700 m-0 leading-tight"><strong>Explain</strong> why classic binary search finds <em>an</em> occurrence of a duplicate, but not the first or last.</p>
+            </div>
+            <div class="border-l-4 border-emerald-500 bg-slate-50 py-3 px-4 rounded-r-xl shadow-sm flex items-center gap-4">
+                <div class="bg-emerald-100 text-emerald-700 rounded-full w-6 h-6 flex items-center justify-center font-bold shrink-0 text-xs">2</div>
+                <p class="text-sm md:text-base text-slate-700 m-0 leading-tight"><strong>Write</strong> the boundary template (<span class="code-font">l = m</span> / <span class="code-font">r = m</span>, loop while <span class="code-font">r - l &gt; 1</span>) to find the first <span class="code-font">1</span> in a <span class="code-font">0&hellip;0&thinsp;1&hellip;1</span> array.</p>
+            </div>
+            <div class="border-l-4 border-rose-500 bg-slate-50 py-3 px-4 rounded-r-xl shadow-sm flex items-center gap-4">
+                <div class="bg-rose-100 text-rose-700 rounded-full w-6 h-6 flex items-center justify-center font-bold shrink-0 text-xs">3</div>
+                <p class="text-sm md:text-base text-slate-700 m-0 leading-tight"><strong>Use</strong> the sentinels <span class="code-font">l = -1, r = n</span> to handle the all-0s and all-1s edge cases.</p>
+            </div>
+            <div class="border-l-4 border-violet-500 bg-slate-50 py-3 px-4 rounded-r-xl shadow-sm flex items-center gap-4">
+                <div class="bg-violet-100 text-violet-700 rounded-full w-6 h-6 flex items-center justify-center font-bold shrink-0 text-xs">4</div>
+                <p class="text-sm md:text-base text-slate-700 m-0 leading-tight"><strong>Turn</strong> any comparison into a <span class="code-font">check(m)</span> predicate, and state why it must be monotone.</p>
+            </div>
+            <div class="border-l-4 border-sky-500 bg-slate-50 py-3 px-4 rounded-r-xl shadow-sm flex items-center gap-4">
+                <div class="bg-sky-100 text-sky-700 rounded-full w-6 h-6 flex items-center justify-center font-bold shrink-0 text-xs">5</div>
+                <p class="text-sm md:text-base text-slate-700 m-0 leading-tight"><strong>Apply</strong> <span class="code-font">lower_bound</span> and <span class="code-font">upper_bound</span> to first/last occurrence, counting, insertion, floor, and ceiling.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="session-rule"><hr><span>Session One &middot; The Boundary</span><hr></div>
+    <div class="info-card" id="section-recap" style="--card-color: #3b82f6;">
+        <div class="step-badge">1</div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">A Quick Recap</h2>
+
+        <p class="mb-6 text-slate-700 text-sm md:text-base">
+            Here is a sorted array of ten numbers. Our target is <span class="code-font font-bold text-blue-600">7</span>. Step through the classic algorithm and watch which line of code is running.
+        </p>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 md:p-6 mb-4">
+            <div id="sim1-cells" class="cells-scroll custom-scrollbar mb-5"></div>
+            <div class="grid md:grid-cols-2 gap-5 items-start">
+                <div id="sim1-code"></div>
+                <div>
+                    <div id="sim1-log" class="log" aria-live="polite" role="status"></div>
+                    <div class="flex flex-wrap gap-2 mt-3">
+                        <button class="btn-secondary" id="sim1-prev"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev</button>
+                        <button class="btn-primary" id="sim1-next" style="--card-color:#3b82f6">Next Step <i class="fas fa-arrow-right" aria-hidden="true"></i></button>
+                        <button class="btn-secondary" id="sim1-reset"><i class="fas fa-undo" aria-hidden="true"></i> Reset</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-slate-700 text-sm md:text-base mb-3">
+            Each step compares <span class="code-font">a[mid]</span> to the target and throws away half of what remains. Ten elements take about four steps, a thousand about ten, a billion about thirty. That halving is why binary search runs in $O(\log n)$.
+        </p>
+        <p class="text-slate-700 text-sm md:text-base m-0">
+            <span class="hook inline-block">We are about to ask this array a question it was not built to answer.</span>
+        </p>
+    </div>
+
+    <!-- ================= 2. DUPLICATES ================= -->
+    <div class="info-card" id="section-duplicates" style="--card-color: #ef4444;">
+        <div class="step-badge">2</div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">The Duplicates Dilemma</h2>
+
+        <p class="mb-4 text-slate-700 text-sm md:text-base">
+            Same array. Same code. New target: <span class="code-font font-bold text-rose-600">5</span>. There are four of them, at indices 2, 3, 4 and 5.
+        </p>
+        <div class="bg-rose-50 border-l-4 border-rose-500 rounded-r-xl p-4 mb-6">
+            <p class="text-sm md:text-base text-slate-800 m-0"><strong><i class="fas fa-crosshairs text-rose-600" aria-hidden="true"></i> The task:</strong> find the index of the <strong class="text-rose-600">last 5</strong>. Watch whether the classic algorithm can tell you that.</p>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 md:p-6 mb-6">
+            <div id="sim2-cells" class="cells-scroll custom-scrollbar mb-5"></div>
+            <div id="sim2-log" class="log mb-3" aria-live="polite" role="status"></div>
+            <div class="flex flex-wrap gap-2 justify-center">
+                <button class="btn-secondary" id="sim2-prev"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev</button>
+                <button class="btn-primary" id="sim2-next" style="--card-color:#ef4444">Next Step <i class="fas fa-arrow-right" aria-hidden="true"></i></button>
+                <button class="btn-secondary" id="sim2-reset"><i class="fas fa-undo" aria-hidden="true"></i> Reset</button>
+            </div>
+        </div>
+
+        <p class="mb-4 text-slate-700 text-sm md:text-base">
+            It stopped at index 4 and returned. That is not a bug. The code answered exactly the question it was asked: <em>"does a 5 exist?"</em> — and it does. It was never asked <em>which</em> 5.
+        </p>
+        <p class="mb-6 text-slate-800 font-semibold text-base md:text-lg">
+            But our real question is: <span class="text-rose-600">where is the <em>first</em> 5? Where is the <em>last</em> 5?</span>
+        </p>
+
+        <div class="socratic-bridge rounded-xl p-5 md:p-6 text-slate-200" style="--card-color:#ef4444;">
+            <p class="text-[.7rem] font-extrabold uppercase tracking-widest text-rose-300 mb-2"><i class="fas fa-brain" aria-hidden="true"></i> Active Reflection</p>
+            <p class="text-sm md:text-base font-semibold text-white mb-4">We are standing on a 5 at index 4. What is your instinct for finding the first one?</p>
+            <details class="group bg-slate-800/50 rounded-lg border border-slate-700/50 overflow-hidden">
+                <summary class="flex items-center justify-between p-3 text-xs font-bold text-rose-300 hover:bg-slate-800 transition-colors">
+                    <span>Think first. Then open.</span>
+                    <span class="transition-transform group-open:rotate-180"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></span>
+                </summary>
+                <div class="p-4 text-sm text-slate-300 border-t border-slate-700/50 leading-relaxed bg-slate-900">
+                    <p class="mb-3">Almost everyone says: <em>"just walk left until the number changes."</em></p>
+                    <p class="mb-3">Now imagine an array of one million elements, and every single one of them is a 5. That walk visits all of them. You spent $O(\log n)$ finding the element and then $O(n)$ finding its edge — so you spent $O(n)$.</p>
+                    <p class="m-0 text-white font-semibold">We need the edge itself, in $O(\log n)$, without ever taking a step sideways.</p>
+                </div>
+            </details>
+        </div>
+    </div>
+
+    <!-- ================= 3. INVENT IT ================= -->
+    <div class="info-card" id="section-invent" style="--card-color: #10b981;">
+        <div class="step-badge">3</div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">Inventing Boundary Search</h2>
+
+        <h3 class="font-bold text-emerald-700 text-lg mb-2">3.1 &nbsp;Stop comparing. Start labelling.</h3>
+        <p class="mb-5 text-slate-700 text-sm md:text-base">
+            Ask every element one yes/no question: <strong class="text-emerald-700 code-font">is a[i] &gt; 5?</strong>
+            Write <span class="code-font font-bold text-rose-600">0</span> for no and <span class="code-font font-bold text-emerald-600">1</span> for yes.
+        </p>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 md:p-6 mb-4">
+            <div id="sim3a-cells" class="cells-scroll custom-scrollbar mb-5"></div>
+            <div class="flex flex-wrap gap-2 justify-center">
+                <button class="btn-primary" id="sim3a-go" style="--card-color:#10b981">Label every element: is a[i] &gt; 5?</button>
+                <button class="btn-secondary" id="sim3a-reset"><i class="fas fa-undo" aria-hidden="true"></i> Reset</button>
+            </div>
+            <div id="sim3a-msg" class="mt-5 hidden">
+                <div class="log good">
+                    All the <span class="bad">0</span>s come first. Then all the <span class="ok">1</span>s — because the array was sorted.<br><br>
+                    <b>So: where is the first <span class="ok">1</span>?</b> <span class="dimtext">The cell just before it is the last 5.</span>
+                </div>
+            </div>
+        </div>
+
+        <p class="mb-8 text-slate-700 text-sm md:text-base">
+            The question is no longer "where is the value 5." It is <span class="takeaway">"where is the <strong>border</strong> between the 0s and the 1s."</span> Find the border and you have the answer.
+        </p>
+
+        <h3 class="font-bold text-emerald-700 text-lg mb-2">3.2 &nbsp;A brand-new problem: <span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">find the first <span class="code-font">1</span> in an array of <span class="code-font">0</span>s and <span class="code-font">1</span>s</span></h3>
+        <p class="mb-5 text-slate-700 text-sm md:text-base">
+            Same picture as above, but now the values are hidden. The array is some <span class="code-font">0</span>s followed by some <span class="code-font">1</span>s, and we want the index of the <strong>first <span class="code-font">1</span></strong>. You have two pointers, <span class="code-font font-bold">L</span> at index 0 and <span class="code-font font-bold">R</span> at index 9. Each turn you may reveal <strong>one</strong> cell — the middle one — then move <span class="code-font font-bold">L</span> or <span class="code-font font-bold">R</span> onto it.
+        </p>
+        <p class="mb-5 text-slate-700 text-sm md:text-base">
+            Play a few rounds before reading on. Notice how few cells you actually need to reveal.
+        </p>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-6 mb-6">
+            <div class="flex justify-between items-center mb-5">
+                <h4 class="font-bold text-emerald-400 text-base"><i class="fas fa-gamepad" aria-hidden="true"></i> Interactive Game</h4>
+                <button class="text-slate-400 hover:text-white font-bold text-xs" id="sim3b-reset"><i class="fas fa-undo mr-1" aria-hidden="true"></i> Restart</button>
+            </div>
+
+            <div id="sim3b-cells" class="cells-scroll custom-scrollbar mb-5"></div>
+            <div id="sim3b-actions" class="flex flex-wrap gap-3 justify-center mb-4"></div>
+            <div id="sim3b-log" class="log" aria-live="polite" role="status"></div>
+
+            <div class="grid md:grid-cols-3 gap-3 mt-5" id="sim3b-rules">
+                <div class="rule" data-rule="0"><span class="lbl">Rule 1 &middot; locked</span><span data-txt>reveal a 0 &hellip;</span></div>
+                <div class="rule" data-rule="1"><span class="lbl">Rule 2 &middot; locked</span><span data-txt>reveal a 1 &hellip;</span></div>
+                <div class="rule" data-rule="2"><span class="lbl">Rule 3 &middot; locked</span><span data-txt>close the gap &hellip;</span></div>
+            </div>
+        </div>
+
+        <h3 class="font-bold text-emerald-700 text-lg mb-2">3.3 &nbsp;What you just discovered</h3>
+        <div class="border-2 border-amber-300 bg-amber-50 p-5 md:p-6 rounded-xl mb-4">
+            <p class="text-sm md:text-base text-slate-800 mb-4">
+                You revealed only about <span class="takeaway"><strong>four cells out of ten</strong></span> — the same halving as binary search. The <em>same algorithm</em> solves this new problem. Only the question changed.
+            </p>
+            <p class="text-sm md:text-base text-slate-800 mb-4">
+                Look at your two moves. You never wrote <span class="code-font">m + 1</span> or <span class="code-font">m - 1</span>. You wrote <span class="keyline code-font">L = m</span> and <span class="keyline code-font">R = m</span>, because <span class="code-font">m</span> is the one cell whose value you just learned. You keep it as the new boundary instead of skipping past it.
+            </p>
+            <p class="text-sm md:text-base text-slate-800 mb-4">
+                You stopped when the two pointers were next to each other: <span class="keyline code-font">R - L == 1</span>. At that point <span class="takeaway"><span class="code-font font-bold">L</span> points to the last 0 and <span class="code-font font-bold">R</span> points to the first 1.</span>
+            </p>
+            <p class="text-sm md:text-base text-slate-800 m-0">
+                The binary search algorithm did not change. We only changed the question — from <strong>"where is the value"</strong> to <strong>"where is the border."</strong>
+            </p>
+        </div>
+        <p class="text-xs text-slate-500 leading-relaxed">
+            We started at <span class="code-font">L = 0</span> and <span class="code-font">R = 9</span>, the ends of the array. Section 5 shows why that choice can fail.
+        </p>
+    </div>
+
+    <!-- ================= 4. TEMPLATE ================= -->
+    <div class="info-card" id="section-template" style="--card-color: #6366f1;">
+        <div class="step-badge">4</div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">The Template &mdash; First Draft</h2>
+
+        <p class="mb-5 text-slate-700 text-sm md:text-base">
+            Write down exactly what you did in the game. Nothing more, nothing clever.
+        </p>
+
+        <pre class="code-block mb-6"><span class="code-type">int</span> <span class="code-fn">first_true</span>(vector&lt;<span class="code-type">int</span>&gt;&amp; a) {
+    <span class="code-type">int</span> l = <span class="code-num">0</span>, r = a.size() - <span class="code-num">1</span>;   <span class="code-comment">// the two ends of the array</span>
+
+    <span class="code-kw">while</span> (r - l &gt; <span class="code-num">1</span>) {             <span class="code-comment">// while something is still unknown between them</span>
+        <span class="code-type">int</span> m = (l + r) / <span class="code-num">2</span>;        <span class="code-comment">// reveal the middle cell</span>
+
+        <span class="code-kw">if</span> (a[m] == <span class="code-num">1</span>) r = m;       <span class="code-comment">// a 1 — the border is here or to the left</span>
+        <span class="code-kw">else</span>           l = m;       <span class="code-comment">// a 0 — the border is strictly to the right</span>
+    }
+    <span class="code-kw">return</span> r;                       <span class="code-comment">// r = first 1        (l = last 0)</span>
+}</pre>
+
+        <div class="grid md:grid-cols-3 gap-4">
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                <p class="font-bold text-slate-800 text-sm mb-1"><i class="fas fa-shield-halved text-indigo-500" aria-hidden="true"></i> Why it is correct</p>
+                <p class="text-sm text-slate-600 m-0"><span class="takeaway"><span class="code-font">a[l]</span> is always 0 and <span class="code-font">a[r]</span> is always 1.</span> Both branches keep this true. When <span class="code-font">L</span> and <span class="code-font">R</span> become adjacent, <span class="code-font">L</span> points to the last 0 and <span class="code-font">R</span> points to the first 1 — so we return <span class="code-font">r</span>.</p>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                <p class="font-bold text-slate-800 text-sm mb-1"><i class="fas fa-hourglass-half text-indigo-500" aria-hidden="true"></i> Why it stops</p>
+                <p class="text-sm text-slate-600 m-0"><span class="code-font">m</span> always lands between <span class="code-font">L</span> and <span class="code-font">R</span>. Moving <span class="code-font">L</span> or <span class="code-font">R</span> onto <span class="code-font">m</span> makes the gap smaller every turn, until they are adjacent.</p>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                <p class="font-bold text-slate-800 text-sm mb-1"><i class="fas fa-scale-balanced text-indigo-500" aria-hidden="true"></i> Why it is easy to remember</p>
+                <p class="text-sm text-slate-600 m-0">Both branches just write <span class="code-font">= m</span>. No <span class="code-font">+1</span> or <span class="code-font">-1</span> to place on the right line, so there is no off-by-one to get wrong.</p>
+            </div>
+        </div>
+
+        <p class="mt-6 text-slate-700 text-sm md:text-base m-0">
+            Run it on our labelled array and it returns <span class="code-font font-bold">6</span> — the first 1. It works. Now let us try to break it.
+        </p>
+    </div>
+
+    <!-- ================= 5. SENTINELS ================= -->
+    <div class="info-card" id="section-sentinels" style="--card-color: #f43f5e;">
+        <div class="step-badge">5</div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">When the Pointers Lie</h2>
+
+        <p class="mb-5 text-slate-700 text-sm md:text-base">
+            The template worked on a mixed array. But two legal arrays we never tried: <strong>all 0s</strong> (no 1 to find) and <strong>all 1s</strong> (the answer is index 0). Run each on the same code.
+        </p>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 md:p-6 mb-6">
+            <div class="flex flex-wrap gap-3 items-center mb-5">
+                <div class="inline-flex bg-white border-2 border-slate-200 rounded-lg p-1" role="group" aria-label="which array">
+                    <button class="px-4 py-1.5 text-sm font-bold rounded-md code-font" id="s5-allzero">all 0s</button>
+                    <button class="px-4 py-1.5 text-sm font-bold rounded-md code-font" id="s5-allone">all 1s</button>
+                </div>
+                <div class="inline-flex bg-white border-2 border-slate-200 rounded-lg p-1" role="group" aria-label="starting pointers">
+                    <button class="px-3 py-1.5 text-xs font-bold rounded-md code-font" id="s5-inside">l=0, r=n-1</button>
+                    <button class="px-3 py-1.5 text-xs font-bold rounded-md code-font" id="s5-outside">l=-1, r=n</button>
+                </div>
+                <button class="btn-primary" id="s5-run" style="--card-color:#f43f5e">Run</button>
+            </div>
+            <div id="s5-cells" class="cells-scroll custom-scrollbar mb-5"></div>
+            <div id="s5-log" class="log" aria-live="polite" role="status"></div>
+        </div>
+
+        <p class="mb-4 text-slate-700 text-sm md:text-base">
+            With <span class="code-font">l = 0, r = n-1</span> both arrays return the wrong answer, and the program gives no error. Look at what that starting line <em>assumes</em>:
+        </p>
+
+        <div class="grid md:grid-cols-2 gap-4 mb-6">
+            <div class="bg-rose-50 border border-rose-200 rounded-xl p-4">
+                <p class="code-font font-bold text-rose-800 text-sm mb-1">r = n - 1</p>
+                <p class="text-sm text-slate-700 m-0">assumes <strong>the last cell is a 1.</strong> In an all-0s array that is false — before the loop even starts.</p>
+            </div>
+            <div class="bg-rose-50 border border-rose-200 rounded-xl p-4">
+                <p class="code-font font-bold text-rose-800 text-sm mb-1">l = 0</p>
+                <p class="text-sm text-slate-700 m-0">assumes <strong>the first cell is a 0.</strong> In an all-1s array that is false, and index 0 — the answer — is never checked.</p>
+            </div>
+        </div>
+
+        <p class="mb-6 text-slate-700 text-sm md:text-base">
+            The loop trusts these two assumptions and only works on the middle. So place the pointers <span class="takeaway">one step outside the array, where no real element can make the assumption false.</span>
+        </p>
+
+        <div class="rounded-2xl bg-slate-900 text-white p-6 md:p-8 mb-6 text-center">
+            <p class="text-[.7rem] font-extrabold uppercase tracking-widest text-rose-300 mb-4">The fix</p>
+            <p class="code-font text-lg md:text-2xl font-bold mb-4">int l = -1, &nbsp; r = n;</p>
+            <p class="text-sm text-slate-400 max-w-2xl mx-auto m-0">
+                Treat index <span class="code-font">-1</span> as a 0 and index <span class="code-font">n</span> as a 1. Neither cell exists, so neither assumption can be false.
+                All 0s → <span class="code-font">r</span> stays at <span class="code-font">n</span> ("no 1"). All 1s → <span class="code-font">r</span> moves to 0. Both correct.
+            </p>
+        </div>
+
+        <div class="bg-amber-50 border-l-4 border-amber-500 rounded-r-xl p-4 mb-6">
+            <p class="text-sm text-slate-700 m-0"><strong><i class="fas fa-circle-question text-amber-600" aria-hidden="true"></i> But <span class="code-font">a[-1]</span> would crash.</strong> It would — if we ever read it. Look at the loop: it only ever reads <span class="code-font">a[m]</span>, and <span class="code-font">l &lt; m &lt; r</span> keeps <span class="code-font">m</span> safely inside. <span class="code-font">l</span> and <span class="code-font">r</span> are not addresses. They are <em>claims about what we know.</em></p>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-2">
+            <p class="text-sm text-slate-600 m-0"><strong class="text-slate-800"><i class="fas fa-sticky-note text-slate-400" aria-hidden="true"></i> A note for later.</strong> Where would an all-0s or all-1s array even come from? From <em>labelling</em>, exactly as we did in Section 3 — ask each element a yes/no question and write 0 or 1. Some questions produce all 0s or all 1s. Keep that in mind; in Section 8 it becomes the whole point.</p>
+        </div>
+
+        <div class="quiz-card" data-quiz>
+            <div class="quiz-tag"><i class="fas fa-check-double" aria-hidden="true"></i> Check yourself</div>
+            <div class="quiz-q">Now reverse the problem. The array is some <span class="code-font">1</span>s followed by some <span class="code-font">0</span>s, like <span class="code-font">1 1 1 0 0</span>, and you want the <strong>first 0</strong>. What check makes the labels go <span class="code-font">0…0 1…1</span> so the same template works?</div>
+            <div class="quiz-opts">
+                <button class="quiz-opt" data-correct="false">check(m) = (a[m] == 1)</button>
+                <button class="quiz-opt" data-correct="true">check(m) = (a[m] == 0)</button>
+                <button class="quiz-opt" data-correct="false">Start at l = 0, r = n-1 instead of -1, n</button>
+                <button class="quiz-opt" data-correct="false">It cannot be done with this template</button>
+            </div>
+            <div class="quiz-explain">The template always finds the first cell where the check is true. To find the first 0, make "is it a 0?" the check — then the 1s become 0-labels, the 0s become 1-labels, and the first true is the first 0. The loop never changes; only the check does.</div>
+            <button class="quiz-reset">Try again</button>
+        </div>
+    </div>
+
+    <!-- ================= 6. THE CHECK FUNCTION ================= -->
+    <div class="info-card" id="section-check" style="--card-color: #8b5cf6;">
+        <div class="step-badge">6</div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">The Array Was Never the Point &mdash; the <span class="code-font text-violet-600">check</span> Is</h2>
+
+        <p class="mb-5 text-slate-700 text-sm md:text-base">
+            The loop reads <span class="code-font">a[m]</span> only to ask one yes/no question. Give that question a name — <span class="code-font text-violet-600">check(m)</span> — and put it in its own function. The only line that changes is the <span class="code-font">if</span>:
+        </p>
+
+        <pre class="code-block mb-5"><span class="code-type">bool</span> <span class="code-fn">check</span>(<span class="code-type">int</span> m) { <span class="code-kw">return</span> a[m] == <span class="code-num">1</span>; }   <span class="code-comment">// "is the label at m a 1?"</span>
+
+<span class="code-type">int</span> <span class="code-fn">first_true</span>() {
+    <span class="code-type">int</span> l = -<span class="code-num">1</span>, r = n;
+    <span class="code-kw">while</span> (r - l &gt; <span class="code-num">1</span>) {
+        <span class="code-type">int</span> m = (l + r) / <span class="code-num">2</span>;
+        <span class="was">if (a[m] == 1) r = m;</span>          <span class="code-comment">// old</span>
+        <span class="code-kw">if</span> (<span class="keyline code-fn" style="color:#713f12">check(m)</span>) r = m;         <span class="code-comment">// new — same loop</span>
+        <span class="code-kw">else</span>           l = m;
+    }
+    <span class="code-kw">return</span> r;
+}</pre>
+
+        <p class="mb-5 text-slate-700 text-sm md:text-base">
+            Same <span class="code-font">l = -1, r = n</span>, same <span class="code-font">while</span>, same branches. <span class="takeaway">The loop no longer needs an array — it needs a <span class="code-font text-violet-600">check(m)</span> that returns true or false.</span> Change the check, and the same nine lines solve a different problem.
+        </p>
+        <div class="rounded-2xl bg-slate-900 text-white p-6 md:p-8 text-center">
+            <p class="text-[.7rem] font-extrabold uppercase tracking-widest text-violet-300 mb-3">The shift in thinking</p>
+            <p class="text-base md:text-xl font-extrabold m-0">You write the <span class="text-violet-300">check</span>. The binary search stays the same.</p>
+            <p class="text-sm text-slate-400 mt-3 m-0">Every section from here is just a new <span class="code-font">check</span>. It has one requirement — the labels must read <span class="code-font">0 … 0 1 … 1</span>. The next section shows what happens when they don't.</p>
+        </div>
+
+        <details class="bg-rose-50 border border-rose-200 rounded-xl overflow-hidden mt-6">
+            <summary class="p-4 flex items-center justify-between hover:bg-rose-100 transition-colors">
+                <span class="font-bold text-rose-800 text-sm"><i class="fas fa-arrows-spin mr-1" aria-hidden="true"></i> The version that hangs forever &mdash; can you spot why?</span>
+                <span class="text-rose-400 shrink-0 ml-4"><i class="fas fa-chevron-down" aria-hidden="true"></i></span>
+            </summary>
+            <div class="p-5 border-t border-rose-200">
+                <p class="text-sm text-slate-700 mb-3">This looks reasonable, but on some inputs it loops forever. Read it before opening the explanation.</p>
+                <pre class="code-block mb-4"><span class="code-type">int</span> <span class="code-fn">first_true</span>() {
+    <span class="code-type">int</span> l = <span class="code-num">0</span>, r = n - <span class="code-num">1</span>;
+    <span class="code-kw">while</span> (l &lt; r) {
+        <span class="code-type">int</span> m = (l + r) / <span class="code-num">2</span>;
+        <span class="code-kw">if</span> (<span class="code-fn">check</span>(m)) r = m;
+        <span class="code-kw">else</span>           l = m;   <span class="code-comment">// &lt;-- never moves past m</span>
+    }
+    <span class="code-kw">return</span> r;
+}</pre>
+                <p class="text-sm text-slate-700 mb-2"><strong>Why it hangs:</strong> when <span class="code-font">l</span> and <span class="code-font">r</span> are adjacent (<span class="code-font">r = l + 1</span>), the midpoint is <span class="code-font">m = (l + r) / 2 = l</span>. If <span class="code-font">check(m)</span> is false we set <span class="code-font">l = m</span> &mdash; that is <span class="code-font">l = l</span>. Nothing changes, and the loop spins forever.</p>
+                <div class="bg-white border border-rose-200 rounded-lg p-3 text-sm text-slate-700">
+                    <p class="m-0"><strong class="text-rose-700">The template avoids this by design:</strong> it loops while <span class="code-font">r - l &gt; 1</span> (stops when they are adjacent, never probing <span class="code-font">m = l</span>) and starts at <span class="code-font">l = -1, r = n</span>. That is exactly why we insist on the two rules together &mdash; drop either one and you get this.</p>
+                </div>
+            </div>
+        </details>
+    </div>
+
+    <!-- ================= 7. THE LIAR ================= -->
+    <div class="info-card" id="section-liar" style="--card-color: #be123c;">
+        <div class="step-badge">7</div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">Does Every <span class="code-font text-rose-600">check</span> Work?</h2>
+
+        <p class="mb-5 text-slate-700 text-sm md:text-base">
+            We can now plug in any check. But can we trust <em>every</em> check? Here is one whose labels are not a clean block — they go <span class="code-font">1</span>, then back to <span class="code-font">0</span>, then <span class="code-font">1</span> again. Run our template on it and watch what it returns.
+        </p>
+
+        <div class="bg-slate-50 border-2 border-rose-200 rounded-xl p-4 md:p-6 mb-5 text-center">
+            <p class="text-xs font-extrabold uppercase tracking-widest text-slate-500 mb-3">the labels</p>
+            <p class="m-0"><span class="mini-cells lg"><b class="z">0</b><b class="z">0</b><b class="o">1</b><b class="o">1</b><b class="z dip">0</b><b class="z dip">0</b><b class="z dip">0</b><b class="o">1</b><b class="o">1</b><b class="o">1</b></span></p>
+            <p class="text-sm text-slate-600 mt-3 m-0">The <strong>first 1 is at index 2.</strong> Run our repaired template and watch where it lands.</p>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 md:p-6 mb-6">
+            <div id="s6-cells" class="cells-scroll custom-scrollbar mb-5"></div>
+            <div id="s6-log" class="log mb-3" aria-live="polite" role="status"></div>
+            <div class="flex flex-wrap gap-2 justify-center">
+                <button class="btn-secondary" id="s6-prev"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev</button>
+                <button class="btn-primary" id="s6-next" style="--card-color:#be123c">Next Step <i class="fas fa-arrow-right" aria-hidden="true"></i></button>
+                <button class="btn-secondary" id="s6-reset"><i class="fas fa-undo" aria-hidden="true"></i> Reset</button>
+            </div>
+        </div>
+
+        <div class="rounded-2xl bg-rose-600 text-white p-6 md:p-8 text-center shadow-lg mb-6">
+            <p class="text-lg md:text-2xl font-extrabold m-0">No error. No crash.<br>It returned index <span class="underline decoration-4 decoration-rose-300">10</span> — but the first 1 is at index 2.</p>
+        </div>
+
+        <p class="mb-5 text-slate-700 text-sm md:text-base">
+            The first probe landed on index 4, saw a <span class="code-font">0</span>, and moved <span class="code-font">L</span> right — discarding indices 0 to 4, <strong>including the real first 1 at index 2.</strong> The template is built on one assumption: <span class="takeaway">once the labels turn to 1, they stay 1.</span> This array breaks that, so the search goes wrong from the first step.
+        </p>
+
+        <p class="mb-5 text-slate-700 text-sm md:text-base">
+            This property has a name. A check is <strong>monotone</strong> when its labels, read left to right, never go from 1 back to 0:
+        </p>
+
+        <div class="grid md:grid-cols-2 gap-4 mb-6 text-center">
+            <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+                <p class="text-xs font-extrabold uppercase tracking-widest text-emerald-700 mb-2">monotone</p>
+                <p class="mb-2"><span class="mini-cells"><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="o">1</b><b class="o">1</b><b class="o">1</b><b class="o">1</b></span></p>
+                <p class="text-xs text-emerald-700 m-0 font-semibold">Once it turns on, it stays on. <strong>Safe.</strong></p>
+            </div>
+            <div class="bg-rose-50 border border-rose-200 rounded-xl p-4">
+                <p class="text-xs font-extrabold uppercase tracking-widest text-rose-700 mb-2">not monotone</p>
+                <p class="mb-2"><span class="mini-cells"><b class="z">0</b><b class="z">0</b><b class="o">1</b><b class="o">1</b><b class="z dip">0</b><b class="z dip">0</b><b class="z dip">0</b><b class="o">1</b><b class="o">1</b><b class="o">1</b></span></p>
+                <p class="text-xs text-rose-700 m-0 font-semibold">It turns on, off, on. <strong>Binary search lies.</strong></p>
+            </div>
+        </div>
+
+        <div class="rounded-2xl border-2 border-slate-800 p-6 md:p-8 text-center mb-6">
+            <p class="text-xs font-extrabold uppercase tracking-widest text-slate-500 mb-3">The one requirement, for every problem from here on</p>
+            <p class="text-lg md:text-2xl font-extrabold text-slate-900 mb-2">Your <span class="code-font text-violet-600">check</span> must be monotone: <span class="text-rose-600">0 &hellip; 0 1 &hellip; 1</span>.</p>
+            <p class="text-sm text-slate-600 m-0">Formally: if <span class="code-font">check(i)</span> is true, then <span class="code-font">check(i+1)</span> must be true. Prove that, and binary search is guaranteed. Skip it, and you get a confident wrong answer.</p>
+        </div>
+
+        <div class="socratic-bridge rounded-xl p-5 md:p-6 text-slate-200" style="--card-color:#be123c;">
+            <p class="text-[.7rem] font-extrabold uppercase tracking-widest text-rose-300 mb-2"><i class="fas fa-brain" aria-hidden="true"></i> Quick check</p>
+            <p class="text-sm md:text-base font-semibold text-white mb-3">Which of these label rows are safe for our template — that is, monotone?</p>
+            <div class="space-y-2 text-sm">
+                <p class="m-0 flex items-center gap-2"><span class="code-font font-bold text-slate-400 w-4">A</span> <span class="mini-cells"><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="o">1</b><b class="o">1</b><b class="o">1</b><b class="o">1</b><b class="o">1</b><b class="o">1</b><b class="o">1</b></span></p>
+                <p class="m-0 flex items-center gap-2"><span class="code-font font-bold text-slate-400 w-4">B</span> <span class="mini-cells"><b class="z">0</b><b class="o">1</b><b class="o">1</b><b class="z">0</b><b class="o">1</b><b class="o">1</b><b class="o">1</b><b class="o">1</b><b class="o">1</b><b class="o">1</b></span></p>
+                <p class="m-0 flex items-center gap-2"><span class="code-font font-bold text-slate-400 w-4">C</span> <span class="mini-cells"><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="o">1</b></span></p>
+                <p class="m-0 flex items-center gap-2"><span class="code-font font-bold text-slate-400 w-4">D</span> <span class="mini-cells"><b class="o">1</b><b class="o">1</b><b class="o">1</b><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="z">0</b></span></p>
+            </div>
+            <details class="mt-3">
+                <summary class="text-xs font-bold text-rose-300 hover:text-rose-200 inline-flex items-center gap-2"><i class="fas fa-chevron-right text-[9px]" aria-hidden="true"></i> Check your answer.</summary>
+                <div class="text-sm mt-3 text-slate-300 leading-relaxed">
+                    <p class="m-0"><strong class="text-emerald-300">A and C are safe</strong> — the 1s never turn back to 0. <strong class="text-rose-300">B and D are not.</strong> B has a 0 after some 1s; D starts with 1s and then drops to 0. On B or D the template can skip the answer, exactly as it just did above.</p>
+                </div>
+            </details>
+        </div>
+    </div>
+
+    <!-- ================= 8. BACK TO THE LAST 5 ================= -->
+    <div class="info-card" id="section-transform" style="--card-color: #f59e0b;">
+        <div class="step-badge">8</div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">So &hellip; Where <em>Was</em> the Last 5?</h2>
+
+        <p class="mb-4 text-slate-700 text-sm md:text-base">
+            We opened the lesson with a question classic binary search could not answer: in <span class="code-font">[1, 3, 5, 5, 5, 5, 7, 9, 13, 13]</span>, find the index of the <strong>last 5</strong>. Can we solve it now? Recall three things we have built:
+        </p>
+        <ul class="text-sm md:text-base text-slate-700 space-y-1.5 list-disc pl-5 mb-5">
+            <li>We can turn a sorted array into <span class="code-font">0</span>s followed by <span class="code-font">1</span>s by labelling it with a check.</li>
+            <li>Our template finds the <strong>first 1</strong> in such a labelling.</li>
+            <li>Only the <span class="code-font">check</span> changes between problems.</li>
+        </ul>
+        <p class="mb-5 text-slate-700 text-sm md:text-base">
+            So the real question is: <span class="takeaway">which <span class="code-font">check</span> turns "find the last 5" into "find the first 1"?</span>
+        </p>
+
+        <div class="socratic-bridge rounded-xl p-5 md:p-6 text-slate-200 mb-6" style="--card-color:#f59e0b;">
+            <p class="text-[.7rem] font-extrabold uppercase tracking-widest text-amber-300 mb-2"><i class="fas fa-brain" aria-hidden="true"></i> Stop and think</p>
+            <p class="text-sm md:text-base font-semibold text-white mb-3">Try to name that <span class="code-font">check(m)</span> before opening the answer.</p>
+            <details>
+                <summary class="text-xs font-bold text-amber-300 hover:text-amber-200 inline-flex items-center gap-2"><i class="fas fa-chevron-right text-[9px]" aria-hidden="true"></i> You have already seen it.</summary>
+                <div class="text-sm mt-3 text-slate-300 leading-relaxed space-y-2">
+                    <p>In Section 3 we labelled with <span class="code-font">check(m) = a[m] &gt; 5</span> and got <span class="mini-cells"><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="o">1</b><b class="o">1</b><b class="o">1</b><b class="o">1</b></span>.</p>
+                    <p class="m-0">The first <span class="code-font">1</span> is at index 6 — the first element greater than 5. So the cell just before it, <strong>index 5, is the last 5.</strong></p>
+                </div>
+            </details>
+        </div>
+
+        <p class="mb-5 text-slate-700 text-sm md:text-base">
+            So we solve it without writing any new search: <span class="takeaway">choose a monotone <span class="code-font">check</span> that turns the problem into "find the first 1," then reuse the same nine lines.</span> The last 5 is one step before the first element greater than 5:
+        </p>
+
+        <div class="bg-slate-50 border-2 border-amber-200 rounded-xl p-4 md:p-6 mb-4">
+            <p class="text-xs font-extrabold uppercase tracking-widest text-amber-700 mb-3 text-center">reading this line left to right</p>
+            <p class="code-font text-sm md:text-base text-slate-800 text-center mb-3">check(m) = ( a[m] &gt; 5 ) &nbsp;&rarr;&nbsp; first_true() = 6 &nbsp;&rarr;&nbsp; last 5 = <b class="text-amber-700">6 &minus; 1 = 5</b></p>
+            <p class="text-sm text-slate-600 m-0 text-center">Use the check <span class="code-font">a[m] &gt; 5</span>. The template returns 6, the first element greater than 5. Subtract 1 to get the last 5, at index 5.</p>
+        </div>
+
+        <details class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden mb-2">
+            <summary class="p-4 flex items-center justify-between hover:bg-slate-100 transition-colors">
+                <span class="font-bold text-slate-800 text-sm"><i class="fas fa-code text-amber-500 mr-1" aria-hidden="true"></i> See the full code for "last 5"</span>
+                <span class="text-slate-400 shrink-0 ml-4"><i class="fas fa-chevron-down" aria-hidden="true"></i></span>
+            </summary>
+            <div class="p-4 border-t border-slate-200">
+                <pre class="code-block m-0"><span class="code-comment">// the check we chose: is a[m] past the last 5?</span>
+<span class="code-type">bool</span> <span class="code-fn">check</span>(<span class="code-type">int</span> m) { <span class="code-kw">return</span> a[m] &gt; <span class="code-num">5</span>; }
+
+<span class="code-type">int</span> <span class="code-fn">last_five</span>(vector&lt;<span class="code-type">int</span>&gt;&amp; a) {
+    <span class="code-type">int</span> l = -<span class="code-num">1</span>, r = a.size();
+    <span class="code-kw">while</span> (r - l &gt; <span class="code-num">1</span>) {
+        <span class="code-type">int</span> m = l + (r - l) / <span class="code-num">2</span>;
+        <span class="code-kw">if</span> (<span class="code-fn">check</span>(m)) r = m;   <span class="code-comment">// first index where check is true</span>
+        <span class="code-kw">else</span>           l = m;
+    }
+    <span class="code-kw">return</span> r - <span class="code-num">1</span>;              <span class="code-comment">// one step before that = the last 5</span>
+}</pre>
+            </div>
+        </details>
+    </div>
+
+    <!-- ================= 9. BOUNDS ================= -->
+    <div class="info-card" id="section-bounds" style="--card-color: #0ea5e9;">
+        <div class="step-badge">9</div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">The Two Checks with Names: <span class="text-sky-600">lower_bound</span> and <span class="text-sky-600">upper_bound</span></h2>
+
+        <p class="mb-5 text-slate-700 text-sm md:text-base">
+            With the check <span class="keyline code-font">a[i] &gt; 5</span> the border landed just past the last 5. Change one character — <span class="keyline code-font">&gt;</span> to <span class="keyline code-font">&gt;=</span> — and the border moves to the <em>front</em> of the block. Same array, same loop, a different question answered.
+        </p>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 md:p-6 mb-6">
+            <p class="text-xs font-extrabold uppercase tracking-widest text-slate-500 mb-3 text-center">Drag <span class="code-font normal-case">x</span> and toggle the check</p>
+            <div class="flex flex-wrap gap-3 items-center justify-center mb-5">
+                <div class="inline-flex bg-white border-2 border-slate-200 rounded-lg p-1">
+                    <button class="px-4 py-1.5 text-sm font-bold rounded-md code-font" id="s7-lower">a[i] &gt;= x</button>
+                    <button class="px-4 py-1.5 text-sm font-bold rounded-md code-font" id="s7-upper">a[i] &gt; x</button>
+                </div>
+                <label class="text-xs font-extrabold uppercase tracking-widest text-slate-500 flex items-center gap-2">x =
+                    <input type="range" id="s7-x" min="0" max="14" value="5" class="sim-slider" style="max-width:220px" aria-label="Query value x (0 to 14)">
+                    <span id="s7-xv" class="code-font text-base font-bold text-sky-700 w-6 flash-target" style="--flash-color:#0369a1">5</span>
+                </label>
+            </div>
+            <div id="s7-cells" class="cells-scroll custom-scrollbar mb-5"></div>
+            <div id="s7-log" class="log" aria-live="polite" role="status"></div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4 mb-6">
+            <div class="bg-sky-50 border border-sky-200 rounded-xl p-5">
+                <p class="font-extrabold text-sky-800 mb-1">lower_bound(x)</p>
+                <p class="code-font text-sm bg-white border border-sky-200 py-1 px-2 rounded mb-2">label with a[i] &gt;= x</p>
+                <p class="text-sm text-slate-700 m-0">First index holding something not less than <span class="code-font">x</span>. If <span class="code-font">x</span> is present, this <em>is</em> the first <span class="code-font">x</span>.</p>
+            </div>
+            <div class="bg-sky-50 border border-sky-200 rounded-xl p-5">
+                <p class="font-extrabold text-sky-800 mb-1">upper_bound(x)</p>
+                <p class="code-font text-sm bg-white border border-sky-200 py-1 px-2 rounded mb-2">label with a[i] &gt; x</p>
+                <p class="text-sm text-slate-700 m-0">First index holding something strictly greater. The last <span class="code-font">x</span> is one step before it.</p>
+            </div>
+        </div>
+
+        <p class="mb-4 text-slate-700 text-sm md:text-base">
+            The clearest way to picture the two bounds: <span class="takeaway"><span class="code-font">lower_bound(x)</span> is the <strong>leftmost</strong> position where <span class="code-font">x</span> could be inserted and keep the array sorted; <span class="code-font">upper_bound(x)</span> is the <strong>rightmost</strong>.</span> Pick a case below and watch where the new value slots in and which cells shift to make room:
+        </p>
+
+        <div class="bg-white border border-slate-200 rounded-xl p-4 md:p-5 mb-6">
+            <div class="flex flex-wrap gap-2 justify-center mb-4" id="ins-demos">
+                <button class="btn-secondary" data-ins="lb5">lower_bound(5)</button>
+                <button class="btn-secondary" data-ins="ub5">upper_bound(5)</button>
+                <button class="btn-secondary" data-ins="lb6">lower_bound(6)</button>
+                <button class="btn-secondary" data-ins="ub6">upper_bound(6)</button>
+            </div>
+            <div id="ins-svg" class="w-full flex justify-center"></div>
+            <p id="ins-caption" class="text-xs text-slate-500 mt-3 m-0 text-center"></p>
+        </div>
+
+        <p class="mb-4 text-slate-700 text-sm md:text-base">
+            Both are our template. Only the <span class="code-font">check</span> differs, by one character:
+        </p>
+
+        <div class="grid md:grid-cols-2 gap-4 mb-6">
+            <div>
+                <p class="text-xs font-extrabold uppercase tracking-widest text-sky-700 mb-2">lower_bound</p>
+                <pre class="code-block m-0"><span class="code-type">bool</span> <span class="code-fn">check</span>(<span class="code-type">int</span> m) {
+    <span class="code-kw">return</span> a[m] <span class="keyline" style="color:#713f12">&gt;=</span> x;
+}
+<span class="code-type">int</span> l = -<span class="code-num">1</span>, r = n;
+<span class="code-kw">while</span> (r - l &gt; <span class="code-num">1</span>) {
+    <span class="code-type">int</span> m = (l + r) / <span class="code-num">2</span>;
+    <span class="code-kw">if</span> (<span class="code-fn">check</span>(m)) r = m;
+    <span class="code-kw">else</span>           l = m;
+}
+<span class="code-kw">return</span> r;</pre>
+            </div>
+            <div>
+                <p class="text-xs font-extrabold uppercase tracking-widest text-sky-700 mb-2">upper_bound</p>
+                <pre class="code-block m-0"><span class="code-type">bool</span> <span class="code-fn">check</span>(<span class="code-type">int</span> m) {
+    <span class="code-kw">return</span> a[m] <span class="keyline" style="color:#713f12">&gt;</span> x;
+}
+<span class="code-type">int</span> l = -<span class="code-num">1</span>, r = n;
+<span class="code-kw">while</span> (r - l &gt; <span class="code-num">1</span>) {
+    <span class="code-type">int</span> m = (l + r) / <span class="code-num">2</span>;
+    <span class="code-kw">if</span> (<span class="code-fn">check</span>(m)) r = m;
+    <span class="code-kw">else</span>           l = m;
+}
+<span class="code-kw">return</span> r;</pre>
+            </div>
+        </div>
+
+        <p class="mb-4 text-slate-700 text-sm md:text-base">
+            Step through the four canonical cases below. Watch <span class="code-font font-bold">L</span> and <span class="code-font font-bold">R</span> move inward: an arrow shows which pointer jumped and in which direction. The returned <span class="code-font">r</span> is the border — and for <span class="code-font">lower_bound(6)</span> it points to where a 6 <em>would</em> be inserted, even though no 6 exists.
+        </p>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 md:p-6 mb-6">
+            <div class="flex flex-wrap gap-2 justify-center mb-4" id="s8-demos">
+                <button class="btn-secondary" data-s8demo="lb5">lower_bound(5)</button>
+                <button class="btn-secondary" data-s8demo="lb6">lower_bound(6)</button>
+                <button class="btn-secondary" data-s8demo="ub5">upper_bound(5)</button>
+                <button class="btn-secondary" data-s8demo="ub6">upper_bound(6)</button>
+            </div>
+            <div id="s8-cells" class="cells-scroll custom-scrollbar mb-5"></div>
+            <div id="s8-log" class="log mb-3" aria-live="polite" role="status"></div>
+            <div class="flex flex-wrap gap-2 justify-center">
+                <button class="btn-secondary" id="s8-prev"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev</button>
+                <button class="btn-primary" id="s8-next" style="--card-color:#0ea5e9">Next Step <i class="fas fa-arrow-right" aria-hidden="true"></i></button>
+                <button class="btn-secondary" id="s8-reset"><i class="fas fa-undo" aria-hidden="true"></i> Reset</button>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto custom-scrollbar mb-6">
+            <table class="w-full text-sm border-collapse min-w-[520px]">
+                <thead><tr class="bg-slate-100 text-slate-600 text-xs uppercase tracking-wider">
+                    <th class="p-3 text-left font-extrabold">You want</th><th class="p-3 text-left font-extrabold">You write</th><th class="p-3 text-left font-extrabold">On our array, x = 5</th>
+                </tr></thead>
+                <tbody>
+                    <tr class="border-b border-slate-200"><td class="p-3">first 5</td><td class="p-3 code-font font-bold text-sky-700">lb(5)</td><td class="p-3 code-font">2</td></tr>
+                    <tr class="border-b border-slate-200"><td class="p-3">last 5</td><td class="p-3 code-font font-bold text-sky-700">ub(5) - 1</td><td class="p-3 code-font">5</td></tr>
+                    <tr class="border-b border-slate-200"><td class="p-3">how many 5s</td><td class="p-3 code-font font-bold text-sky-700">ub(5) - lb(5)</td><td class="p-3 code-font">4</td></tr>
+                    <tr class="border-b border-slate-200"><td class="p-3">does 5 exist</td><td class="p-3 code-font font-bold text-sky-700">ub(5) &gt; lb(5)</td><td class="p-3 code-font">true</td></tr>
+                    <tr class="border-b border-slate-200"><td class="p-3">largest element &le; x &nbsp;<span class="text-slate-400">(floor)</span></td><td class="p-3 code-font font-bold text-sky-700">ub(x) - 1</td><td class="p-3 code-font">5</td></tr>
+                    <tr><td class="p-3">smallest element &ge; x &nbsp;<span class="text-slate-400">(ceil)</span></td><td class="p-3 code-font font-bold text-sky-700">lb(x)</td><td class="p-3 code-font">2</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="bg-amber-50 border-l-4 border-amber-500 rounded-r-xl p-4 mb-4">
+            <p class="text-sm text-slate-700 m-0"><strong><i class="fas fa-triangle-exclamation text-amber-600" aria-hidden="true"></i> The trap.</strong> "Floor is <span class="code-font">lb(x) - 1</span>" is wrong whenever <span class="code-font">x</span> is actually present — then <span class="code-font">lb(x)</span> points <em>at</em> <span class="code-font">x</span>, so <span class="code-font">lb(x) - 1</span> gives you the largest element <em>strictly less than</em> <span class="code-font">x</span>. Slide <span class="code-font">x</span> to 5 above and read both off the screen.</p>
+        </div>
+
+        <!-- Item 5: floor/ceil elevated to its own high-contrast anchor -->
+        <div class="rounded-2xl bg-slate-900 text-white p-5 md:p-6 mb-2 text-center">
+            <p class="text-[.7rem] font-extrabold uppercase tracking-widest text-sky-300 mb-4">Memorise this, it is the most-failed exam line</p>
+            <div class="grid grid-cols-2 gap-4 max-w-lg mx-auto">
+                <div class="bg-slate-800 border border-slate-700 rounded-xl p-4">
+                    <p class="text-sm font-extrabold text-white mb-1">FLOOR &nbsp;<span class="text-slate-400 font-normal">(largest &le; x)</span></p>
+                    <p class="code-font text-xl font-bold text-sky-300 m-0">ub(x) &minus; 1</p>
+                </div>
+                <div class="bg-slate-800 border border-slate-700 rounded-xl p-4">
+                    <p class="text-sm font-extrabold text-white mb-1">CEIL &nbsp;<span class="text-slate-400 font-normal">(smallest &ge; x)</span></p>
+                    <p class="code-font text-xl font-bold text-sky-300 m-0">lb(x)</p>
+                </div>
+            </div>
+            <p class="text-xs text-slate-400 mt-4 m-0">Floor reaches <em>past</em> x and steps back one, so it needs <span class="code-font">ub</span>. Ceil lands <em>on or after</em> x already, so it is just <span class="code-font">lb</span>. The instinct <span class="code-font">lb(x) - 1</span> for floor is the wrong one.</p>
+        </div>
+
+        <!-- Item 9e: choose the check + choose L or R -->
+        <div class="bg-slate-50 border-2 border-sky-200 rounded-2xl p-4 md:p-6 mb-6">
+            <p class="text-xs font-extrabold uppercase tracking-widest text-sky-700 mb-1"><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> Build the query</p>
+            <p class="text-sm text-slate-600 mb-4">Pick a task. Choose the right <span class="code-font">check</span>, then choose what to return. The panel tells you if the pair is correct.</p>
+            <div class="flex flex-wrap gap-2 mb-4" id="s7q-tasks"></div>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <p class="text-[.65rem] font-extrabold uppercase tracking-widest text-slate-400 mb-2">1 &middot; the check</p>
+                    <div class="flex flex-col gap-2" id="s7q-checks"></div>
+                </div>
+                <div>
+                    <p class="text-[.65rem] font-extrabold uppercase tracking-widest text-slate-400 mb-2">2 &middot; return</p>
+                    <div class="flex flex-col gap-2" id="s7q-returns"></div>
+                </div>
+            </div>
+            <div id="s7q-verdict" class="log mt-4" aria-live="polite" role="status">Pick a task to begin.</div>
+        </div>
+
+        <div class="quiz-card" data-quiz>
+            <div class="quiz-tag"><i class="fas fa-check-double" aria-hidden="true"></i> Check yourself</div>
+            <div class="quiz-q">On <span class="code-font">[1, 3, 5, 5, 5, 5, 7, 9, 13, 13]</span>, what is <span class="code-font">lower_bound(6)</span>?</div>
+            <div class="quiz-opts">
+                <button class="quiz-opt" data-correct="false">-1, because 6 is not in the array</button>
+                <button class="quiz-opt" data-correct="false">5</button>
+                <button class="quiz-opt" data-correct="true">6</button>
+                <button class="quiz-opt" data-correct="false">10</button>
+            </div>
+            <div class="quiz-explain">The labelling <span class="code-font">a[i] &gt;= 6</span> gives <span class="mini-cells"><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="o">1</b><b class="o">1</b><b class="o">1</b><b class="o">1</b></span>, so the border is at index 6. A miss is not a failure — index 6 is exactly where a 6 <em>would go</em>. Hold on to that; it is the next section.</div>
+            <button class="quiz-reset">Try again</button>
+        </div>
+    </div>
+
+    <!-- ================= 10. STL ================= -->
+    <div class="info-card" id="section-modification" style="--card-color: #0d9488;">
+        <div class="step-badge">10</div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">You Don't Have to Write It: the C++ STL</h2>
+
+        <p class="mb-5 text-slate-700 text-sm md:text-base">
+            You now understand exactly what these do, so use the library versions. On a sorted <span class="code-font">vector</span>, the standard algorithms are the same two borders you just built:
+        </p>
+
+        <pre class="code-block mb-5">vector&lt;<span class="code-type">int</span>&gt; a = {<span class="code-num">1</span>,<span class="code-num">3</span>,<span class="code-num">5</span>,<span class="code-num">5</span>,<span class="code-num">5</span>,<span class="code-num">5</span>,<span class="code-num">7</span>,<span class="code-num">9</span>,<span class="code-num">13</span>,<span class="code-num">13</span>};
+
+<span class="code-kw">bool</span> found = <span class="code-fn">binary_search</span>(a.begin(), a.end(), <span class="code-num">5</span>);          <span class="code-comment">// true / false only</span>
+
+<span class="code-kw">auto</span> lo = <span class="code-fn">lower_bound</span>(a.begin(), a.end(), <span class="code-num">5</span>);          <span class="code-comment">// first &gt;= 5   -> index 2</span>
+<span class="code-kw">auto</span> hi = <span class="code-fn">upper_bound</span>(a.begin(), a.end(), <span class="code-num">5</span>);          <span class="code-comment">// first  &gt; 5   -> index 6</span>
+
+<span class="code-type">int</span> first = lo - a.begin();          <span class="code-comment">// 2</span>
+<span class="code-type">int</span> last  = hi - a.begin() - <span class="code-num">1</span>;      <span class="code-comment">// 5</span>
+<span class="code-type">int</span> count = hi - lo;                 <span class="code-comment">// 4</span></pre>
+
+        <p class="mb-5 text-slate-700 text-sm md:text-base">
+            <span class="code-font">binary_search</span> is the classic "does it exist" answer. <span class="code-font">lower_bound</span> and <span class="code-font">upper_bound</span> are the two borders, and subtracting <span class="code-font">a.begin()</span> turns the returned iterator into the index. Everything from Section 9 — first, last, count, floor, ceil — is just arithmetic on those two.
+        </p>
+
+        <div class="rounded-2xl border-2 border-amber-400 bg-amber-50 overflow-hidden shadow-sm">
+            <div class="bg-amber-400 px-5 py-3 flex items-center gap-2">
+                <i class="fas fa-triangle-exclamation text-amber-900" aria-hidden="true"></i>
+                <span class="font-extrabold text-amber-900 text-sm uppercase tracking-wide">Interview landmine &mdash; read this once, remember it forever</span>
+            </div>
+            <div class="p-5 text-sm text-slate-700 leading-relaxed space-y-3">
+                <p class="m-0">On a <span class="code-font">std::set</span> (or <span class="code-font">map</span>), always call the <span class="keyline">member function <span class="code-font">s.lower_bound(x)</span></span>. It walks the tree in <span class="takeaway"><strong>$O(\log n)$</strong></span>.</p>
+                <p class="m-0">The free algorithm <span class="code-font">std::lower_bound(s.begin(), s.end(), x)</span> <em>compiles</em> on a set &mdash; but a set's iterators are not random-access, so it cannot jump to the middle. It steps one node at a time and <span class="takeaway">silently degrades to <strong>$O(n)$</strong></span>. <span class="text-rose-700 font-semibold">It passes every small test and melts in production.</span></p>
+                <div class="bg-white border-2 border-amber-300 rounded-lg px-4 py-3 mt-1">
+                    <p class="m-0 font-bold text-slate-800"><i class="fas fa-key text-amber-600 mr-1" aria-hidden="true"></i> The rule: <span class="text-amber-800">member</span> function on tree-based containers (<span class="code-font">set</span>, <span class="code-font">map</span>) &middot; <span class="text-amber-800">free</span> function on sorted arrays and <span class="code-font">vector</span>s.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= SESSION ONE CHECKPOINT ================= -->
+    <div class="info-card" style="--card-color: #10b981;">
+        <h2 class="text-lg md:text-xl font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fas fa-clipboard-check text-emerald-600" aria-hidden="true"></i> Checkpoint — end of Session One</h2>
+
+        <p class="text-sm text-slate-600 mb-4">Here is the path we took. Each step changed only the <strong>question</strong> — the binary search stayed the same.</p>
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 md:p-6 mb-5">
+            <div class="flex flex-col items-stretch gap-0 max-w-xl mx-auto text-center text-sm">
+                <div class="rounded-lg bg-blue-100 text-blue-800 font-bold py-2 px-3">Classic Binary Search <span class="font-normal text-blue-600">— does the value exist?</span></div>
+                <div class="text-slate-300 py-1"><i class="fas fa-arrow-down" aria-hidden="true"></i></div>
+                <div class="rounded-lg bg-rose-100 text-rose-800 font-bold py-2 px-3">Duplicates <span class="font-normal text-rose-600">— which 5? classic can't say</span></div>
+                <div class="text-slate-300 py-1"><i class="fas fa-arrow-down" aria-hidden="true"></i></div>
+                <div class="rounded-lg bg-emerald-100 text-emerald-800 font-bold py-2 px-3">Boundary <span class="font-normal text-emerald-600">— find the border between 0s and 1s</span></div>
+                <div class="text-slate-300 py-1"><i class="fas fa-arrow-down" aria-hidden="true"></i></div>
+                <div class="rounded-lg bg-violet-200 text-violet-900 font-extrabold py-2.5 px-3 ring-2 ring-violet-400">check(m) <span class="font-normal text-violet-700">— the one part that changes</span></div>
+                <div class="text-slate-300 py-1"><i class="fas fa-arrow-down" aria-hidden="true"></i></div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="rounded-lg bg-sky-100 text-sky-800 font-bold py-2 px-3">lower_bound <span class="block font-normal text-sky-600 text-xs">check: a[m] &gt;= x</span></div>
+                    <div class="rounded-lg bg-sky-100 text-sky-800 font-bold py-2 px-3">upper_bound <span class="block font-normal text-sky-600 text-xs">check: a[m] &gt; x</span></div>
+                </div>
+            </div>
+            <p class="text-center text-xs text-slate-500 mt-4 m-0">In Session Two, <span class="code-font text-violet-700 font-bold">check(m)</span> becomes the whole idea — it will not even need an array.</p>
+        </div>
+
+        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 md:p-5 mb-4">
+            <p class="text-xs font-extrabold uppercase tracking-widest text-emerald-700 mb-3">You can now</p>
+            <ul class="text-sm text-slate-700 space-y-2 list-disc pl-5 m-0">
+                <li>Turn "<em>which</em> occurrence?" into "<strong>where is the border</strong> between 0s and 1s".</li>
+                <li>Write the 9-line template with <span class="code-font">l = m</span> / <span class="code-font">r = m</span> — never <span class="code-font">m &plusmn; 1</span>.</li>
+                <li>Start at <span class="code-font">l = -1, r = n</span> so an answer at the edge can't be missed.</li>
+                <li>Pick <span class="code-font">&ge;</span> for <span class="code-font">lower_bound</span> and <span class="code-font">&gt;</span> for <span class="code-font">upper_bound</span> — one character apart.</li>
+            </ul>
+        </div>
+        <p class="text-sm text-slate-600 m-0"><strong><i class="fas fa-lightbulb text-amber-500" aria-hidden="true"></i> Predict before you leave:</strong> on <span class="code-font">[1, 3, 5, 5, 5, 5, 7, 9, 13, 13]</span>, what is <span class="code-font">lower_bound(6)</span>? <span class="text-slate-400">(Answer: 6 — exactly where a 6 would go.)</span></p>
+    </div>
+
+    <!-- ================= CLIFFHANGER ================= -->
+    <div class="rounded-2xl bg-slate-900 text-white p-8 md:p-12 mb-10 text-center shadow-xl">
+        <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-6">End of Session One</p>
+        <p class="text-base md:text-xl text-slate-300 leading-relaxed mb-6">
+            Every step, we read one cell and asked it a yes/no question.
+        </p>
+        <p class="text-xl md:text-3xl font-black text-emerald-400 mb-6">So do we even need the array?</p>
+        <p class="text-sm text-slate-400 max-w-xl mx-auto m-0">Session Two answers this — starting with a square root.</p>
+    </div>
+
+    <!-- ================= REFERENCES & PRACTICE ================= -->
+    <div class="info-card" style="--card-color: #6366f1;">
+        <h2 class="text-lg md:text-xl font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fas fa-book-open text-indigo-600" aria-hidden="true"></i> Go Deeper — Reading</h2>
+        <p class="text-sm text-slate-600 mb-4">Three references that explain boundary binary search well. Read any one to reinforce today's session.</p>
+        <div class="grid md:grid-cols-3 gap-3">
+            <a href="https://www.manning.com/books/grokking-algorithms-second-edition" target="_blank" rel="noopener" class="group flex gap-3 bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 rounded-xl p-4 transition-colors">
+                <!-- Grokking book cover -->
+                <svg width="40" height="52" viewBox="0 0 40 52" class="shrink-0 rounded shadow-sm" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="40" height="52" rx="3" fill="#f97316"/>
+                    <rect x="0" y="0" width="5" height="52" fill="#c2410c"/>
+                    <rect x="9" y="7" width="26" height="4" rx="2" fill="#fff" opacity=".95"/>
+                    <rect x="9" y="14" width="20" height="3" rx="1.5" fill="#fff" opacity=".8"/>
+                    <circle cx="22" cy="33" r="9" fill="none" stroke="#fff" stroke-width="2.5"/>
+                    <line x1="28.5" y1="39.5" x2="35" y2="46" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+                <div>
+                    <p class="font-bold text-slate-800 text-sm mb-1">Grokking Algorithms</p>
+                    <p class="text-xs text-slate-600 m-0">The binary search chapter — the friendliest visual introduction. <span class="text-indigo-600 group-hover:underline">manning.com <i class="fas fa-arrow-up-right-from-square text-[9px]" aria-hidden="true"></i></span></p>
+                </div>
+            </a>
+            <a href="https://codeforces.com/edu/course/2/lesson/6" target="_blank" rel="noopener" class="group flex gap-3 bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 rounded-xl p-4 transition-colors">
+                <!-- Codeforces logo -->
+                <svg width="40" height="40" viewBox="0 0 48 48" class="shrink-0" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="4"  y="16" width="10" height="28" rx="2.5" fill="#e63329"/>
+                    <rect x="19" y="8"  width="10" height="36" rx="2.5" fill="#1f8ac0"/>
+                    <rect x="34" y="16" width="10" height="28" rx="2.5" fill="#f5c500"/>
+                </svg>
+                <div>
+                    <p class="font-bold text-slate-800 text-sm mb-1">Codeforces EDU</p>
+                    <p class="text-xs text-slate-600 m-0">ITMO Academy, Binary Search — the same boundary template we built. <span class="text-indigo-600 group-hover:underline">codeforces.com <i class="fas fa-arrow-up-right-from-square text-[9px]" aria-hidden="true"></i></span></p>
+                </div>
+            </a>
+            <a href="https://usaco.guide/silver/binary-search" target="_blank" rel="noopener" class="group flex gap-3 bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 rounded-xl p-4 transition-colors">
+                <!-- USACO Guide mark -->
+                <svg width="40" height="40" viewBox="0 0 48 48" class="shrink-0" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="48" height="48" rx="9" fill="#2563eb"/>
+                    <path d="M14 13 v12 a10 10 0 0 0 20 0 V13" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+                    <rect x="12" y="35" width="24" height="4" rx="2" fill="#fbbf24"/>
+                </svg>
+                <div>
+                    <p class="font-bold text-slate-800 text-sm mb-1">USACO Guide</p>
+                    <p class="text-xs text-slate-600 m-0">Binary Search (Silver) — contest-focused, with the "search on the answer" preview. <span class="text-indigo-600 group-hover:underline">usaco.guide <i class="fas fa-arrow-up-right-from-square text-[9px]" aria-hidden="true"></i></span></p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="info-card" style="--card-color: #16a34a;">
+        <h2 class="text-lg md:text-xl font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fas fa-dumbbell text-green-600" aria-hidden="true"></i> Practice — Do These Before Session Two</h2>
+        <a href="https://codeforces.com/edu/course/2/lesson/6/1/practice" target="_blank" rel="noopener" class="group flex gap-3 bg-green-50 hover:bg-green-100 border border-green-200 rounded-xl p-4 mb-4 transition-colors">
+            <svg width="36" height="36" viewBox="0 0 48 48" class="shrink-0" xmlns="http://www.w3.org/2000/svg">
+                <rect x="4"  y="16" width="10" height="28" rx="2.5" fill="#e63329"/>
+                <rect x="19" y="8"  width="10" height="36" rx="2.5" fill="#1f8ac0"/>
+                <rect x="34" y="16" width="10" height="28" rx="2.5" fill="#f5c500"/>
+            </svg>
+            <div>
+                <p class="font-bold text-green-900 text-sm mb-1">Codeforces EDU — Binary Search, Step 1 (Practice)</p>
+                <p class="text-xs text-green-800 m-0">Work through the Step 1 problem set. Each one is "find the first index where a check is true" — exactly today's template. <span class="text-green-700 group-hover:underline font-semibold">Open the practice set <i class="fas fa-arrow-up-right-from-square text-[9px]" aria-hidden="true"></i></span></p>
+            </div>
+        </a>
+
+        <p class="text-sm text-slate-700 mb-1 mt-5"><strong>Where today's template shows up in real interviews.</strong> The four problems below are all the boundary search you wrote today — two of them you have effectively already solved in this session.</p>
+        <p class="text-xs text-slate-500 mb-3">All are LeetCode Easy&ndash;Medium.</p>
+        <div class="itable-wrap mb-2">
+            <table class="itable">
+                <thead>
+                    <tr><th>Problem</th><th>Reported at</th><th class="text-right">Reported frequency</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <a class="prob-link" href="https://leetcode.com/problems/binary-search/" target="_blank" rel="noopener">Binary Search <i class="fas fa-arrow-up-right-from-square text-[.6rem] opacity-50" aria-hidden="true"></i></a>
+                            <span class="lc-num">LC 704 &middot; Easy</span>
+                            <span class="built"><i class="fas fa-check" aria-hidden="true"></i> section 1</span>
+                        </td>
+                        <td>
+                            <span class="co co-amazon"><i class="fab fa-amazon" aria-hidden="true"></i> Amazon</span>
+                            <span class="co co-google"><i class="fab fa-google" aria-hidden="true"></i> Google</span>
+                        </td>
+                        <td class="text-right"><span class="freq" title="medium"><b class="on"></b><b class="on"></b><b></b></span><span class="freq-tag">medium</span></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a class="prob-link" href="https://leetcode.com/problems/first-bad-version/" target="_blank" rel="noopener">First Bad Version <i class="fas fa-arrow-up-right-from-square text-[.6rem] opacity-50" aria-hidden="true"></i></a>
+                            <span class="lc-num">LC 278 &middot; Easy</span>
+                        </td>
+                        <td>
+                            <span class="co co-meta"><i class="fab fa-meta" aria-hidden="true"></i> Meta</span>
+                            <span class="co co-amazon"><i class="fab fa-amazon" aria-hidden="true"></i> Amazon</span>
+                        </td>
+                        <td class="text-right"><span class="freq" title="high"><b class="on"></b><b class="on"></b><b class="on"></b></span><span class="freq-tag">high</span></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a class="prob-link" href="https://leetcode.com/problems/search-insert-position/" target="_blank" rel="noopener">Search Insert Position <i class="fas fa-arrow-up-right-from-square text-[.6rem] opacity-50" aria-hidden="true"></i></a>
+                            <span class="lc-num">LC 35 &middot; Easy</span>
+                        </td>
+                        <td>
+                            <span class="co co-amazon"><i class="fab fa-amazon" aria-hidden="true"></i> Amazon</span>
+                            <span class="co co-apple"><i class="fab fa-apple" aria-hidden="true"></i> Apple</span>
+                        </td>
+                        <td class="text-right"><span class="freq" title="medium"><b class="on"></b><b class="on"></b><b></b></span><span class="freq-tag">medium</span></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a class="prob-link" href="https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/" target="_blank" rel="noopener">Find First and Last Position in Sorted Array <i class="fas fa-arrow-up-right-from-square text-[.6rem] opacity-50" aria-hidden="true"></i></a>
+                            <span class="lc-num">LC 34 &middot; Medium</span>
+                            <span class="built"><i class="fas fa-check" aria-hidden="true"></i> you built this today</span>
+                        </td>
+                        <td>
+                            <span class="co co-meta"><i class="fab fa-meta" aria-hidden="true"></i> Meta</span>
+                            <span class="co co-google"><i class="fab fa-google" aria-hidden="true"></i> Google</span>
+                            <span class="co co-microsoft"><i class="fab fa-microsoft" aria-hidden="true"></i> Microsoft</span>
+                        </td>
+                        <td class="text-right"><span class="freq" title="high"><b class="on"></b><b class="on"></b><b class="on"></b></span><span class="freq-tag">high</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="text-xs text-slate-400 mb-5 m-0"><i class="fas fa-circle-info" aria-hidden="true"></i> <strong>On frequency:</strong> there is no official per-company data; the dots are community signal from curated lists and interview reports &mdash; read them as "worth prioritising," not a promise. LC 34 is exactly the "first 5 / last 5" question from Sections 8&ndash;9.</p>
+
+        <div class="bg-amber-50 border-2 border-amber-300 rounded-xl p-4">
+            <p class="text-xs font-extrabold uppercase tracking-widest text-amber-700 mb-2"><i class="fas fa-star" aria-hidden="true"></i> Bonus — think about this before next class</p>
+            <a href="https://leetcode.com/problems/sqrtx/" target="_blank" rel="noopener" class="group flex gap-3">
+                <!-- LeetCode logo -->
+                <svg width="36" height="36" viewBox="0 0 48 48" class="shrink-0" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M30 7 L16 21 a4 4 0 0 0 0 6 L30 41" fill="none" stroke="#000" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="21" y1="31" x2="38" y2="31" stroke="#ffa116" stroke-width="4.5" stroke-linecap="round"/>
+                </svg>
+                <div>
+                    <p class="font-bold text-slate-800 text-sm mb-1">LeetCode 69 — Sqrt(x)</p>
+                    <p class="text-xs text-slate-700 m-0">Compute <span class="code-font">floor(&radic;x)</span> without the <span class="code-font">sqrt</span> function. There is no array here — so what would <span class="code-font">check(m)</span> be? We solve it together in Session Two. <span class="text-amber-700 group-hover:underline font-semibold">leetcode.com <i class="fas fa-arrow-up-right-from-square text-[9px]" aria-hidden="true"></i></span></p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <footer class="text-center text-xs text-slate-400 pb-10">
+        <p class="mb-1">Data Structures &middot; Dept. of CSE &middot; International Islamic University Chittagong</p>
+        <p class="m-0">End of Session One. Session Two takes the <span class="code-font">check(m)</span> idea and removes the array entirely.</p>
+    </footer>
+
+</main>
+
+<script>
+/* ============================================================
+   ONE ARRAY. ONE ENGINE. Every widget below is a view onto it.
+   ============================================================ */
+const A = [1, 3, 5, 5, 5, 5, 7, 9, 13, 13];
+const N = A.length;
+
+const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const sleep = ms => new Promise(r => setTimeout(r, REDUCED ? 0 : ms));
+const $ = id => document.getElementById(id);
+
+/* the loop, recorded frame by frame */
+function frames(l0, r0, P, opt = {}) {
+    const half = opt.naiveMid ? (l, r) => Math.floor((l + r) / 2) : (l, r) => l + Math.floor((r - l) / 2);
+    const F = [{ l: l0, r: r0, m: null, v: null, phase: 'init' }];
+    let l = l0, r = r0, g = 0;
+    while (r - l > 1 && g++ < 200) {
+        const m = half(l, r), v = !!P(m);
+        F.push({ l, r, m, v, phase: 'probe' });
+        if (v) r = m; else l = m;
+        F.push({ l, r, m, v, phase: 'apply' });
+    }
+    F.push({ l, r, m: null, v: null, phase: 'done' });
+    return F;
+}
+const solve = (l0, r0, P) => { const F = frames(l0, r0, P); return F[F.length - 1]; };
+
+/* ---------- cell renderer. Fixed row heights, so lo / hi / mid never clip. ---------- */
+const ptr = (t, c) => `<span class="ptr ${c}">${t}</span>`;
+function cellsHTML(items, dark) {
+    return `<div class="cellrow">` + items.map(it => `<div class="cellcol">
+        <div>${it.top || ''}</div>
+        <div class="idx${dark ? ' idx-dark' : ''}">${it.idx}</div>
+        <div class="cell${dark ? ' cell-dark' : ''} ${it.cls || ''}">${it.val}</div>
+        <div>${it.bot || ''}</div>
+        <div>${it.bot2 || ''}</div>
+    </div>`).join('') + `</div>`;
+}
+function setLog(el, html, tone) { el.className = 'log ' + (tone || ''); el.innerHTML = html; }
+
+/* the value you set, the result, and the cell holding it are one fact — light them up together */
+function flashNeon(els) {
+    els.forEach(el => {
+        if (!el) return;
+        el.classList.remove('flashing');
+        void el.offsetWidth;              // restart the animation on every change
+        el.classList.add('flashing');
+    });
+}
+
+/* number line, for when there is no array left */
+function lineHTML(lo, hi, l, r, m, fmt) {
+    fmt = fmt || (v => v);
+    const span = (hi - lo) || 1, pc = v => Math.max(0, Math.min(100, (v - lo) / span * 100));
+    return `<div style="position:relative;height:70px;background:#f1f5f9;border:2px solid #e2e8f0;border-radius:.6rem;overflow:hidden">
+        <div style="position:absolute;top:0;bottom:0;left:0;width:${pc(l)}%;background:#fef2f2;border-right:2px solid #fca5a5;transition:all .3s"></div>
+        <div style="position:absolute;top:0;bottom:0;left:${pc(r)}%;right:0;background:#ecfdf5;border-left:2px solid #6ee7b7;transition:all .3s"></div>
+        ${m !== null && m !== undefined ? `<div style="position:absolute;top:0;bottom:0;left:${pc(m)}%;width:2px;background:#f59e0b;transition:left .3s">
+            <span style="position:absolute;top:6px;left:50%;transform:translateX(-50%);background:#f59e0b;color:#fff;font:700 10px/1 'Fira Code';padding:3px 6px;border-radius:4px;white-space:nowrap">m = ${fmt(m)}</span></div>` : ''}
+        <div style="position:absolute;bottom:6px;left:8px;font:700 11px/1 'Fira Code';color:#b91c1c">l = ${fmt(l)}</div>
+        <div style="position:absolute;bottom:6px;right:8px;font:700 11px/1 'Fira Code';color:#047857">r = ${fmt(r)}</div>
+    </div>`;
+}
+
+/* generic prev / next / reset driver */
+function drive(F, draw, ids) {
+    let i = 0;
+    const prev = $(ids[0]), next = $(ids[1]), reset = $(ids[2]);
+    if (!prev || !next || !reset) return;
+    const go = () => { draw(F[i], i); prev.disabled = i === 0; next.disabled = i === F.length - 1; };
+    prev.onclick = () => { if (i > 0) { i--; go(); } };
+    next.onclick = () => { if (i < F.length - 1) { i++; go(); } };
+    reset.onclick = () => { i = 0; go(); };
+    go();
+}
+
+/* ============================================================
+   1 & 2 — the classic three-way loop, with the code line lit up
+   ============================================================ */
+const CLASSIC_LINES = [
+    `<span class="code-type">int</span> lo = <span class="code-num">0</span>, hi = n - <span class="code-num">1</span>;`,
+    `<span class="code-kw">while</span> (lo &lt;= hi) {`,
+    `    <span class="code-type">int</span> mid = (lo + hi) / <span class="code-num">2</span>;`,
+    `    <span class="code-kw">if</span> (a[mid] == x) <span class="code-kw">return</span> mid;`,
+    `    <span class="code-kw">else if</span> (a[mid] &lt; x) lo = mid + <span class="code-num">1</span>;`,
+    `    <span class="code-kw">else</span> hi = mid - <span class="code-num">1</span>;`,
+    `}`,
+    `<span class="code-kw">return</span> -<span class="code-num">1</span>;`
+];
+function classicFrames(x, tail) {
+    const F = [], n = N;
+    let lo = 0, hi = n - 1;
+    F.push({ lo, hi, mid: null, line: 0, msg: `<b>lo = 0</b>, <b>hi = ${n - 1}</b>. The whole array is in play.` });
+    while (lo <= hi) {
+        F.push({ lo, hi, mid: null, line: 1, msg: `lo (${lo}) &le; hi (${hi}) &rarr; keep going.` });
+        const mid = Math.floor((lo + hi) / 2);
+        F.push({ lo, hi, mid, line: 2, msg: `mid = (${lo} + ${hi}) / 2 = <b>${mid}</b>` });
+        if (A[mid] === x) {
+            F.push({ lo, hi, mid, line: 3, hit: true, tone: 'good', msg: `a[${mid}] = ${A[mid]} <span class="ok">== ${x}</span> &rarr; <b>return ${mid}</b>` + (tail ? '<br><br>' + tail(mid) : '') });
+            return F;
+        }
+        F.push({ lo, hi, mid, line: 3, msg: `a[${mid}] = ${A[mid]}. Is it ${x}? <span class="bad">No.</span>` });
+        if (A[mid] < x) { F.push({ lo, hi, mid, line: 4, msg: `${A[mid]} &lt; ${x} &rarr; everything left of mid is too small. <b>lo = ${mid + 1}</b>` }); lo = mid + 1; }
+        else { F.push({ lo, hi, mid, line: 5, msg: `${A[mid]} &gt; ${x} &rarr; everything right of mid is too big. <b>hi = ${mid - 1}</b>` }); hi = mid - 1; }
+    }
+    F.push({ lo, hi, mid: null, line: 7, tone: 'err', msg: `lo (${lo}) &gt; hi (${hi}) &rarr; <b>return -1</b>` });
+    return F;
+}
+function drawClassic(cellsEl, logEl, codeEl, f) {
+    // on a hit among duplicates, ring the found cell and dash its twins: "found A 5 — but which one?"
+    const twins = f.hit ? A.filter((v, i) => v === A[f.mid] && i !== f.mid).length : 0;
+    cellsEl.innerHTML = cellsHTML(A.map((v, i) => {
+        const out = i < f.lo || i > f.hi;
+        let cls = out ? 'dim' : '';
+        if (i === f.mid) cls = f.hit ? (twins ? 'hit boundary' : 'hit') : 'mid';
+        else if (f.hit && v === A[f.mid]) cls = 'twin';
+        return {
+            idx: `[${i}]`, val: v, cls,
+            top: i === f.mid ? ptr('mid', 'ptr-mid') : '',
+            bot: i === f.lo && !out ? ptr('lo', 'ptr-lo') : '',
+            bot2: i === f.hi && !out ? ptr('hi', 'ptr-hi') : ''
+        };
+    }));
+    setLog(logEl, f.msg, f.tone);
+    if (codeEl) codeEl.innerHTML = `<pre class="code-block">${CLASSIC_LINES.map((L, k) =>
+        `<span class="code-line${k === f.line ? (f.hit ? ' hit' : ' active') : ''}">${L}</span>`).join('')}</pre>`;
+}
+if ($('sim1-cells')) drive(classicFrames(7), f => drawClassic($('sim1-cells'), $('sim1-log'), $('sim1-code'), f), ['sim1-prev', 'sim1-next', 'sim1-reset']);
+if ($('sim2-cells')) drive(classicFrames(5, mid => `<span class="warn">It stopped at index ${mid}.</span> The first 5 is at index 2, the last at index 5.<br>The code was asked <span class="dimtext">"does a 5 exist?"</span> &mdash; and it answered. Correctly.`),
+      f => drawClassic($('sim2-cells'), $('sim2-log'), null, f), ['sim2-prev', 'sim2-next', 'sim2-reset']);
+
+/* ============================================================
+   3.1 — labelling
+   ============================================================ */
+(() => { try {
+    const bin = A.map(v => v > 5 ? 1 : 0);
+    const raw = () => cellsHTML(A.map((v, i) => ({ idx: `[${i}]`, val: v })));
+    $('sim3a-cells').innerHTML = raw();
+    $('sim3a-reset').onclick = () => { $('sim3a-cells').innerHTML = raw(); $('sim3a-msg').classList.add('hidden'); $('sim3a-go').disabled = false; };
+    $('sim3a-go').onclick = async () => {
+        $('sim3a-go').disabled = true;
+        const shown = A.map((v, i) => ({ idx: `[${i}]`, val: v, cls: '' }));
+        for (let i = 0; i < N; i++) {
+            shown[i] = { idx: `[${i}]`, val: bin[i], cls: bin[i] ? 'one' : 'zero' };
+            $('sim3a-cells').innerHTML = cellsHTML(shown);
+            await sleep(140);
+        }
+        $('sim3a-msg').classList.remove('hidden');
+    };
+} catch(e){ console.error('[widget]', e); } })();
+
+/* ============================================================
+   3.2 — the blind game.  FIXED: once L or R stands on a cell,
+   that cell's value stays revealed. l and r ARE the knowledge.
+   ============================================================ */
+(() => { try {
+    const bin = A.map(v => v > 5 ? 1 : 0);
+    let L = 0, R = 9, m = null, revealed = {}, unlocked = [false, false, false], done = false;
+    const cells = $('sim3b-cells'), log = $('sim3b-log'), acts = $('sim3b-actions');
+    const RULES = [
+        ['Rule 1 &middot; unlocked', 'a[m] == 0  &rarr;  <b>L = m</b>'],
+        ['Rule 2 &middot; unlocked', 'a[m] == 1  &rarr;  <b>R = m</b>'],
+        ['Rule 3 &middot; unlocked', 'stop when <b>R - L == 1</b>']
+    ];
+    function unlock(k) {
+        if (unlocked[k]) return; unlocked[k] = true;
+        const el = document.querySelector(`[data-rule="${k}"]`);
+        el.classList.add('on');
+        el.querySelector('.lbl').innerHTML = RULES[k][0];
+        el.querySelector('[data-txt]').innerHTML = RULES[k][1];
+    }
+    function draw() {
+        cells.innerHTML = cellsHTML(A.map((_, i) => {
+            const known = revealed[i] !== undefined;
+            let cls = '', val = '?';
+            if (i === m && known) { cls = 'mid ' + (revealed[i] ? 'one' : 'zero'); val = revealed[i]; }
+            else if (known) { cls = revealed[i] ? 'one' : 'zero'; val = revealed[i]; }
+            else cls = 'unknown';
+            if (i > L && i < R && !known) cls += ' unknown';
+            return { idx: `[${i}]`, val, cls,
+                top: i === m ? ptr('m', 'ptr-mid') : '',
+                bot: i === L ? ptr('L', 'ptr-L') : '',
+                bot2: i === R ? ptr('R', 'ptr-R') : '' };
+        }), true);
+    }
+    function probeBtn() { acts.innerHTML = `<button class="btn-primary" id="s3b-probe" style="--card-color:#10b981">Reveal the middle cell</button>`; $('s3b-probe').onclick = probe; }
+    async function probe() {
+        $('s3b-probe').disabled = true;
+        m = Math.floor((L + R) / 2);
+        setLog(log, `m = (${L} + ${R}) / 2 = <b>${m}</b>. Revealing index ${m} &hellip;`, 'warnb');
+        await sleep(500);
+        const v = bin[m]; revealed[m] = v; draw();
+        setLog(log, `m = <b>${m}</b> &nbsp;&rarr;&nbsp; the cell holds a <span class="${v ? 'ok' : 'bad'}">${v}</span>.<br>` +
+            (v ? `A <span class="ok">1</span> &mdash; so the first 1 is at index ${m}, <b>or before it</b>. Never after.`
+               : `A <span class="bad">0</span> &mdash; so the first 1 must be <b>strictly after</b> index ${m}.`) +
+            `<br><br><span class="dimtext">Which pointer do you move onto it?</span>`, 'warnb');
+        acts.innerHTML =
+            `<button class="btn-primary" data-dir="L" style="--card-color:#334155">Move L to m (${m})</button>` +
+            `<button class="btn-primary" data-dir="R" style="--card-color:#2563eb">Move R to m (${m})</button>`;
+        acts.querySelectorAll('[data-dir]').forEach(b => b.onclick = () => shift(b.dataset.dir, v));
+    }
+    function shift(dir, v) {
+        const ok = (v === 1 && dir === 'R') || (v === 0 && dir === 'L');
+        if (!ok) {
+            setLog(log, `<span class="bad">Not that one.</span> The cell holds a <b>${v}</b>. ` +
+                (v ? `Every 1 you find could still <em>be</em> the first one — so you must keep it as a candidate. Which pointer marks "first known 1"?`
+                   : `A 0 can never be the first 1. Which pointer marks "last known 0"?`), 'err');
+            return;
+        }
+        if (dir === 'L') { L = m; unlock(0); } else { R = m; unlock(1); }
+        const at = m; m = null; draw();
+        if (R - L === 1) {
+            done = true; unlock(2);
+            setLog(log, `Moved <b>${dir} = ${at}</b>. Now <b>R - L == 1</b> &mdash; nothing unknown is left between them.<br><br>` +
+                `<span class="ok">L = ${L}</span> holds the last <b>0</b> &nbsp;&middot;&nbsp; <span class="ok">R = ${R}</span> holds the first <b>1</b>.<br>` +
+                `<span class="dimtext">The last 5 sits at index ${L}. Four probes. No scanning.</span>`, 'good');
+            acts.innerHTML = `<p class="text-xs font-bold text-emerald-400">Border found. Press Restart to play again.</p>`;
+            return;
+        }
+        setLog(log, `<span class="ok">Yes.</span> Moved <b>${dir} = ${at}</b>. The unknown zone is now indices ${L + 1} &hellip; ${R - 1}.`, 'good');
+        probeBtn();
+    }
+    function reset() {
+        L = 0; R = 9; m = null; revealed = {}; done = false;
+        draw(); probeBtn();
+        setLog(log, `Every cell is hidden. <b>L = 0</b>, <b>R = 9</b>.<br><span class="dimtext">You may reveal one cell per turn, and it must be the middle one.</span>`);
+    }
+    $('sim3b-reset').onclick = reset;
+    reset();
+} catch(e){ console.error('[widget]', e); } })();
+
+/* ============================================================
+   5 — the pointers lie
+   ============================================================ */
+(() => { try {
+    const cells = $('s5-cells'), log = $('s5-log');
+    const ARR = { zero: Array(N).fill(0), one: Array(N).fill(1) };
+    let which = 'zero', start = 'inside';
+    // truth: first 1. all-0s -> none, so n. all-1s -> 0.
+    const truthOf = w => w === 'zero' ? N : 0;
+
+    function seg() {
+        $('s5-allzero').className = 'px-4 py-1.5 text-sm font-bold rounded-md code-font ' + (which === 'zero' ? 'bg-rose-500 text-white shadow' : 'text-slate-600');
+        $('s5-allone').className  = 'px-4 py-1.5 text-sm font-bold rounded-md code-font ' + (which === 'one'  ? 'bg-rose-500 text-white shadow' : 'text-slate-600');
+        $('s5-inside').className  = 'px-3 py-1.5 text-xs font-bold rounded-md code-font ' + (start === 'inside'  ? 'bg-slate-700 text-white shadow' : 'text-slate-600');
+        $('s5-outside').className = 'px-3 py-1.5 text-xs font-bold rounded-md code-font ' + (start === 'outside' ? 'bg-slate-700 text-white shadow' : 'text-slate-600');
+    }
+    function paint(f, ghost) {
+        const arr = ARR[which];
+        const items = arr.map((v, i) => {
+            let cls = v ? 'one' : 'zero';
+            if (f && i === f.m) cls += ' mid';
+            return { idx: `[${i}]`, val: v, cls,
+                top: f && i === f.m ? ptr('m', 'ptr-mid') : '',
+                bot: f && i === f.l ? ptr('L', 'ptr-L') : '',
+                bot2: f && i === f.r ? ptr('R', 'ptr-R') : '' };
+        });
+        if (ghost) {
+            items.unshift({ idx: '[-1]', val: '0', cls: 'ghost', bot: f && f.l === -1 ? ptr('L', 'ptr-L') : '' });
+            items.push({ idx: `[${N}]`, val: '1', cls: 'ghost', bot2: f && f.r === N ? ptr('R', 'ptr-R') : '' });
+        }
+        cells.innerHTML = cellsHTML(items);
+    }
+    function idle() {
+        seg(); paint(null, start === 'outside');
+        setLog(log, `Array is <b>${which === 'zero' ? 'all 0s' : 'all 1s'}</b>. Start: <b>${start === 'inside' ? 'l = 0, r = n-1' : 'l = -1, r = n'}</b>. Press Run.`);
+    }
+    async function run() {
+        const arr = ARR[which], P = i => arr[i] === 1, outside = start === 'outside';
+        const l0 = outside ? -1 : 0, r0 = outside ? N : N - 1, truth = truthOf(which);
+        $('s5-run').disabled = true;
+        const F = frames(l0, r0, P, { naiveMid: !outside });
+        for (const f of F) {
+            paint(f, outside);
+            if (f.phase === 'probe') setLog(log, `m = ${f.m} &rarr; a[${f.m}] = <span class="${f.v ? 'ok' : 'bad'}">${f.v ? 1 : 0}</span>`, 'warnb');
+            else if (f.phase === 'apply') setLog(log, f.v ? `1 &rarr; <b>R = ${f.r}</b>` : `0 &rarr; <b>L = ${f.l}</b>`);
+            else if (f.phase === 'init') setLog(log, `Array is <b>${which === 'zero' ? 'all 0s' : 'all 1s'}</b>. Start: L = ${l0}, R = ${r0}.`);
+            await sleep(f.phase === 'done' ? 0 : (f.phase === 'probe' ? 950 : 650));
+        }
+        const got = F[F.length - 1].r, ok = got === truth;
+        const truthLabel = which === 'zero' ? `${N} <span class="dimtext">(no 1 exists)</span>` : `0`;
+        let verdict;
+        if (ok) verdict = outside
+            ? `<span class="ok">Correct.</span> <span class="dimtext">l = -1 and r = n claim nothing any element could contradict.</span>`
+            : `<span class="ok">Correct.</span>`;
+        else verdict = `<span class="bad">WRONG &mdash; and nothing complained.</span> ` + (which === 'zero'
+            ? `Every cell is a <b>0</b>, so there is no first 1. But <span class="code-font">r = n-1</span> <em>claimed</em> a[${N - 1}] is a 1, so the loop returned it.`
+            : `Every cell is a <b>1</b>, so the answer is index 0. But <span class="code-font">l = 0</span> <em>claimed</em> a[0] is a 0, so the loop never even considered it.`);
+        setLog(log, `Loop returns <b>R = ${got}</b>. The true answer is <b>${truthLabel}</b>.<br><br>${verdict}`, ok ? 'good' : 'err');
+        $('s5-run').disabled = false;
+    }
+    $('s5-allzero').onclick = () => { which = 'zero'; idle(); };
+    $('s5-allone').onclick  = () => { which = 'one';  idle(); };
+    $('s5-inside').onclick  = () => { start = 'inside';  idle(); };
+    $('s5-outside').onclick = () => { start = 'outside'; idle(); };
+    $('s5-run').onclick = run;
+    idle();
+} catch(e){ console.error('[widget]', e); } })();
+
+/* ============================================================
+   7 — the liar.  a non-monotone 0/1 array, repaired template.
+   ============================================================ */
+(() => { try {
+    const LAB = [0, 0, 1, 1, 0, 0, 0, 1, 1, 1];   // first real 1 is at index 2
+    const P = i => LAB[i] === 1;
+    const F = frames(-1, LAB.length, P);
+    const cells = $('s6-cells'), log = $('s6-log');
+    drive(F, f => {
+        const items = LAB.map((lab, i) => {
+            let cls = lab ? 'one' : 'zero';
+            if (i === f.m && f.phase === 'probe') cls += ' mid';
+            return { idx: `[${i}]`, val: lab, cls,
+                top: i === f.m && f.phase === 'probe' ? ptr('m', 'ptr-mid') : '',
+                bot: i === f.l ? ptr('L', 'ptr-L') : '',
+                bot2: i === f.r ? ptr('R', 'ptr-R') : '' };
+        });
+        items.unshift({ idx: '[-1]', val: '0', cls: 'ghost', bot: f.l === -1 ? ptr('L', 'ptr-L') : '' });
+        items.push({ idx: `[${LAB.length}]`, val: '1', cls: 'ghost', bot2: f.r === LAB.length ? ptr('R', 'ptr-R') : '' });
+        cells.innerHTML = cellsHTML(items);
+
+        if (f.phase === 'init') setLog(log, `Labels: <span class="mini-cells"><b class="z">0</b><b class="z">0</b><b class="o">1</b><b class="o">1</b><b class="z dip">0</b><b class="z dip">0</b><b class="z dip">0</b><b class="o">1</b><b class="o">1</b><b class="o">1</b></span>. L = -1, R = ${LAB.length}.<br><span class="dimtext">The true first 1 is at index 2.</span>`);
+        else if (f.phase === 'probe') setLog(log, `m = <b>${f.m}</b> &rarr; label is <span class="${f.v ? 'ok' : 'bad'}">${f.v ? 1 : 0}</span>`, 'warnb');
+        else if (f.phase === 'apply') setLog(log, f.v ? `1 &rarr; <b>R = ${f.r}</b>` : `0 &rarr; <b>L = ${f.l}</b> &nbsp;<span class="dimtext">"so the first 1 must be further right"</span>`);
+        else setLog(log, `Loop returns <b>R = ${f.r}</b>.<br><br><span class="bad">But the first 1 is at index 2 &mdash; which the loop discarded on its very first step.</span><br><br>` +
+            `At m = ${F[1].m} it saw a <b>0</b> and threw away everything to the left, including the answer. A non-monotone <span class="code-font">check</span> makes "go right" a lie.`, 'err');
+    }, ['s6-prev', 's6-next', 's6-reset']);
+} catch(e){ console.error('[widget]', e); } })();
+
+/* ============================================================
+   7 — lower_bound and upper_bound, one character apart
+   ============================================================ */
+(() => { try {
+    let mode = 'lower';
+    const cells = $('s7-cells'), log = $('s7-log');
+    const lb = x => solve(-1, N, i => A[i] >= x).r;
+    const ub = x => solve(-1, N, i => A[i] > x).r;
+    function draw() {
+        const x = +$('s7-x').value;
+        $('s7-xv').textContent = x;
+        $('s7-lower').className = 'px-4 py-1.5 text-sm font-bold rounded-md ' + (mode === 'lower' ? 'bg-sky-500 text-white shadow' : 'text-slate-600');
+        $('s7-upper').className = 'px-4 py-1.5 text-sm font-bold rounded-md ' + (mode === 'upper' ? 'bg-sky-500 text-white shadow' : 'text-slate-600');
+        const P = mode === 'lower' ? (i => A[i] >= x) : (i => A[i] > x);
+        const res = solve(-1, N, P).r;
+        cells.innerHTML = cellsHTML(A.map((v, i) => ({
+            idx: `[${i}]`, val: `${v}<span style="font-size:10px;opacity:.7;margin-left:4px">${P(i) ? 1 : 0}</span>`,
+            cls: P(i) ? 'one' : 'zero',
+            bot: i === res ? ptr(mode === 'lower' ? 'lb' : 'ub', 'ptr-R') : ''
+        })));
+        const L = lb(x), U = ub(x), cnt = U - L;
+        setLog(log, `<b>${mode === 'lower' ? 'lower_bound' : 'upper_bound'}(${x})</b> &nbsp;=&nbsp; <b>${res}</b>` +
+            (res === N ? ` <span class="dimtext">(past the end &mdash; nothing qualifies)</span>` : '') +
+            `<br><br>lb(${x}) = ${L} &nbsp;&middot;&nbsp; ub(${x}) = ${U} &nbsp;&middot;&nbsp; count of ${x} = ub - lb = <b>${cnt}</b>` +
+            (cnt > 0 ? `<br><span class="ok">first ${x} at index ${L}</span> &nbsp;&middot;&nbsp; <span class="ok">last ${x} at index ${U - 1}</span>`
+                     : `<br><span class="dimtext">${x} is not in the array. lb(${x}) = ${L} is where it would go.</span>`),
+            cnt > 0 ? 'good' : '');
+        if (booted) flashNeon([$('s7-xv'), cells.querySelectorAll('.cell')[res]]);
+        booted = true;
+    }
+    let booted = false;
+    $('s7-lower').onclick = () => { mode = 'lower'; draw(); };
+    $('s7-upper').onclick = () => { mode = 'upper'; draw(); };
+    $('s7-x').oninput = draw;
+    draw();
+} catch(e){ console.error('[widget]', e); } })();
+
+/* ============================================================
+   9e — choose the check + choose the return value
+   ============================================================ */
+(() => { try {
+    const TASKS = {
+        first5: { label: 'first 5', check: 'ge', ret: 'r', note: 'lower_bound(5): first index with a[i] &ge; 5 is the first 5.' },
+        last5:  { label: 'last 5',  check: 'gt', ret: 'r-1', note: 'upper_bound(5): first index with a[i] &gt; 5, then step back one.' },
+        floor6: { label: 'floor of 6 (largest &le; 6)', check: 'gt', ret: 'r-1', note: 'floor uses upper_bound: first index &gt; 6, minus one.' },
+        ceil6:  { label: 'ceil of 6 (smallest &ge; 6)', check: 'ge', ret: 'r', note: 'ceil uses lower_bound: first index with a[i] &ge; 6.' }
+    };
+    const CHECKS = { ge: 'a[m] &gt;= x', gt: 'a[m] &gt; x' };
+    const RETS = { r: 'return r', 'r-1': 'return r - 1' };
+    let task = null, pickC = null, pickR = null;
+    const tasksEl = $('s7q-tasks'), checksEl = $('s7q-checks'), retsEl = $('s7q-returns'), out = $('s7q-verdict');
+
+    tasksEl.innerHTML = Object.entries(TASKS).map(([k, t]) =>
+        `<button class="btn-secondary" data-t="${k}">${t.label}</button>`).join('');
+    checksEl.innerHTML = Object.entries(CHECKS).map(([k, v]) =>
+        `<button class="quiz-opt code-font" data-c="${k}">${v}</button>`).join('');
+    retsEl.innerHTML = Object.entries(RETS).map(([k, v]) =>
+        `<button class="quiz-opt code-font" data-r="${k}">${v}</button>`).join('');
+
+    function paintPicks() {
+        checksEl.querySelectorAll('[data-c]').forEach(b => b.style.outline = b.dataset.c === pickC ? '2px solid #0ea5e9' : 'none');
+        retsEl.querySelectorAll('[data-r]').forEach(b => b.style.outline = b.dataset.r === pickR ? '2px solid #0ea5e9' : 'none');
+    }
+    function verdict() {
+        if (!task) { setLog(out, 'Pick a task to begin.'); return; }
+        if (!pickC || !pickR) { setLog(out, `Task: <b>${TASKS[task].label}</b>. Now choose a check and a return.`, 'warnb'); return; }
+        const t = TASKS[task], ok = pickC === t.check && pickR === t.ret;
+        setLog(out, ok
+            ? `<span class="ok">Correct.</span> ${t.note}`
+            : `<span class="bad">Not quite.</span> Check the pair again — ${t.note}`,
+            ok ? 'good' : 'err');
+    }
+    tasksEl.querySelectorAll('[data-t]').forEach(b => b.onclick = () => {
+        task = b.dataset.t; pickC = null; pickR = null;
+        tasksEl.querySelectorAll('[data-t]').forEach(x => x.className = x.dataset.t === task ? 'btn-primary' : 'btn-secondary');
+        tasksEl.querySelectorAll('[data-t]').forEach(x => x.style.setProperty('--card-color', '#0ea5e9'));
+        paintPicks(); verdict();
+    });
+    checksEl.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { pickC = b.dataset.c; paintPicks(); verdict(); });
+    retsEl.querySelectorAll('[data-r]').forEach(b => b.onclick = () => { pickR = b.dataset.r; paintPicks(); verdict(); });
+} catch(e){ console.error('[widget]', e); } })();
+
+/* ============================================================
+   9 (second sim) — stepped lower_bound / upper_bound of 5 and 6,
+   with an explicit arrow showing which pointer moved and which way.
+   ============================================================ */
+(() => { try {
+    const cells = $('s8-cells'), log = $('s8-log');
+    const CASES = {
+        lb5: { name: 'lower_bound(5)', P: i => A[i] >= 5, x: 5, op: '>=' },
+        lb6: { name: 'lower_bound(6)', P: i => A[i] >= 6, x: 6, op: '>=' },
+        ub5: { name: 'upper_bound(5)', P: i => A[i] > 5,  x: 5, op: '>'  },
+        ub6: { name: 'upper_bound(6)', P: i => A[i] > 6,  x: 6, op: '>'  }
+    };
+    let key = 'lb5', F = frames(-1, N, CASES[key].P), i = 0;
+
+    function draw() {
+        const f = F[i], c = CASES[key];
+        // arrow annotation: on an 'apply' frame, show which pointer moved and its direction
+        let movedL = null, movedR = null;
+        if (f.phase === 'apply') { if (f.v) movedR = f.r; else movedL = f.l; }
+
+        const items = A.map((v, idx) => {
+            const lab = c.P(idx) ? 1 : 0;
+            let cls = lab ? 'one' : 'zero';
+            if (idx === f.m && f.phase === 'probe') cls += ' mid';
+            let top = '';
+            if (idx === f.m && f.phase === 'probe') top = ptr('m', 'ptr-mid');
+            let bot = '', bot2 = '';
+            if (idx === f.l) bot = (movedL === idx ? '<span style="color:#334155">&larr;</span> ' : '') + ptr('L', 'ptr-L');
+            if (idx === f.r) bot2 = ptr('R', 'ptr-R') + (movedR === idx ? ' <span style="color:#1d4ed8">&rarr;</span>' : '');
+            return { idx: `[${idx}]`, val: `${v}<span style="font-size:11px;opacity:.7;margin-left:3px">${lab}</span>`, cls, top, bot, bot2 };
+        });
+        items.unshift({ idx: '[-1]', val: '0', cls: 'ghost', bot: f.l === -1 ? ptr('L', 'ptr-L') : '' });
+        items.push({ idx: `[${N}]`, val: '1', cls: 'ghost', bot2: f.r === N ? ptr('R', 'ptr-R') : '' });
+        cells.innerHTML = cellsHTML(items);
+
+        if (f.phase === 'init')
+            setLog(log, `<b>${c.name}</b> &nbsp; check(m): <span class="code-font">a[m] ${c.op === '>=' ? '&gt;=' : '&gt;'} ${c.x}</span><br>Start: L = -1, R = ${N}. <span class="dimtext">(the two grey cells are the imagined 0 and 1)</span>`);
+        else if (f.phase === 'probe')
+            setLog(log, `m = <b>${f.m}</b> &rarr; a[${f.m}] = ${A[f.m]}. &nbsp; check: ${A[f.m]} ${c.op} ${c.x}? <span class="${f.v ? 'ok' : 'bad'}">${f.v ? 'true' : 'false'}</span>`, 'warnb');
+        else if (f.phase === 'apply')
+            setLog(log, f.v
+                ? `true &rarr; move <b>R</b> left to ${f.r} &nbsp;<span style="color:#93c5fd">&larr; R</span>`
+                : `false &rarr; move <b>L</b> right to ${f.l} &nbsp;<span style="color:#cbd5e1">L &rarr;</span>`);
+        else {
+            const r = f.r;
+            const side = c.op === '>=' ? 'earliest (leftmost)' : 'latest (rightmost)';
+            setLog(log, `Done. <b>${c.name} = ${r}</b>.` +
+                (r === N ? ` <span class="dimtext">(past the end)</span>` : '') +
+                `<br><span class="dimtext">Index ${r} is the ${side} position where a ${c.x} could be inserted and keep the array sorted.</span>`, 'good');
+        }
+        $('s8-prev').disabled = i === 0;
+        $('s8-next').disabled = i === F.length - 1;
+    }
+    function load(k) {
+        key = k; F = frames(-1, N, CASES[k].P); i = 0;
+        document.querySelectorAll('[data-s8demo]').forEach(b => { b.className = b.dataset.s8demo === k ? 'btn-primary' : 'btn-secondary'; b.style.setProperty('--card-color', '#0ea5e9'); });
+        draw();
+    }
+    $('s8-prev').onclick = () => { if (i > 0) { i--; draw(); } };
+    $('s8-next').onclick = () => { if (i < F.length - 1) { i++; draw(); } };
+    $('s8-reset').onclick = () => { i = 0; draw(); };
+    document.querySelectorAll('[data-s8demo]').forEach(b => b.onclick = () => load(b.dataset.s8demo));
+    load('lb5');
+} catch(e){ console.error('[widget]', e); } })();
+
+/* ============================================================
+   9 (insertion picture) — one frame, four cases: lb/ub of 5 and 6.
+   Shows where the new value slots in and which cells shift right.
+   ============================================================ */
+(() => { try {
+    const host = $('ins-svg'); if (!host) return;
+    const cap = $('ins-caption');
+    const VAL = [1, 3, 5, 5, 5, 5, 7, 9, 13, 13];
+    // pos = insertion index; shift = indices that move right; hi = the run being reasoned about
+    const CASES = {
+        lb5: { x: 5, pos: 2, color: '#0ea5e9', dark: '#0369a1', side: 'leftmost',
+               note: 'the run of 5s and everything after it shift one step right' },
+        ub5: { x: 5, pos: 6, color: '#f59e0b', dark: '#b45309', side: 'rightmost',
+               note: 'the 5s stay put; only 7, 9, 13, 13 shift right' },
+        lb6: { x: 6, pos: 6, color: '#0ea5e9', dark: '#0369a1', side: 'leftmost',
+               note: '6 is not in the array — it belongs just before the 7' },
+        ub6: { x: 6, pos: 6, color: '#f59e0b', dark: '#b45309', side: 'rightmost',
+               note: '6 is not present, so leftmost = rightmost: the same spot' }
+    };
+    const W = 40, GAP = 6, X0 = 20, ROW_Y = 96, CELL_H = 40;
+    const cellX = i => X0 + i * (W + GAP);
+
+    function render(key) {
+        const c = CASES[key];
+        const shiftFrom = c.pos;            // cells at index >= pos move right
+        const svgW = X0 * 2 + VAL.length * (W + GAP);
+        let s = `<svg viewBox="0 0 ${svgW} 170" style="width:100%;max-width:${svgW}px" font-family="'Fira Code', monospace">`;
+
+        // heading inside the svg
+        const name = key.startsWith('lb') ? 'lower_bound' : 'upper_bound';
+        s += `<text x="${svgW/2}" y="24" text-anchor="middle" font-family="Inter, sans-serif" font-weight="800" font-size="14" fill="${c.dark}">${name}(${c.x}) = ${c.pos}</text>`;
+        s += `<text x="${svgW/2}" y="42" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#64748b">insert at the ${c.side} valid position</text>`;
+
+        // the "new value" chip sitting above the insertion slot
+        const caretX = cellX(c.pos) - GAP / 2;
+        s += `<text x="${caretX}" y="60" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" font-weight="800" fill="${c.dark}">new ${c.x}</text>`;
+        s += `<path d="M ${caretX} 64 L ${caretX} ${ROW_Y - 4}" stroke="${c.color}" stroke-width="3"/>`;
+        s += `<polygon points="${caretX},${ROW_Y-2} ${caretX-6},${ROW_Y-12} ${caretX+6},${ROW_Y-12}" fill="${c.color}"/>`;
+
+        // cells
+        for (let i = 0; i < VAL.length; i++) {
+            const isFive = VAL[i] === 5;
+            const moving = i >= shiftFrom;
+            const fill = isFive ? '#d1fae5' : (moving ? '#eff6ff' : '#f8fafc');
+            const stroke = isFive ? '#10b981' : (moving ? c.color : '#cbd5e1');
+            const txt = isFive ? '#065f46' : '#334155';
+            s += `<rect x="${cellX(i)}" y="${ROW_Y}" width="${W}" height="${CELL_H}" rx="6" fill="${fill}" stroke="${stroke}" stroke-width="${moving ? 2 : 1.5}"/>`;
+            s += `<text x="${cellX(i)+W/2}" y="${ROW_Y+26}" text-anchor="middle" font-size="16" font-weight="700" fill="${txt}">${VAL[i]}</text>`;
+            // small shift arrow under moving cells
+            if (moving) s += `<text x="${cellX(i)+W/2}" y="${ROW_Y+CELL_H+16}" text-anchor="middle" font-size="12" fill="${c.color}">&rarr;</text>`;
+        }
+        s += `</svg>`;
+        host.innerHTML = s;
+        cap.innerHTML = `<span style="color:${c.dark};font-weight:700">${c.note}.</span> &nbsp; The gap <span class="code-font">ub &minus; lb</span> is exactly how many <span class="code-font">${c.x}</span>s are already there.`;
+        document.querySelectorAll('[data-ins]').forEach(b => { b.className = b.dataset.ins === key ? 'btn-primary' : 'btn-secondary'; b.style.setProperty('--card-color', c.color); });
+    }
+    document.querySelectorAll('[data-ins]').forEach(b => b.onclick = () => render(b.dataset.ins));
+    render('lb5');
+} catch(e){ console.error('[widget]', e); } })();
+
+
+/* ============================================================
+   quizzes + scrollspy
+   ============================================================ */
+document.querySelectorAll('[data-quiz]').forEach(card => {
+    const opts = [...card.querySelectorAll('.quiz-opt')], ex = card.querySelector('.quiz-explain'), rs = card.querySelector('.quiz-reset');
+    opts.forEach(o => o.onclick = () => {
+        opts.forEach(x => { x.disabled = true; if (x.dataset.correct === 'true') x.classList.add('correct'); else if (x === o) x.classList.add('wrong'); });
+        ex.classList.add('show');
+    });
+    rs.onclick = () => { opts.forEach(o => { o.disabled = false; o.classList.remove('correct', 'wrong'); }); ex.classList.remove('show'); };
+});
+
+(() => { try {
+    const bar = $('scroll-progress-bar'), wrap = $('sticky-progress-container');
+    const crumbs = [...document.querySelectorAll('.crumb')];
+    crumbs.forEach(c => {
+        c.tabIndex = 0; c.setAttribute('role', 'link');
+        const go = () => $(c.dataset.for) && $(c.dataset.for).scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'start' });
+        c.onclick = go;
+        c.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } };
+    });
+    const onScroll = () => {
+        const h = document.documentElement.scrollHeight - window.innerHeight;
+        bar.style.width = (h > 0 ? (window.scrollY / h) * 100 : 0) + '%';
+        wrap.classList.toggle('-translate-y-full', window.scrollY < 400);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    // The crumbs cover only the milestone sections, so watch EVERY card and light up the
+    // nearest crumb at or above it -- otherwise scrolling through an un-crumbed section
+    // (Recap, Last 5, the closing cards) would leave the whole bar unlit.
+    const allSecs = [...document.querySelectorAll('.info-card[id]')];
+    const crumbIds = crumbs.map(c => c.dataset.for);
+    const ownerOf = id => {
+        const i = allSecs.findIndex(s => s.id === id);
+        let owner = crumbIds[0];
+        for (let j = 0; j <= i; j++) if (crumbIds.includes(allSecs[j].id)) owner = allSecs[j].id;
+        return owner;
+    };
+    const seen = new Set();
+    const io = new IntersectionObserver(es => {
+        es.forEach(e => e.isIntersecting ? seen.add(e.target.id) : seen.delete(e.target.id));
+        const first = allSecs.find(s => seen.has(s.id));
+        const ownerId = first ? ownerOf(first.id) : null;
+        crumbs.forEach(c => {
+            const on = c.dataset.for === ownerId;
+            c.classList.toggle('active', on);
+            c.setAttribute('aria-current', on ? 'true' : 'false');
+        });
+        if (first) wrap.style.setProperty('--card-color', getComputedStyle(first).getPropertyValue('--card-color') || '#2563eb');
+    }, { rootMargin: '-15% 0px -60% 0px' });
+    allSecs.forEach(s => io.observe(s));
+} catch(e){ console.error('[widget]', e); } })();
+</script>
+</body>
+</html>

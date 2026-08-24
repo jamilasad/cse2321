@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Hash System Debugger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- REMOVED: the third-party "polyfill" CDN script tag that used to sit here.
+         That domain changed hands in Feb 2024, was caught injecting malware, and was suspended by
+         its registrar in June 2024. It is what triggered the browser's sign-in / password prompt
+         on page load. Do not re-add it: modern browsers need no polyfill.
+         MathJax was only present to render two formulas; those are now plain HTML/CSS. -->
+
+    <style>
+        :root { --bg-dark:#0f172a; --panel-bg:#1e293b; --accent:#3b82f6; --text-main:#f8fafc; --text-muted:#94a3b8; }
+        body { font-family:'Inter',sans-serif; background-color:var(--bg-dark); color:var(--text-main); }
+        .code-font, code { font-family:'Fira Code',monospace; }
+
+        ::-webkit-scrollbar { height:8px; width:8px; }
+        ::-webkit-scrollbar-track { background:#0f172a; border-radius:4px; }
+        ::-webkit-scrollbar-thumb { background:#334155; border-radius:4px; }
+        ::-webkit-scrollbar-thumb:hover { background:#475569; }
+        .custom-scrollbar { scrollbar-width:thin; scrollbar-color:#334155 #0f172a; }
+
+        /* IDE */
+        .ide-line { padding:2px 12px; border-left:3px solid transparent; transition:background-color .15s ease; color:#abb2bf; border-radius:0 4px 4px 0; white-space:pre; }
+        .ide-line.active { background-color:rgba(59,130,246,.15); border-left-color:#3b82f6; color:#fff; }
+        /* a frame further down the call stack — the line that is waiting for a return */
+        .ide-line.callsite { background-color:rgba(245,158,11,.08); border-left-color:#f59e0b; }
+        .ide-div { color:#3f4a5a; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; padding:10px 12px 3px 33px; user-select:none; font-family:'Fira Code',monospace; }
+        .ide-div:first-child { padding-top:4px; }
+        #codeBlock { position:relative; }
+        .frame { cursor:pointer; }
+        .ln { color:#475569; margin-right:14px; font-size:10px; user-select:none; width:18px; display:inline-block; text-align:right; }
+        .caret { color:#3b82f6; width:10px; display:inline-block; }
+        .kw { color:#c678dd; font-weight:500; }
+        .fn { color:#61afef; }
+        .vr { color:#e06c75; }
+        .nm { color:#d19a66; }
+        .ty { color:#e5c07b; }
+        .cm { color:#7f848e; font-style:italic; }
+
+        /* Call stack */
+        .frame { font-family:'Fira Code',monospace; font-size:11px; padding:3px 10px; border-radius:6px; background:#0f172a; color:#64748b; border:1px solid #1e293b; white-space:nowrap; }
+        .frame.top { background:#1e293b; color:#e2e8f0; border-color:#3b82f6; font-weight:600; }
+        .sep { color:#334155; font-size:10px; }
+        .chip { font-family:'Fira Code',monospace; font-size:10.5px; background:#0f172a; border:1px solid #1e293b; color:#94a3b8; padding:2px 8px; border-radius:5px; }
+        .chip b { color:#61afef; font-weight:600; }
+
+        /* Table */
+        .slot-box { transition:all .3s cubic-bezier(.4,0,.2,1); background:#1e293b; border:1px solid #334155; }
+        .slot-box.checking { transform:scale(1.1); background-color:#422006; border-color:#f59e0b; box-shadow:0 0 15px rgba(245,158,11,.3); z-index:10; }
+        .slot-box.filled { background-color:#064e3b; border-color:#10b981; color:#a7f3d0; }
+        .slot-box.collision { background-color:#450a0a; border-color:#ef4444; color:#fecaca; animation:shake .3s; }
+        .slot-box.tombstone { background-color:#334155; border-color:#475569; color:#94a3b8; text-decoration:line-through; }
+        .slot-box.found { background-color:#1e3a8a; border-color:#3b82f6; transform:scale(1.1); z-index:10; box-shadow:0 0 15px rgba(59,130,246,.4); }
+        .slot-box.home { box-shadow:inset 0 0 0 2px #6366f1; }
+
+        .chain-node { animation:slideIn .3s ease-out forwards; border:1px solid #10b981; background:#064e3b; color:#a7f3d0; }
+        .chain-node.scan { border-color:#f59e0b; background:#422006; color:#fde68a; }
+        .chain-node.hit { border-color:#3b82f6; background:#1e3a8a; color:#fff; box-shadow:0 0 12px rgba(59,130,246,.5); }
+        .chain-node.gone { border-color:#ef4444; background:#450a0a; color:#fecaca; text-decoration:line-through; }
+        .arrow { color:#475569; font-size:10px; margin:0 2px; }
+
+        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+        @keyframes slideIn { 0%{opacity:0;transform:translateX(-10px)} 100%{opacity:1;transform:translateX(0)} }
+        @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
+
+        .chart-bar { transition:height .4s ease; }
+        .chart-tooltip { opacity:0; transition:opacity .2s; pointer-events:none; }
+        .chart-bar:hover .chart-tooltip { opacity:1; }
+
+        .glass-panel { background:rgba(30,41,59,.7); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,.1); }
+        .qchip { transition:all .2s; }
+        input[type=range]{ accent-color:#3b82f6; }
+        /* speed is a different axis from the timeline, so it gets the transport's green,
+           and it now fills left-to-right: more fill = faster. */
+        .speed-range{ accent-color:#10b981; }
+        .hist-bar{ background:#3b82f6; height:6px; border-radius:3px; transition:width .3s ease; }
+        .hist-row:hover{ background:rgba(148,163,184,.06); }
+        .hist-row.latest{ background:rgba(59,130,246,.10); }
+        .hist-row.latest td:first-child{ box-shadow:inset 3px 0 0 #3b82f6; }
+        select,input { outline:none; }
+        select:focus,input:focus { border-color:#3b82f6; }
+        .warnbox { background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.35); color:#fcd34d; }
+    </style>
+</head>
+<body class="p-2 md:p-4 lg:p-6 min-h-screen flex flex-col gap-6">
+<a href="../index.html" style="position:fixed;left:12px;top:12px;z-index:9999;display:inline-flex;align-items:center;gap:.4rem;background:rgba(15,23,42,.94);color:#e2e8f0;font:700 12px/1 Inter,system-ui,sans-serif;padding:8px 12px;border-radius:8px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.25)">&larr; All classes</a>
+
+
+<!-- back-link to the lesson; hidden automatically when running inside the journey's iframe -->
+<div id="journey-backlink" class="max-w-[1600px] mx-auto w-full -mb-3">
+    <a href="../2321-theory/10-hashing/hashing-journey.html" class="inline-flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-slate-200 transition-colors">
+        <i class="fas fa-arrow-left" aria-hidden="true"></i> Part of the Hashing Journey lesson &mdash; back to the theory
+    </a>
+</div>
+<script>if (window.self !== window.top) document.currentScript.previousElementSibling.style.display = 'none';</script>
+
+<!-- ============ MAIN DEBUGGER ============ -->
+<div class="glass-panel rounded-2xl shadow-xl flex flex-col max-w-[1600px] mx-auto w-full overflow-hidden border border-slate-700">
+
+    <!-- config -->
+    <div class="bg-slate-900 border-b border-slate-700 p-4 md:p-5">
+        <div class="flex flex-wrap gap-4 items-end">
+            <div class="flex-1 min-w-[220px]">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Target Keys <span class="text-slate-600 normal-case font-normal">— commas, spaces or newlines</span></label>
+                <input type="text" id="inputData" value="42, 12, 52, 99" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-sm font-mono text-slate-200">
+            </div>
+            <div class="w-32">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Operation</label>
+                <select id="opType" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-sm font-bold text-emerald-400">
+                    <option value="insert">Insert</option>
+                    <option value="search">Search</option>
+                    <option value="delete">Delete</option>
+                </select>
+            </div>
+            <div class="w-24">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Table Size</label>
+                <input type="number" id="tableSize" value="20" min="2" max="100" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-sm text-slate-200">
+            </div>
+            <div class="w-40">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Hash Func</label>
+                <select id="hashFunc" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-sm text-slate-200">
+                    <option value="division">Division</option>
+                    <option value="folding">Folding</option>
+                    <option value="midsquare">Mid-Square</option>
+                </select>
+            </div>
+            <div class="w-40">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Resolution</label>
+                <select id="resFunc" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-sm text-slate-200">
+                    <option value="linear">Linear Probing</option>
+                    <option value="quadratic">Quadratic Probing</option>
+                    <option value="double">Double Hashing</option>
+                    <option value="chaining">Separate Chaining</option>
+                </select>
+            </div>
+            <div class="w-28 hidden" id="m2Wrap">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Secondary M2</label>
+                <input type="number" id="m2" value="7" min="2" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-sm text-slate-200">
+            </div>
+
+            <button id="btnRun" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded shadow-lg transition-colors"><i class="fas fa-play-circle mr-1" aria-hidden="true"></i> Compile &amp; Run</button>
+            <button id="btnClear" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-300 font-bold py-2 px-4 rounded transition-colors"><i class="fas fa-trash-can mr-1" aria-hidden="true"></i> Reset Table</button>
+        </div>
+        <div id="cfgWarn" class="warnbox text-[11px] rounded px-3 py-2 mt-3 hidden"></div>
+    </div>
+
+    <!-- transport -->
+    <div class="bg-slate-800/50 p-2 md:p-3 border-b border-slate-700 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+            <button id="btnFirst" class="w-10 h-10 rounded bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-30 flex items-center justify-center" title="First step" aria-label="First step"><i class="fas fa-backward-fast text-xs" aria-hidden="true"></i></button>
+            <button id="btnPrev"  class="w-10 h-10 rounded bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-30 flex items-center justify-center" title="Step back (←)" aria-label="Step back (←)"><i class="fas fa-step-backward" aria-hidden="true"></i></button>
+            <button id="btnPlay"  class="w-12 h-10 rounded bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-30 shadow-md flex items-center justify-center" title="Play/pause (space)" aria-label="Play/pause (space)"><i class="fas fa-play" aria-hidden="true"></i></button>
+            <button id="btnNext"  class="w-10 h-10 rounded bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-30 flex items-center justify-center" title="Step forward (→)" aria-label="Step forward (→)"><i class="fas fa-step-forward" aria-hidden="true"></i></button>
+            <button id="btnLast"  class="w-10 h-10 rounded bg-slate-700 hover:bg-slate-600 text-white disabled:opacity-30 flex items-center justify-center" title="Last step" aria-label="Last step"><i class="fas fa-forward-fast text-xs" aria-hidden="true"></i></button>
+        </div>
+
+        <div class="flex items-center gap-3 flex-1 min-w-[200px] px-2">
+            <span class="text-[10px] font-bold text-slate-500 uppercase">Timeline</span>
+            <input type="range" id="scrub" min="0" max="0" value="0" class="w-full cursor-pointer" aria-label="Execution timeline scrubber">
+            <span class="hidden lg:inline-flex items-center gap-1 text-[10px] text-slate-500 whitespace-nowrap" aria-hidden="true"><kbd class="px-1 py-0.5 bg-slate-800 border border-slate-600 rounded">&larr;</kbd><kbd class="px-1 py-0.5 bg-slate-800 border border-slate-600 rounded">&rarr;</kbd> step &nbsp;<kbd class="px-1 py-0.5 bg-slate-800 border border-slate-600 rounded">space</kbd> play</span>
+        </div>
+
+        <div class="flex items-center gap-2 min-w-[210px] px-3 border-l border-slate-700">
+            <span class="text-[10px] font-bold text-slate-500 uppercase">Speed</span>
+            <span class="text-[9px] text-slate-600 font-mono">slow</span>
+            <input type="range" id="speedSlider" min="5" max="40" step="1" value="10" class="w-full cursor-pointer speed-range" title="Drag right to run faster">
+            <span class="text-[9px] text-slate-600 font-mono">fast</span>
+            <span id="speedLabel" class="text-[10px] font-mono font-bold text-emerald-400 w-8 text-right">1×</span>
+        </div>
+
+        <div class="text-xs font-mono font-bold text-slate-400 bg-slate-900 px-3 py-1.5 rounded border border-slate-700" id="stepCounter">Frame: 0 / 0</div>
+    </div>
+
+    <!-- split -->
+    <div class="flex flex-col lg:flex-row lg:h-[720px]">
+
+        <!-- IDE -->
+        <div class="w-full lg:w-5/12 bg-[#0d1117] border-r border-slate-700 flex flex-col h-[420px] lg:h-full relative">
+            <div class="bg-[#161b22] text-[#cccccc] text-xs font-bold font-mono px-4 py-2 border-b border-[#30363d] flex justify-between items-center gap-2">
+                <span><i class="fas fa-file-code text-slate-500 mr-1.5" aria-hidden="true"></i>hash_table.cpp</span>
+                <div class="flex items-center gap-3">
+                    <label class="flex items-center gap-1.5 text-[10px] font-normal text-slate-400 cursor-pointer select-none" title="Auto-scroll the code pane to the running line">
+                        <input type="checkbox" id="followChk" checked class="accent-blue-500 w-3 h-3 cursor-pointer">Follow
+                    </label>
+                    <span id="currentStatusLabel" class="text-[10px] uppercase bg-slate-800 px-2 py-0.5 rounded text-slate-400 border border-slate-700">Idle</span>
+                </div>
+            </div>
+
+            <!-- call stack -->
+            <div class="bg-[#0d1117] border-b border-[#30363d] px-3 py-2 flex items-center gap-1.5 overflow-x-auto custom-scrollbar" id="stackBar">
+                <span class="text-[10px] text-slate-600 font-mono">call stack —</span>
+            </div>
+
+            <div class="overflow-y-auto flex-1 custom-scrollbar font-mono text-[12.5px] leading-relaxed py-2" id="codeBlock">
+                <div class="text-slate-500 p-4 italic text-xs">// Choose an operation and press Compile &amp; Run.</div>
+            </div>
+
+            <div class="border-t border-[#30363d] bg-[#0d1117] px-3 py-2 flex flex-wrap gap-1.5 min-h-[38px]" id="localsBar"></div>
+        </div>
+
+        <!-- VIS -->
+        <div class="w-full lg:w-7/12 bg-[#0f172a] p-4 flex flex-col h-[520px] lg:h-full overflow-hidden">
+            <div class="mb-3 p-3 bg-slate-800/80 border border-slate-700 rounded-lg shadow min-h-[3.5rem] flex items-center">
+                <div id="msgIcon" class="w-8 h-8 rounded-md bg-slate-700 shrink-0 mr-3 flex items-center justify-center text-slate-300 text-xs"><i class="fas fa-circle-info" aria-hidden="true"></i></div>
+                <p id="simMessage" class="text-[13px] md:text-sm font-mono text-slate-300 leading-snug">System ready. Table is empty.</p>
+            </div>
+
+            <div class="mb-3">
+                <div class="text-[10px] font-bold text-slate-500 uppercase mb-1.5">Queue</div>
+                <div class="flex flex-wrap gap-1.5 items-center max-h-[52px] overflow-y-auto custom-scrollbar" id="queueVisual">
+                    <span class="text-[11px] text-slate-600 font-mono italic">empty</span>
+                </div>
+            </div>
+
+            <div class="flex-1 bg-slate-900 rounded-xl border border-slate-800 p-4 overflow-y-auto custom-scrollbar">
+                <div class="flex flex-wrap gap-2 md:gap-3 justify-center content-start" id="tableGrid"></div>
+            </div>
+
+            <div class="flex flex-wrap gap-3 text-[10px] text-slate-500 pt-2.5">
+                <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-sm inline-block" style="background:#064e3b;border:1px solid #10b981"></i>filled</span>
+                <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-sm inline-block" style="background:#422006;border:1px solid #f59e0b"></i>probing</span>
+                <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-sm inline-block" style="background:#450a0a;border:1px solid #ef4444"></i>collision</span>
+                <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-sm inline-block" style="background:#1e3a8a;border:1px solid #3b82f6"></i>found</span>
+                <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-sm inline-block" style="background:#334155;border:1px solid #475569"></i>tombstone</span>
+                <span class="flex items-center gap-1"><i class="w-2.5 h-2.5 rounded-sm inline-block" style="box-shadow:inset 0 0 0 2px #6366f1"></i>home slot</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ ANALYSIS ROW (below the debugger) ============ -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-[1600px] mx-auto w-full">
+
+    <!-- Distribution generator -->
+    <div class="lg:col-span-2 glass-panel rounded-2xl p-5 shadow-xl flex flex-col md:flex-row gap-6">
+        <div class="w-full md:w-1/3 flex flex-col gap-4 md:border-r border-slate-700/50 md:pr-4">
+            <h2 class="text-lg font-bold text-slate-100 flex items-center gap-2"><i class="fas fa-chart-pie text-blue-400" aria-hidden="true"></i> Distribution Generator</h2>
+            <div>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Pattern</label>
+                <select id="distType" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-slate-200">
+                    <optgroup label="Probability distributions">
+                        <option value="uniform">Uniform</option>
+                        <option value="normal">Normal (clustered)</option>
+                        <option value="exponential">Exponential</option>
+                        <option value="poisson">Poisson</option>
+                        <option value="binomial">Binomial</option>
+                        <option value="power">Power-law (skewed)</option>
+                    </optgroup>
+                    <optgroup label="Adversarial patterns">
+                        <option value="multiples">Multiples of k</option>
+                        <option value="sequential">Sequential run</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div class="flex gap-2">
+                <div class="flex-1">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Count</label>
+                    <input type="number" id="distCount" value="30" min="1" max="200" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-slate-200">
+                </div>
+                <div class="flex-1">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Max Key</label>
+                    <input type="number" id="distMax" value="1000" min="10" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-slate-200">
+                </div>
+            </div>
+            <div class="flex gap-2 mt-auto">
+                <button id="btnRegen" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-300 font-bold py-2 px-3 rounded transition-colors text-sm" title="Draw a fresh sample from this distribution" aria-label="Draw a fresh sample from this distribution"><i class="fas fa-dice" aria-hidden="true"></i> Regenerate</button>
+                <button id="btnApply" class="flex-1 bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/50 text-blue-300 font-bold py-2 px-3 rounded transition-colors text-sm" title="Send these keys up to the Target Keys box" aria-label="Send these keys up to the Target Keys box"><i class="fas fa-arrow-turn-up" aria-hidden="true"></i> Load into Queue</button>
+            </div>
+        </div>
+
+        <div class="w-full md:w-2/3 flex flex-col">
+            <div class="text-[10px] font-bold text-slate-400 uppercase mb-2" id="distTitle">Uniform distribution</div>
+            <div id="chartContainer" class="flex items-end justify-between h-32 w-full gap-1 border-b border-slate-700 pb-1 mt-auto overflow-x-auto"></div>
+            <div id="chartXAxis" class="flex justify-between text-[9px] text-slate-500 font-mono mt-1 px-1"></div>
+            <div class="mt-2 text-[10px] font-mono text-slate-500" id="distStats"></div>
+            <div class="mt-2 text-[10px] font-mono text-slate-400 max-h-12 overflow-y-auto custom-scrollbar bg-slate-900/50 p-2 rounded border border-slate-800" id="generatedPreview"></div>
+        </div>
+    </div>
+
+    <!-- Analytics -->
+    <div class="glass-panel rounded-2xl p-5 shadow-xl flex flex-col">
+        <h2 class="text-lg font-bold text-slate-100 flex items-center gap-2"><i class="fas fa-tachometer-alt text-emerald-400" aria-hidden="true"></i> Analytics &amp; Complexity</h2>
+
+        <div class="grid grid-cols-2 gap-3 mt-4">
+            <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-700/50">
+                <div class="text-[10px] text-slate-400 font-bold uppercase mb-1">Load Factor &alpha;</div>
+                <div class="text-xl font-mono text-emerald-300 font-bold" id="stat-lf">0.00</div>
+                <div class="h-1.5 bg-slate-800 rounded mt-2 overflow-hidden"><div id="lf-bar" class="h-full bg-emerald-400 transition-all" style="width:0%"></div></div>
+            </div>
+            <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-700/50">
+                <div class="text-[10px] text-slate-400 font-bold uppercase mb-1">Total Collisions</div>
+                <div class="text-xl font-mono text-red-400 font-bold" id="stat-col">0</div>
+                <div class="text-[10px] text-slate-500 mt-2" id="stat-used">0 / 20 slots used</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mt-3">
+            <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/50">
+                <div class="text-[10px] text-slate-400 font-bold uppercase">Keys Stored</div>
+                <div class="text-base font-mono text-slate-200 font-bold" id="stat-n">0</div>
+            </div>
+            <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/50">
+                <div class="text-[10px] text-slate-400 font-bold uppercase">Total Probes</div>
+                <div class="text-base font-mono text-slate-200 font-bold" id="stat-probes">0</div>
+            </div>
+        </div>
+
+        <div class="mt-3 bg-slate-900/50 p-3 rounded-lg border border-slate-700/50 flex-1">
+            <div class="text-[10px] text-slate-400 font-bold uppercase mb-2">Average Time Complexity</div>
+            <div id="cx-body" class="text-[11px] font-mono text-slate-300 space-y-1.5"></div>
+            <div class="text-[9px] text-slate-500 mt-2 leading-snug font-sans" id="cx-note"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ RUN COMPARISON ============ -->
+<div class="glass-panel rounded-2xl p-5 shadow-xl max-w-[1600px] mx-auto w-full">
+    <div class="flex items-center justify-between gap-3 mb-3 flex-wrap">
+        <h2 class="text-lg font-bold text-slate-100 flex items-center gap-2"><i class="fas fa-scale-balanced text-amber-400" aria-hidden="true"></i> Run Comparison</h2>
+        <div class="flex items-center gap-3">
+            <span id="histNote" class="text-[10px] text-slate-500"></span>
+            <button id="btnClearHist" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-400 hover:text-white text-[11px] font-bold py-1.5 px-3 rounded transition-colors"><i class="fas fa-trash-can mr-1" aria-hidden="true"></i>Clear history</button>
+        </div>
+    </div>
+
+    <div id="histEmpty" class="text-xs text-slate-500 italic py-6 text-center border border-dashed border-slate-700 rounded-lg">
+        Press <span class="text-slate-300 font-bold">Compile &amp; Run</span> — every batch is recorded here so you can compare hash functions and collision strategies side by side.
+    </div>
+
+    <div id="histWrap" class="hidden">
+        <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-[11px] font-mono border-collapse min-w-[1060px]">
+                <thead>
+                    <tr class="text-[9px] uppercase text-slate-500 border-b border-slate-700">
+                        <th class="text-left font-bold py-2 pr-3">#</th>
+                        <th class="text-left font-bold py-2 pr-3">Hash</th>
+                        <th class="text-left font-bold py-2 pr-3">Resolution</th>
+                        <th class="text-right font-bold py-2 pr-3">M</th>
+                        <th class="text-left font-bold py-2 pr-3">Op</th>
+                        <th class="text-left font-bold py-2 pr-3">Input</th>
+                        <th class="text-right font-bold py-2 pr-3">Keys</th>
+                        <th class="text-right font-bold py-2 pr-3">Collisions</th>
+                        <th class="text-left font-bold py-2 pr-3 w-[220px]">Avg probes / key</th>
+                        <th class="text-right font-bold py-2 pr-3">Expected</th>
+                        <th class="text-right font-bold py-2">&alpha; after</th>
+                    </tr>
+                </thead>
+                <tbody id="histBody"></tbody>
+            </table>
+        </div>
+        <div class="text-[10px] text-slate-500 mt-3 leading-snug font-sans" id="histLegend"></div>
+    </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  const $ = id => document.getElementById(id);
+
+  /* =====================================================================
+     CODE REGISTRY — the exact source shown in the IDE. Line indices here
+     map 1:1 onto the line numbers the trace engine emits, so the debugger
+     highlight always points at the statement that really executed.
+     ===================================================================== */
+  const CODE = {
+    hash: {
+      division: [
+        "int hashFunc(int key) {",
+        "    int home = key % M;",
+        "    return home;",
+        "}"
+      ],
+      // Folding, as defined in the lecture:  k1 = k/1000, k2 = k%1000, H(k) = (k1+k2) mod M
+      folding: [
+        "int hashFunc(int key) {",
+        "    int k1 = key / 1000;",
+        "    int k2 = key % 1000;",
+        "    int sum = k1 + k2;",
+        "    return sum % M;",
+        "}"
+      ],
+      // Mid-square, as defined in the lecture:  square the key, take the middle digit(s)
+      midsquare: [
+        "int hashFunc(int key) {",
+        "    long sq = (long)key * key;",
+        "    string s = toString(sq);",
+        "    int mid = s.length / 2;",
+        "    int d = middleDigits(s, mid);",
+        "    return d % M;",
+        "}"
+      ]
+    },
+    hash2: [
+      "int hash2(int key) {",
+      "    return M2 - (key % M2);",
+      "}"
+    ],
+    probe: {
+      linear:    ["int getProbe(int i) {", "    return i;", "}"],
+      quadratic: ["int getProbe(int i) {", "    return i * i;", "}"],
+      double:    ["int getProbe(int i) {", "    int s2 = hash2(key);", "    return i * s2;", "}"]
+    },
+    open: {
+      insert: [
+        "void insert(int key) {",
+        "    int home = hashFunc(key);",
+        "    for (int i = 0; i < M; i++) {",
+        "        int idx = (home + getProbe(i)) % M;",
+        "        if (table[idx] == key) return;",
+        "        if (table[idx] == EMPTY ||",
+        "            table[idx] == TOMB) {",
+        "            table[idx] = key;",
+        "            return;",
+        "        }",
+        "        collisions++;",
+        "    }",
+        "    // table is full",
+        "}"
+      ],
+      search: [
+        "int search(int key) {",
+        "    int home = hashFunc(key);",
+        "    for (int i = 0; i < M; i++) {",
+        "        int idx = (home + getProbe(i)) % M;",
+        "        if (table[idx] == EMPTY)",
+        "            return NOT_FOUND;",
+        "        if (table[idx] == key)",
+        "            return idx;",
+        "    }",
+        "    return NOT_FOUND;",
+        "}"
+      ],
+      remove: [
+        "void remove(int key) {",
+        "    int home = hashFunc(key);",
+        "    for (int i = 0; i < M; i++) {",
+        "        int idx = (home + getProbe(i)) % M;",
+        "        if (table[idx] == EMPTY)",
+        "            return;",
+        "        if (table[idx] == key) {",
+        "            table[idx] = TOMB;",
+        "            return;",
+        "        }",
+        "    }",
+        "}"
+      ]
+    },
+    chain: {
+      insert: [
+        "void insert(int key) {",
+        "    int idx = hashFunc(key);",
+        "    Node p = bucket[idx].head;",
+        "    while (p != null) {",
+        "        if (p.key == key) return;",
+        "        p = p.next;",
+        "    }",
+        "    bucket[idx].append(key);",
+        "}"
+      ],
+      search: [
+        "int search(int key) {",
+        "    int idx = hashFunc(key);",
+        "    Node p = bucket[idx].head;",
+        "    while (p != null) {",
+        "        if (p.key == key) return idx;",
+        "        p = p.next;",
+        "    }",
+        "    return NOT_FOUND;",
+        "}"
+      ],
+      remove: [
+        "void remove(int key) {",
+        "    int idx = hashFunc(key);",
+        "    Node p = bucket[idx].head;",
+        "    while (p != null) {",
+        "        if (p.key == key) {",
+        "            bucket[idx].erase(p);",
+        "            return;",
+        "        }",
+        "        p = p.next;",
+        "    }",
+        "}"
+      ]
+    }
+  };
+
+  /* ---------- STATE ---------- */
+  const S = {
+    size:20, hashFn:'division', method:'linear', m2:7,
+    slots:[], buckets:[],
+    steps:[], head:-1,
+    playing:false, timer:null,
+    dist:'uniform', genKeys:[], _queue:[],
+    progSig:null, lmap:{}, runs:[],
+    keySrc:{type:'manual'}
+  };
+  const blankStats = () => ({ins:0,insP:0,srch:0,srchP:0,del:0,delP:0,coll:0,probes:0,found:0,miss:0});
+
+  function resetEngine(quiet){
+    stopPlay();
+    S.slots   = Array.from({length:S.size},()=>({state:'empty',v:null}));
+    S.buckets = Array.from({length:S.size},()=>[]);
+    S.steps=[]; S.head=-1; S._live=blankStats(); S._queue=[];
+    renderAll();
+    if(!quiet) setMsg('info','Table reset. Ready for a fresh run.');
+  }
+
+  /* ---------- TRACE ENGINE ----------
+     Every algorithm below is ordinary JS that *snapshots itself* into
+     S.steps. Because each step carries a full copy of the table, the call
+     stack and the stats, stepping backwards is exact — we simply re-render
+     an earlier snapshot rather than trying to invert the algorithm.        */
+  const makeCtx = () => ({stack:[], curHome:null, curBucket:null, curPath:[], curOp:''});
+  function pushFrame(ctx,func,locals){ const f={func:func,line:0,locals:locals||{}}; ctx.stack.push(f); return f; }
+  function popFrame(ctx){ ctx.stack.pop(); }
+  const snapTable = () => S.method==='chaining' ? S.buckets.map(b=>b.slice()) : S.slots.map(s=>({state:s.state,v:s.v}));
+
+  function emit(ctx, active, msgType, msg){
+    S.steps.push({
+      table: snapTable(), chain: S.method==='chaining',
+      stack: ctx.stack.map(f=>({func:f.func,line:f.line,locals:Object.assign({},f.locals)})),
+      active: active?Object.assign({},active):null,
+      home: ctx.curHome, bucket: ctx.curBucket,
+      op: ctx.curOp, msgType: msgType, msg: msg,
+      queue: S._queue.slice(),
+      stats: Object.assign({},S._live)
+    });
+  }
+
+  /* ---------- step INTO hashFunc() ---------- */
+  function runHash(ctx,key){
+    const M=S.size;
+    const f=pushFrame(ctx,'hashFunc',{key:key});
+    f.line=0; emit(ctx,null,'call',`Call <code>hashFunc(${key})</code> to find the home slot.`);
+    let home;
+    if(S.hashFn==='division'){
+      home=key%M;
+      f.line=1; f.locals.home=home; emit(ctx,null,'calc',`Division method: <code>home = ${key} % ${M} = ${home}</code>.`);
+      f.line=2; emit(ctx,null,'ret',`Return home slot <code>${home}</code>.`);
+    } else if(S.hashFn==='folding'){
+      // Lecture: split the key at the thousands boundary, add the two parts, compress.
+      const k1=Math.floor(key/1000), k2=key%1000;
+      f.line=1; f.locals.k1=k1; emit(ctx,null,'calc',`Folding: split off the high part <code>k1 = ${key} / 1000 = ${k1}</code>.`);
+      f.line=2; f.locals.k2=k2; emit(ctx,null,'calc',`Low part <code>k2 = ${key} % 1000 = ${k2}</code>.`);
+      const sum=k1+k2;
+      f.line=3; f.locals.sum=sum; emit(ctx,null,'calc',`Fold the halves together: <code>${k1} + ${k2} = ${sum}</code>.`);
+      home=sum%M;
+      f.line=4; f.locals.home=home; emit(ctx,null,'ret',`Compress: <code>${sum} % ${M} = ${home}</code>. Return <code>${home}</code>.${key<1000?' <span style="color:#94a3b8">(key &lt; 1000, so k1 = 0 and folding reduces to the division method — exactly as in the lecture.)</span>':''}`);
+    } else {
+      // Lecture: square the key, isolate the middle digit at index floor(len/2)-1, compress.
+      // Generalised only in digit count: 1 digit for M<=10 (identical to the lecture),
+      // otherwise enough middle digits to reach every slot.
+      const sq=key*key;
+      f.line=1; f.locals.sq=sq; emit(ctx,null,'calc',`Mid-square: <code>${key}² = ${sq}</code>.`);
+      const s=String(sq);
+      f.line=2; f.locals.s='"'+s+'"'; emit(ctx,null,'calc',`As a digit string: <code>"${s}"</code>.`);
+      const mid=Math.floor(s.length/2);
+      f.line=3; f.locals.mid=mid; emit(ctx,null,'calc',`Middle index <code>${s.length} / 2 = ${mid}</code>.`);
+      const need=String(M-1).length;
+      let d, note;
+      if(mid===0){
+        d=0; note=`The square has a single digit, so there is no middle digit to the left of centre &rarr; <code>d = 0</code>.`;
+      } else {
+        const picked=s.substr(mid-1,need);
+        d=parseInt(picked,10); if(isNaN(d)) d=0;
+        note = need===1
+          ? `Isolate the middle digit at index <code>${mid}-1</code>: <code>"${picked}"</code> &rarr; <code>d = ${d}</code>.`
+          : `Isolate the <b>${need}</b> middle digits from index <code>${mid}-1</code>: <code>"${picked}"</code> &rarr; <code>d = ${d}</code>. <span style="color:#94a3b8">(M &gt; 10, so one digit could never reach slots 10+.)</span>`;
+      }
+      f.line=4; f.locals.d=d; emit(ctx,null,'calc',note);
+      home=d%M;
+      f.line=5; f.locals.home=home; emit(ctx,null,'ret',`Compress: <code>${d} % ${M} = ${home}</code>. Return <code>${home}</code>.`);
+    }
+    popFrame(ctx);
+    return home;
+  }
+
+  /* ---------- step INTO getProbe() and hash2() ---------- */
+  function runProbe(ctx,i,key){
+    const f=pushFrame(ctx,'getProbe',{i:i});
+    f.line=0; emit(ctx,null,'call',`Call <code>getProbe(${i})</code> for the offset.`);
+    let off;
+    if(S.method==='linear'){
+      off=i; f.line=1; f.locals.ret=off; emit(ctx,null,'calc',`Linear probing: offset = <code>${i}</code>.`);
+    } else if(S.method==='quadratic'){
+      off=i*i; f.line=1; f.locals.ret=off; emit(ctx,null,'calc',`Quadratic probing: offset = <code>${i}² = ${off}</code>.`);
+    } else {
+      f.line=0; f.locals.key=key; emit(ctx,null,'calc',`Double hashing needs a second hash to size the jump.`);
+      const h2=pushFrame(ctx,'hash2',{key:key});
+      h2.line=0; emit(ctx,null,'call',`Step into <code>hash2(${key})</code>.`);
+      const s2=S.m2-(key%S.m2);
+      h2.line=1; h2.locals.ret=s2; emit(ctx,null,'ret',`<code>hash2 = ${S.m2} - (${key} % ${S.m2}) = ${s2}</code>.`);
+      popFrame(ctx);
+      f.line=1; f.locals.s2=s2; emit(ctx,null,'calc',`Got <code>s2 = ${s2}</code> back from hash2.`);
+      off=i*s2;
+      f.line=2; f.locals.ret=off; emit(ctx,null,'calc',`Offset = <code>${i} × ${s2} = ${off}</code>.`);
+    }
+    popFrame(ctx);
+    return off;
+  }
+
+  /* ---------- OPEN ADDRESSING ---------- */
+  function opInsertOpen(key){
+    const M=S.size, ctx=makeCtx(); ctx.curOp='insert '+key;
+    const fr=pushFrame(ctx,'insert',{key:key});
+    fr.line=0; emit(ctx,null,'call',`<b>Insert ${key}.</b> Begin.`);
+    fr.line=1; emit(ctx,null,'calc',`Compute the home slot.`);
+    const home=runHash(ctx,key); ctx.curHome=home; fr.locals.home=home;
+    fr.line=1; emit(ctx,null,'calc',`Home slot for ${key} is <code>${home}</code>.`);
+    let probes=0, done=false;
+    for(let i=0;i<M;i++){
+      fr.line=2; fr.locals.i=i; emit(ctx,null,'calc',`Probe attempt <code>i = ${i}</code>.`);
+      const off=runProbe(ctx,i,key);
+      const idx=((home+off)%M+M)%M;
+      fr.locals.idx=idx; ctx.curPath.push(idx); probes++;
+      fr.line=3; emit(ctx,{idx:idx,kind:'probe'},'probe',`Target index = <code>(${home} + ${off}) % ${M} = ${idx}</code>.`);
+      const slot=S.slots[idx];
+      fr.line=4; emit(ctx,{idx:idx,kind:'compare'},'compare',`Does slot <code>${idx}</code> already hold ${key}? ${slot.state==='filled'&&slot.v===key?'Yes — the key is already in the table.':'No.'}`);
+      if(slot.state==='filled'&&slot.v===key){
+        fr.line=4; emit(ctx,{idx:idx,kind:'found'},'found',`<b>${key} already exists</b> at slot <code>${idx}</code> — keys are unique, so nothing to insert.`);
+        S._live.ins++; S._live.insP+=probes; S._live.probes+=probes; done=true; break;
+      }
+      fr.line=5; emit(ctx,{idx:idx,kind:'compare'},'compare',`Is slot <code>${idx}</code> free (EMPTY or TOMB)? It is <b>${slot.state}</b>.`);
+      if(slot.state==='empty'||slot.state==='tomb'){
+        S.slots[idx]={state:'filled',v:key};
+        fr.line=7; emit(ctx,{idx:idx,kind:'place'},'place',`Slot <code>${idx}</code> was ${slot.state} &rarr; write <b>${key}</b> here. ✅`);
+        fr.line=8; emit(ctx,{idx:idx,kind:'place'},'ret',`Insert complete after ${probes} probe(s).`);
+        S._live.ins++; S._live.insP+=probes; S._live.probes+=probes; done=true; break;
+      } else {
+        S._live.coll++;
+        fr.line=10; emit(ctx,{idx:idx,kind:'collision'},'collision',`Slot <code>${idx}</code> holds <b>${slot.v}</b> — <span style="color:#fca5a5">collision!</span> <code>collisions++</code>, keep probing.`);
+      }
+    }
+    if(!done){
+      fr.line=12; emit(ctx,null,'info',`Probe sequence exhausted — no free slot reachable for ${key}.`);
+      S._live.ins++; S._live.insP+=probes; S._live.probes+=probes;
+    }
+    popFrame(ctx);
+  }
+
+  function opSearchOpen(key){
+    const M=S.size, ctx=makeCtx(); ctx.curOp='search '+key;
+    const fr=pushFrame(ctx,'search',{key:key});
+    fr.line=0; emit(ctx,null,'call',`<b>Search ${key}.</b> Begin.`);
+    fr.line=1; emit(ctx,null,'calc',`Compute the home slot.`);
+    const home=runHash(ctx,key); ctx.curHome=home; fr.locals.home=home;
+    fr.line=1; emit(ctx,null,'calc',`Home slot is <code>${home}</code>.`);
+    let probes=0, done=false, found=false;
+    for(let i=0;i<M;i++){
+      fr.line=2; fr.locals.i=i; emit(ctx,null,'calc',`Probe attempt <code>i = ${i}</code>.`);
+      const off=runProbe(ctx,i,key);
+      const idx=((home+off)%M+M)%M; fr.locals.idx=idx; ctx.curPath.push(idx); probes++;
+      fr.line=3; emit(ctx,{idx:idx,kind:'probe'},'probe',`Look at index <code>${idx}</code>.`);
+      const slot=S.slots[idx];
+      fr.line=4; emit(ctx,{idx:idx,kind:'compare'},'compare',`Is slot <code>${idx}</code> EMPTY? It is <b>${slot.state}</b>.`);
+      if(slot.state==='empty'){
+        fr.line=5; emit(ctx,{idx:idx,kind:'miss'},'miss',`Empty slot — the key was never here. <b>${key} not found.</b> ❌`);
+        done=true; break;
+      }
+      fr.line=6; emit(ctx,{idx:idx,kind:'compare'},'compare',`Does slot <code>${idx}</code> hold ${key}? ${slot.state==='filled'&&slot.v===key?'Yes!':'No ('+(slot.state==='tomb'?'tombstone':slot.v)+') — probe past it.'}`);
+      if(slot.state==='filled'&&slot.v===key){
+        fr.line=7; emit(ctx,{idx:idx,kind:'found'},'found',`<b>Found ${key}</b> at slot <code>${idx}</code> after ${probes} probe(s). ✅`);
+        done=true; found=true; break;
+      }
+    }
+    if(!done){ fr.line=9; emit(ctx,null,'miss',`Wrapped the whole table — <b>${key} not found.</b> ❌`); }
+    S._live.srch++; S._live.srchP+=probes; S._live.probes+=probes;
+    if(found) S._live.found++; else S._live.miss++;
+    popFrame(ctx);
+  }
+
+  function opDeleteOpen(key){
+    const M=S.size, ctx=makeCtx(); ctx.curOp='delete '+key;
+    const fr=pushFrame(ctx,'remove',{key:key});
+    fr.line=0; emit(ctx,null,'call',`<b>Delete ${key}.</b> Begin.`);
+    fr.line=1; emit(ctx,null,'calc',`Compute the home slot.`);
+    const home=runHash(ctx,key); ctx.curHome=home; fr.locals.home=home;
+    fr.line=1; emit(ctx,null,'calc',`Home slot is <code>${home}</code>.`);
+    let probes=0, done=false;
+    for(let i=0;i<M;i++){
+      fr.line=2; fr.locals.i=i; emit(ctx,null,'calc',`Probe attempt <code>i = ${i}</code>.`);
+      const off=runProbe(ctx,i,key);
+      const idx=((home+off)%M+M)%M; fr.locals.idx=idx; ctx.curPath.push(idx); probes++;
+      fr.line=3; emit(ctx,{idx:idx,kind:'probe'},'probe',`Look at index <code>${idx}</code>.`);
+      const slot=S.slots[idx];
+      fr.line=4; emit(ctx,{idx:idx,kind:'compare'},'compare',`Is slot <code>${idx}</code> EMPTY? It is <b>${slot.state}</b>.`);
+      if(slot.state==='empty'){
+        fr.line=5; emit(ctx,{idx:idx,kind:'miss'},'miss',`Empty slot — <b>${key} is not in the table</b>, nothing to delete.`);
+        done=true; break;
+      }
+      fr.line=6; emit(ctx,{idx:idx,kind:'compare'},'compare',`Does slot <code>${idx}</code> hold ${key}? ${slot.state==='filled'&&slot.v===key?'Yes!':'No — keep probing.'}`);
+      if(slot.state==='filled'&&slot.v===key){
+        S.slots[idx]={state:'tomb',v:null};
+        fr.line=7; emit(ctx,{idx:idx,kind:'compare'},'calc',`Mark slot <code>${idx}</code> as a <b>TOMB</b>stone — not empty, so later probes still pass through it. 🪦`);
+        fr.line=8; emit(ctx,{idx:idx,kind:'compare'},'ret',`Deleted ${key} after ${probes} probe(s).`);
+        done=true; break;
+      }
+    }
+    if(!done){ fr.line=10; emit(ctx,null,'miss',`Wrapped the table — <b>${key} not present.</b>`); }
+    S._live.del++; S._live.delP+=probes; S._live.probes+=probes;
+    popFrame(ctx);
+  }
+
+  /* ---------- SEPARATE CHAINING (walks the list node by node) ---------- */
+  function opInsertChain(key){
+    const ctx=makeCtx(); ctx.curOp='insert '+key;
+    const fr=pushFrame(ctx,'insert',{key:key});
+    fr.line=0; emit(ctx,null,'call',`<b>Insert ${key}.</b> Begin.`);
+    fr.line=1; emit(ctx,null,'calc',`Compute the bucket index.`);
+    const idx=runHash(ctx,key); ctx.curBucket=idx; fr.locals.idx=idx;
+    fr.line=1; emit(ctx,null,'calc',`Bucket for ${key} is <code>${idx}</code>.`);
+    const bucket=S.buckets[idx]; const hadItems=bucket.length>0;
+    fr.line=2; emit(ctx,{bucket:idx,node:-1,kind:'scan'},'calc',`Walk the chain in bucket <code>${idx}</code> to check for a duplicate.`);
+    let dup=false, probes=1;
+    for(let j=0;j<bucket.length;j++){
+      fr.line=3; emit(ctx,{bucket:idx,node:j,kind:'scan'},'scan',`Node exists — inspect it.`);
+      fr.locals.p=bucket[j]; probes++;
+      fr.line=4; emit(ctx,{bucket:idx,node:j,kind:'scan'},'compare',`Is node <b>${bucket[j]}</b> == ${key}? ${bucket[j]===key?'Yes — already present, stop.':'No.'}`);
+      if(bucket[j]===key){ dup=true; break; }
+      fr.line=5; emit(ctx,{bucket:idx,node:j,kind:'scan'},'calc',`Advance <code>p = p.next</code>.`);
+    }
+    if(!dup){
+      fr.line=3; emit(ctx,{bucket:idx,node:-1,kind:'scan'},'calc',`Reached the end of the chain (<code>p == null</code>).`);
+      bucket.push(key);
+      if(hadItems) S._live.coll++;
+      fr.line=7; emit(ctx,{bucket:idx,node:bucket.length-1,kind:'place'},'place',`Append <b>${key}</b> to bucket <code>${idx}</code>. ${hadItems?'<span style="color:#fca5a5">The bucket already held keys — a collision, resolved by chaining.</span>':'The bucket was empty.'} ✅`);
+    } else {
+      emit(ctx,{bucket:idx,kind:'found'},'found',`<b>${key} already exists</b> in bucket <code>${idx}</code> — nothing to insert.`);
+    }
+    S._live.ins++; S._live.insP+=probes; S._live.probes+=probes;
+    popFrame(ctx);
+  }
+
+  function opSearchChain(key){
+    const ctx=makeCtx(); ctx.curOp='search '+key;
+    const fr=pushFrame(ctx,'search',{key:key});
+    fr.line=0; emit(ctx,null,'call',`<b>Search ${key}.</b> Begin.`);
+    fr.line=1; emit(ctx,null,'calc',`Compute the bucket index.`);
+    const idx=runHash(ctx,key); ctx.curBucket=idx; fr.locals.idx=idx;
+    fr.line=1; emit(ctx,null,'calc',`Bucket is <code>${idx}</code>.`);
+    const bucket=S.buckets[idx]; let probes=1, found=false;
+    fr.line=2; emit(ctx,{bucket:idx,node:-1,kind:'scan'},'calc',`Start at the head of bucket <code>${idx}</code>.`);
+    for(let j=0;j<bucket.length;j++){
+      fr.line=3; emit(ctx,{bucket:idx,node:j,kind:'scan'},'scan',`Node present — inspect it.`); probes++;
+      fr.line=4; emit(ctx,{bucket:idx,node:j,kind:'scan'},'compare',`Is node <b>${bucket[j]}</b> == ${key}? ${bucket[j]===key?'Yes!':'No.'}`);
+      if(bucket[j]===key){
+        fr.line=4; emit(ctx,{bucket:idx,node:j,kind:'found'},'found',`<b>Found ${key}</b> in bucket <code>${idx}</code> (node ${j+1} of the chain). ✅`);
+        found=true; break;
+      }
+      fr.line=5; emit(ctx,{bucket:idx,node:j,kind:'scan'},'calc',`Advance <code>p = p.next</code>.`);
+    }
+    if(!found){
+      fr.line=3; emit(ctx,{bucket:idx,node:-1,kind:'scan'},'miss',`Reached the end of the chain.`);
+      fr.line=7; emit(ctx,null,'miss',`<b>${key} not found.</b> ❌`);
+    }
+    S._live.srch++; S._live.srchP+=probes; S._live.probes+=probes;
+    if(found) S._live.found++; else S._live.miss++;
+    popFrame(ctx);
+  }
+
+  function opDeleteChain(key){
+    const ctx=makeCtx(); ctx.curOp='delete '+key;
+    const fr=pushFrame(ctx,'remove',{key:key});
+    fr.line=0; emit(ctx,null,'call',`<b>Delete ${key}.</b> Begin.`);
+    fr.line=1; emit(ctx,null,'calc',`Compute the bucket index.`);
+    const idx=runHash(ctx,key); ctx.curBucket=idx; fr.locals.idx=idx;
+    fr.line=1; emit(ctx,null,'calc',`Bucket is <code>${idx}</code>.`);
+    const bucket=S.buckets[idx]; let probes=1, done=false;
+    fr.line=2; emit(ctx,{bucket:idx,node:-1,kind:'scan'},'calc',`Start at the head of bucket <code>${idx}</code>.`);
+    for(let j=0;j<bucket.length;j++){
+      fr.line=3; emit(ctx,{bucket:idx,node:j,kind:'scan'},'scan',`Node present — inspect it.`); probes++;
+      fr.line=4; emit(ctx,{bucket:idx,node:j,kind:'scan'},'compare',`Is node <b>${bucket[j]}</b> == ${key}? ${bucket[j]===key?'Yes!':'No.'}`);
+      if(bucket[j]===key){
+        emit(ctx,{bucket:idx,node:j,kind:'gone'},'calc',`Unlink node <b>${key}</b> from the chain.`);
+        bucket.splice(j,1);
+        fr.line=5; emit(ctx,{bucket:idx,node:-1,kind:'scan'},'ret',`Deleted ${key} from bucket <code>${idx}</code>. Chaining reclaims the memory immediately — no tombstones needed. ✅`);
+        done=true; break;
+      }
+      fr.line=8; emit(ctx,{bucket:idx,node:j,kind:'scan'},'calc',`Advance <code>p = p.next</code>.`);
+    }
+    if(!done) { fr.line=3; emit(ctx,{bucket:idx,node:-1,kind:'scan'},'miss',`Reached the end of the chain — <b>${key} is not present.</b>`); }
+    S._live.del++; S._live.delP+=probes; S._live.probes+=probes;
+    popFrame(ctx);
+  }
+
+  const dispatch = {
+    insert: k => (S.method==='chaining'?opInsertChain:opInsertOpen)(k),
+    search: k => (S.method==='chaining'?opSearchChain:opSearchOpen)(k),
+    delete: k => (S.method==='chaining'?opDeleteChain:opDeleteOpen)(k)
+  };
+
+  /* ---------- SYNTAX HIGHLIGHT ---------- */
+  function hl(line){
+    let s=line.replace(/\bM2\b/g,String(S.m2)).replace(/\bM\b/g,String(S.size));
+    s=s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const parts=s.split(/(\/\/.*$)/);
+    let out=parts[0]
+      .replace(/\b(int|long|void|string|Node|for|while|if|return|null|EMPTY|TOMB|NOT_FOUND)\b/g,'<span class="kw">$1</span>')
+      .replace(/\b(hashFunc|hash2|getProbe|insert|search|remove|append|erase|toString|middleDigits)\b(?=\()/g,'<span class="fn">$1</span>')
+      .replace(/\b(\d+)\b/g,'<span class="nm">$1</span>')
+      .replace(/\b(table|bucket|collisions)\b/g,'<span class="vr">$1</span>');
+    if(parts[1]) out+='<span class="cm">'+parts[1]+'</span>';
+    return out;
+  }
+  /* ---------- RENDER ----------
+     The whole program is laid out once, top to bottom: hashFunc, hash2, getProbe
+     and the operation. Stepping never swaps the listing — it only moves the
+     highlight, so you always see the full file and can read ahead.            */
+  const cur = () => S.head>=0 ? S.steps[S.head] : null;
+
+  const opFuncName = () => {
+    const st=cur();
+    if(st && st.stack.length) return st.stack[0].func;
+    return {insert:'insert',search:'search',delete:'remove'}[$('opType').value];
+  };
+
+  function programParts(opFunc){
+    const parts=[{title:'hash function',func:'hashFunc',lines:CODE.hash[S.hashFn]}];
+    if(S.method==='double')   parts.push({title:'secondary hash',func:'hash2',lines:CODE.hash2});
+    if(S.method!=='chaining') parts.push({title:'probe sequence',func:'getProbe',lines:CODE.probe[S.method]});
+    const src = S.method==='chaining' ? CODE.chain[opFunc] : CODE.open[opFunc];
+    parts.push({title:(S.method==='chaining'?'separate chaining':'open addressing')+' — '+opFunc+'()', func:opFunc, lines:src});
+    return parts;
+  }
+
+  // Rebuild the listing only when the program itself changes (config / operation).
+  function buildProgram(){
+    const opFunc=opFuncName();
+    const sig=[S.hashFn,S.method,opFunc,S.size,S.m2].join('|');
+    if(sig===S.progSig) return;
+    S.progSig=sig;
+    S.lmap={};
+    let html='', n=1;
+    programParts(opFunc).forEach(p=>{
+      html+=`<div class="ide-div">// ── ${p.title} ──</div>`;
+      p.lines.forEach((l,i)=>{
+        html+=`<div class="ide-line" data-f="${p.func}" data-l="${i}"><span class="ln">${n++}</span><span class="caret"> </span>${hl(l)}</div>`;
+      });
+    });
+    $('codeBlock').innerHTML=html;
+    $('codeBlock').querySelectorAll('.ide-line').forEach(el=>{
+      const f=el.dataset.f, l=+el.dataset.l;
+      (S.lmap[f] || (S.lmap[f]={}))[l]=el;
+    });
+  }
+
+  // Scroll the code pane only. Never scrollIntoView() — that scrolls the whole
+  // page (and, when embedded, the parent document) and yanks the reader back.
+  function followTo(el){
+    if(!$('followChk').checked || !el) return;
+    const box=$('codeBlock'), t=el.offsetTop, eh=el.offsetHeight, h=box.clientHeight;
+    if(t < box.scrollTop || t+eh > box.scrollTop+h)
+      box.scrollTop = Math.max(0, t - h/2 + eh/2);
+  }
+
+  function renderCode(){
+    buildProgram();
+    const st=cur();
+
+    $('codeBlock').querySelectorAll('.ide-line').forEach(el=>{
+      el.classList.remove('active','callsite');
+      el.querySelector('.caret').textContent=' ';
+    });
+
+    if(!st || !st.stack.length){
+      $('stackBar').innerHTML='<span class="text-[10px] text-slate-600 font-mono">call stack — idle</span>';
+      $('localsBar').innerHTML='<span class="text-[10px] text-slate-600 font-mono">no locals</span>';
+      $('currentStatusLabel').textContent = st ? 'Done' : 'Idle';
+      return;
+    }
+
+    let activeEl=null;
+    st.stack.forEach((f,i)=>{
+      const el = S.lmap[f.func] && S.lmap[f.func][f.line];
+      if(!el) return;
+      const isTop = i===st.stack.length-1;
+      el.classList.add(isTop?'active':'callsite');
+      el.querySelector('.caret').textContent = isTop?'▶':'⋯';
+      if(isTop) activeEl=el;
+    });
+    followTo(activeEl);
+
+    $('stackBar').innerHTML = st.stack.map((f,i)=>{
+      const isTop=i===st.stack.length-1;
+      return (i?'<span class="sep">›</span>':'')+`<span class="frame${isTop?' top':''}" data-jump="${f.func}">${f.func}()</span>`;
+    }).join('');
+    $('stackBar').querySelectorAll('[data-jump]').forEach(el=>{
+      el.onclick = () => { const m=S.lmap[el.dataset.jump]; if(m && m[0]) { const b=$('codeBlock'); b.scrollTop=Math.max(0,m[0].offsetTop-12); } };
+    });
+
+    const top=st.stack[st.stack.length-1];
+    $('localsBar').innerHTML = Object.keys(top.locals).length
+      ? Object.keys(top.locals).map(k=>`<span class="chip">${k} = <b>${top.locals[k]}</b></span>`).join('')
+      : '<span class="text-[10px] text-slate-600 font-mono">no locals</span>';
+
+    $('currentStatusLabel').textContent = st.op || 'Running';
+  }
+
+  function renderTable(){
+    const st=cur();
+    const M=S.size;
+    const grid=$('tableGrid');
+    const isChain = st ? st.chain : S.method==='chaining';
+    const table = st ? st.table : snapTable();
+    const act = st ? st.active : null;
+    const home = st ? st.home : null;
+    let html='';
+
+    if(isChain){
+      grid.className='flex flex-col gap-1.5 w-full';
+      for(let i=0;i<M;i++){
+        const b=table[i]||[];
+        const isHomeB = (home===i)||(st&&st.bucket===i);
+        let nodes = b.map((v,j)=>{
+          let cls='chain-node';
+          if(act && act.bucket===i && act.node===j){
+            if(act.kind==='found'||act.kind==='place') cls+=' hit';
+            else if(act.kind==='gone') cls+=' gone';
+            else cls+=' scan';
+          }
+          return `<div class="${cls} px-2.5 py-1 rounded text-xs font-bold font-mono shadow">${v}</div>`+
+                 (j<b.length-1?'<span class="arrow">→</span>':'');
+        }).join('');
+        html+=`<div class="flex items-center gap-2">
+          <div class="w-9 h-9 shrink-0 rounded-md flex items-center justify-center text-[11px] font-mono font-bold slot-box ${isHomeB?'home text-blue-300':'text-slate-500'}">${i}</div>
+          <div class="flex-1 flex items-center flex-wrap gap-1 min-h-[2.25rem] px-2 rounded-md border border-dashed border-slate-800 bg-slate-900/40">
+            ${nodes || '<span class="text-[10px] text-slate-600 italic font-mono">empty</span>'}
+          </div></div>`;
+      }
+    } else {
+      grid.className='flex flex-wrap gap-2 md:gap-3 justify-center content-start';
+      const sClass = M>40 ? 'h-11 w-11 text-[10px]' : 'h-14 w-14 md:h-16 md:w-16 text-sm md:text-base';
+      for(let i=0;i<M;i++){
+        const s=table[i]||{state:'empty',v:null};
+        let cls='';
+        if(s.state==='filled') cls='filled';
+        else if(s.state==='tomb') cls='tombstone';
+        if(act && act.idx===i){
+          if(act.kind==='probe'||act.kind==='compare'||act.kind==='scan') cls='checking';
+          else if(act.kind==='collision') cls='collision';
+          else if(act.kind==='place') cls='filled scale-110 z-10 shadow-lg';
+          else if(act.kind==='found') cls='found';
+          else if(act.kind==='miss') cls='collision';
+        }
+        if(home===i) cls+=' home';
+        const label = s.state==='tomb' ? '🪦' : (s.state==='filled'? s.v : '–');
+        html+=`<div class="${sClass} ${cls} border rounded-xl flex items-center justify-center relative slot-box shrink-0">
+          <span class="absolute top-0.5 left-1 text-[8px] opacity-60 font-mono">${i}</span>
+          <span class="font-bold font-mono">${label}</span></div>`;
+      }
+    }
+    grid.innerHTML=html;
+  }
+
+  const ICONS = {call:'fa-arrow-right-to-bracket',calc:'fa-calculator',probe:'fa-magnifying-glass',compare:'fa-code-compare',
+                 collision:'fa-triangle-exclamation',place:'fa-check',found:'fa-circle-check',miss:'fa-circle-xmark',
+                 ret:'fa-arrow-right-from-bracket',scan:'fa-magnifying-glass',info:'fa-circle-info'};
+  const ICOLOR = {collision:'bg-red-900/60 text-red-300',found:'bg-blue-900/60 text-blue-300',place:'bg-emerald-900/60 text-emerald-300',
+                  miss:'bg-red-900/60 text-red-300',ret:'bg-slate-700 text-slate-300'};
+  function setMsg(type,msg){
+    $('simMessage').innerHTML=msg;
+    $('msgIcon').className='w-8 h-8 rounded-md shrink-0 mr-3 flex items-center justify-center text-xs '+(ICOLOR[type]||'bg-slate-700 text-slate-300');
+    $('msgIcon').innerHTML='<i class="fas '+(ICONS[type]||'fa-circle-info')+'" aria-hidden="true"></i>';
+  }
+  function renderMsg(){
+    const st=cur();
+    if(!st){ setMsg('info','System ready. Table is empty.'); return; }
+    setMsg(st.msgType, st.msg);
+  }
+
+  function renderQueue(){
+    const st=cur();
+    const q = st ? st.queue : [];
+    $('queueVisual').innerHTML = q.length
+      ? q.map((k,i)=>`<div class="qchip px-2 py-1 rounded text-xs font-mono font-bold ${i===0?'bg-blue-600 text-white shadow ring-2 ring-blue-400':'bg-slate-800 text-slate-400 border border-slate-700'}">${k}</div>`).join('')
+      : '<span class="text-[11px] text-slate-600 font-mono italic">empty</span>';
+  }
+
+  function liveCounts(){
+    const st=cur();
+    const table = st ? st.table : snapTable();
+    const isChain = st ? st.chain : S.method==='chaining';
+    let n=0, used=0;
+    if(isChain){ table.forEach(b=>{ n+=b.length; if(b.length) used++; }); }
+    else { table.forEach(s=>{ if(s.state==='filled'){n++;used++;} else if(s.state==='tomb') used++; }); }
+    return {n:n, used:used};
+  }
+
+  function theory(a,kind){
+    if(S.method==='chaining') return kind==='succ' ? 1+a/2 : 1+a;
+    if(a>=1) return Infinity;
+    if(S.method==='linear') return kind==='succ' ? .5*(1+1/(1-a)) : .5*(1+1/((1-a)*(1-a)));
+    return kind==='succ' ? (a>0 ? (1/a)*Math.log(1/(1-a)) : 1) : 1/(1-a);
+  }
+  const fmt = x => (x===null || x===undefined || !isFinite(x)) ? '∞' : x.toFixed(2);
+
+  function renderStats(){
+    const st=cur();
+    const s = st ? st.stats : (S._live||blankStats());
+    const c = liveCounts();
+    const a = c.n/S.size;
+
+    $('stat-col').textContent = s.coll;
+    $('stat-n').textContent   = c.n;
+    $('stat-probes').textContent = s.probes;
+    $('stat-used').textContent = `${c.used} / ${S.size} slots used`;
+    $('stat-lf').textContent  = a.toFixed(2);
+    const bar=$('lf-bar');
+    bar.style.width = Math.min(100,a*100)+'%';
+    bar.className='h-full transition-all '+(a<.5?'bg-emerald-400':a<.75?'bg-amber-400':'bg-red-400');
+
+    const mIns = s.ins ? s.insP/s.ins : 0;
+    const mSr  = s.srch? s.srchP/s.srch: 0;
+    const mDel = s.del ? s.delP/s.del : 0;
+    const row=(label,measured,ran,expected)=>`<div class="flex justify-between gap-2"><span class="text-slate-400">${label}</span><span><span class="text-emerald-300">${ran?measured.toFixed(2):'–'}</span> <span class="text-slate-600">vs</span> <span class="text-blue-300">${expected}</span></span></div>`;
+
+    $('cx-body').innerHTML =
+      row('Insert',  mIns, s.ins,  fmt(theory(a,'unsucc'))) +
+      row('Search',  mSr,  s.srch, fmt(theory(a,'succ'))+' / '+fmt(theory(a,'unsucc'))) +
+      row('Delete',  mDel, s.del,  fmt(theory(a,'succ'))) +
+      `<div class="pt-1.5 mt-1.5 border-t border-slate-800 flex justify-between"><span class="text-slate-500">amortised</span><span class="text-slate-300">O(1)</span></div>`;
+
+    const formula = S.method==='chaining' ? '1 + α  /  1 + α/2'
+      : S.method==='linear' ? '½(1 + 1/(1−α)²)  /  ½(1 + 1/(1−α))'
+      : '1/(1−α)  /  (1/α)·ln(1/(1−α))';
+    $('cx-note').innerHTML = `<span class="text-emerald-300">measured</span> = probes actually taken this session; <span class="text-blue-300">expected</span> = uniform-hashing formula at α = ${a.toFixed(2)}. Search shows successful / unsuccessful. Formula: ${formula}.`;
+  }
+
+  function renderAll(){ renderCode(); renderTable(); renderMsg(); renderQueue(); renderStats(); updateTransport(); }
+
+  function updateTransport(){
+    const n=S.steps.length;
+    $('scrub').max = Math.max(0,n-1);
+    $('scrub').value = Math.max(0,S.head);
+    $('stepCounter').textContent = `Frame: ${n?S.head+1:0} / ${n}`;
+    $('btnPrev').disabled = $('btnFirst').disabled = S.head<=0;
+    $('btnNext').disabled = $('btnLast').disabled = S.head>=n-1;
+    $('btnPlay').disabled = n===0 || S.head>=n-1;
+  }
+
+  /* ---------- PLAYBACK ---------- */
+  function goTo(i){
+    S.head=Math.max(0,Math.min(S.steps.length-1,i));
+    renderCode(); renderTable(); renderMsg(); renderQueue(); renderStats(); updateTransport();
+  }
+  const stepFwd  = () => { if(S.head<S.steps.length-1){ goTo(S.head+1); return true;} return false; };
+  const stepBack = () => { if(S.head>0) goTo(S.head-1); };
+
+  function playIcon(){ $('btnPlay').innerHTML = S.playing?'<i class="fas fa-pause" aria-hidden="true"></i>':'<i class="fas fa-play" aria-hidden="true"></i>';
+    $('btnPlay').classList.toggle('bg-orange-600',S.playing); $('btnPlay').classList.toggle('bg-emerald-600',!S.playing); }
+  function stopPlay(){ S.playing=false; clearTimeout(S.timer); playIcon(); }
+  function togglePlay(){
+    if(S.playing){ stopPlay(); return; }
+    if(S.head>=S.steps.length-1) return;
+    S.playing=true; playIcon(); loop();
+  }
+  /* Slider value is speed ×10 (5 = 0.5×, 40 = 4×). Delay shrinks as speed grows,
+     so the filled part of the track always means "faster". */
+  const speedMult = () => parseInt($('speedSlider').value,10)/10;
+  const delayMs   = () => Math.round(700/speedMult());
+  function renderSpeed(){
+    const m=speedMult();
+    $('speedLabel').textContent = (m%1 ? m.toFixed(1) : m.toFixed(0))+'×';
+  }
+
+  function loop(){
+    if(!S.playing) return;
+    if(!stepFwd()){ stopPlay(); return; }
+    S.timer=setTimeout(loop, delayMs());
+  }
+
+  /* ---------- RUN HISTORY ----------
+     Persisted to localStorage when the browser allows it. Some contexts (file://
+     pages in certain browsers, sandboxed iframes, private modes) throw on access,
+     so every call is guarded and the panel silently degrades to session-only. */
+  const HKEY='hashSimRuns.v2', HMAX=8;
+  let storageOK=true;
+  function loadRuns(){
+    try{
+      const raw=window.localStorage.getItem(HKEY);
+      const arr = raw?JSON.parse(raw):[];
+      // JSON has no Infinity: a full table (α = 1) serialises `expected` as null.
+      arr.forEach(r=>{ if(r.expected===null||r.expected===undefined) r.expected=Infinity; });
+      return Array.isArray(arr)?arr:[];
+    }
+    catch(e){ storageOK=false; return []; }
+  }
+  function saveRuns(){
+    try{ window.localStorage.setItem(HKEY, JSON.stringify(S.runs)); }
+    catch(e){ storageOK=false; }
+  }
+
+  // Count from the live table, not the current frame — the playhead sits at the
+  // START of the new batch right after a run.
+  function tableCounts(){
+    let n=0, used=0;
+    if(S.method==='chaining') S.buckets.forEach(b=>{ n+=b.length; if(b.length) used++; });
+    else S.slots.forEach(s=>{ if(s.state==='filled'){n++;used++;} else if(s.state==='tomb') used++; });
+    return {n:n,used:used};
+  }
+
+  const DIST_NAMES={uniform:'Uniform',normal:'Normal',exponential:'Exponential',poisson:'Poisson',
+                   binomial:'Binomial',power:'Power-law',multiples:'Multiples of k',sequential:'Sequential run'};
+  const HNAMES={division:'Division',folding:'Folding',midsquare:'Mid-square',
+                linear:'Linear probing',quadratic:'Quadratic probing',double:'Double hashing',chaining:'Separate chaining'};
+
+  function recordRun(op,keys,before){
+    const a = tableCounts().n/S.size;
+    const dColl   = S._live.coll   - before.coll;
+    const dProbes = S._live.probes - before.probes;
+    const dFound  = S._live.found  - before.found;
+    const kind = op==='insert' ? 'unsucc' : op==='delete' ? 'succ' : (dFound>0?'succ':'unsucc');
+    S.runs.push({
+      hashFn:S.hashFn, method:S.method, M:S.size, m2:S.m2, op:op,
+      keys:keys.length, coll:dColl, probes:dProbes,
+      avg: keys.length ? dProbes/keys.length : 0,
+      expected: theory(a,kind), alpha:a,
+      src: Object.assign({},S.keySrc),           // which distribution produced these keys
+      keyList: keys.slice(0,40)                  // for the hover tooltip
+    });
+    if(S.runs.length>HMAX) S.runs.shift();
+    saveRuns(); renderRuns();
+  }
+
+  // Renders the "Input" cell: a distribution badge, or "Manual" for typed keys.
+  function srcCell(r){
+    const src = r.src || {type:'manual'};
+    const keysTip = r.keyList && r.keyList.length
+      ? r.keyList.join(', ')+(r.keys>r.keyList.length?` … (+${r.keys-r.keyList.length} more)`:'')
+      : '';
+    if(src.type==='dist'){
+      const name = DIST_NAMES[src.dist] || src.dist;
+      const tip  = `${name} · n=${src.count} · max=${src.max}${keysTip?'\n'+keysTip:''}`;
+      return `<span class="px-1.5 py-0.5 rounded text-[10px] bg-violet-900/50 text-violet-300 border border-violet-700/40" title="${tip}">
+                <i class="fas fa-chart-simple text-[8px] mr-0.5" aria-hidden="true"></i>${name}</span>
+              <span class="text-slate-600 text-[9px] ml-1">max ${src.max}</span>`;
+    }
+    return `<span class="px-1.5 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400 border border-slate-700" title="${keysTip}">
+              <i class="fas fa-keyboard text-[8px] mr-0.5" aria-hidden="true"></i>Manual</span>`;
+  }
+
+  function renderRuns(){
+    if(!S.runs.length){
+      $('histBody').innerHTML='';
+      $('histEmpty').classList.remove('hidden'); $('histWrap').classList.add('hidden');
+      $('histNote').textContent = storageOK?'':'session only — browser storage unavailable';
+      return;
+    }
+    $('histEmpty').classList.add('hidden'); $('histWrap').classList.remove('hidden');
+    const avgs=S.runs.map(r=>r.avg);
+    const maxAvg=Math.max.apply(null,avgs)||1, best=Math.min.apply(null,avgs), worst=Math.max.apply(null,avgs);
+
+    $('histBody').innerHTML = S.runs.map((r,i)=>{
+      const latest = i===S.runs.length-1;
+      const tone = S.runs.length>1 && r.avg===best ? 'text-emerald-300'
+                 : S.runs.length>1 && r.avg===worst ? 'text-amber-300' : 'text-slate-200';
+      const barW = Math.max(2,(r.avg/maxAvg)*100);
+      const barCol = r.avg===best&&S.runs.length>1 ? '#10b981' : r.avg===worst&&S.runs.length>1 ? '#f59e0b' : '#3b82f6';
+      const res = HNAMES[r.method] + (r.method==='double' ? ` <span class="text-slate-600">M2=${r.m2}</span>` : '');
+      return `<tr class="hist-row${latest?' latest':''} border-b border-slate-800/70">
+        <td class="py-2 pr-3 pl-2 text-slate-500">${i+1}${latest?' <span class="text-[9px] text-blue-400">now</span>':''}</td>
+        <td class="py-2 pr-3 text-slate-300">${HNAMES[r.hashFn]}</td>
+        <td class="py-2 pr-3 text-slate-300">${res}</td>
+        <td class="py-2 pr-3 text-right text-slate-400">${r.M}</td>
+        <td class="py-2 pr-3"><span class="px-1.5 py-0.5 rounded text-[10px] ${r.op==='insert'?'bg-emerald-900/50 text-emerald-300':r.op==='search'?'bg-blue-900/50 text-blue-300':'bg-red-900/50 text-red-300'}">${r.op}</span></td>
+        <td class="py-2 pr-3 whitespace-nowrap">${srcCell(r)}</td>
+        <td class="py-2 pr-3 text-right text-slate-400">${r.keys}</td>
+        <td class="py-2 pr-3 text-right ${r.coll?'text-red-400':'text-slate-600'}">${r.coll}</td>
+        <td class="py-2 pr-3">
+          <div class="flex items-center gap-2">
+            <span class="${tone} font-bold w-10 text-right">${r.avg.toFixed(2)}</span>
+            <div class="flex-1 bg-slate-800 rounded h-1.5 overflow-hidden max-w-[140px]">
+              <div class="hist-bar" style="width:${barW}%;background:${barCol}"></div>
+            </div>
+          </div></td>
+        <td class="py-2 pr-3 text-right text-blue-300">${fmt(r.expected)}</td>
+        <td class="py-2 text-right text-slate-400">${r.alpha.toFixed(2)}</td>
+      </tr>`;
+    }).join('');
+
+    $('histLegend').innerHTML = `Each <b>Compile &amp; Run</b> adds a row. <span class="text-emerald-300">Green</span> = fewest probes per key so far, <span class="text-amber-300">amber</span> = most. <span class="text-blue-300">Expected</span> is the uniform-hashing prediction evaluated at the &alpha; the table <i>ends</i> at — a batch of inserts sweeps &alpha; from empty up to that value, so on a large batch the measured average sits well below it. Compare rows at a similar &alpha; to make the comparison fair. <b>Input</b> records which distribution the keys came from — hover it to see the keys themselves. Feeding a <span class="text-violet-300">Power-law</span> or <span class="text-violet-300">Multiples of k</span> sample through the division method is the fastest way to see clustering wreck the averages.`;
+    $('histNote').textContent = storageOK ? `last ${HMAX} runs, saved in this browser` : 'session only — browser storage unavailable';
+  }
+
+  /* ---------- PARSING & CONFIG ---------- */
+  const parseKeys = raw => (raw||'').split(/[^0-9-]+/).map(s=>parseInt(s,10)).filter(n=>!isNaN(n) && n>=0);
+  const isPrime = n => { if(n<2) return false; for(let i=2;i*i<=n;i++) if(n%i===0) return false; return true; };
+
+  function readConfig(){
+    let size = parseInt($('tableSize').value,10); if(isNaN(size)) size=20;
+    size = Math.max(2,Math.min(100,size)); $('tableSize').value=size;
+    let m2 = parseInt($('m2').value,10); if(isNaN(m2)) m2=7;
+    m2 = Math.max(2,Math.min(size-1,m2)); $('m2').value=m2;
+    return {size:size, hashFn:$('hashFunc').value, method:$('resFunc').value, m2:m2};
+  }
+
+  function warnBox(){
+    const w=$('cfgWarn'); const msgs=[];
+    if(S.method==='double' && !isPrime(S.size))
+      msgs.push(`<b>Table size ${S.size} is not prime.</b> With double hashing, a step that shares a factor with M only visits part of the table — inserts can fail while slots sit empty. Use a prime M (e.g. 19, 23, 31) and a prime M2 &lt; M.`);
+    if(S.method==='double' && !isPrime(S.m2))
+      msgs.push(`<b>M2 = ${S.m2} is not prime.</b> A prime secondary modulus keeps step sizes coprime with a prime M.`);
+    if(S.method==='double' && S.m2>=S.size)
+      msgs.push(`<b>M2 must be smaller than M.</b> With M = ${S.size} there is no valid secondary modulus — raise the table size.`);
+    if(S.method==='quadratic' && !isPrime(S.size))
+      msgs.push(`<b>Quadratic probing</b> is only guaranteed to find a free slot when M is prime and the table is less than half full.`);
+    if(S.hashFn==='midsquare' && S.size>10)
+      msgs.push(`<b>Mid-square note.</b> Your lecture takes one middle digit (range 0–9). With M = ${S.size} that could never reach slots 10+, so ${String(S.size-1).length} middle digits are taken instead. Set M = 10 to reproduce the lecture exactly.`);
+    if(S.hashFn==='folding' && S.size)
+      msgs.push(`<b>Folding note.</b> Your lecture splits at the thousands boundary: <code>k1 = k/1000</code>, <code>k2 = k%1000</code>, <code>H(k) = (k1+k2) % M</code>. Keys below 1000 therefore fold to themselves — identical to the division method. Use 4+ digit keys to see folding do real work.`);
+    if(msgs.length){ w.innerHTML='<i class="fas fa-triangle-exclamation mr-1" aria-hidden="true"></i>'+msgs.join('<br>'); w.classList.remove('hidden'); }
+    else { w.innerHTML=''; w.classList.add('hidden'); }
+  }
+
+  function applyConfig(){
+    const c=readConfig();
+    const structural = c.size!==S.size || c.hashFn!==S.hashFn || c.method!==S.method || c.m2!==S.m2;
+    S.size=c.size; S.hashFn=c.hashFn; S.method=c.method; S.m2=c.m2;
+    $('m2Wrap').classList.toggle('hidden', S.method!=='double');
+    warnBox();
+    // A table built with one hash function is meaningless under another, so any
+    // structural change clears it. Operations (insert/search/delete) do NOT.
+    if(structural && S.steps.length){ resetEngine(true); setMsg('info','Configuration changed — the table was cleared, because keys placed by one hash function cannot be found by another.'); }
+    else if(structural) resetEngine(true);
+    else renderAll();
+  }
+
+  /* ---------- RUN ---------- */
+  function run(){
+    applyConfig();
+    const keys=parseKeys($('inputData').value);
+    if(!keys.length){ setMsg('miss','No valid keys found. Enter numbers separated by commas, spaces or newlines.'); return; }
+    const op=$('opType').value;
+    const start=S.steps.length;
+    const before=Object.assign({},S._live);
+    keys.forEach((k,i)=>{ S._queue=keys.slice(i); dispatch[op](k); });
+    S._queue=[];
+    const ctx=makeCtx(); ctx.curOp='done';
+    emit(ctx,null,'ret',`<span class="text-emerald-400 font-bold">Batch complete.</span> ${keys.length} ${op} operation(s) executed.`);
+    S.head=start;
+    recordRun(op,keys,before);
+    renderAll();
+  }
+
+  /* ---------- DISTRIBUTIONS ---------- */
+  function gauss(){ let u=0,v=0; while(!u)u=Math.random(); while(!v)v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+  function poisson(l){ if(l>30) return Math.max(0,Math.round(l+Math.sqrt(l)*gauss())); const L=Math.exp(-l); let k=0,p=1; do{k++;p*=Math.random();}while(p>L); return k-1; }
+  function binomial(n,p){ let x=0; for(let i=0;i<n;i++) if(Math.random()<p) x++; return x; }
+
+  function generate(){
+    const type=$('distType').value;
+    const count=Math.max(1,Math.min(200,parseInt($('distCount').value,10)||30));
+    const max=Math.max(10,parseInt($('distMax').value,10)||1000);
+    const out=[];
+    const clamp=v=>Math.max(0,Math.min(max,Math.round(v)));
+
+    if(type==='uniform')      for(let i=0;i<count;i++) out.push(Math.floor(Math.random()*(max+1)));
+    else if(type==='normal')  for(let i=0;i<count;i++) out.push(clamp(max/2 + gauss()*(max/8)));
+    else if(type==='exponential'){ const lam=3/max; for(let i=0;i<count;i++) out.push(clamp(-Math.log(1-Math.random())/lam)); }
+    else if(type==='poisson'){ const l=max/6; for(let i=0;i<count;i++) out.push(clamp(poisson(l))); }
+    else if(type==='binomial'){ for(let i=0;i<count;i++) out.push(clamp(binomial(40,.5)/40*max)); }
+    else if(type==='power'){ for(let i=0;i<count;i++) out.push(clamp(max*Math.pow(Math.random(),3))); }
+    else if(type==='multiples'){ const k=Math.floor(Math.random()*8)+2; for(let i=1;i<=count;i++) out.push(clamp((i*k)%(max+1))); }
+    else { let s=Math.floor(Math.random()*Math.max(1,max-count)); for(let i=0;i<count;i++) out.push(clamp(s+i)); }
+
+    S.genKeys=out;
+    $('distTitle').textContent = DIST_NAMES[type]+' distribution';
+    const mean=out.reduce((a,b)=>a+b,0)/out.length;
+    $('distStats').textContent = `n=${out.length} · min ${Math.min.apply(null,out)} · max ${Math.max.apply(null,out)} · mean ${mean.toFixed(1)}`;
+    $('generatedPreview').textContent = out.join(', ');
+    drawChart(out,max);
+  }
+
+  function drawChart(data,maxVal){
+    const c=$('chartContainer'), ax=$('chartXAxis');
+    c.innerHTML=''; ax.innerHTML='';
+    const bins=20, binSize=maxVal/bins;
+    const hist=Array(bins).fill(0); let maxFreq=0;
+    data.forEach(v=>{ let i=Math.floor(v/binSize); if(i>=bins) i=bins-1; if(i<0) i=0; hist[i]++; if(hist[i]>maxFreq) maxFreq=hist[i]; });
+    hist.forEach((f,i)=>{
+      const h = maxFreq? (f/maxFreq)*100 : 0;
+      const bar=document.createElement('div');
+      bar.className='flex-1 bg-blue-500 hover:bg-blue-400 rounded-t-sm chart-bar relative group';
+      bar.style.height=Math.max(h,2)+'%';
+      const tip=document.createElement('div');
+      tip.className='absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-950 text-white text-[10px] px-2 py-1 rounded shadow-lg chart-tooltip whitespace-nowrap z-20 border border-slate-700';
+      tip.textContent=`${f} key${f===1?'':'s'} · ${Math.floor(i*binSize)}–${Math.floor((i+1)*binSize)}`;
+      bar.appendChild(tip); c.appendChild(bar);
+      const lbl=document.createElement('div');
+      lbl.style.width=(100/bins)+'%'; lbl.className='text-center';
+      lbl.textContent = (i%4===0||i===bins-1) ? Math.floor(i*binSize) : '';
+      ax.appendChild(lbl);
+    });
+  }
+
+  /* ---------- WIRING ---------- */
+  $('btnRun').onclick   = run;
+  $('btnClear').onclick = () => { applyConfig(); resetEngine(); };
+  $('btnPrev').onclick  = () => { stopPlay(); stepBack(); };
+  $('btnNext').onclick  = () => { stopPlay(); stepFwd(); };
+  $('btnFirst').onclick = () => { stopPlay(); goTo(0); };
+  $('btnLast').onclick  = () => { stopPlay(); goTo(S.steps.length-1); };
+  $('btnPlay').onclick  = togglePlay;
+  $('scrub').oninput    = e => { stopPlay(); goTo(parseInt(e.target.value,10)); };
+
+  ['tableSize','hashFunc','resFunc','m2'].forEach(id => $(id).onchange = applyConfig);
+  $('opType').onchange = () => { S.progSig=null; renderCode(); };
+  $('speedSlider').oninput = renderSpeed;
+  $('btnClearHist').onclick = () => { S.runs=[]; saveRuns(); renderRuns(); };
+  $('followChk').onchange = () => { if($('followChk').checked) renderCode(); };
+  ['distType','distCount','distMax'].forEach(id => $(id).onchange = generate);
+  $('btnRegen').onclick = generate;
+  $('btnApply').onclick = () => {
+    if(!S.genKeys.length) return;
+    const el=$('inputData'); el.value=S.genKeys.join(', ');
+    S.keySrc={ type:'dist', dist:$('distType').value,
+               count:S.genKeys.length, max:parseInt($('distMax').value,10)||0 };
+    el.classList.add('ring-2','ring-emerald-500');
+    setTimeout(()=>el.classList.remove('ring-2','ring-emerald-500'),900);
+  };
+  // Typing over the keys means they are no longer that distribution's sample.
+  $('inputData').oninput = () => { S.keySrc={type:'manual'}; };
+
+  document.addEventListener('keydown', e => {
+    if(/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName)) return;
+    if(e.key==='ArrowRight'){ e.preventDefault(); stopPlay(); stepFwd(); }
+    else if(e.key==='ArrowLeft'){ e.preventDefault(); stopPlay(); stepBack(); }
+    else if(e.key===' '){ e.preventDefault(); togglePlay(); }
+  });
+
+  /* ---------- EMBED: report height so a parent <iframe> can auto-size ---------- */
+  function reportHeight(){ try{ parent.postMessage({hashSimHeight:document.documentElement.scrollHeight},'*'); }catch(e){} }
+  if(window.ResizeObserver) new ResizeObserver(reportHeight).observe(document.body);
+  window.addEventListener('load',reportHeight);
+  window.addEventListener('resize',reportHeight);
+
+  /* ---------- INIT ---------- */
+  applyConfig();
+  resetEngine(true);
+  generate();
+  playIcon();
+  renderSpeed();
+  S.runs = loadRuns();
+  renderRuns();
+  reportHeight();
+})();
+</script>
+</body>
+</html>

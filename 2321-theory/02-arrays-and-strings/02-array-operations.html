@@ -1,0 +1,2317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operations on an Array — CSE-2321 Segment 2, Class 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --mono:'Fira Code',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  --bn:'Noto Serif Bengali','Kalpurush','SolaimanLipi','Nirmala UI',serif;
+  --bg:#f1f5f9; --panel:#ffffff; --ink:#1e293b; --ink-soft:#475569; --ink-mute:#64748b;
+  --line:#e2e8f0; --line-strong:#cbd5e1; --dark:#0f172a; --dark-2:#1e293b;
+  --accent:#4f46e5;
+  --r:1rem; --r-sm:.6rem;
+  --sh-sm:0 1px 2px rgba(15,23,42,.06),0 1px 3px rgba(15,23,42,.04);
+  --sh-md:0 4px 6px -1px rgba(15,23,42,.07),0 2px 4px -2px rgba(15,23,42,.05);
+  --sh-lg:0 12px 28px -8px rgba(15,23,42,.18);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
+body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.65;font-size:16px;
+     -webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3,h4{line-height:1.25;margin:0}
+p{margin:0 0 1rem}
+p:last-child{margin-bottom:0}
+a{color:var(--accent)}
+.mono{font-family:var(--mono)}
+.bn{font-family:var(--bn);line-height:1.95;font-size:1.02rem}
+.wrap{max-width:1080px;margin:0 auto;padding:0 1rem}
+@media(min-width:768px){ .wrap{padding:0 1.75rem} body{font-size:16.5px} }
+
+/* ============ HEADER + TABS ============ */
+.topbar{position:sticky;top:0;z-index:60;background:rgba(15,23,42,.97);backdrop-filter:blur(10px);
+        border-bottom:1px solid #334155;color:#e2e8f0}
+.topbar-in{max-width:1080px;margin:0 auto;padding:.6rem 1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+@media(min-width:768px){.topbar-in{padding:.7rem 1.75rem}}
+.brand{display:flex;align-items:center;gap:.6rem;min-width:0}
+.brand-badge{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#6366f1,#8b5cf6);
+             display:grid;place-items:center;font-weight:900;font-size:.8rem;color:#fff;flex:0 0 auto}
+.brand-t{font-size:.78rem;font-weight:800;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand-s{font-size:.66rem;color:#94a3b8;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.tabs{display:flex;gap:.3rem;margin-left:auto;overflow-x:auto;scrollbar-width:none;padding:2px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{appearance:none;border:1px solid transparent;background:transparent;color:#94a3b8;font-family:inherit;
+     font-size:.78rem;font-weight:700;padding:.42rem .85rem;border-radius:.5rem;cursor:pointer;white-space:nowrap;
+     transition:background .15s,color .15s}
+.tab:hover{color:#e2e8f0;background:#1e293b}
+.tab[aria-selected="true"]{background:#e2e8f0;color:#0f172a}
+.tab:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px solid #818cf8;outline-offset:2px}
+.panel[hidden]{display:none}
+
+/* progress rail */
+.rail{height:3px;background:#1e293b;position:relative;overflow:hidden}
+.rail>i{position:absolute;inset:0 100% 0 0;background:linear-gradient(90deg,#6366f1,#22d3ee);transition:right .1s linear}
+
+/* ============ HERO ============ */
+.hero{background:linear-gradient(160deg,#0f172a 0%,#1e1b4b 55%,#312e81 100%);color:#e2e8f0;
+      padding:3rem 0 3.4rem;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;width:520px;height:520px;right:-180px;top:-200px;border-radius:50%;
+             background:radial-gradient(circle,rgba(99,102,241,.32),transparent 68%)}
+.hero .wrap{position:relative;z-index:1}
+.eyebrow{font-size:.68rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#a5b4fc;margin-bottom:.9rem}
+.hero h1{font-size:clamp(1.85rem,6.4vw,3.4rem);font-weight:900;letter-spacing:-.025em;margin-bottom:1rem}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,#818cf8,#22d3ee);-webkit-background-clip:text;
+            background-clip:text;color:transparent}
+.hero-lede{font-size:clamp(1rem,2.5vw,1.15rem);color:#cbd5e1;max-width:44rem}
+.arc{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1.6rem}
+.arc span{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:.4rem .7rem;
+          border-radius:999px;border:1px solid rgba(148,163,184,.35);color:#cbd5e1;background:rgba(15,23,42,.4)}
+.arc span b{color:#fff}
+.hero-meta{display:flex;flex-wrap:wrap;gap:1.4rem;margin-top:1.8rem;font-size:.8rem;color:#94a3b8}
+.hero-meta b{color:#e2e8f0;display:block;font-size:1.05rem;font-weight:800}
+
+/* ============ CARDS ============ */
+main{padding:2.6rem 0 4rem}
+.card{background:var(--panel);border-radius:var(--r);box-shadow:var(--sh-md);padding:1.5rem 1.25rem;
+      margin-bottom:2.6rem;position:relative;border-top:4px solid var(--accent)}
+@media(min-width:768px){.card{padding:2rem 2.25rem}}
+.card>.badge{position:absolute;top:-1.15rem;left:1.25rem;width:2.4rem;height:2.4rem;border-radius:50%;
+             background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:900;font-size:1rem;
+             border:4px solid var(--bg);z-index:2}
+@media(min-width:768px){.card>.badge{left:2rem}}
+.card.numbered{padding-top:2.1rem}
+@media(min-width:768px){.card.numbered{padding-top:2.4rem}}
+.kicker{font-size:.66rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:.45rem}
+.card h2{font-size:clamp(1.2rem,3.6vw,1.7rem);font-weight:800;letter-spacing:-.015em;margin-bottom:.35rem}
+.card h3{font-size:1.02rem;font-weight:800;margin:1.5rem 0 .5rem}
+.subtle{color:var(--ink-mute);font-size:.85rem;font-weight:600}
+.timechip{display:inline-flex;align-items:center;gap:.35rem;font-size:.68rem;font-weight:800;letter-spacing:.05em;
+          padding:.24rem .6rem;border-radius:999px;background:#f1f5f9;color:var(--ink-mute);border:1px solid var(--line)}
+.hdr-row{display:flex;align-items:flex-start;gap:1rem;flex-wrap:wrap;justify-content:space-between;margin-bottom:1.1rem}
+
+/* ============ DARK "SO WHAT" PANEL ============ */
+.bridge{background:linear-gradient(135deg,#0f172a,#1e293b);border-left:5px solid var(--accent);
+        border-radius:.85rem;padding:1.25rem 1.1rem;color:#cbd5e1;margin:1.4rem 0;box-shadow:var(--sh-md)}
+@media(min-width:768px){.bridge{padding:1.5rem 1.6rem}}
+.bridge .lbl{font-size:.64rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#818cf8;margin-bottom:.5rem}
+.bridge p{margin-bottom:.7rem}
+.bridge strong,.bridge b{color:#fff}
+.bridge .say{font-size:clamp(1.02rem,2.9vw,1.28rem);font-weight:800;color:#fff;line-height:1.45}
+
+/* ============ GENERIC BOXES ============ */
+.box{background:#f8fafc;border:1px solid var(--line);border-radius:.8rem;padding:1rem 1.1rem;margin:1rem 0}
+.box.warn{background:#fffbeb;border-color:#fde68a}
+.box.bad{background:#fff1f2;border-color:#fecdd3}
+.box.good{background:#f0fdf4;border-color:#bbf7d0}
+.box.info{background:#eff6ff;border-color:#bfdbfe}
+.box .bt{font-weight:800;font-size:.8rem;letter-spacing:.02em;margin-bottom:.35rem;display:flex;align-items:center;gap:.4rem}
+.box.warn .bt{color:#b45309}.box.bad .bt{color:#be123c}.box.good .bt{color:#15803d}.box.info .bt{color:#1d4ed8}
+.box p{font-size:.9rem;margin-bottom:.5rem}
+.grid2{display:grid;gap:1rem}
+@media(min-width:720px){.grid2{grid-template-columns:1fr 1fr}}
+.grid3{display:grid;gap:.8rem}
+@media(min-width:720px){.grid3{grid-template-columns:repeat(3,1fr)}}
+
+/* ============ TABLES ============ */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:1.1rem 0;border:1px solid var(--line);border-radius:.8rem;background:#fff}
+table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:520px}
+th{background:#f8fafc;text-align:left;font-weight:800;font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;
+   color:var(--ink-mute);padding:.65rem .85rem;border-bottom:1px solid var(--line)}
+td{padding:.7rem .85rem;border-bottom:1px solid #f1f5f9;vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.num{font-family:var(--mono);font-weight:600;white-space:nowrap}
+.hl-bad{color:#be123c;font-weight:800}
+.hl-good{color:#15803d;font-weight:800}
+
+/* ============ CODE ============ */
+pre.code{font-family:var(--mono);font-size:.78rem;line-height:1.75;background:#0f172a;color:#e2e8f0;
+         padding:1rem;border-radius:.7rem;overflow-x:auto;margin:.8rem 0}
+@media(min-width:768px){pre.code{font-size:.83rem}}
+.k{color:#c4b5fd}.t{color:#fcd34d}.f{color:#7dd3fc}.n{color:#fdba74}.c{color:#64748b;font-style:italic}.s{color:#86efac}
+
+/* ============ BUTTONS ============ */
+.btn{appearance:none;font-family:inherit;font-weight:800;font-size:.82rem;padding:.6rem 1.15rem;border-radius:.55rem;
+     cursor:pointer;border:none;background:var(--accent);color:#fff;box-shadow:var(--sh-sm);
+     transition:filter .15s,transform .1s}
+.btn:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn.ghost{background:#fff;color:var(--ink-soft);border:2px solid var(--line)}
+.btn.ghost:hover:not(:disabled){border-color:var(--line-strong);color:var(--ink)}
+.btn.sm{font-size:.74rem;padding:.42rem .8rem}
+.btnrow{display:flex;flex-wrap:wrap;gap:.5rem;margin:.9rem 0}
+
+/* ============ QUIZ ============ */
+.quiz{border:2px solid #e2e8f0;border-radius:.85rem;overflow:hidden;margin:1.3rem 0;background:#fff}
+.quiz .qh{background:#f8fafc;padding:.75rem 1rem;font-size:.66rem;font-weight:800;letter-spacing:.12em;
+          text-transform:uppercase;color:var(--ink-mute);border-bottom:1px solid var(--line)}
+.quiz .qq{padding:1rem;font-weight:700;font-size:.95rem}
+.qopts{display:grid;gap:.45rem;padding:0 1rem 1rem}
+.qopt{appearance:none;text-align:left;font-family:inherit;font-size:.87rem;font-weight:600;padding:.65rem .85rem;
+      border:2px solid var(--line);border-radius:.55rem;background:#fff;color:var(--ink-soft);cursor:pointer;transition:.15s}
+.qopt:hover:not(:disabled){border-color:var(--line-strong);background:#f8fafc}
+.qopt.ok{border-color:#22c55e;background:#f0fdf4;color:#15803d}
+.qopt.no{border-color:#f43f5e;background:#fff1f2;color:#be123c}
+.qopt:disabled{cursor:default}
+.qexp{display:none;padding:1rem;background:#0f172a;color:#cbd5e1;font-size:.87rem;border-top:1px solid var(--line)}
+.qexp.show{display:block}
+.qexp b{color:#fff}
+
+/* ============ TRANSCRIPT MAPPER ============ */
+.tmap{display:grid;gap:.45rem}
+.trow{display:flex;align-items:center;gap:.7rem;padding:.6rem .8rem;border:1px solid var(--line);border-radius:.55rem;
+      background:#fff;cursor:pointer;transition:.18s;text-align:left;font-family:inherit;width:100%;appearance:none}
+.trow:hover{border-color:var(--line-strong);transform:translateX(3px)}
+.trow .tq{flex:1;font-size:.86rem;font-weight:600;color:var(--ink-soft);min-width:0}
+.trow .tw2{font-size:.66rem;font-weight:800;letter-spacing:.04em;padding:.24rem .55rem;border-radius:999px;
+          background:#f1f5f9;color:#94a3b8;white-space:nowrap;opacity:0;transition:opacity .3s}
+.trow.on{border-color:#6366f1;background:#eef2ff}
+.trow.on .tq{color:#1e293b}
+.trow.on .tw2{opacity:1;background:#4f46e5;color:#fff}
+
+/* ============ GUESS WIDGET ============ */
+.guess{display:grid;gap:.5rem;margin:1rem 0}
+.gopt{appearance:none;font-family:inherit;text-align:left;padding:.8rem 1rem;border:2px solid var(--line);
+      border-radius:.6rem;background:#fff;cursor:pointer;font-weight:700;font-size:.92rem;color:var(--ink-soft);transition:.15s}
+.gopt:hover:not(:disabled){border-color:#818cf8;background:#eef2ff}
+.gopt.picked{border-color:#4f46e5;background:#eef2ff;color:#312e81}
+.gopt.truth{border-color:#22c55e;background:#f0fdf4;color:#15803d}
+.gopt:disabled{cursor:default}
+.bignum{font-family:var(--mono);font-size:clamp(2rem,10vw,4.2rem);font-weight:700;line-height:1;letter-spacing:-.03em}
+.reveal{background:linear-gradient(135deg,#0f172a,#312e81);color:#fff;border-radius:.9rem;padding:1.6rem 1.1rem;
+        text-align:center;margin:1.1rem 0;display:none}
+.reveal.show{display:block;animation:pop .5s ease}
+@keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+.reveal .cap{font-size:.68rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#a5b4fc;margin-bottom:.6rem}
+.reveal .sub{color:#c7d2fe;font-size:.88rem;margin-top:.7rem}
+
+/* ============ RACE / COUNTERS ============ */
+.race{display:grid;gap:.9rem;margin:1.1rem 0}
+@media(min-width:720px){.race{grid-template-columns:1fr 1fr}}
+.lane{border:2px solid var(--line);border-radius:.85rem;padding:1rem;background:#fff}
+.lane.win{border-color:#22c55e;background:#f0fdf4}
+.lane.lose{border-color:#fb7185;background:#fff1f2}
+.lane h4{font-size:.9rem;font-weight:800;margin-bottom:.15rem}
+.lane .way{font-size:.7rem;font-weight:700;color:var(--ink-mute);margin-bottom:.7rem}
+.meter{height:12px;border-radius:999px;background:#e2e8f0;overflow:hidden;margin:.6rem 0}
+.meter>i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#6366f1,#22d3ee);transition:width .08s linear}
+.lane.lose .meter>i{background:linear-gradient(90deg,#f43f5e,#fb923c)}
+.lane.win .meter>i{background:linear-gradient(90deg,#16a34a,#4ade80)}
+.count{font-family:var(--mono);font-size:1.35rem;font-weight:700;letter-spacing:-.02em}
+.pct{font-family:var(--mono);font-size:.74rem;color:var(--ink-mute);font-weight:600}
+.verdict{font-weight:800;font-size:.82rem;margin-top:.5rem;min-height:1.2rem}
+
+/* ============ STACK TOY ============ */
+.stacks{display:grid;gap:1rem;margin:1rem 0}
+@media(min-width:600px){.stacks{grid-template-columns:1fr 1fr}}
+.stk{border:2px solid var(--line);border-radius:.8rem;background:#f8fafc;padding:.9rem;min-height:210px;
+     display:flex;flex-direction:column}
+.stk h5{font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);
+        margin-bottom:.6rem;text-align:center}
+.stk.flash{animation:flash .55s ease}
+@keyframes flash{0%,100%{background:#f8fafc;border-color:var(--line)}40%{background:#fee2e2;border-color:#f87171}}
+.cells{display:flex;flex-direction:column-reverse;gap:.3rem;flex:1;justify-content:flex-start}
+.cell{background:#fff;border:2px solid #6366f1;border-radius:.4rem;padding:.4rem;text-align:center;
+      font-family:var(--mono);font-weight:700;font-size:.95rem;color:#4338ca;animation:drop .25s ease}
+.stk.redo .cell{border-color:#f59e0b;color:#b45309}
+@keyframes drop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.empty{color:#cbd5e1;font-size:.78rem;text-align:center;font-weight:700;margin:auto 0}
+.typed{font-family:var(--mono);font-size:1.1rem;font-weight:700;background:#0f172a;color:#e2e8f0;padding:.7rem .9rem;
+       border-radius:.5rem;min-height:2.9rem;word-break:break-all;letter-spacing:.02em}
+.typed .car{display:inline-block;width:2px;height:1.05em;background:#22d3ee;vertical-align:-2px;animation:bl 1s steps(2) infinite}
+@keyframes bl{50%{opacity:0}}
+
+/* ============ PLATFORM CARDS ============ */
+.plat{display:grid;gap:1rem;margin:1.2rem 0}
+@media(min-width:760px){.plat{grid-template-columns:1fr 1fr}}
+.pcard{border:2px solid var(--line);border-radius:.9rem;overflow:hidden;background:#fff}
+.pcard .ph{padding:1rem 1.1rem;color:#fff}
+.pcard.lc .ph{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.pcard.cf .ph{background:linear-gradient(135deg,#1d4ed8,#3b82f6)}
+.pcard .ph h4{font-size:1.15rem;font-weight:900}
+.pcard .ph p{font-size:.78rem;opacity:.92;margin:0}
+.pcard .pb{padding:1rem 1.1rem}
+.pcard dl{margin:0;display:grid;gap:.6rem}
+.pcard dt{font-size:.63rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute)}
+.pcard dd{margin:.1rem 0 0;font-size:.86rem;font-weight:600;color:var(--ink-soft)}
+
+/* ============ MISC ============ */
+.shot{border-radius:.7rem;border:1px solid var(--line);max-width:100%;height:auto;display:block;box-shadow:var(--sh-md)}
+figure{margin:1rem 0}
+figcaption{font-size:.74rem;color:var(--ink-mute);margin-top:.5rem;font-weight:600}
+details{border:1px solid var(--line);border-radius:.6rem;background:#fff;margin:.7rem 0;overflow:hidden}
+details>summary{cursor:pointer;padding:.75rem 1rem;font-weight:700;font-size:.87rem;background:#f8fafc;list-style:none;
+                display:flex;align-items:center;gap:.5rem}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"+";font-family:var(--mono);font-weight:700;color:var(--accent);width:1rem}
+details[open]>summary::before{content:"–"}
+details>div{padding:1rem;border-top:1px solid var(--line);font-size:.88rem}
+ul.tight,ol.tight{margin:.6rem 0;padding-left:1.3rem}
+ul.tight li,ol.tight li{margin-bottom:.4rem;font-size:.9rem}
+.note13{background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;border-radius:.85rem;
+        padding:1.1rem;margin:1.3rem 0;display:flex;gap:.9rem;align-items:flex-start}
+.note13 .ic{font-size:1.5rem;line-height:1;flex:0 0 auto}
+.note13 b{color:#92400e}
+.note13 p{font-size:.88rem;color:#78350f;margin:0}
+.sec-nav{position:fixed;right:.6rem;bottom:.6rem;z-index:50;display:flex;gap:.35rem;background:rgba(15,23,42,.94);
+         padding:.35rem;border-radius:.6rem;box-shadow:var(--sh-lg)}
+.sec-nav button{appearance:none;border:none;background:transparent;color:#94a3b8;font-size:1rem;cursor:pointer;
+                padding:.3rem .5rem;border-radius:.35rem;line-height:1}
+.sec-nav button:hover{background:#334155;color:#fff}
+@media print{.topbar,.sec-nav{display:none}.card{break-inside:avoid;box-shadow:none;border:1px solid #ccc}}
+
+/* ============ CLASS 3 · ALGORITHM NOTATION ============ */
+.algo{background:#fff;border:2px solid var(--line);border-radius:.8rem;overflow:hidden;margin:1rem 0;
+      font-family:var(--mono);font-size:clamp(.72rem,2.9vw,.88rem);line-height:1.9}
+.algo .ahead{background:#fffbeb;border-bottom:2px solid #fde68a;padding:.8rem 1rem;font-family:var(--sans);
+             font-size:.82rem;color:#78350f;line-height:1.6}
+.algo .ahead b{color:#92400e}
+.algo .body{padding:.7rem .4rem}
+.algo .st{display:block;padding:.22rem .7rem;border-radius:.3rem;white-space:pre-wrap;transition:background .2s;color:#334155}
+.algo .st.cur{background:#fef3c7;box-shadow:inset 3px 0 0 #d97706;font-weight:700;color:#78350f}
+.algo .st.done{color:#94a3b8}
+.algo .st .cm{color:#0891b2;font-style:italic}
+.algo .st .kw{color:#be123c;font-weight:700}
+.algo .st .vr{color:#7c3aed;font-weight:700}
+.algo .st .op{color:#d97706;font-weight:700}
+
+/* variable watch */
+.vars{display:grid;gap:.45rem;margin:.9rem 0}
+@media(min-width:540px){.vars{grid-template-columns:repeat(4,1fr)}}
+.vcell{border:1px solid var(--line);border-radius:.5rem;padding:.5rem;text-align:center;background:#f8fafc;transition:.2s}
+.vcell.bump{background:#fef3c7;border-color:#fbbf24;transform:scale(1.05)}
+.vcell .vk{font-family:var(--mono);font-size:.62rem;font-weight:800;letter-spacing:.08em;color:var(--ink-mute)}
+.vcell .vv{font-family:var(--mono);font-size:1.2rem;font-weight:700;color:var(--ink)}
+.arr{display:flex;gap:.3rem;flex-wrap:wrap;margin:.8rem 0;justify-content:center}
+.acell{min-width:46px;border:2px solid var(--line);border-radius:.4rem;background:#fff;text-align:center;padding:.35rem .2rem;transition:.2s}
+.acell .ai{font-family:var(--mono);font-size:.55rem;color:#94a3b8;font-weight:700}
+.acell .av{font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--ink)}
+.acell.look{border-color:#d97706;background:#fffbeb;transform:translateY(-3px)}
+.acell.best{border-color:#16a34a;background:#f0fdf4}
+.acell.best .av{color:#15803d}
+
+/* spot the mistake */
+.findbug{background:#0f172a;border-radius:.7rem;padding:1rem;font-family:var(--mono);
+         font-size:clamp(.72rem,2.9vw,.88rem);line-height:2.1;color:#cbd5e1;margin:1rem 0;overflow-x:auto}
+.findbug .tok{cursor:pointer;border-radius:3px;padding:1px 3px;transition:.15s;border-bottom:2px dotted #475569}
+.findbug .tok:hover{background:#1e293b;border-bottom-color:#94a3b8}
+.findbug .tok.got{background:#14532d;color:#86efac;border-bottom:2px solid #22c55e;cursor:default}
+.findbug .tok.miss{background:#7f1d1d;color:#fecaca;animation:shake .35s}
+.findbug .fix{color:#86efac;font-weight:700}
+.bugbar{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;margin:.8rem 0}
+.bugbar .cnt{font-family:var(--mono);font-weight:700;font-size:1.05rem;color:var(--ink)}
+.bugbar .dots{display:flex;gap:.28rem}
+.bugbar .dots i{width:11px;height:11px;border-radius:50%;background:#e2e8f0;display:block}
+.bugbar .dots i.on{background:#16a34a}
+.buglog{font-size:.82rem;color:var(--ink-soft);min-height:1.4rem;font-weight:600}
+
+/* halving */
+.halve{margin:1rem 0}
+.hbar{height:34px;background:linear-gradient(90deg,#d97706,#f59e0b);border-radius:.4rem;
+      transition:width .45s cubic-bezier(.4,0,.2,1);display:grid;place-items:center;color:#fff;
+      font-family:var(--mono);font-weight:700;font-size:.85rem;min-width:42px;box-shadow:var(--sh-sm)}
+.htrack{background:#f1f5f9;border-radius:.4rem;padding:3px;border:1px solid var(--line)}
+.hsteps{display:flex;gap:.3rem;flex-wrap:wrap;margin:.8rem 0}
+.hstep{font-family:var(--mono);font-size:.72rem;font-weight:700;padding:.28rem .55rem;border-radius:.35rem;
+       background:#fef3c7;color:#92400e;border:1px solid #fde68a;animation:drop .25s}
+
+/* expansion chips */
+.expand{font-family:var(--mono);font-size:clamp(.8rem,3.2vw,1.05rem);font-weight:700;line-height:2;
+        background:#f8fafc;border:1px solid var(--line);border-radius:.6rem;padding:.9rem;margin:.9rem 0;
+        overflow-x:auto;white-space:nowrap}
+.expand .eq{color:#d97706}
+.expand .res{color:#15803d;font-size:1.15em}
+.fibrow{display:flex;gap:.35rem;flex-wrap:wrap;margin:.9rem 0}
+.fib{min-width:52px;text-align:center;border:2px solid var(--line);border-radius:.45rem;padding:.35rem .2rem;background:#fff}
+.fib .fi{font-family:var(--mono);font-size:.55rem;color:#94a3b8;font-weight:700}
+.fib .fv{font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--ink)}
+.fib.add{border-color:#d97706;background:#fffbeb}
+.fib.add .fv{color:#b45309}
+.fib.newv{border-color:#16a34a;background:#f0fdf4;animation:drop .3s}
+.fib.newv .fv{color:#15803d}
+
+/* control structure cards */
+.cs{border:2px solid var(--line);border-radius:.8rem;overflow:hidden;background:#fff;margin-bottom:.9rem}
+.cs .csh{padding:.65rem 1rem;font-weight:800;font-size:.85rem;display:flex;align-items:center;gap:.5rem}
+.cs.seq .csh{background:#eff6ff;color:#1d4ed8;border-bottom:1px solid #bfdbfe}
+.cs.sel .csh{background:#f5f3ff;color:#6d28d9;border-bottom:1px solid #ddd6fe}
+.cs.itr .csh{background:#ecfdf5;color:#047857;border-bottom:1px solid #a7f3d0}
+.cs .csb{padding:.9rem 1rem;font-family:var(--mono);font-size:clamp(.72rem,2.9vw,.85rem);line-height:1.95;
+         white-space:pre-wrap;color:#334155}
+.cs .csn{padding:.7rem 1rem;background:#f8fafc;border-top:1px solid var(--line);font-size:.8rem;color:var(--ink-soft)}
+
+/* ============ SHARED BYLINE (all pages) ============ */
+.byline{display:flex;align-items:center;gap:.75rem;margin-top:1.9rem;padding-top:1.15rem;
+        border-top:1px solid rgba(148,163,184,.22)}
+.byline .av{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.11);
+            border:1px solid rgba(148,163,184,.3);display:grid;place-items:center;
+            font-weight:800;font-size:.7rem;color:#fff;letter-spacing:.03em;flex:0 0 auto}
+.byline .who{font-size:.82rem;font-weight:700;color:#e2e8f0;line-height:1.4;min-width:0}
+.byline .who span{display:block;font-size:.7rem;font-weight:500;color:#94a3b8}
+.pagefoot{border-top:1px solid var(--line);background:#fff;padding:1.7rem 0 2.2rem;margin-top:2rem}
+.pagefoot .fin{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;justify-content:space-between}
+.pagefoot .fw{display:flex;align-items:center;gap:.7rem}
+.pagefoot .av{width:34px;height:34px;border-radius:50%;background:#0f172a;color:#fff;display:grid;
+              place-items:center;font-weight:800;font-size:.68rem;flex:0 0 auto}
+.pagefoot .nm{font-size:.8rem;font-weight:700;color:var(--ink);line-height:1.4}
+.pagefoot .nm span{display:block;font-size:.7rem;font-weight:500;color:var(--ink-mute)}
+.pagefoot .dept{font-size:.72rem;color:var(--ink-mute);font-weight:600}
+.pagefoot a{color:var(--ink-mute);text-decoration:none;font-weight:700}
+.pagefoot a:hover{color:var(--accent)}
+
+
+/* ============ PREV / INDEX / NEXT ============ */
+.pagenav{display:grid;gap:.6rem;margin:2.6rem 0 0}
+@media(min-width:700px){.pagenav{grid-template-columns:1fr auto 1fr;align-items:stretch}}
+.pn{display:flex;align-items:center;gap:.75rem;border:1px solid var(--line);border-radius:.75rem;padding:.85rem 1rem;
+    background:#fff;text-decoration:none;color:inherit;transition:.16s;box-shadow:var(--sh-sm);min-height:64px}
+a.pn:hover{border-color:var(--accent);box-shadow:var(--sh-md);transform:translateY(-2px)}
+.pn.off{opacity:.4;pointer-events:none;border-style:dashed;background:transparent;box-shadow:none}
+.pn .ar{font-size:1.1rem;color:var(--accent);flex:0 0 auto;font-weight:700}
+.pn.off .ar{color:#cbd5e1}
+.pn .tx{min-width:0;flex:1}
+.pn .tx em{font-style:normal;display:block;font-size:.6rem;font-weight:800;letter-spacing:.11em;
+           text-transform:uppercase;color:var(--ink-mute)}
+.pn .tx b{display:block;font-size:.86rem;font-weight:700;line-height:1.35;margin-top:.12rem}
+.pn.nx{text-align:right}
+.pn.nx .ar{order:2}
+.pn.nx .tx{order:1}
+.pn.home{justify-content:center;text-align:center;flex-direction:column;gap:.2rem;padding:.85rem 1.4rem;min-width:120px}
+.pn.home .ar{font-size:1.2rem;color:var(--ink-mute)}
+.pn.home b{font-size:.76rem}
+
+/* ============ RESPONSIVE HARDENING ============ */
+img,svg,video,canvas{max-width:100%;height:auto}
+pre,code,.mono{overflow-wrap:break-word}
+pre.code{white-space:pre;word-break:normal}
+table{min-width:0}
+.tw table{min-width:480px}
+@media(max-width:420px){
+  .wrap{padding:0 .8rem}
+  .card{padding:1.15rem .9rem;border-radius:.8rem}
+  .card.numbered{padding-top:1.9rem}
+  .card>.badge{left:.9rem;width:2.1rem;height:2.1rem;font-size:.85rem}
+  .box{padding:.8rem .85rem}
+  .bridge{padding:1rem .9rem}
+  pre.code{font-size:.7rem;padding:.8rem .7rem}
+  .hero{padding:2.2rem 0 2.4rem}
+  .timechip{display:none}
+  .hdr-row{gap:.4rem}
+}
+@media(max-width:340px){ .bit{width:30px} .byte{width:26px;height:26px;line-height:26px} }
+
+/* footer + pagenav centring */
+.pagenav{margin:2.6rem auto 0 !important}
+.pagefoot .fin{justify-content:center;text-align:center}
+@media(min-width:700px){.pagefoot .fin{justify-content:space-between;text-align:left}}
+.pagefoot .dept{text-align:center}
+@media(min-width:700px){.pagefoot .dept{text-align:right}}
+@media(max-width:699px){
+  .pagenav{grid-template-columns:1fr}
+  .pn{justify-content:flex-start}
+  .pn.nx{text-align:left}
+  .pn.nx .ar{order:0}.pn.nx .tx{order:1}
+  .pn.home{flex-direction:row;justify-content:center;gap:.5rem}
+}
+
+/* ============ FLOATING JUMP DRAWER ============ */
+.fab{position:fixed;right:.7rem;bottom:.7rem;z-index:90;display:flex;flex-direction:column;gap:.4rem}
+.fab button{width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;display:grid;place-items:center;
+            font-size:1.05rem;box-shadow:var(--sh-lg);transition:transform .15s,filter .15s;font-family:inherit}
+.fab button:hover{transform:scale(1.07)}
+.fab .fmenu{background:var(--acc,#4f46e5);color:#fff;font-size:1.15rem}
+.fab .fup,.fab .fdn{background:rgba(15,23,42,.92);color:#e2e8f0;width:38px;height:38px;font-size:.9rem;margin:0 3px}
+@media(max-width:520px){.fab .fup,.fab .fdn{display:none}}
+
+.scrim{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:95;opacity:0;pointer-events:none;transition:opacity .22s}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;right:0;top:0;bottom:0;width:min(340px,86vw);background:#fff;z-index:96;
+        box-shadow:-8px 0 30px rgba(15,23,42,.22);transform:translateX(105%);transition:transform .26s cubic-bezier(.4,0,.2,1);
+        display:flex;flex-direction:column;overflow:hidden}
+.drawer.on{transform:none}
+.drawer .dh{background:linear-gradient(140deg,var(--h1,#0f172a),var(--h3,#312e81));color:#fff;padding:1.05rem 1.1rem;flex:0 0 auto}
+.drawer .dh p{font-size:.6rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:#a5b4fc;margin:0 0 .2rem}
+.drawer .dh b{font-size:1rem;font-weight:800;display:block;line-height:1.3}
+.drawer .dx{position:absolute;right:.7rem;top:.7rem;background:rgba(255,255,255,.14);border:none;color:#fff;
+            width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem;line-height:1}
+.drawer .db{overflow-y:auto;padding:.85rem;flex:1}
+.drawer .grp{font-size:.6rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);
+             margin:.9rem .2rem .45rem;display:flex;align-items:center;gap:.45rem}
+.drawer .grp:first-child{margin-top:0}
+.drawer .grp span{height:1px;background:var(--line);flex:1}
+.drawer a.dl,.drawer button.dl{display:flex;align-items:center;gap:.55rem;width:100%;text-align:left;font-family:inherit;
+     border:1px solid var(--line);background:#fff;border-radius:.55rem;padding:.55rem .7rem;margin-bottom:.3rem;
+     text-decoration:none;color:var(--ink-soft);font-size:.82rem;font-weight:600;cursor:pointer;transition:.14s;line-height:1.4}
+.drawer a.dl:hover,.drawer button.dl:hover{border-color:var(--acc,#4f46e5);color:var(--ink);transform:translateX(2px)}
+.drawer a.dl.here{background:#eef2ff;border-color:#4f46e5;color:#3730a3;font-weight:800}
+.drawer .dn2{font-family:var(--mono);font-size:.62rem;font-weight:700;color:#fff;background:#94a3b8;border-radius:.28rem;
+             padding:.15rem .35rem;flex:0 0 auto;min-width:1.5rem;text-align:center}
+.drawer a.dl.here .dn2{background:#4f46e5}
+.drawer .home2{background:var(--h1,#0f172a);color:#fff;border-color:var(--h1,#0f172a);justify-content:center;font-weight:800}
+.drawer .home2:hover{color:#fff;filter:brightness(1.2)}
+.drawer .dsec{font-size:.78rem;padding:.42rem .7rem}
+.drawer .dsec .dn2{background:#e2e8f0;color:#64748b}
+
+/* ---- flowchart shapes gallery ---- */
+.shapes{display:grid;gap:.6rem;margin:1rem 0}
+@media(min-width:520px){.shapes{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:860px){.shapes{grid-template-columns:repeat(5,1fr)}}
+figure.shp{margin:0;border:1px solid var(--line);border-radius:.6rem;background:#fff;padding:.6rem;text-align:center}
+figure.shp svg{width:100%;height:auto;max-height:56px}
+figure.shp figcaption{margin-top:.4rem}
+figure.shp figcaption b{display:block;font-size:.78rem;font-weight:800;color:var(--ink)}
+figure.shp figcaption span{display:block;font-size:.68rem;color:var(--ink-mute);line-height:1.4;margin-top:.1rem}
+
+/* ---- running flowchart ---- */
+.fcwrap{display:grid;gap:1rem;margin:1.1rem 0;align-items:start}
+@media(min-width:780px){.fcwrap{grid-template-columns:minmax(0,320px) 1fr}}
+#fcsvg{width:100%;height:auto;max-width:340px;margin:0 auto;display:block;
+       border:1px solid var(--line);border-radius:.7rem;background:#fff;padding:.4rem}
+.fcn rect,.fcn path{fill:#f8fafc;stroke:#cbd5e1;stroke-width:2.5;transition:fill .25s,stroke .25s}
+.fcn text{font-family:Inter,sans-serif;font-size:12px;font-weight:700;fill:#64748b;text-anchor:middle;transition:fill .25s}
+.fcn.io rect,.fcn.io path{fill:#eff6ff;stroke:#93c5fd}
+.fcn.pr rect{fill:#f5f3ff;stroke:#c4b5fd}
+.fcn.de path{fill:#fffbeb;stroke:#fcd34d}
+.fcn.ok path{fill:#f0fdf4;stroke:#86efac}
+.fcn.no path{fill:#fff1f2;stroke:#fda4af}
+.fcn.cur rect,.fcn.cur path{fill:#e11d48;stroke:#9f1239}
+.fcn.cur text{fill:#fff}
+.fcedges line,.fcedges path{transition:stroke .25s}
+.fcside{min-width:0}
+.fclbl{font-size:.6rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-mute);margin:0 0 .4rem}
+.fcside .arr{justify-content:flex-start}
+.fcside .acell{min-width:44px}
+.fcside .acell.look{border-color:#e11d48;background:#fff1f2}
+.fcside .acell.look .av{color:#be123c}
+.fcside .acell.hitv{border-color:#16a34a;background:#dcfce7}
+.fcside .acell.hitv .av{color:#15803d}
+.vars{display:grid;gap:.45rem;margin:.8rem 0}
+.vcell{border:1px solid var(--line);border-radius:.5rem;padding:.45rem;text-align:center;background:#f8fafc}
+.vcell .vk{font-family:var(--mono);font-size:.6rem;font-weight:800;letter-spacing:.08em;color:var(--ink-mute)}
+.vcell .vv{font-family:var(--mono);font-size:1.15rem;font-weight:700;color:var(--ink)}
+
+.btn.ghost{background:#fff !important;color:var(--ink-soft) !important;border:2px solid var(--line) !important;box-shadow:none !important}
+.btn.ghost:hover:not(:disabled){border-color:var(--line-strong) !important;color:var(--ink) !important}
+
+/* ---- verdict cards ---- */
+.verdictgrid{display:grid;gap:.6rem;margin-top:.7rem}
+@media(min-width:560px){.verdictgrid{grid-template-columns:1fr 1fr}}
+.vcard{border:2px solid var(--line);border-radius:.6rem;padding:.8rem;text-align:center;background:#fff;transition:.25s}
+.vcard .vk{font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-mute);margin:0}
+.vcard .vv{font-family:var(--mono);font-size:1.2rem;font-weight:700;margin:.2rem 0 0;word-break:break-all}
+.vcard .vd{font-size:.74rem;font-weight:800;margin:.3rem 0 0}
+.vcard.pass{border-color:#86efac;background:#f0fdf4}.vcard.pass .vv,.vcard.pass .vd{color:#15803d}
+.vcard.fail{border-color:#fda4af;background:#fff1f2}.vcard.fail .vv,.vcard.fail .vd{color:#be123c}
+
+/* ---- factor pairs ---- */
+.pairs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin:1rem 0}
+.pr2{border:2px solid var(--line);border-radius:.5rem;background:#fff;padding:.45rem .7rem;font-family:var(--mono);
+     font-size:.9rem;font-weight:700;color:var(--ink-soft);transition:.2s}
+.pr2.turn{border-color:#ea580c;background:#fff7ed;color:#c2410c;transform:scale(1.06)}
+.pr2.dup{opacity:.45;text-decoration:line-through}
+
+/* ---- folding ---- */
+.fold{display:flex;align-items:flex-end;gap:.35rem;flex-wrap:wrap;margin:1rem 0;min-height:60px}
+.fd{background:linear-gradient(180deg,#22d3ee,#0891b2);border-radius:.3rem;min-width:26px;display:grid;place-items:center;
+    color:#fff;font-family:var(--mono);font-size:.68rem;font-weight:700;transition:.35s;padding:.3rem .2rem;animation:drop .25s}
+
+/* ---- calculator ---- */
+.calcgrid{display:grid;gap:.9rem;margin:1rem 0}
+@media(min-width:640px){.calcgrid{grid-template-columns:1fr 1.4fr}}
+.verdictbox{border:2px solid var(--line);border-radius:.7rem;padding:1rem;background:#f8fafc;margin:.6rem 0 0;text-align:center}
+.verdictbox.pass{border-color:#86efac;background:#f0fdf4}
+.verdictbox.fail{border-color:#fda4af;background:#fff1f2}
+.verdictbox .vbig{font-family:var(--mono);font-size:1.5rem;font-weight:700;margin:0}
+.verdictbox .vsub{font-size:.85rem;margin:.35rem 0 0;font-weight:700}
+
+/* ---- hierarchy ---- */
+.hier{display:grid;gap:.35rem;margin:1rem 0}
+.hr2{display:flex;align-items:center;gap:.7rem;border:1px solid var(--line);border-radius:.5rem;background:#fff;padding:.5rem .8rem}
+.hr2 .hb{height:12px;border-radius:999px;flex:0 0 auto;transition:width .4s}
+.hr2 .hn{font-family:var(--mono);font-size:.86rem;font-weight:700;min-width:5.6rem;flex:0 0 auto}
+.hr2 .hd{font-size:.76rem;color:var(--ink-mute);font-weight:600}
+
+/* ---- copy bar ---- */
+.copybar{display:grid;gap:.35rem;margin:1rem 0 .5rem}
+.cprow{display:flex;justify-content:space-between;gap:.8rem;border:1px solid var(--line);border-radius:.45rem;
+       background:#fff;padding:.45rem .7rem}
+.cpl{font-size:.78rem;color:var(--ink-mute);font-weight:700}
+.cpv{font-weight:700;font-size:.95rem;text-align:right;word-break:break-all;max-width:62%}
+
+.hero-lede{max-width:60rem}
+.arc span{white-space:nowrap}
+.hero-meta div{white-space:nowrap}
+@media(max-width:520px){.hero-meta div{white-space:normal}}
+
+/* ============ DIG DEEPER — richer look (all pages) ============ */
+.digwrap{margin:1.5rem 0}
+.dighead{display:flex;align-items:center;gap:.55rem;font-size:.64rem;font-weight:800;letter-spacing:.14em;
+         text-transform:uppercase;color:var(--ink-mute);margin-bottom:.7rem}
+.dighead::before{content:"";width:16px;height:16px;border-radius:5px;flex:0 0 auto;
+  background:linear-gradient(135deg,var(--accent,#4f46e5),color-mix(in srgb,var(--accent,#4f46e5) 45%,#fff))}
+.dighead span{height:1px;background:linear-gradient(90deg,var(--line),transparent);flex:1}
+
+details.dig{border:1px solid var(--line);border-radius:.75rem;background:#fff;margin-bottom:.55rem;
+            overflow:hidden;position:relative;transition:border-color .2s,box-shadow .2s,transform .2s}
+details.dig::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,var(--accent,#4f46e5),transparent);opacity:0;transition:opacity .25s}
+details.dig:hover{border-color:var(--line-strong);transform:translateX(2px)}
+details.dig[open]{border-color:color-mix(in srgb,var(--accent,#4f46e5) 40%,var(--line));
+                  box-shadow:0 6px 20px -10px color-mix(in srgb,var(--accent,#4f46e5) 60%,transparent)}
+details.dig[open]::before{opacity:1}
+
+details.dig>summary{cursor:pointer;padding:.8rem 2.5rem .8rem 1rem;font-weight:700;font-size:.87rem;
+  list-style:none;display:flex;align-items:center;gap:.65rem;color:var(--ink);position:relative;
+  background:linear-gradient(180deg,#fff,#fafbfd);transition:background .18s;line-height:1.45}
+details.dig>summary::-webkit-details-marker{display:none}
+details.dig>summary:hover{background:#f5f8fc}
+details.dig>summary .dicon{width:26px;height:26px;border-radius:8px;flex:0 0 auto;display:grid;place-items:center;
+  font-size:.78rem;font-weight:800;color:#fff;
+  background:linear-gradient(135deg,var(--accent,#4f46e5),color-mix(in srgb,var(--accent,#4f46e5) 60%,#000));
+  box-shadow:0 2px 6px -1px color-mix(in srgb,var(--accent,#4f46e5) 70%,transparent);transition:transform .25s}
+details.dig[open]>summary .dicon{transform:rotate(-8deg) scale(1.06)}
+details.dig>summary::after{content:"";position:absolute;right:1rem;top:50%;width:9px;height:9px;
+  border-right:2.4px solid var(--accent,#4f46e5);border-bottom:2.4px solid var(--accent,#4f46e5);
+  transform:translateY(-70%) rotate(45deg);transition:transform .25s;opacity:.75}
+details.dig[open]>summary::after{transform:translateY(-30%) rotate(225deg)}
+details.dig[open]>summary{border-bottom:1px solid color-mix(in srgb,var(--accent,#4f46e5) 22%,var(--line))}
+details.dig>div{padding:1rem 1.1rem;font-size:.87rem;color:var(--ink-soft);line-height:1.75;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--accent,#4f46e5) 4%,#fff),#fff)}
+details.dig>div b{color:var(--ink)}
+
+/* ---- problem cards ---- */
+details.prob{border:1px solid var(--line);border-radius:.7rem;background:#fff;margin:.9rem 0;overflow:hidden;
+             transition:border-color .2s,box-shadow .2s}
+details.prob[open]{box-shadow:0 6px 20px -12px rgba(15,23,42,.35)}
+details.prob.cf[open]{border-color:#93c5fd}
+details.prob.lc[open]{border-color:#fcd34d}
+details.prob>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:.7rem;
+                     padding:.7rem .9rem;font-size:.87rem;font-weight:700;color:var(--ink);
+                     background:linear-gradient(180deg,#fff,#fafbfd);position:relative}
+details.prob>summary::-webkit-details-marker{display:none}
+details.prob>summary::after{content:"";position:absolute;right:.95rem;width:8px;height:8px;
+  border-right:2.2px solid #94a3b8;border-bottom:2.2px solid #94a3b8;transform:rotate(45deg) translateY(-2px);transition:transform .25s}
+details.prob[open]>summary::after{transform:rotate(225deg) translateY(-2px)}
+.plogo{width:30px;height:30px;border-radius:7px;flex:0 0 auto;display:grid;place-items:center;padding:5px}
+.plogo svg{width:100%;height:100%;display:block}
+details.prob.cf .plogo{background:#eff6ff}
+details.prob.lc .plogo{background:#fffbeb}
+.psrc{font-size:.6rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;padding:.2rem .5rem;
+      border-radius:999px;margin-right:1.4rem;white-space:nowrap;flex:0 0 auto}
+details.prob.cf .psrc{background:#dbeafe;color:#1d4ed8}
+details.prob.lc .psrc{background:#fef3c7;color:#b45309}
+details.prob>div{padding:.9rem 1rem 1rem;border-top:1px solid var(--line);font-size:.86rem;line-height:1.7;color:var(--ink-soft)}
+.plink{display:inline-flex;align-items:center;gap:.4rem;margin-top:.7rem;font-size:.8rem;font-weight:800;
+       text-decoration:none;border-radius:.45rem;padding:.42rem .8rem;color:#fff}
+details.prob.cf .plink{background:#1d4ed8}
+details.prob.lc .plink{background:#d97706}
+.plink:hover{filter:brightness(1.12)}
+.pconstraint{font-family:var(--mono);font-size:.78rem;background:#f1f5f9;border-radius:.35rem;padding:.15rem .45rem;color:#334155}
+
+/* ---- goals box ---- */
+.goals{border:2px solid #fecdd3;border-radius:.9rem;background:linear-gradient(180deg,#fff5f6,#fff);
+       padding:1.1rem 1.2rem;margin-bottom:2.2rem}
+.goals .gh{display:flex;align-items:center;gap:.6rem;margin:0 0 .9rem}
+.goals .gh i{font-style:normal;width:32px;height:32px;border-radius:9px;background:#e11d48;color:#fff;
+             display:grid;place-items:center;font-size:1rem;flex:0 0 auto}
+.goals .gh b{font-size:.95rem;font-weight:800;color:#9f1239}
+.goals ol{list-style:none;counter-reset:g;margin:0;padding:0;display:grid;gap:.55rem}
+.goals li{counter-increment:g;display:flex;gap:.65rem;align-items:flex-start;font-size:.9rem;line-height:1.6;color:var(--ink-soft)}
+.goals li::before{content:counter(g);width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #fda4af;
+  color:#be123c;font-size:.7rem;font-weight:800;display:grid;place-items:center;flex:0 0 auto;margin-top:.1rem}
+.goals li b{color:var(--ink)}
+
+/* ---- factor pairs, one per line ---- */
+.pairlist{display:grid;gap:.28rem;margin:1rem 0;max-width:420px;margin-left:auto;margin-right:auto}
+.pl{display:flex;align-items:center;gap:.6rem;border:1px solid var(--line);border-radius:.45rem;
+    background:#fff;padding:.4rem .75rem;font-family:var(--mono);font-size:.92rem;font-weight:700;color:var(--ink-soft)}
+.pl .plx{flex:1}
+.pl .pln{font-size:.62rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:.15rem .45rem;
+         border-radius:999px;white-space:nowrap}
+.pl.turn{border-color:#ea580c;background:#fff7ed;color:#c2410c;border-width:2px}
+.pl.turn .pln{background:#ea580c;color:#fff}
+.pl.dup{opacity:.5}
+.pl.dup .pln{background:#f1f5f9;color:#94a3b8}
+.pl.pre .pln{background:#dcfce7;color:#15803d}
+
+/* ---- hierarchy: no overflow ---- */
+.hier{display:grid;gap:.4rem;margin:1rem 0 0}
+.hr2{display:grid;grid-template-columns:5.6rem 1fr;gap:.5rem .7rem;align-items:center;
+     border:1px solid var(--line);border-radius:.55rem;background:#fff;padding:.55rem .8rem}
+.hr2 .hn{font-family:var(--mono);font-size:.85rem;font-weight:700}
+.hr2 .hbwrap{height:12px;border-radius:999px;background:#f1f5f9;overflow:hidden}
+.hr2 .hb{height:100%;border-radius:999px;display:block}
+.hr2 .hd{grid-column:1/-1;font-size:.75rem;color:var(--ink-mute);font-weight:600;line-height:1.45}
+@media(min-width:620px){
+  .hr2{grid-template-columns:5.6rem minmax(80px,1fr) 1.5fr}
+  .hr2 .hd{grid-column:auto}
+}
+
+/* ---- reveal-the-optimisation ---- */
+.thinkbox{border:2px dashed #cbd5e1;border-radius:.7rem;background:#f8fafc;padding:1rem;text-align:center;margin:.9rem 0}
+.thinkbox p{font-size:.88rem;color:var(--ink-soft);margin:0 0 .7rem}
+.thinkbox p b{color:var(--ink)}
+.revealed{display:none}
+.revealed.on{display:block;animation:pop .35s ease}
+/* ============ CLASS 3 · ALGORITHM NOTATION ============ */
+.algo{background:#fff;border:2px solid var(--line);border-radius:.8rem;overflow:hidden;margin:1rem 0;
+      font-family:var(--mono);font-size:clamp(.72rem,2.9vw,.88rem);line-height:1.9}
+.algo .ahead{background:#fffbeb;border-bottom:2px solid #fde68a;padding:.8rem 1rem;font-family:var(--sans);
+             font-size:.82rem;color:#78350f;line-height:1.6}
+.algo .ahead b{color:#92400e}
+.algo .body{padding:.7rem .4rem}
+.algo .st{display:block;padding:.22rem .7rem;border-radius:.3rem;white-space:pre-wrap;transition:background .2s;color:#334155}
+.algo .st.cur{background:#fef3c7;box-shadow:inset 3px 0 0 #d97706;font-weight:700;color:#78350f}
+.algo .st.done{color:#94a3b8}
+.algo .st .cm{color:#0891b2;font-style:italic}
+.algo .st .kw{color:#be123c;font-weight:700}
+.algo .st .vr{color:#7c3aed;font-weight:700}
+.algo .st .op{color:#d97706;font-weight:700}
+
+/* ============ SEGMENT 2 · LINEAR ARRAYS ============ */
+/* array strip */
+.astrip{display:flex;gap:3px;flex-wrap:wrap;justify-content:center;margin:1.1rem 0}
+.acell2{width:60px;flex:0 0 auto;text-align:center;cursor:pointer;transition:.2s}
+.acell2 .ai2{font-family:var(--mono);font-size:.6rem;font-weight:700;color:#94a3b8;display:block;margin-bottom:2px}
+.acell2 .ab2{height:44px;border:2px solid #cbd5e1;border-radius:.35rem;background:#fff;display:grid;place-items:center;
+             font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--ink);transition:.2s}
+.acell2 .aa2{font-family:var(--mono);font-size:.55rem;color:#cbd5e1;display:block;margin-top:3px}
+.acell2:hover .ab2{border-color:#7dd3fc;transform:translateY(-2px)}
+.acell2.sel .ab2{border-color:#0284c7;background:#e0f2fe;color:#075985;transform:translateY(-4px);
+                 box-shadow:0 6px 16px -6px rgba(2,132,199,.6)}
+.acell2.sel .ai2,.acell2.sel .aa2{color:#0284c7;font-weight:800}
+.acell2.lbub .ab2{border-color:#f59e0b;background:#fffbeb}
+.acell2.walk .ab2{border-color:#16a34a;background:#dcfce7}
+.acell2.done2 .ab2{opacity:.45}
+.acell2.hitc .ab2{border-color:#16a34a;background:#bbf7d0;color:#14532d}
+
+/* formula board */
+.fboard{background:#0f172a;border-radius:.75rem;padding:1.1rem 1rem;margin:1rem 0;font-family:var(--mono);
+        color:#e2e8f0;overflow-x:auto}
+.fline{display:block;white-space:pre;font-size:clamp(.78rem,3.2vw,1rem);line-height:2.2;letter-spacing:.01em}
+.fline.dim{color:#64748b}
+.fline .fv{color:#38bdf8;font-weight:700}
+.fline .fk{color:#fbbf24;font-weight:700}
+.fline .fr{color:#4ade80;font-weight:700;font-size:1.15em}
+.fline .fc{color:#64748b}
+
+/* control row */
+.ctrls{display:grid;gap:.6rem;margin:1rem 0}
+@media(min-width:600px){.ctrls{grid-template-columns:repeat(4,1fr)}}
+.ctrl{border:1px solid var(--line);border-radius:.55rem;background:#fff;padding:.5rem .6rem}
+.ctrl label{display:block;font-size:.58rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-mute)}
+.ctrl input{width:100%;border:none;outline:none;font-family:var(--mono);font-size:1.05rem;font-weight:700;
+            color:var(--ink);background:transparent;margin-top:.1rem;padding:0}
+.ctrl input:focus{color:#0284c7}
+
+/* two-cell compare */
+.cmp2{display:grid;gap:.7rem;margin:1rem 0}
+@media(min-width:560px){.cmp2{grid-template-columns:1fr 1fr}}
+.cmpc{border:2px solid var(--line);border-radius:.7rem;padding:.85rem;background:#fff;text-align:center}
+.cmpc .ck{font-size:.6rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-mute);margin:0}
+.cmpc .cf2{font-family:var(--mono);font-size:.78rem;color:var(--ink-soft);margin:.4rem 0;line-height:1.7}
+.cmpc .cw{font-family:var(--mono);font-size:1.5rem;font-weight:700;color:#15803d;margin:.2rem 0 0}
+.cmpc .cs2{font-size:.72rem;font-weight:700;color:#15803d;margin:.15rem 0 0}
+
+/* traversal watch */
+.twatch{display:grid;gap:.5rem;margin:.9rem 0}
+@media(min-width:520px){.twatch{grid-template-columns:repeat(3,1fr)}}
+.tw2{border:1px solid var(--line);border-radius:.55rem;background:#f8fafc;padding:.6rem;text-align:center}
+.tw2 .tk2{font-family:var(--mono);font-size:.6rem;font-weight:800;letter-spacing:.08em;color:var(--ink-mute)}
+.tw2 .tv2{font-family:var(--mono);font-size:1.3rem;font-weight:700;color:var(--ink);margin-top:.1rem}
+.tw2.hit2{background:#dcfce7;border-color:#86efac}
+.tw2.hit2 .tv2{color:#15803d}
+
+/* ---- code-driven array demo ---- */
+.codearr{display:grid;gap:1rem;margin:1.1rem 0}
+@media(min-width:800px){.codearr{grid-template-columns:.85fr 1.15fr;align-items:start}}
+.carr-code{background:#0f172a;border-radius:.65rem;padding:.9rem 1rem;font-family:var(--mono);
+           font-size:.86rem;line-height:2.1;color:#e2e8f0}
+.carr-code .cl{display:block;white-space:pre;border-radius:3px;padding:0 .4rem;margin:0 -.4rem;transition:.25s}
+.carr-code .cl.done{background:rgba(148,163,184,.10)}
+.carr-code .cl.cur{background:rgba(56,189,248,.24);box-shadow:inset 3px 0 0 #38bdf8;font-weight:700}
+.carr-code .k{color:#c4b5fd}.carr-code .t{color:#fcd34d}.carr-code .n{color:#fdba74}.carr-code .c{color:#64748b;font-style:italic}
+.memcells{display:flex;gap:3px;flex-wrap:wrap;justify-content:center}
+.mc{width:52px;flex:0 0 auto;text-align:center}
+.mc .mi{font-family:var(--mono);font-size:.6rem;font-weight:700;color:#94a3b8;display:block;margin-bottom:2px}
+.mc .mb{height:42px;border:2px solid #cbd5e1;border-radius:.35rem;background:#fff;display:grid;place-items:center;
+        font-family:var(--mono);font-size:.9rem;font-weight:700;color:var(--ink);transition:.3s}
+.mc.garbage .mb{color:#94a3b8;font-style:italic;font-size:.76rem;background:#f8fafc;border-style:dashed}
+.mc.set .mb{border-color:#16a34a;background:#dcfce7;color:#15803d;animation:pop2 .4s ease}
+.mc.touch .mb{border-color:#0284c7;background:#e0f2fe;box-shadow:0 0 0 3px rgba(2,132,199,.25)}
+.mc .ma{font-family:var(--mono);font-size:.53rem;color:#cbd5e1;display:block;margin-top:3px}
+
+/* ---- derivation table ---- */
+.deriv{display:grid;gap:.35rem;margin:1rem 0}
+.drow{display:grid;grid-template-columns:auto 1fr;gap:.5rem .8rem;align-items:center;border:1px solid var(--line);
+      border-radius:.5rem;background:#fff;padding:.5rem .8rem;opacity:.22;transform:translateY(4px);
+      transition:opacity .35s,transform .35s,border-color .3s,background .3s}
+.drow.on{opacity:1;transform:none}
+@media(min-width:620px){.drow{grid-template-columns:6.5rem 6rem 8rem 1fr}}
+.drow span{font-family:var(--mono);font-size:.84rem;font-weight:700;color:var(--ink-soft)}
+.drow .dlbl{color:var(--ink-mute);font-family:var(--sans);font-size:.75rem;font-weight:700}
+.drow .dskip{color:#d97706}
+.drow .daddr{color:#0369a1;font-weight:800}
+.drow.final{border-color:#0284c7;background:#f0f9ff;border-width:2px}
+.drow.final .daddr{color:#075985;font-size:.95rem}
+.drow.final .dlbl{color:#0369a1;font-weight:800}
+.dhead{display:grid;grid-template-columns:auto 1fr;gap:.5rem .8rem;padding:0 .8rem .1rem;
+       font-size:.58rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-mute)}
+@media(min-width:620px){.dhead{grid-template-columns:6.5rem 6rem 8rem 1fr}}
+@media(max-width:619px){.dhead{display:none}}
+
+/* ============ SEGMENT 2 · CLASS 2 ============ */
+.opstrip{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;margin:1.1rem 0;min-height:74px}
+.oc{width:56px;flex:0 0 auto;text-align:center;transition:.32s}
+.oc .oi{font-family:var(--mono);font-size:.6rem;font-weight:700;color:#94a3b8;display:block;margin-bottom:2px}
+.oc .ob{height:46px;border:2px solid #cbd5e1;border-radius:.35rem;background:#fff;display:grid;place-items:center;
+        font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--ink);transition:.32s}
+.oc.moving .ob{border-color:#7c3aed;background:#f5f3ff;color:#5b21b6;transform:translateY(-6px);
+               box-shadow:0 8px 16px -8px rgba(124,58,237,.7)}
+.oc.newv2 .ob{border-color:#16a34a;background:#dcfce7;color:#15803d;animation:pop2 .4s ease}
+.oc.gone2 .ob{border-color:#fda4af;background:#fff1f2;color:#be123c;opacity:.55;text-decoration:line-through}
+.oc.empty2 .ob{border-style:dashed;border-color:#e2e8f0;background:#fafbfc;color:#cbd5e1}
+.oc.cmp .ob{border-color:#d97706;background:#fffbeb;color:#92400e}
+.oc.swapd .ob{border-color:#16a34a;background:#dcfce7;color:#15803d}
+.oc.locked .ob{border-color:#86efac;background:#f0fdf4;opacity:.75}
+.oc.found2 .ob{border-color:#16a34a;background:#bbf7d0;color:#14532d;box-shadow:0 0 0 3px rgba(22,163,74,.3)}
+.oc.sent .ob{border-color:#a855f7;background:#faf5ff;color:#7e22ce;border-style:dashed}
+
+/* counters */
+.cnts{display:grid;gap:.5rem;margin:.9rem 0}
+@media(min-width:520px){.cnts{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}}
+.cnt2{border:2px solid var(--line);border-radius:.6rem;background:#fff;padding:.6rem;text-align:center}
+.cnt2 .ck2{font-size:.58rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-mute);margin:0}
+.cnt2 .cv3{font-family:var(--mono);font-size:1.55rem;font-weight:700;color:var(--ink);margin:.1rem 0 0}
+.cnt2.c-c{border-color:#fcd34d;background:#fffbeb}.cnt2.c-c .cv3{color:#b45309}
+.cnt2.c-d{border-color:#86efac;background:#f0fdf4}.cnt2.c-d .cv3{color:#15803d}
+.cnt2.c-p{border-color:#bfdbfe;background:#eff6ff}.cnt2.c-p .cv3{color:#1d4ed8}
+
+/* word input */
+.wordbar{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;justify-content:center;margin:.9rem 0}
+.wordbar input{font-family:var(--mono);font-size:1.1rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+               padding:.5rem .8rem;border:2px solid var(--line);border-radius:.5rem;width:190px;text-align:center;color:var(--ink)}
+.wordbar input:focus{border-color:#d97706;outline:none}
+
+/* pass tracker */
+.passes{display:grid;gap:.3rem;margin:.8rem 0;max-width:460px;margin-left:auto;margin-right:auto}
+.prow{display:flex;align-items:center;gap:.6rem;border:1px solid var(--line);border-radius:.45rem;background:#fff;
+      padding:.36rem .7rem;font-family:var(--mono);font-size:.82rem}
+.prow .pn2{font-weight:800;color:var(--ink-mute);min-width:3.6rem}
+.prow .pw{flex:1;letter-spacing:.14em;font-weight:700;color:var(--ink)}
+.prow .pc{font-size:.7rem;color:#b45309;font-weight:700}
+.prow.cur2{border-color:#d97706;background:#fffbeb}
+.prow.donep{opacity:.6}
+
+/* ============ LIGHT CODE THEME (default) + toggle ============ */
+body.codelight pre.code,
+body.codelight .carr-code,
+body.codelight .codepane,
+body.codelight .fboard,
+body.codelight .findbug,
+body.codelight .exactbox{
+  background:#f8fafc;color:#334155;border:1px solid #e2e8f0;box-shadow:inset 0 1px 0 #fff}
+body.codelight pre.code .k,body.codelight .carr-code .k,body.codelight .codepane .k{color:#7c3aed}
+body.codelight pre.code .t,body.codelight .carr-code .t,body.codelight .codepane .t{color:#b45309}
+body.codelight pre.code .f,body.codelight .carr-code .f,body.codelight .codepane .f{color:#0369a1}
+body.codelight pre.code .n,body.codelight .carr-code .n,body.codelight .codepane .n{color:#c2410c}
+body.codelight pre.code .c,body.codelight .carr-code .c,body.codelight .codepane .c{color:#94a3b8}
+body.codelight pre.code .s{color:#15803d}
+body.codelight .carr-code .cl{color:#334155}
+body.codelight .carr-code .cl.cur{background:rgba(2,132,199,.14);box-shadow:inset 3px 0 0 #0284c7}
+body.codelight .carr-code .cl.done{background:rgba(148,163,184,.12)}
+body.codelight .codepane .ln{color:#334155}
+body.codelight .codepane .ln.newest{background:rgba(13,148,136,.14);box-shadow:inset 2px 0 0 #0d9488}
+body.codelight .codepane .cursor{background:#0d9488}
+body.codelight .fboard .fline{color:#334155}
+body.codelight .fboard .fline.dim{color:#94a3b8}
+body.codelight .fboard .fv{color:#0369a1}
+body.codelight .fboard .fk{color:#b45309}
+body.codelight .fboard .fr{color:#15803d}
+body.codelight .fboard .fc{color:#94a3b8}
+body.codelight .outpane{background:#f1f5f9;color:#15803d;border:1px solid #e2e8f0}
+body.codelight .findbug{color:#334155}
+body.codelight .findbug .fbline{background:rgba(148,163,184,.10)}
+body.codelight .findbug .tok{border-bottom-color:#cbd5e1}
+body.codelight .findbug .tok:hover{background:#e2e8f0}
+body.codelight .findbug .tok.got{background:#dcfce7;color:#15803d;border-bottom-color:#22c55e}
+body.codelight .findbug .fix{color:#15803d}
+body.codelight .exactbox{color:#334155}
+body.codelight .exactbox .hi{color:#be123c}
+body.codelight .exactbox .lo{color:#94a3b8}
+
+.codetog{appearance:none;border:1px solid #334155;background:transparent;color:#94a3b8;border-radius:.45rem;
+         font-family:inherit;font-size:.68rem;font-weight:700;padding:.3rem .6rem;cursor:pointer;
+         white-space:nowrap;transition:.15s;flex:0 0 auto}
+.codetog:hover{color:#e2e8f0;border-color:#64748b}
+
+/* ---- algorithm / C++ switcher ---- */
+.swapwrap2{border:1px solid var(--line);border-radius:.75rem;overflow:hidden;margin:1.1rem 0;background:#fff}
+.swaphd{display:flex;align-items:center;gap:.5rem;padding:.55rem .7rem;background:#f8fafc;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.swaphd .swt{font-size:.62rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-mute);margin-right:auto}
+.swapbtn{appearance:none;font-family:inherit;font-size:.72rem;font-weight:700;padding:.32rem .75rem;border-radius:.4rem;
+         border:1px solid var(--line);background:#fff;color:var(--ink-mute);cursor:pointer;transition:.15s}
+.swapbtn:hover{border-color:var(--line-strong);color:var(--ink)}
+.swapbtn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.swapbody>div{display:none}
+.swapbody>div.on{display:block}
+.swapbody .algo{margin:0;border:none;border-radius:0}
+.swapbody pre.code{margin:0;border-radius:0;border:none}
+
+/* complexity strip */
+.cxs{display:flex;gap:.5rem;flex-wrap:wrap;padding:.6rem .8rem;background:#f8fafc;border-top:1px solid var(--line)}
+.cx{display:inline-flex;align-items:center;gap:.35rem;font-size:.72rem;font-weight:700;color:var(--ink-soft);
+    background:#fff;border:1px solid var(--line);border-radius:999px;padding:.22rem .6rem}
+.cx b{font-family:var(--mono);font-weight:800}
+.cx.t-good b{color:#15803d}.cx.t-mid b{color:#b45309}.cx.t-bad b{color:#be123c}
+.cx em{font-style:normal;font-size:.6rem;color:var(--ink-mute);font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+
+/* binary search: code + sim side by side */
+.bsplit{display:grid;gap:1rem;margin:1.1rem 0;align-items:start}
+@media(min-width:900px){.bsplit{grid-template-columns:1fr 1fr}}
+.buildcode{background:#f8fafc;border:1px solid #e2e8f0;border-radius:.65rem;padding:.9rem 1rem;
+           font-family:var(--mono);font-size:.82rem;line-height:2;color:#334155;min-height:270px}
+body:not(.codelight) .buildcode{background:#0f172a;border-color:#1e293b;color:#e2e8f0}
+.buildcode .bl{display:block;white-space:pre;border-radius:3px;padding:0 .35rem;margin:0 -.35rem;
+               opacity:0;max-height:0;overflow:hidden;transition:opacity .35s,max-height .35s}
+.buildcode .bl.on{opacity:1;max-height:60px}
+.buildcode .bl.fresh{background:rgba(2,132,199,.16);box-shadow:inset 3px 0 0 #0284c7}
+.buildcode .k{color:#7c3aed}.buildcode .t{color:#b45309}.buildcode .f{color:#0369a1}
+.buildcode .n{color:#c2410c}.buildcode .c{color:#94a3b8}
+body:not(.codelight) .buildcode .k{color:#c4b5fd}
+body:not(.codelight) .buildcode .t{color:#fcd34d}
+body:not(.codelight) .buildcode .f{color:#7dd3fc}
+body:not(.codelight) .buildcode .n{color:#fdba74}
+body:not(.codelight) .buildcode .c{color:#64748b}
+.askbox{border:2px dashed #0284c7;border-radius:.6rem;background:#f0f9ff;padding:.85rem;margin:.8rem 0;text-align:center}
+.askbox p{margin:0 0 .6rem;font-size:.88rem;color:#075985;font-weight:700}
+
+/* halving bars */
+.halvebars{display:grid;gap:.3rem;margin:.9rem 0}
+.hbrow{display:flex;align-items:center;gap:.6rem;font-family:var(--mono);font-size:.78rem}
+.hbrow .hbn{min-width:4.2rem;font-weight:800;color:var(--ink-mute)}
+.hbrow .hbb{height:18px;border-radius:999px;background:linear-gradient(90deg,#0284c7,#38bdf8);transition:width .5s}
+.hbrow .hbv{font-weight:700;color:var(--ink)}
+
+/* ---- binary search: full-width strip that never wraps ---- */
+.bstrip{display:flex;gap:2px;width:100%;margin:.4rem 0 0}
+.bcell{flex:1 1 0;min-width:0;text-align:center}
+/* the strip of ground just outside the array, so low/high can step off the end */
+.bcell.pad,.pcell.pad{flex:0 0 34px}
+.bcell.pad .bb{border-style:dashed;border-color:#e2e8f0;background:transparent;box-shadow:none;color:#cbd5e1;font-size:.6rem}
+.bcell.pad .bi{color:#cbd5e1}
+@media(max-width:600px){.bcell.pad,.pcell.pad{flex:0 0 26px}}
+@media(max-width:400px){.bcell.pad,.pcell.pad{flex:0 0 20px}}
+.bcell .bi{font-family:var(--mono);font-size:.52rem;font-weight:700;color:#94a3b8;display:block;margin-bottom:2px}
+.bcell .bb{height:44px;border:2px solid #cbd5e1;border-radius:.3rem;background:#fff;display:grid;place-items:center;
+           font-family:var(--mono);font-size:.82rem;font-weight:700;color:var(--ink);transition:.3s;overflow:hidden}
+.bcell.out .bb{opacity:.3;border-color:#e2e8f0;background:#fafbfc;color:#cbd5e1}
+.bcell.mid .bb{border-color:#d97706;background:#fffbeb;color:#92400e;box-shadow:0 0 0 3px rgba(217,119,6,.25)}
+.bcell.hit .bb{border-color:#16a34a;background:#bbf7d0;color:#14532d;box-shadow:0 0 0 3px rgba(22,163,74,.3)}
+@media(max-width:600px){.bcell .bb{height:36px;font-size:.62rem}.bcell .bi{font-size:.44rem}}
+@media(max-width:400px){.bcell .bb{height:30px;font-size:.52rem}}
+
+.ptrow{display:flex;gap:2px;width:100%;min-height:40px;margin-top:2px}
+.pcell{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:1px}
+.ptag2.off{background:#ffe4e6;color:#9f1239;outline:2px solid #fb7185;outline-offset:1px}
+.ptag2{font-family:var(--mono);font-size:.54rem;font-weight:800;line-height:1.25;padding:1px 3px;border-radius:3px;
+       white-space:nowrap;transition:.25s}
+.ptag2.lo{background:#dbeafe;color:#1d4ed8}
+.ptag2.mi{background:#fef3c7;color:#b45309}
+.ptag2.hi2{background:#fee2e2;color:#be123c}
+.ptag2.xed{outline:2px solid #e11d48;outline-offset:1px;animation:xedPop .4s ease}
+@keyframes xedPop{0%{transform:scale(.8)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+.parrow.dim{opacity:.45}
+.crossbar{margin:.5rem 0 0;padding:.55rem .8rem;border:2px dashed #fda4af;border-radius:.6rem;background:#fff1f2;
+          color:#9f1239;font-size:.84rem;line-height:1.5;text-align:center;animation:xedPop .4s ease}
+.crossbar .cx2b{font-weight:900;color:#e11d48}
+.parrow{font-size:.7rem;line-height:1;color:#94a3b8}
+@media(max-width:480px){.ptag2{font-size:.46rem;padding:1px 2px}}
+
+/* code with auto-highlight */
+.autocode{background:#f8fafc;border:1px solid #e2e8f0;border-radius:.65rem;padding:.9rem 1rem;margin-top:1rem;
+          font-family:var(--mono);font-size:.82rem;line-height:1.95;color:#334155;overflow-x:auto}
+body:not(.codelight) .autocode{background:#0f172a;border-color:#1e293b;color:#e2e8f0}
+.autocode .al{display:block;white-space:pre;border-radius:3px;padding:0 .4rem;margin:0 -.4rem;transition:background .25s}
+.autocode .al.hot2{background:rgba(2,132,199,.18);box-shadow:inset 3px 0 0 #0284c7;font-weight:700}
+.autocode .k{color:#7c3aed}.autocode .t{color:#b45309}.autocode .f{color:#0369a1}
+.autocode .n{color:#c2410c}.autocode .c{color:#94a3b8}.autocode .s{color:#15803d}
+body:not(.codelight) .autocode .k{color:#c4b5fd}
+body:not(.codelight) .autocode .t{color:#fcd34d}
+body:not(.codelight) .autocode .f{color:#7dd3fc}
+body:not(.codelight) .autocode .n{color:#fdba74}
+body:not(.codelight) .autocode .c{color:#64748b}
+body:not(.codelight) .autocode .s{color:#86efac}
+body:not(.codelight) .autocode .al.hot2{background:rgba(56,189,248,.22);box-shadow:inset 3px 0 0 #38bdf8}
+.autocode .ph{display:inline-block;height:1em;vertical-align:-.15em;border-radius:3px;
+              border:1px dashed #cbd5e1;background:repeating-linear-gradient(-45deg,rgba(148,163,184,.12) 0 5px,transparent 5px 10px)}
+body:not(.codelight) .autocode .ph{border-color:#334155;background:repeating-linear-gradient(-45deg,rgba(148,163,184,.16) 0 5px,transparent 5px 10px)}
+/* ---- step message panel ---- */
+.stepmsg{display:flex;align-items:center;gap:.75rem;margin:.9rem 0;padding:.7rem .9rem;min-height:58px;
+         border:1px solid var(--line);border-left:5px solid #94a3b8;border-radius:.65rem;background:#f8fafc;
+         transition:background .3s,border-color .3s}
+.stepmsg .smic{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
+               font-size:.95rem;font-weight:800;color:#fff;background:#94a3b8;transition:background .3s}
+.stepmsg .smtx{margin:0;flex:1 1 auto;min-width:0;font-size:clamp(.85rem,3.2vw,1.02rem);line-height:1.55;color:var(--ink)}
+.stepmsg .smtx .mono,.stepmsg .smtx b{font-weight:800}
+.stepmsg .smn{flex:0 0 auto;font-family:var(--mono);font-size:.66rem;font-weight:800;letter-spacing:.05em;
+              color:var(--ink-mute);background:#fff;border:1px solid var(--line);border-radius:999px;padding:.2rem .55rem}
+.stepmsg.bump{animation:smPop .35s ease}
+@keyframes smPop{0%{transform:scale(.985);opacity:.55}100%{transform:scale(1);opacity:1}}
+.stepmsg.t-set  {border-left-color:#6366f1;background:#eef2ff}.stepmsg.t-set   .smic{background:#6366f1}
+.stepmsg.t-ask  {border-left-color:#0ea5e9;background:#f0f9ff}.stepmsg.t-ask   .smic{background:#0ea5e9}
+.stepmsg.t-mid  {border-left-color:#d97706;background:#fffbeb}.stepmsg.t-mid   .smic{background:#d97706}
+.stepmsg.t-cut  {border-left-color:#0284c7;background:#eff6ff}.stepmsg.t-cut   .smic{background:#0284c7}
+.stepmsg.t-found{border-left-color:#16a34a;background:#f0fdf4}.stepmsg.t-found .smic{background:#16a34a}
+.stepmsg.t-miss {border-left-color:#e11d48;background:#fff1f2}.stepmsg.t-miss  .smic{background:#e11d48}
+@media(max-width:520px){.stepmsg{gap:.55rem;padding:.6rem .7rem}.stepmsg .smn{display:none}}
+.btnsep{width:1px;align-self:stretch;background:var(--line);margin:0 .35rem}
+@media(max-width:560px){.btnsep{display:none}}
+.autocode .al.fresh{animation:lineIn .6s ease}
+@keyframes lineIn{from{outline:2px solid rgba(22,163,74,.65);outline-offset:1px}
+                 to{outline:2px solid rgba(22,163,74,0);outline-offset:1px}}
+.autocode .cph{display:inline-block;width:11ch;text-align:center;border-radius:3px;font-weight:800;
+               color:#be123c;border:1px dashed #f9a8d4;background:rgba(244,63,94,.09)}
+body:not(.codelight) .autocode .cph{color:#fda4af;border-color:#9f1239;background:rgba(244,63,94,.14)}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <span class="brand-badge" style="background:linear-gradient(135deg,#0284c7,#38bdf8)">02</span>
+      <span>
+        <span class="brand-s">CSE-2321 · Segment 2 · Class 2</span>
+        <span class="brand-t">Operations on an Array</span>
+      </span>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-tab="lesson">Lesson</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="exam">Exam &amp; Interview</button>
+    </div>
+  </div>
+  <div class="rail"><i id="rail"></i></div>
+</div>
+
+<section class="panel" id="p-lesson">
+
+<header class="hero" style="background:linear-gradient(160deg,#0f172a 0%,#0c3a5e 55%,#0369a1 100%)">
+  <div class="wrap">
+    <p class="eyebrow" style="color:#7dd3fc">Data Structures · Segment 2 · Class 2</p>
+    <h1>Operations on <em>an array</em></h1>
+    <p class="hero-lede">Reading one element is instant. <b>Everything else costs you.</b> Today: what really happens when you insert in the middle, why deleting leaves a hole, and how to count comparisons and interchanges by hand — the way the exam asks for it every single year.</p>
+    <div class="arc">
+      <span>Insert</span><span>Delete</span><span>Linear search</span><span>Bubble sort</span><span>Binary search</span>
+    </div>
+    <div class="hero-meta">
+      <div><b>C and D</b>counted by hand, every year</div>
+      <div><b>O(n)</b>the price of shifting</div>
+      <div><b>60 min</b>7 sections</div>
+    </div>
+    <div class="byline">
+      <span class="av">JA</span>
+      <span class="who">Jamil As-ad<span>Lecturer, Dept. of CSE &middot; International Islamic University Chittagong</span></span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<div class="box info" style="margin-bottom:2.2rem">
+  <p class="bt">↩ Where we were</p>
+  <p style="margin:0">Last class: <span class="mono">LOC(LA[K]) = BASE + w(K &minus; LB)</span>. Reading any single element is <b>O(1)</b> because the address is calculated, never searched.<br><br>
+  <b>Today we find out what the array is bad at</b> — and every one of those weaknesses is the reason a later data structure exists.</p>
+</div>
+
+<!-- ============ 1 · INSERTION ============ -->
+<article class="card numbered" id="s1" style="--accent:#7c3aed">
+  <span class="badge">1</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 1</p><h2>Insertion — and the shift nobody mentions</h2></div>
+    <span class="timechip">⏱ 12 min</span>
+  </div>
+
+  <div class="box bad">
+    <p class="bt">🎓 Straight off the paper — Spring 2025 Q2(a) and Spring 2024 Q2(a)</p>
+    <p style="margin:0"><em>"Write an algorithm to <b>insert</b> an element <b>ITEM</b> to the <b>K<sup>th</sup> position</b> of a linear array <b>LA</b>. What is the time complexity of this algorithm?"</em> &nbsp;<b>[2 marks]</b></p>
+  </div>
+
+  <p>The array is full up to position N. You want ITEM to land at position K. <b>Something has to move.</b></p>
+
+  <div class="wordbar">
+    <span class="subtle" style="font-weight:700">Insert</span>
+    <input id="ins-item" type="number" value="99" style="width:90px;letter-spacing:0">
+    <span class="subtle" style="font-weight:700">at position K =</span>
+    <input id="ins-k" type="number" value="3" min="1" max="6" style="width:70px;letter-spacing:0">
+  </div>
+
+  <div class="opstrip" id="ins-strip"></div>
+  <div class="cnts" style="grid-template-columns:repeat(2,1fr);max-width:400px;margin:.6rem auto">
+    <div class="cnt2 c-p"><p class="ck2">Elements moved</p><p class="cv3" id="ins-moved">0</p></div>
+    <div class="cnt2"><p class="ck2">Current J</p><p class="cv3" id="ins-j">—</p></div>
+  </div>
+  <p class="opdesc" id="ins-msg" style="text-align:center">Press <b>Next</b> to begin.</p>
+  <div class="btnrow" style="justify-content:center">
+    <button class="btn" id="ins-next" style="background:#7c3aed">Next step ▸</button>
+    <button class="btn ghost sm" id="ins-play">▶ Play</button>
+    <button class="btn ghost sm" id="ins-reset">Reset</button>
+  </div>
+
+  <div class="box warn">
+    <p class="bt">⚠ Why we move from the RIGHT, not the left</p>
+    <p style="margin:0">If you moved left-to-right you would <b>overwrite</b> the next element before copying it. Starting from the last element and working backwards, every cell you write into has <b>already been copied</b> to safety.<br><br>
+    <b>Get this backwards in the exam and the algorithm is wrong even though it looks right.</b></p>
+  </div>
+
+  <div class="swapwrap2" style="--accent:#7c3aed">
+    <div class="swaphd">
+      <span class="swt">Insert at the K-th position</span>
+      <button class="swapbtn" data-sw="a">Algorithm</button>
+      <button class="swapbtn on" data-sw="c">C++</button>
+    </div>
+    <div class="swapbody">
+      <div data-pane="a"><div class="algo" style="border:none">
+    <div class="ahead"><b>INSERT(LA, N, K, ITEM).</b> LA is a linear array with N elements, K a positive integer with K &le; N + 1. This algorithm inserts ITEM into the K<sup>th</sup> position.</div>
+    <div class="body">
+<span class="st">Step 1. <span class="cm">[Initialize counter]</span> <span class="kw">Set</span> <span class="vr">J</span> <span class="op">:=</span> <span class="vr">N</span>.</span>
+<span class="st">Step 2. <span class="kw">Repeat</span> Steps 3 and 4 <span class="kw">while</span> <span class="vr">J</span> &ge; <span class="vr">K</span>:</span>
+<span class="st">Step 3.       <span class="cm">[Move Jth element downward]</span> <span class="kw">Set</span> <span class="vr">LA</span>[<span class="vr">J</span> + 1] <span class="op">:=</span> <span class="vr">LA</span>[<span class="vr">J</span>].</span>
+<span class="st">Step 4.       <span class="cm">[Decrease counter]</span> <span class="kw">Set</span> <span class="vr">J</span> <span class="op">:=</span> <span class="vr">J</span> &minus; 1.</span>
+<span class="st">        <span class="cm">[End of Step 2 loop]</span></span>
+<span class="st">Step 5. <span class="cm">[Insert element]</span> <span class="kw">Set</span> <span class="vr">LA</span>[<span class="vr">K</span>] <span class="op">:=</span> <span class="vr">ITEM</span>.</span>
+<span class="st">Step 6. <span class="cm">[Reset N]</span> <span class="kw">Set</span> <span class="vr">N</span> <span class="op">:=</span> <span class="vr">N</span> + 1.</span>
+<span class="st">Step 7. <span class="kw">Exit</span>.</span>
+    </div>
+  </div></div>
+      <div class="on" data-pane="c"><pre class="code"><span class="c">// 0-based C++. K is the position we want ITEM to land on.</span>
+<span class="t">void</span> <span class="f">insertAt</span>(<span class="t">int</span> a[], <span class="t">int</span> &amp;n, <span class="t">int</span> k, <span class="t">int</span> item) {
+    <span class="c">// walk BACKWARDS so nothing is overwritten before it is copied</span>
+    <span class="k">for</span> (<span class="t">int</span> j = n - <span class="n">1</span>; j &gt;= k; j--)
+        a[j + <span class="n">1</span>] = a[j];
+
+    a[k] = item;
+    n++;                      <span class="c">// the array is one longer now</span>
+}</pre></div>
+    </div>
+    <div class="cxs"><span class="cx t-good"><em>best</em><b>O(1)</b></span><span class="cx t-mid"><em>average</em><b>O(n)</b></span><span class="cx t-bad"><em>worst</em><b>O(n)</b></span><span class="cx t-good"><em>space</em><b>O(1)</b></span></div>
+  </div>
+
+  <div class="box good">
+    <p class="bt">The complexity — the second half of the exam question</p>
+    <p style="margin:0"><b>Best case:</b> insert at the <b>end</b> (K = N+1). Nothing moves → <b>O(1)</b>.<br>
+    <b>Worst case:</b> insert at the <b>front</b> (K = 1). All N elements move → <b>O(n)</b>.<br>
+    <b>Average case:</b> about n/2 elements move → still <b>O(n)</b>.<br><br>
+    <b>Answer to write: O(n).</b> Say the worst case is insertion at the beginning and give the reason — the shifting.</p>
+  </div>
+</article>
+
+<!-- ============ 2 · DELETION ============ -->
+<article class="card numbered" id="s2" style="--accent:#e11d48">
+  <span class="badge">2</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 2</p><h2>Deletion — closing the hole</h2></div>
+    <span class="timechip">⏱ 8 min</span>
+  </div>
+
+  <p>Deleting is the mirror image. Take the element out and <b>everything after it slides left</b> to close the gap — otherwise you have a hole, and the array is no longer "successive".</p>
+
+  <div class="wordbar">
+    <span class="subtle" style="font-weight:700">Delete position K =</span>
+    <input id="del-k" type="number" value="3" min="1" max="6" style="width:70px;letter-spacing:0">
+  </div>
+
+  <div class="opstrip" id="del-strip"></div>
+  <div class="cnts" style="grid-template-columns:repeat(2,1fr);max-width:400px;margin:.6rem auto">
+    <div class="cnt2 c-p"><p class="ck2">Elements moved</p><p class="cv3" id="del-moved">0</p></div>
+    <div class="cnt2"><p class="ck2">Current J</p><p class="cv3" id="del-j">—</p></div>
+  </div>
+  <p class="opdesc" id="del-msg" style="text-align:center">Press <b>Next</b> to begin.</p>
+  <div class="btnrow" style="justify-content:center">
+    <button class="btn" id="del-next" style="background:#e11d48">Next step ▸</button>
+    <button class="btn ghost sm" id="del-play">▶ Play</button>
+    <button class="btn ghost sm" id="del-reset">Reset</button>
+  </div>
+
+  <div class="swapwrap2" style="--accent:#e11d48">
+    <div class="swaphd">
+      <span class="swt">Delete the K-th element</span>
+      <button class="swapbtn" data-sw="a">Algorithm</button>
+      <button class="swapbtn on" data-sw="c">C++</button>
+    </div>
+    <div class="swapbody">
+      <div data-pane="a"><div class="algo" style="border:none">
+    <div class="ahead"><b>DELETE(LA, N, K, ITEM).</b> LA is a linear array with N elements and K a positive integer with K &le; N. This algorithm deletes the K<sup>th</sup> element.</div>
+    <div class="body">
+<span class="st">Step 1. <span class="kw">Set</span> <span class="vr">ITEM</span> <span class="op">:=</span> <span class="vr">LA</span>[<span class="vr">K</span>].</span>
+<span class="st">Step 2. <span class="kw">Repeat for</span> <span class="vr">J</span> = <span class="vr">K</span> <span class="kw">to</span> <span class="vr">N</span> &minus; 1:</span>
+<span class="st">              <span class="cm">[Move J+1st element upward]</span> <span class="kw">Set</span> <span class="vr">LA</span>[<span class="vr">J</span>] <span class="op">:=</span> <span class="vr">LA</span>[<span class="vr">J</span> + 1].</span>
+<span class="st">        <span class="cm">[End of loop]</span></span>
+<span class="st">Step 3. <span class="cm">[Reset N]</span> <span class="kw">Set</span> <span class="vr">N</span> <span class="op">:=</span> <span class="vr">N</span> &minus; 1.</span>
+<span class="st">Step 4. <span class="kw">Exit</span>.</span>
+    </div>
+  </div></div>
+      <div class="on" data-pane="c"><pre class="code"><span class="c">// 0-based C++. Returns the value that was removed.</span>
+<span class="t">int</span> <span class="f">deleteAt</span>(<span class="t">int</span> a[], <span class="t">int</span> &amp;n, <span class="t">int</span> k) {
+    <span class="t">int</span> item = a[k];          <span class="c">// save it before it is overwritten</span>
+
+    <span class="c">// walk FORWARDS: each cell we write has already been read</span>
+    <span class="k">for</span> (<span class="t">int</span> j = k; j &lt; n - <span class="n">1</span>; j++)
+        a[j] = a[j + <span class="n">1</span>];
+
+    n--;
+    <span class="k">return</span> item;
+}</pre></div>
+    </div>
+    <div class="cxs"><span class="cx t-good"><em>best</em><b>O(1)</b></span><span class="cx t-mid"><em>average</em><b>O(n)</b></span><span class="cx t-bad"><em>worst</em><b>O(n)</b></span><span class="cx t-good"><em>space</em><b>O(1)</b></span></div>
+  </div>
+
+  <div class="box info">
+    <p class="bt">Notice the direction flipped</p>
+    <p style="margin:0"><b>Insert</b> walks <b>backwards</b> (J = N down to K) so it never overwrites.<br>
+    <b>Delete</b> walks <b>forwards</b> (J = K up to N&minus;1) for exactly the same reason — each cell it writes into has already been read.<br><br>
+    <b>Same complexity either way: O(n).</b> Deleting the last element is free; deleting the first moves everything.</p>
+  </div>
+
+  <div class="bridge" style="--accent:#e11d48">
+    <p class="lbl">The array's real weakness</p>
+    <p class="say">The very thing that makes reading fast — elements packed side by side with no gaps — is what makes inserting and deleting slow.</p>
+    <p style="margin-top:.9rem">You cannot have both. <span class="sgtag sg3">Segment 3</span> gives up the fast reading to get fast insertion. <b>That is the whole reason the linked list exists.</b></p>
+  </div>
+
+  <div class="quiz" data-q="q1">
+    <div class="qh">Quick check</div>
+    <div class="qq">You delete the <b>first</b> element of a 1,000-element array. How many elements move?</div>
+    <div class="qopts">
+      <button class="qopt" data-a="0">1</button>
+      <button class="qopt" data-a="1" data-ok="1">999</button>
+      <button class="qopt" data-a="2">1,000</button>
+    </div>
+    <div class="qexp"><b>999.</b> Every element from position 2 to position 1,000 slides one place left — that is 999 moves. The deleted one does not move; it is overwritten. This is the worst case, and it is why deletion is <b>O(n)</b>.</div>
+  </div>
+</article>
+
+<!-- ============ 3 · LINEAR SEARCH ============ -->
+<article class="card numbered" id="s3" style="--accent:#16a34a">
+  <span class="badge">3</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 3</p><h2>Linear search — and the sentinel trick</h2></div>
+    <span class="timechip">⏱ 9 min</span>
+  </div>
+
+  <p>Look at each element in turn until you find it. Simple, and it works on <b>any</b> array — sorted or not.</p>
+
+  <div class="wordbar">
+    <span class="subtle" style="font-weight:700">Search for</span>
+    <input id="ls-item" type="number" value="70" style="width:90px;letter-spacing:0">
+    <button class="btn sm ghost" data-ls="70">70 (present)</button>
+    <button class="btn sm ghost" data-ls="99">99 (missing)</button>
+  </div>
+
+  <div class="opstrip" id="ls-strip"></div>
+  <div class="cnts" style="grid-template-columns:repeat(2,1fr);max-width:400px;margin:.6rem auto">
+    <div class="cnt2 c-c"><p class="ck2">Comparisons</p><p class="cv3" id="ls-c">0</p></div>
+    <div class="cnt2"><p class="ck2">LOC</p><p class="cv3" id="ls-loc">—</p></div>
+  </div>
+  <p class="opdesc" id="ls-msg" style="text-align:center">Press <b>Next</b> to begin.</p>
+  <div class="btnrow" style="justify-content:center">
+    <button class="btn" id="ls-next" style="background:#16a34a">Next ▸</button>
+    <button class="btn ghost sm" id="ls-play">▶ Play</button>
+    <button class="btn ghost sm" id="ls-reset">Reset</button>
+    <button class="btn ghost sm" id="ls-sent">Sentinel: off</button>
+  </div>
+
+  <div class="swapwrap2" style="--accent:#16a34a">
+    <div class="swaphd">
+      <span class="swt">Linear search</span>
+      <button class="swapbtn" data-sw="a">Algorithm</button>
+      <button class="swapbtn on" data-sw="c">C++</button>
+    </div>
+    <div class="swapbody">
+      <div data-pane="a"><div class="algo" style="border:none">
+    <div class="ahead"><b>LINEAR(DATA, N, ITEM, LOC).</b> Here DATA is a linear array with N elements, and ITEM is the value we are looking for. This algorithm finds the location LOC of ITEM in DATA, or sets LOC = 0 if the search is unsuccessful.</div>
+    <div class="body">
+<span class="st">Step 1. <span class="cm">[Initialize counter]</span> <span class="kw">Set</span> <span class="vr">LOC</span> <span class="op">:=</span> 1.</span>
+<span class="st">Step 2. <span class="kw">Repeat while</span> <span class="vr">LOC</span> &le; <span class="vr">N</span>:</span>
+<span class="st">              <span class="kw">If</span> <span class="vr">ITEM</span> = <span class="vr">DATA</span>[<span class="vr">LOC</span>], <span class="kw">then</span>: <span class="kw">Write</span>: <span class="vr">LOC</span>. <span class="kw">Exit</span>.</span>
+<span class="st">              <span class="kw">Set</span> <span class="vr">LOC</span> <span class="op">:=</span> <span class="vr">LOC</span> + 1.</span>
+<span class="st">        <span class="cm">[End of loop]</span></span>
+<span class="st">Step 3. <span class="cm">[Unsuccessful]</span> <span class="kw">Set</span> <span class="vr">LOC</span> <span class="op">:=</span> 0.</span>
+<span class="st">Step 4. <span class="kw">Exit</span>.</span>
+    </div>
+  </div></div>
+      <div class="on" data-pane="c"><pre class="code"><span class="c">// returns the position of key, or -1 if it is not there</span>
+<span class="t">int</span> <span class="f">linearSearch</span>(<span class="t">int</span> a[], <span class="t">int</span> n, <span class="t">int</span> key) {
+    <span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; n; i++)
+        <span class="k">if</span> (a[i] == key) <span class="k">return</span> i;
+    <span class="k">return</span> -<span class="n">1</span>;
+}
+
+<span class="t">int</span> <span class="f">main</span>() {
+    <span class="t">int</span> a[<span class="n">6</span>] = {<span class="n">30</span>, <span class="n">50</span>, <span class="n">20</span>, <span class="n">70</span>, <span class="n">40</span>, <span class="n">90</span>};
+    <span class="t">int</span> loc = <span class="f">linearSearch</span>(a, <span class="n">6</span>, <span class="n">70</span>);
+    cout &lt;&lt; loc;              <span class="c">// prints 3</span>
+}</pre></div>
+    </div>
+    <div class="cxs"><span class="cx t-good"><em>best</em><b>O(1)</b></span><span class="cx t-mid"><em>average</em><b>O(n)</b></span><span class="cx t-bad"><em>worst</em><b>O(n)</b></span><span class="cx t-good"><em>space</em><b>O(1)</b></span></div>
+  </div>
+
+  <div class="digwrap" style="--accent:#16a34a">
+    <p class="dighead">Dig deeper<span></span></p>
+    <details class="dig"><summary><span class="dicon">?</span>The sentinel trick &mdash; how to remove one test per round</summary><div>
+<p style="margin:0">Count the work in the loop above. Every single round it checks <b>two</b> things:<br><br>
+    <b>1.</b> <em>Have I run off the end of the array?</em> &nbsp;(<span class="mono">i &lt; n</span>)<br>
+    <b>2.</b> <em>Is this the one I want?</em> &nbsp;(<span class="mono">a[i] == key</span>)<br><br>
+    The first test is only there to stop the loop from walking out of the array. So here is the trick: <b>put the value you are looking for into one spare cell at the end</b> &mdash; <span class="mono">DATA[N+1]</span>. That copy is called the <b>sentinel</b> (a guard).<br><br>
+    Now the loop <b>cannot</b> run off the end, because it is guaranteed to find a match &mdash; at worst it finds the sentinel. So test 1 can be deleted, and only test 2 stays.<br><br>
+    Afterwards you ask one question: <b>did I stop on the sentinel?</b> If LOC came back as N+1, the real array never had ITEM, so set LOC := 0.<br><br>
+    <b>Turn on the "Sentinel" button under the simulator above and watch the purple cell appear at the end.</b></p>
+
+  <div class="swapwrap2" style="--accent:#7c3aed">
+    <div class="swaphd">
+      <span class="swt">Linear search &middot; sentinel version</span>
+      <button class="swapbtn" data-sw="a">Algorithm</button>
+      <button class="swapbtn on" data-sw="c">C++</button>
+    </div>
+    <div class="swapbody">
+      <div data-pane="a"><div class="algo" style="border:none">
+    <div class="ahead"><b>LINEAR(DATA, N, ITEM, LOC).</b> Same job as before, but DATA must have room for <b>one extra cell</b> at the end.</div>
+    <div class="body">
+<span class="st">Step 1. <span class="cm">[Insert ITEM at the end of DATA]</span> <span class="kw">Set</span> <span class="vr">DATA</span>[<span class="vr">N</span> + 1] <span class="op">:=</span> <span class="vr">ITEM</span>.</span>
+<span class="st">Step 2. <span class="cm">[Initialize counter]</span> <span class="kw">Set</span> <span class="vr">LOC</span> <span class="op">:=</span> 1.</span>
+<span class="st">Step 3. <span class="cm">[Search for ITEM]</span> <span class="kw">Repeat while</span> <span class="vr">DATA</span>[<span class="vr">LOC</span>] &ne; <span class="vr">ITEM</span>:</span>
+<span class="st">              <span class="kw">Set</span> <span class="vr">LOC</span> <span class="op">:=</span> <span class="vr">LOC</span> + 1.</span>
+<span class="st">        <span class="cm">[End of loop]</span></span>
+<span class="st">Step 4. <span class="cm">[Successful?]</span> <span class="kw">If</span> <span class="vr">LOC</span> = <span class="vr">N</span> + 1, <span class="kw">then</span>: <span class="kw">Set</span> <span class="vr">LOC</span> <span class="op">:=</span> 0.</span>
+<span class="st">Step 5. <span class="kw">Exit</span>.</span>
+    </div>
+  </div></div>
+      <div class="on" data-pane="c"><pre class="code"><span class="c">// the array needs ONE spare cell: size n + 1</span>
+<span class="t">int</span> <span class="f">linearSentinel</span>(<span class="t">int</span> a[], <span class="t">int</span> n, <span class="t">int</span> key) {
+    a[n] = key;                  <span class="c">// the sentinel</span>
+    <span class="t">int</span> i = <span class="n">0</span>;
+    <span class="k">while</span> (a[i] != key) i++;    <span class="c">// only ONE test now</span>
+    <span class="k">return</span> (i == n) ? -<span class="n">1</span> : i;   <span class="c">// stopped on the sentinel?</span>
+}
+
+<span class="t">int</span> <span class="f">main</span>() {
+    <span class="t">int</span> a[<span class="n">7</span>] = {<span class="n">30</span>, <span class="n">50</span>, <span class="n">20</span>, <span class="n">70</span>, <span class="n">40</span>, <span class="n">90</span>};  <span class="c">// 6 values, 1 spare</span>
+    cout &lt;&lt; <span class="f">linearSentinel</span>(a, <span class="n">6</span>, <span class="n">70</span>);           <span class="c">// prints 3</span>
+}</pre></div>
+    </div>
+    <div class="cxs"><span class="cx t-bad"><em>worst</em><b>O(n)</b></span><span class="cx t-mid"><em>tests per round</em><b>1</b></span><span class="cx t-good"><em>extra space</em><b>1 cell</b></span></div>
+  </div>
+
+<p style="margin:0"><b>So is it worth it?</b> The complexity does not change &mdash; it is still O(n). You have only halved the work <em>inside</em> one round. It is a classic example of the <b>time&ndash;space trade-off</b> from Segment 1: you paid one extra cell of memory to save one test per round.<br><br>
+<span class="subtle"><b>In the exam:</b> the plain version is what you should write unless the question asks for the sentinel by name. And notice the danger &mdash; if you forget the spare cell, <span class="mono">a[n] = key</span> writes outside the array.</span></p>
+    </div></details>
+  </div>
+
+  <div class="tw">
+  <table>
+    <thead><tr><th>Case</th><th>Comparisons</th><th>Complexity</th></tr></thead>
+    <tbody>
+      <tr><td>Best — it is the first element</td><td class="num">1</td><td class="num hl-good">O(1)</td></tr>
+      <tr><td>Average</td><td class="num">(n+1)/2</td><td class="num">O(n)</td></tr>
+      <tr><td>Worst — last element, or not there at all</td><td class="num">n</td><td class="num hl-bad">O(n)</td></tr>
+    </tbody>
+  </table>
+  </div>
+</article>
+
+<!-- ============ 4 · BUBBLE SORT ============ -->
+<article class="card numbered" id="s4" style="--accent:#d97706">
+  <span class="badge">4</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 4 · the guaranteed exam question</p><h2>Bubble sort — counting C and D by hand</h2></div>
+    <span class="timechip">⏱ 16 min</span>
+  </div>
+
+  <div class="box bad">
+    <p class="bt">🎓 This question has appeared on <b>every</b> Mid Term paper</p>
+    <p style="margin:0">
+    <b>Autumn 2025:</b> <em>"Given a string <b>CANDLE</b>, find the number of comparisons (C) and number of interchanges (D) needed to sort the string alphabetically by using bubble sort. Show each step."</em><br>
+    <b>Spring 2025:</b> the same, with <b>BRIDGE</b>.<br>
+    <b>Spring 2024:</b> the same, with <b>STRUCTURES</b>.<br>
+    <b>Spring 2023:</b> the same, with <b>CHITTAGONG</b>.<br><br>
+    <b>Four papers. Four times. Worth 3.5 to 4 marks each time.</b></p>
+  </div>
+
+  <p>The idea: walk along the list comparing <b>neighbours</b>. If they are in the wrong order, swap. The biggest element "bubbles" to the end. Repeat.</p>
+
+  <div class="wordbar">
+    <span class="subtle" style="font-weight:700">Sort:</span>
+    <input id="bs-word" value="CANDLE" maxlength="40" style="width:230px">
+    <button class="btn sm ghost" data-bw="CANDLE">CANDLE</button>
+    <button class="btn sm ghost" data-bw="BRIDGE">BRIDGE</button>
+    <button class="btn sm ghost" data-bw="STRUCTURES">STRUCTURES</button>
+    <button class="btn sm ghost" data-bw="CHITTAGONG">CHITTAGONG</button>
+    <button class="btn sm ghost" data-bw="8, 3, 5, 1, 9, 2">numbers</button>
+  </div>
+
+  <div class="opstrip" id="bs-strip"></div>
+
+  <div class="cnts">
+    <div class="cnt2 c-p"><p class="ck2">Pass</p><p class="cv3" id="bs-pass">—</p></div>
+    <div class="cnt2 c-c"><p class="ck2">Comparisons · C</p><p class="cv3" id="bs-c">0</p></div>
+    <div class="cnt2 c-d"><p class="ck2">Interchanges · D</p><p class="cv3" id="bs-d">0</p></div>
+  </div>
+  <p class="opdesc" id="bs-msg" style="text-align:center">Press <b>Next</b> to compare the first pair.</p>
+  <div class="btnrow" style="justify-content:center">
+    <button class="btn" id="bs-next" style="background:#d97706">Next comparison ▸</button>
+    <button class="btn ghost sm" id="bs-pass2">Finish this pass</button>
+    <button class="btn ghost sm" id="bs-play">▶ Play</button>
+    <button class="btn ghost sm" id="bs-reset">Reset</button>
+  </div>
+
+  <p class="fclbl" style="text-align:center;margin-top:1.2rem">The answer you write in the exam</p>
+  <div class="passes" id="bs-passes"></div>
+
+<div class="swapwrap2" style="--accent:#d97706">
+    <div class="swaphd">
+      <span class="swt">Bubble sort</span>
+      <button class="swapbtn" data-sw="a">Algorithm</button>
+      <button class="swapbtn on" data-sw="c">C++</button>
+    </div>
+    <div class="swapbody">
+      <div data-pane="a"><div class="algo" style="border:none">
+    <div class="ahead"><b>BUBBLE(DATA, N).</b> DATA is an array with N elements. This algorithm sorts the elements of DATA into ascending order.</div>
+    <div class="body">
+<span class="st">Step 1. <span class="kw">Repeat</span> Steps 2 and 3 <span class="kw">for</span> <span class="vr">PASS</span> = 1 <span class="kw">to</span> <span class="vr">N</span> &minus; 1:</span>
+<span class="st">Step 2.       <span class="kw">Set</span> <span class="vr">PTR</span> <span class="op">:=</span> 1. &nbsp;<span class="cm">[Initialize pass pointer]</span></span>
+<span class="st">Step 3.       <span class="kw">Repeat while</span> <span class="vr">PTR</span> &le; <span class="vr">N</span> &minus; <span class="vr">PASS</span>:</span>
+<span class="st">                    <span class="kw">If</span> <span class="vr">DATA</span>[<span class="vr">PTR</span>] &gt; <span class="vr">DATA</span>[<span class="vr">PTR</span> + 1], <span class="kw">then</span>:</span>
+<span class="st">                          Interchange <span class="vr">DATA</span>[<span class="vr">PTR</span>] and <span class="vr">DATA</span>[<span class="vr">PTR</span> + 1].</span>
+<span class="st">                    <span class="cm">[End of If structure]</span></span>
+<span class="st">                    <span class="kw">Set</span> <span class="vr">PTR</span> <span class="op">:=</span> <span class="vr">PTR</span> + 1.</span>
+<span class="st">              <span class="cm">[End of inner loop]</span></span>
+<span class="st">        <span class="cm">[End of Step 1 outer loop]</span></span>
+<span class="st">Step 4. <span class="kw">Exit</span>.</span>
+    </div>
+  </div></div>
+      <div class="on" data-pane="c"><pre class="code"><span class="c">// plain bubble sort — always O(n^2)</span>
+<span class="t">void</span> <span class="f">bubbleSort</span>(<span class="t">int</span> a[], <span class="t">int</span> n) {
+    <span class="k">for</span> (<span class="t">int</span> pass = <span class="n">0</span>; pass &lt; n - <span class="n">1</span>; pass++)
+        <span class="k">for</span> (<span class="t">int</span> j = <span class="n">0</span>; j &lt; n - <span class="n">1</span> - pass; j++)
+            <span class="k">if</span> (a[j] &gt; a[j + <span class="n">1</span>])
+                <span class="f">swap</span>(a[j], a[j + <span class="n">1</span>]);
+}</pre></div>
+    </div>
+    <div class="cxs"><span class="cx t-good"><em>best</em><b>O(n) *</b></span><span class="cx t-bad"><em>average</em><b>O(n²)</b></span><span class="cx t-bad"><em>worst</em><b>O(n²)</b></span><span class="cx t-good"><em>space</em><b>O(1)</b></span></div>
+  </div>
+
+  <div class="box good">
+    <p class="bt">How to count C without simulating</p>
+    <p style="margin:0">Pass 1 makes <b>n&minus;1</b> comparisons, pass 2 makes <b>n&minus;2</b>, and so on down to 1. So<br><br>
+    <span class="mono" style="font-weight:800">C = (n&minus;1) + (n&minus;2) + … + 2 + 1 = n(n&minus;1)/2</span><br><br>
+    For <b>CANDLE</b>, n = 6 → C = 6&times;5/2 = <b>15</b>. For <b>STRUCTURES</b>, n = 10 → C = 10&times;9/2 = <b>45</b>.<br><br>
+    <b>C never depends on the letters</b> — only on how many there are. <b>D does</b>: it is the number of pairs that started out in the wrong order.</p>
+  </div>
+
+  <div class="digwrap" style="--accent:#d97706">
+    <p class="dighead">Dig deeper<span></span></p>
+    <details class="dig"><summary><span class="dicon">?</span>Modify bubble sort to stop early — <span class="subtle">Spring 2024 Q2(c) [OR]</span></summary><div>
+      <em>"Modify the bubble sort algorithm so that it will stop early if it detects that the list is already sorted."</em><br><br>
+      Add a <b>flag</b>. If a whole pass makes <b>no interchange</b>, the list must already be sorted, so stop.<br><br>
+      <span class="mono">
+      1. Repeat Steps 2 to 5 for PASS = 1 to N &minus; 1:<br>
+      2.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set FLAG := 0.<br>
+      3.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Repeat for J = 1 to N &minus; PASS:<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If DATA[J] &gt; DATA[J+1], then:<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Interchange DATA[J] and DATA[J+1]. Set FLAG := 1.<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[End of If structure]<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[End of loop]<br>
+      4.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If FLAG = 0, then: Exit.<br>
+      5.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[End of If structure]<br>
+      &nbsp;&nbsp;[End of Step 1 loop]<br>
+      6. Exit.
+      </span><br><br>
+      <b>What it changes:</b> the <b>best case</b> becomes <b>O(n)</b> — one clean pass over an already-sorted list. Worst and average stay <b>O(n²)</b>.<br><br>
+      <b>⚠ Without this flag, bubble sort has no O(n) best case at all.</b> If a question says bubble sort is O(n) at best, it means this version.
+    </div></details>
+    <details class="dig"><summary><span class="dicon">?</span>What exactly counts as an "interchange"?</summary><div>
+      One <b>swap of two neighbouring elements</b>. Not the three assignments inside it, and not a comparison that decided <em>not</em> to swap.<br><br>
+      <b>D equals the number of inversions in the input</b> — the count of pairs that begin in the wrong relative order. That is why D changes with the word while C does not.<br><br>
+      For <b>CANDLE</b> the inversions are C&gt;A, N&gt;D, N&gt;L, N&gt;E, L&gt;E — <b>five</b>, which is exactly the D you get by simulating.
+    </div></details>
+    <details class="dig"><summary><span class="dicon">?</span>Is bubble sort ever actually used?</summary><div>
+      <b>Almost never in real code.</b> O(n²) is hopeless past a few thousand elements, and <span class="mono">std::sort</span> is O(n log n) and already written.<br><br>
+      It survives in teaching for two good reasons: it is the easiest sort to trace by hand, and it shows the <b>invariant</b> idea clearly — after pass K, the last K elements are guaranteed to be in their final places.<br><br>
+      <b>In your exam it is worth ~4 marks. In your job it is worth knowing why not to use it.</b>
+    </div></details>
+  </div>
+</article>
+
+<!-- ============ 5 · BINARY SEARCH ============ -->
+<article class="card numbered" id="s5" style="--accent:#0284c7">
+  <span class="badge">5</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 5</p><h2>Binary search — building it from scratch</h2></div>
+    <span class="timechip">⏱ 16 min</span>
+  </div>
+
+  <h3>Start with something you have done a thousand times</h3>
+  <div class="box info">
+    <p class="bt">📖 Looking up a word in a dictionary</p>
+    <p style="margin:0">You want <b>"structure"</b>. Do you start at page 1 and read every word?<br><br>
+    <b>Of course not.</b> You open the dictionary <b>somewhere in the middle</b>, see you have landed on "M", and you know instantly that "structure" is in the <b>right half</b>. So you throw away the entire left half — hundreds of pages — <b>without reading a single word of it</b>.<br><br>
+    Then you do it again. And again.</p>
+  </div>
+
+  <div class="bridge" style="--accent:#0284c7">
+    <p class="lbl">Why this works and reading page-by-page does not</p>
+    <p class="say">Because the dictionary is <b>sorted</b>. One look in the middle tells you which half to abandon.</p>
+    <p style="margin-top:.9rem">That is binary search, complete. Everything below is just writing it down carefully.</p>
+  </div>
+
+  <h3>Run it — first without any code</h3>
+  <p>Mark the two ends of the search space with <span class="mono">low</span> and <span class="mono">high</span>, take the middle, and compare. Step through and watch the <b>array</b> shrink and the <b>pointers</b> underneath it move.</p>
+  <p class="subtle"><b>No code yet.</b> Work out what the machine must be doing at each step just by looking. The code comes after.</p>
+
+  <div class="wordbar">
+    <span class="subtle" style="font-weight:700">key =</span>
+    <input id="bin-item" type="number" value="41" style="width:80px;letter-spacing:0">
+    <button class="btn sm" data-bin="41" style="background:#0284c7">41 (present)</button>
+    <button class="btn sm ghost" data-bin="97">97 (missing)</button>
+    <button class="btn sm ghost" data-bin="21">21 (first)</button>
+  </div>
+
+  <div class="cnts" style="grid-template-columns:repeat(4,1fr)">
+    <div class="cnt2 c-p"><p class="ck2">low</p><p class="cv3" id="bin-lo">—</p></div>
+    <div class="cnt2 c-c"><p class="ck2">mid</p><p class="cv3" id="bin-mi">—</p></div>
+    <div class="cnt2"><p class="ck2">high</p><p class="cv3" id="bin-hi">—</p></div>
+    <div class="cnt2 c-d"><p class="ck2">looks</p><p class="cv3" id="bin-steps">0</p></div>
+  </div>
+  <div class="stepmsg" id="bin-msgbox">
+    <span class="smic" id="bin-msgic">&#9656;</span>
+    <p class="smtx" id="bin-msg">Press <b>Next step</b> to take the first midpoint.</p>
+    <span class="smn" id="bin-msgn">&mdash;</span>
+  </div>
+
+  <div class="bstrip" id="bin-strip"></div>
+  <div class="ptrow" id="bin-ptrs"></div>
+  <div class="crossbar" id="bin-cross" hidden></div>
+
+  <div class="btnrow" style="justify-content:center;margin-top:1rem;margin-bottom:1.1rem">
+    <button class="btn" id="bin-next" style="background:#0284c7">Next step &#9656;</button>
+    <button class="btn ghost sm" id="bin-play">&#9654; Play</button>
+    <button class="btn ghost sm" id="bin-reset">Reset</button>
+    <span class="btnsep"></span>
+    <button class="btn sm" id="bin-showcode" style="background:#0284c7">&#128065; Show the code</button>
+  </div>
+
+  <div id="bin-codewrap" hidden>
+    <p class="subtle" style="text-align:center;margin:.2rem 0 .6rem">Now run it again. <b>Each line inside the loop appears only when the animation reaches it.</b></p>
+
+    <div class="autocode" id="bin-code" style="margin-top:.35rem"></div>
+
+    <div class="askbox" id="bin-condask" style="margin-top:.8rem">
+      <p>One thing is still blank. <b>What should the loop condition be?</b><br>
+      <span class="subtle" style="font-weight:600">Think first — when exactly does the search space stop existing?</span></p>
+      <button class="btn sm" id="bin-condgo" style="background:#0284c7">Reveal the condition</button>
+      <p class="subtle" id="bin-condwhy" style="display:none;margin:.6rem 0 0">While <span class="mono">low == high</span> there is still exactly <b>one</b> element left — and it might be the answer, so it must be checked. Write <span class="mono">&lt;</span> instead of <span class="mono">&le;</span> and you miss it.</p>
+    </div>
+
+    <p class="subtle" style="text-align:center">The highlighted line is the one running right now.</p>
+  </div>
+
+  <div class="cxs" style="border:1px solid var(--line);border-radius:.6rem;margin-top:1rem">
+    <span class="cx t-good"><em>best</em><b>O(1)</b></span>
+    <span class="cx t-good"><em>average</em><b>O(log n)</b></span>
+    <span class="cx t-good"><em>worst</em><b>O(log n)</b></span>
+    <span class="cx t-good"><em>space</em><b>O(1)</b></span>
+    <span class="cx t-mid"><em>requires</em><b>sorted array</b></span>
+  </div>
+
+  <h3>Why is it O(log n)? Count the halvings</h3>
+  <p>Every look throws away half of what is left. Watch how quickly that empties the array.</p>
+
+  <div class="btnrow" style="justify-content:center">
+    <button class="btn sm" data-hb="13" style="background:#0284c7">13</button>
+    <button class="btn sm ghost" data-hb="100">100</button>
+    <button class="btn sm ghost" data-hb="1000">1,000</button>
+    <button class="btn sm ghost" data-hb="1000000">1,000,000</button>
+  </div>
+  <div class="halvebars" id="halvebars"></div>
+  <p class="opdesc" id="halvemsg" style="text-align:center"></p>
+
+  <div class="box good">
+    <p class="bt">That is exactly what a logarithm counts</p>
+    <p style="margin:0">"How many times can I halve n before reaching 1?" — you met this in <span class="sgtag sg1">Segment 1</span> as the paper-folding picture.<br><br>
+    That count <b>is</b> <span class="mono">log₂ n</span>. So binary search is <b>O(log n)</b>, and that is why a million elements needs only about <b>20</b> looks.</p>
+  </div>
+
+  <div class="box good">
+    <p class="bt">The comparison the exam wants — Spring 2023 Q2(d)</p>
+    <p style="margin:0"><em>"What is the main (i) advantage and (ii) disadvantage of the Binary Search algorithm over the Linear Search algorithm?"</em><br><br>
+    <b>Advantage:</b> far faster — <b>O(log n)</b> against <b>O(n)</b>. On 1,000,000 elements, about <b>20</b> comparisons instead of a million.<br>
+    <b>Disadvantage:</b> the array <b>must be sorted first</b>. If it is not, sorting costs O(n log n) — more than one linear search would have cost. It also needs <b>random access</b>, so it cannot be used on a linked list.</p>
+  </div>
+
+  <div class="tw">
+  <table>
+    <thead><tr><th>Algorithm</th><th>Best</th><th>Average</th><th>Worst</th><th>Space</th><th>Needs sorted?</th></tr></thead>
+    <tbody>
+      <tr><td>Linear search</td><td class="num">O(1)</td><td class="num">O(n)</td><td class="num">O(n)</td><td class="num">O(1)</td><td>No</td></tr>
+      <tr><td>Binary search</td><td class="num">O(1)</td><td class="num hl-good">O(log n)</td><td class="num hl-good">O(log n)</td><td class="num">O(1)</td><td><b>Yes</b></td></tr>
+      <tr><td>Bubble sort</td><td class="num">O(n)*</td><td class="num hl-bad">O(n²)</td><td class="num hl-bad">O(n²)</td><td class="num">O(1)</td><td>—</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="subtle">* only with the early-exit flag — see the <b>Exam &amp; Interview</b> tab. <b>This table is Spring 2025 Q2(d) and Spring 2024 Q2(d), worth 1.5 marks.</b></p>
+
+  <div class="note13">
+    <span class="ic">📌</span>
+    <div>
+      <p><b>We come back to this properly.</b></p>
+      <p style="margin-top:.5rem">Binary search is a whole segment on its own — <span class="sgtag sg7">Segment 7</span> covers lower bound, upper bound and searching on the answer. Today you only need the dictionary picture and the <span class="mono">low / mid / high</span> loop.</p>
+    </div>
+  </div>
+</article>
+
+<!-- ============ CLOSING ============ -->
+<article class="card numbered" id="s6" style="--accent:#0284c7">
+  <span class="badge">6</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Before you go</p><h2>The whole class in one table</h2></div>
+    <span class="timechip">⏱ 3 min</span>
+  </div>
+
+  <div class="tw">
+  <table>
+    <thead><tr><th>Operation</th><th>What moves</th><th>Cost</th><th>Worst case is when…</th></tr></thead>
+    <tbody>
+      <tr><td><b>Read LA[K]</b></td><td>nothing — it is calculated</td><td class="num hl-good">O(1)</td><td>never</td></tr>
+      <tr><td><b>Insert at K</b></td><td>everything from K onwards, right</td><td class="num">O(n)</td><td>K = 1 (the front)</td></tr>
+      <tr><td><b>Delete at K</b></td><td>everything after K, left</td><td class="num">O(n)</td><td>K = 1 (the front)</td></tr>
+      <tr><td><b>Linear search</b></td><td>nothing</td><td class="num">O(n)</td><td>last element, or absent</td></tr>
+      <tr><td><b>Binary search</b></td><td>nothing</td><td class="num hl-good">O(log n)</td><td>needs a sorted array</td></tr>
+      <tr><td><b>Bubble sort</b></td><td>neighbours, repeatedly</td><td class="num hl-bad">O(n²)</td><td>reverse-sorted input</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="bridge" style="--accent:#0284c7">
+    <p class="lbl">The one sentence</p>
+    <p class="say">An array is <b>brilliant at reading</b> and <b>bad at changing shape</b> — because the same packing that makes reading instant is what forces everything to shift.</p>
+    <p style="margin-top:.9rem">Hold that thought. Segment 3 hands you a structure with the exact opposite trade.</p>
+  </div>
+
+  <div class="box">
+    <p class="bt">Next class</p>
+    <p style="margin:0"><b>Class 3 — 2D arrays, matrices and sparse matrices.</b><br>
+    Row-major versus column-major · deriving the 2D address formula from the 1D one you already know · <span class="mono">A(4:12, 7:14)</span> — the question that has appeared on all four papers.</p>
+  </div>
+</article>
+
+</main>
+</section>
+
+<!-- ==================== EXAM & INTERVIEW ==================== -->
+<section class="panel" id="p-exam" hidden>
+<header class="hero" style="background:linear-gradient(160deg,#0f172a 0%,#4c0519 55%,#881337 100%)">
+  <div class="wrap">
+    <p class="eyebrow" style="color:#fda4af">Exam &amp; Interview · CSE-2321</p>
+    <h1>This class is worth <em>about 8 marks</em></h1>
+    <p class="hero-lede">Insert, bubble sort and the complexity table appear on every paper. Here they are, copied from the real ones, with model answers.</p>
+    <div class="byline">
+      <span class="av">JA</span>
+      <span class="who">Jamil As-ad<span>Lecturer, Dept. of CSE &middot; International Islamic University Chittagong</span></span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<article class="card" style="--accent:#e11d48">
+  <p class="kicker">Real past questions</p>
+  <h2>Copied from the papers</h2>
+
+  <details class="dig" open><summary><span class="dicon">?</span><b>Insert ITEM at the Kth position</b> — Spring 2025 &amp; Spring 2024, Q2(a) <span class="subtle">[2–2.5 marks]</span></summary><div>
+    <em>"Write an algorithm to insert an element ITEM to the K<sup>th</sup> position of a linear array LA. What is the time complexity of this algorithm?"</em><br><br>
+    <b>Algorithm: INSERT(LA, N, K, ITEM).</b> LA is a linear array with N elements and K is a positive integer with K &le; N + 1. This algorithm inserts ITEM into the K<sup>th</sup> position of LA.<br><br>
+    <span class="mono">
+    Step 1. [Initialize counter] Set J := N.<br>
+    Step 2. Repeat Steps 3 and 4 while J &ge; K:<br>
+    Step 3.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Move Jth element downward] Set LA[J + 1] := LA[J].<br>
+    Step 4.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Decrease counter] Set J := J &minus; 1.<br>
+    &nbsp;&nbsp;[End of Step 2 loop]<br>
+    Step 5. [Insert element] Set LA[K] := ITEM.<br>
+    Step 6. [Reset N] Set N := N + 1.<br>
+    Step 7. Exit.
+    </span><br><br>
+    <b>Time complexity: O(n).</b> In the worst case (K = 1) all N elements must shift one place right; on average about n/2 do. Only inserting at the very end is O(1).<br><br>
+    <b>⚠ Two marks lost every year:</b> looping <b>forwards</b> instead of backwards (which overwrites data), and forgetting <span class="mono">Set N := N + 1</span>.
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span><b>Bubble sort — find C and D</b> — all four papers <span class="subtle">[3.5–4 marks]</span></summary><div>
+    <em>"Given a string <b>CANDLE</b>, find the number of comparisons (C) and number of interchanges (D) needed to sort the string alphabetically by using bubble sort algorithm. Show each step."</em><br><br>
+    <b>Pass 1 in full — this is the level of detail the question wants:</b>
+    <div class="tw" style="margin:.6rem 0">
+    <table>
+      <thead><tr><th>Comp.</th><th>Before</th><th>Compare</th><th>Swap?</th><th>After</th></tr></thead>
+      <tbody><tr><td class='num'>1</td><td class='num'>C A N D L E</td><td class='num'>C &gt; A ?</td><td class='num'>Yes</td><td class='num'>A C N D L E</td></tr><tr><td class='num'>2</td><td class='num'>A C N D L E</td><td class='num'>C &gt; N ?</td><td class='num'>No</td><td class='num'>A C N D L E</td></tr><tr><td class='num'>3</td><td class='num'>A C N D L E</td><td class='num'>N &gt; D ?</td><td class='num'>Yes</td><td class='num'>A C D N L E</td></tr><tr><td class='num'>4</td><td class='num'>A C D N L E</td><td class='num'>N &gt; L ?</td><td class='num'>Yes</td><td class='num'>A C D L N E</td></tr><tr><td class='num'>5</td><td class='num'>A C D L N E</td><td class='num'>N &gt; E ?</td><td class='num'>Yes</td><td class='num'>A C D L E N</td></tr></tbody>
+    </table>
+    </div>
+    <p style="margin:.4rem 0 .8rem"><b>Pass 1 total: 5 comparisons, 4 interchanges.</b> The largest letter <b>N</b> has bubbled to the last position and is now locked.</p>
+
+    <b>Remaining passes, summarised:</b>
+    <div class="tw" style="margin:.6rem 0">
+    <table>
+      <thead><tr><th>Pass</th><th>Result</th><th>Comparisons</th><th>Interchanges</th></tr></thead>
+      <tbody>
+        <tr><td>start</td><td class="num">C A N D L E</td><td class="num">—</td><td class="num">—</td></tr>
+        <tr><td>1</td><td class="num">A C D L E N</td><td class="num">5</td><td class="num">4</td></tr>
+        <tr><td>2</td><td class="num">A C D E L N</td><td class="num">4</td><td class="num">1</td></tr>
+        <tr><td>3</td><td class="num">A C D E L N</td><td class="num">3</td><td class="num">0</td></tr>
+        <tr><td>4</td><td class="num">A C D E L N</td><td class="num">2</td><td class="num">0</td></tr>
+        <tr><td>5</td><td class="num">A C D E L N</td><td class="num">1</td><td class="num">0</td></tr>
+        <tr><td><b>Total</b></td><td class="num"><b>ACDELN</b></td><td class="num hl-bad"><b>C = 15</b></td><td class="num hl-good"><b>D = 5</b></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <b>The shortcut for C:</b> C = n(n&minus;1)/2 = 6&times;5/2 = <b>15</b>, always, regardless of the letters.<br>
+    <b>D must be traced</b> — it is the number of pairs that started in the wrong order.<br><br>
+    <b>The other years:</b> BRIDGE → C = 15, D = 8 · STRUCTURES → C = 45, D = 23 · CHITTAGONG → C = 45, D = 20.<br><br>
+    <span class="subtle">Use the simulator in Section 4 to check your hand-working on any of them.</span>
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span><b>Worst and average case of the three algorithms</b> — Spring 2025 &amp; Spring 2024, Q2(d) <span class="subtle">[1.5 marks]</span></summary><div>
+    <em>"Write down the worst case &amp; average case time complexity for: i) Binary search ii) Linear search iii) Bubble Sort."</em>
+    <div class="tw" style="margin:.6rem 0">
+    <table>
+      <thead><tr><th>Algorithm</th><th>Best</th><th>Average</th><th>Worst</th></tr></thead>
+      <tbody>
+        <tr><td>Binary search</td><td class="num">O(1)</td><td class="num">O(log n)</td><td class="num">O(log n)</td></tr>
+        <tr><td>Linear search</td><td class="num">O(1)</td><td class="num">O(n)</td><td class="num">O(n)</td></tr>
+        <tr><td>Bubble sort</td><td class="num">O(n)*</td><td class="num">O(n²)</td><td class="num">O(n²)</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <b>* Only with the early-exit flag.</b> Plain bubble sort is O(n²) in every case. If you write O(n) as the best case, add "with a flag that stops when a pass makes no interchange" — otherwise it can be marked wrong.
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span><b>Binary search — advantage and disadvantage</b> — Spring 2023, Q2(d) <span class="subtle">[1 mark]</span></summary><div>
+    <em>"What is the main i) advantage and ii) disadvantage of the Binary Search algorithm over the Linear Search algorithm?"</em><br><br>
+    <b>(i) Advantage.</b> It is far faster — O(log n) against O(n). For 1,000,000 elements it needs about <b>20</b> comparisons rather than up to a million, because it discards half the remaining range at every step.<br><br>
+    <b>(ii) Disadvantage.</b> The array <b>must already be sorted</b>. If it is not, sorting first costs O(n log n) — more than a single linear search would have cost. It also needs <b>random access</b>, so it cannot be used on a linked list.
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span><b>Trace binary search on a given list</b> — Autumn 2025, Q2(c) <span class="subtle">[OR option]</span></summary><div>
+    <em>"What is the time complexity of the binary search algorithm? Show the intermediate steps to search ITEM = 41 and ITEM = 97 from the following list: 21, 25, 30, 35, 41, 45, 53, 66, 68, 71, 82, 89, 101"</em><br><br>
+    <b>Complexity: O(log n).</b><br><br>
+    <b>Searching 41</b> (positions 1–13):<br>
+    <span class="mono">
+    BEG=1, END=13 → MID=7, DATA[7]=53. 41 &lt; 53 → END=6<br>
+    BEG=1, END=6 &nbsp;→ MID=3, DATA[3]=30. 41 &gt; 30 → BEG=4<br>
+    BEG=4, END=6 &nbsp;→ MID=5, DATA[5]=41. <b>Found at position 5.</b>
+    </span><br><br>
+    <b>Searching 97:</b><br>
+    <span class="mono">
+    BEG=1, END=13 → MID=7, DATA[7]=53. 97 &gt; 53 → BEG=8<br>
+    BEG=8, END=13 → MID=10, DATA[10]=71. 97 &gt; 71 → BEG=11<br>
+    BEG=11, END=13 → MID=12, DATA[12]=89. 97 &gt; 89 → BEG=13<br>
+    BEG=13, END=13 → MID=13, DATA[13]=101. 97 &lt; 101 → END=12<br>
+    BEG (13) &gt; END (12) → <b>97 is not in the list.</b>
+    </span><br><br>
+    <span class="subtle">Section 5's simulator runs exactly this list — press the 41 and 97 buttons and check your working.</span>
+  </div></details>
+</article>
+
+<article class="card" style="--accent:#4f46e5">
+  <p class="kicker">Interview</p>
+  <h2>What they ask about arrays</h2>
+
+  <details class="dig"><summary><span class="dicon">?</span>Why is inserting into an array O(n) when reading is O(1)?</summary><div>
+    Because reading <b>calculates</b> an address, but inserting has to <b>preserve the packing</b>.<br><br>
+    "Elements sit in successive locations with no gaps — that is what makes the address formula work. To open a slot in the middle, every element after it must shift one place right. In the worst case, inserting at the front, that is all n of them."<br><br>
+    <b>Then earn the follow-up:</b> "which is exactly the trade a linked list reverses — O(1) insert once you hold the node, but O(n) to reach it."
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span>When would you use bubble sort?</summary><div>
+    <b>Honestly: never in production.</b> Say so — pretending otherwise reads badly.<br><br>
+    "It is O(n²), so it is unusable past a few thousand elements, and every language ships an O(n log n) sort. I would use <span class="mono">std::sort</span>."<br><br>
+    <b>Then show you know why it is still taught:</b> "it is the clearest sort to trace by hand, and with an early-exit flag it detects an already-sorted list in one O(n) pass — which is the one case where it beats quicksort."
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span>You have an unsorted array and one lookup to do. Sort it first?</summary><div>
+    <b>No.</b> A single linear search is O(n). Sorting first costs O(n log n) and then O(log n) to search — strictly worse for one lookup.<br><br>
+    <b>The real answer is "it depends on how many lookups":</b> sorting pays for itself once you are doing many searches, because the O(n log n) is a one-off and every search afterwards is O(log n) instead of O(n).<br><br>
+    That is a genuine engineering trade, and saying it out loud is what they are listening for.
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span>What does the sentinel trick actually save?</summary><div>
+    <b>One comparison per iteration</b> — the bounds check.<br><br>
+    Without it every round asks two questions: <em>am I past the end?</em> and <em>is this the item?</em> Putting the item in the spare cell guarantees the loop terminates, so only the second question remains.<br><br>
+    <b>It does not change the complexity</b> — still O(n). It halves the constant. Being clear that a constant-factor win is <em>not</em> a complexity win is exactly the distinction interviewers probe for.
+  </div></details>
+</article>
+
+</main>
+</section>
+
+<nav class="pagenav wrap" style="padding-bottom:0">
+  <a class="pn pv" href="01-linear-arrays.html"><span class="ar">&larr;</span><span class="tx"><em>Previous</em><b>Linear arrays &amp; memory</b></span></a>
+  <a class="pn home" href="../../index.html"><span class="ar">&#9783;</span><b>All classes</b></a>
+  <a class="pn nx" href="03-2d-arrays.html"><span class="ar">&rarr;</span><span class="tx"><em>Next</em><b>2D arrays, matrices &amp; sparse</b></span></a>
+</nav>
+
+<footer class="pagefoot">
+  <div class="wrap fin">
+    <div class="fw">
+      <span class="av">JA</span>
+      <span class="nm">Jamil As-ad<span>Lecturer, Dept. of CSE</span></span>
+    </div>
+    <p class="dept"><a href="../../index.html">&larr; All classes</a> &nbsp;·&nbsp; Data Structures · CSE-2321 · International Islamic University Chittagong</p>
+  </div>
+</footer>
+
+<div class="sec-nav" style="display:none">
+  <button id="nav-up">↑</button><button id="nav-down">↓</button><button id="nav-top">⤒</button>
+</div>
+<script>
+
+
+
+(function(){
+"use strict";
+var $=function(s,r){return (r||document).querySelector(s);};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+
+/* TABS */
+$$('.tab').forEach(function(t){t.addEventListener('click',function(){
+  $$('.tab').forEach(function(x){x.setAttribute('aria-selected','false');});
+  t.setAttribute('aria-selected','true');
+  $$('.panel').forEach(function(p){p.hidden=true;});
+  $('#p-'+t.dataset.tab).hidden=false; window.scrollTo({top:0,behavior:'instant'});
+});});
+
+/* RAIL */
+window.addEventListener('scroll',function(){
+  var h=document.documentElement,m=h.scrollHeight-h.clientHeight;
+  $('#rail').style.right=(100-(m>0?(h.scrollTop/m)*100:0))+'%';
+},{passive:true});
+
+function jump(d){
+  var s=$$('.panel:not([hidden]) .card'); if(!s.length)return;
+  var y=window.scrollY, cur=0, i;
+  for(i=0;i<s.length;i++){ if(s[i].offsetTop-120<=y) cur=i; }
+  var t=cur+d;
+  if(d<0 && y>s[cur].offsetTop-60) t=cur;      /* scrolled inside a card -> snap to its top first */
+  if(t<0){window.scrollTo({top:0,behavior:'smooth'});return;}
+  if(t>s.length-1)t=s.length-1;
+  window.scrollTo({top:Math.max(s[t].offsetTop-80,0),behavior:'smooth'});
+}
+$('#nav-down').onclick=function(){jump(1);};$('#nav-up').onclick=function(){jump(-1);};
+$('#nav-top').onclick=function(){window.scrollTo({top:0,behavior:'smooth'});};
+
+var BASE6=[30,50,20,70,40,90];
+function drawStrip(el,arr,marks,startIdx){
+  startIdx = startIdx||1;
+  el.innerHTML=arr.map(function(v,i){
+    var m=(marks&&marks[i])||'';
+    var val = (v===null||v===undefined) ? '' : v;
+    return '<div class="oc '+m+'"><span class="oi">['+(i+startIdx)+']</span><div class="ob">'+val+'</div></div>';
+  }).join('');
+}
+
+/* ---------- 1 · INSERT ---------- */
+(function(){
+  var steps=[], sp=-1, tmr=null;
+  function build(){
+    var N=BASE6.length, K=Math.max(1,Math.min(N+1,+$('#ins-k').value||1)), ITEM=+$('#ins-item').value||0;
+    var a=BASE6.slice(); a.push(null);
+    steps=[{a:a.slice(),m:{},msg:'Start. N = '+N+', we want ITEM = <b>'+ITEM+'</b> at position <b>'+K+'</b>. One spare cell is free at the end.',j:'—',moved:0}];
+    var moved=0;
+    for(var J=N;J>=K;J--){
+      a[J]=a[J-1];
+      moved++;
+      var m={}; m[J]='moving'; m[J-1]='gone2';
+      steps.push({a:a.slice(),m:m,msg:'<b>LA['+(J+1)+'] := LA['+J+']</b> — element <b>'+a[J]+'</b> moves one place right.',j:J,moved:moved});
+    }
+    a[K-1]=ITEM;
+    var mm={}; mm[K-1]='newv2';
+    steps.push({a:a.slice(),m:mm,msg:'<b>LA['+K+'] := ITEM</b> — <b>'+ITEM+'</b> drops into the gap. N becomes '+(N+1)+'. <b>'+moved+' element'+(moved===1?'':'s')+' had to move.</b>',j:'—',moved:moved});
+  }
+  function paint(){
+    var st = sp<0 ? steps[0] : steps[sp];
+    drawStrip($('#ins-strip'), st.a, st.m);
+    $('#ins-moved').textContent=st.moved;
+    $('#ins-j').textContent=st.j;
+    $('#ins-msg').innerHTML = sp<0 ? 'Press <b>Next</b> to begin.' : st.msg;
+    $('#ins-next').disabled = sp>=steps.length-1;
+  }
+  function reset(){ clearInterval(tmr); tmr=null; $('#ins-play').textContent='▶ Play'; build(); sp=-1; paint(); }
+  $('#ins-next').onclick=function(){ if(sp<steps.length-1){sp++;paint();} };
+  $('#ins-reset').onclick=reset;
+  $('#ins-play').onclick=function(){var b=this;
+    if(tmr){clearInterval(tmr);tmr=null;b.textContent='▶ Play';return;}
+    if(sp>=steps.length-1)sp=-1; b.textContent='⏸ Pause';
+    tmr=setInterval(function(){ if(sp<steps.length-1){sp++;paint();} else {clearInterval(tmr);tmr=null;b.textContent='▶ Play';} },800);};
+  $('#ins-k').addEventListener('change',reset);
+  $('#ins-item').addEventListener('change',reset);
+  reset();
+})();
+
+/* ---------- 2 · DELETE ---------- */
+(function(){
+  var steps=[], sp=-1, tmr=null;
+  function build(){
+    var N=BASE6.length, K=Math.max(1,Math.min(N,+$('#del-k').value||1));
+    var a=BASE6.slice();
+    var mm={}; mm[K-1]='gone2';
+    steps=[{a:a.slice(),m:mm,msg:'ITEM := LA['+K+'] = <b>'+a[K-1]+'</b>. That value is now saved, and its cell is free to overwrite.',j:'—',moved:0}];
+    var moved=0;
+    for(var J=K;J<=N-1;J++){
+      a[J-1]=a[J];
+      moved++;
+      var m={}; m[J-1]='moving';
+      steps.push({a:a.slice(),m:m,msg:'<b>LA['+J+'] := LA['+(J+1)+']</b> — <b>'+a[J-1]+'</b> slides one place left.',j:J,moved:moved});
+    }
+    a[N-1]=null;
+    var m2={}; m2[N-1]='empty2';
+    steps.push({a:a.slice(),m:m2,msg:'N becomes '+(N-1)+'. The last cell is no longer part of the array. <b>'+moved+' element'+(moved===1?'':'s')+' had to move.</b>',j:'—',moved:moved});
+  }
+  function paint(){
+    var st = sp<0 ? {a:BASE6.slice(),m:{},msg:'',j:'—',moved:0} : steps[sp];
+    drawStrip($('#del-strip'), st.a, st.m);
+    $('#del-moved').textContent=st.moved;
+    $('#del-j').textContent=st.j;
+    $('#del-msg').innerHTML = sp<0 ? 'Press <b>Next</b> to begin.' : st.msg;
+    $('#del-next').disabled = sp>=steps.length-1;
+  }
+  function reset(){ clearInterval(tmr); tmr=null; $('#del-play').textContent='▶ Play'; build(); sp=-1; paint(); }
+  $('#del-next').onclick=function(){ if(sp<steps.length-1){sp++;paint();} };
+  $('#del-reset').onclick=reset;
+  $('#del-play').onclick=function(){var b=this;
+    if(tmr){clearInterval(tmr);tmr=null;b.textContent='▶ Play';return;}
+    if(sp>=steps.length-1)sp=-1; b.textContent='⏸ Pause';
+    tmr=setInterval(function(){ if(sp<steps.length-1){sp++;paint();} else {clearInterval(tmr);tmr=null;b.textContent='▶ Play';} },800);};
+  $('#del-k').addEventListener('change',reset);
+  reset();
+})();
+
+/* ---------- 3 · LINEAR SEARCH ---------- */
+(function(){
+  var steps=[], sp=-1, tmr=null, sentinel=false;
+  function build(){
+    var ITEM=+$('#ls-item').value||0, a=BASE6.slice();
+    if(sentinel) a.push(ITEM);
+    steps=[]; var C=0, loc=0;
+    for(var i=0;i<a.length;i++){
+      C++;
+      var m={}; m[i]= (sentinel && i===a.length-1) ? 'sent' : 'cmp';
+      for(var k=0;k<i;k++) m[k]='locked';
+      if(sentinel && a.length-1!==i) m[a.length-1]='sent';
+      var hit=a[i]===ITEM;
+      if(hit){ m[i]='found2'; loc=i+1;
+        steps.push({a:a,m:m,C:C,loc:loc,msg:'DATA['+(i+1)+'] = <b>'+a[i]+'</b> — match! LOC = <b>'+(i+1)+'</b>.'+
+          (sentinel && i===a.length-1 ? ' But this is the <b>sentinel</b>, so Step 4 sets LOC := 0 — not found.' : ''), end:1});
+        break; }
+      steps.push({a:a,m:m,C:C,loc:'—',msg:'DATA['+(i+1)+'] = '+a[i]+' &ne; '+ITEM+'. Move on.'});
+    }
+  }
+  function paint(){
+    var st = sp<0 ? null : steps[sp];
+    var a = sentinel ? BASE6.concat([+$('#ls-item').value||0]) : BASE6;
+    drawStrip($('#ls-strip'), st?st.a:a, st?st.m:(sentinel?{6:'sent'}:{}));
+    $('#ls-c').textContent = st?st.C:0;
+    $('#ls-loc').textContent = st?st.loc:'—';
+    $('#ls-msg').innerHTML = st?st.msg:'Press <b>Next</b> to begin.';
+    $('#ls-next').disabled = sp>=steps.length-1;
+  }
+  function reset(){ clearInterval(tmr); tmr=null; $('#ls-play').textContent='▶ Play'; build(); sp=-1; paint(); }
+  $('#ls-next').onclick=function(){ if(sp<steps.length-1){sp++;paint();} };
+  $('#ls-reset').onclick=reset;
+  $('#ls-sent').onclick=function(){ sentinel=!sentinel; this.textContent='Sentinel: '+(sentinel?'on':'off');
+    this.classList.toggle('ghost',!sentinel); reset(); };
+  $('#ls-play').onclick=function(){var b=this;
+    if(tmr){clearInterval(tmr);tmr=null;b.textContent='▶ Play';return;}
+    if(sp>=steps.length-1)sp=-1; b.textContent='⏸ Pause';
+    tmr=setInterval(function(){ if(sp<steps.length-1){sp++;paint();} else {clearInterval(tmr);tmr=null;b.textContent='▶ Play';} },600);};
+  $('#ls-item').addEventListener('change',reset);
+  $$('[data-ls]').forEach(function(b){b.addEventListener('click',function(){ $('#ls-item').value=b.dataset.ls; reset(); });});
+  reset();
+})();
+
+
+/* ---------- 4 · BUBBLE SORT ---------- */
+(function(){
+  var steps=[], sp=-1, tmr=null, passRows=[];
+  function build(){
+    var raw=($('#bs-word').value||'CANDLE').trim();
+    var a, w, numeric=/[0-9]/.test(raw) && /^[0-9\s,]+$/.test(raw);
+    if(numeric){
+      a=raw.split(/[\s,]+/).filter(function(x){return x!=='';}).slice(0,12).map(Number);
+      if(!a.length) a=[5,2,9,1];
+      w=a.join(', '); $('#bs-word').value=w;
+    } else {
+      w=raw.toUpperCase().replace(/[^A-Z]/g,'').slice(0,12) || 'CANDLE';
+      $('#bs-word').value=w; a=w.split('');
+    }
+    var n=a.length, C=0, D=0;
+    steps=[{a:a.slice(),m:{},C:0,D:0,pass:'—',msg:'Start with <b>'+w+'</b>. n = '+n+', so C will be '+n+'&times;'+(n-1)+'/2 = <b>'+(n*(n-1)/2)+'</b> whatever the letters are.'}];
+    passRows=[{p:0,w:a.join(numeric?', ':''),c:0,d:0}];
+    for(var i=0;i<n-1;i++){
+      var pd=0;
+      for(var j=0;j<n-1-i;j++){
+        C++;
+        var m={}; m[j]='cmp'; m[j+1]='cmp';
+        for(var L=n-i;L<n;L++) m[L]='locked';
+        var swap=a[j]>a[j+1];
+        steps.push({a:a.slice(),m:m,C:C,D:D,pass:i+1,
+          msg:'Pass '+(i+1)+': compare <b>'+a[j]+'</b> and <b>'+a[j+1]+'</b> &nbsp;→&nbsp; '+
+              (swap?'<b style="color:#15803d">'+a[j]+' &gt; '+a[j+1]+', so swap</b>':'<b style="color:#94a3b8">already in order, no swap</b>')});
+        if(swap){
+          var t=a[j]; a[j]=a[j+1]; a[j+1]=t; D++; pd++;
+          var m2={}; m2[j]='swapd'; m2[j+1]='swapd';
+          for(L=n-i;L<n;L++) m2[L]='locked';
+          steps.push({a:a.slice(),m:m2,C:C,D:D,pass:i+1,msg:'Swapped. D is now <b>'+D+'</b>.'});
+        }
+      }
+      var ml={}; for(L=n-1-i;L<n;L++) ml[L]='locked';
+      steps.push({a:a.slice(),m:ml,C:C,D:D,pass:i+1,
+        msg:'<b>End of pass '+(i+1)+'.</b> The last '+(i+1)+' letter'+(i?'s are':' is')+' now in final position.',endpass:i+1});
+      passRows.push({p:i+1,w:a.join(numeric?', ':''),c:n-1-i,d:pd});
+    }
+    steps.push({a:a.slice(),m:(function(){var m={};for(var L=0;L<n;L++)m[L]='locked';return m;})(),C:C,D:D,pass:'done',
+      msg:'<b>Sorted: '+a.join(numeric?', ':'')+'</b> &nbsp;·&nbsp; <b>C = '+C+'</b> comparisons, <b>D = '+D+'</b> interchanges. That is the answer you write.',fin:1});
+  }
+  function paintPasses(upto){
+    $('#bs-passes').innerHTML=passRows.map(function(r,i){
+      var cls='prow'+(i===upto?' cur2':(i<upto?' donep':''));
+      return '<div class="'+cls+'"><span class="pn2">'+(r.p===0?'start':'pass '+r.p)+'</span>'+
+             '<span class="pw">'+r.w+'</span>'+
+             (r.p?'<span class="pc">'+r.c+' comp · '+r.d+' swap</span>':'')+'</div>';
+    }).join('');
+  }
+  function paint(){
+    var st = sp<0 ? steps[0] : steps[sp];
+    drawStrip($('#bs-strip'), st.a, st.m);
+    $('#bs-c').textContent=st.C; $('#bs-d').textContent=st.D; $('#bs-pass').textContent=st.pass;
+    $('#bs-msg').innerHTML = sp<0 ? 'Press <b>Next</b> to compare the first pair.' : st.msg;
+    var done=0; for(var i=0;i<=sp;i++) if(steps[i]&&steps[i].endpass) done=steps[i].endpass;
+    paintPasses(done);
+    $('#bs-next').disabled = sp>=steps.length-1;
+  }
+  function reset(){ clearInterval(tmr); tmr=null; $('#bs-play').textContent='▶ Play'; build(); sp=-1; paint(); }
+  $('#bs-next').onclick=function(){ if(sp<steps.length-1){sp++;paint();} };
+  $('#bs-pass2').onclick=function(){
+    var start=sp;
+    while(sp<steps.length-1){ sp++; if(steps[sp].endpass||steps[sp].fin) break; }
+    if(sp===start && sp<steps.length-1) sp++;
+    paint();
+  };
+  $('#bs-reset').onclick=reset;
+  $('#bs-play').onclick=function(){var b=this;
+    if(tmr){clearInterval(tmr);tmr=null;b.textContent='▶ Play';return;}
+    if(sp>=steps.length-1)sp=-1; b.textContent='⏸ Pause';
+    tmr=setInterval(function(){ if(sp<steps.length-1){sp++;paint();} else {clearInterval(tmr);tmr=null;b.textContent='▶ Play';} },420);};
+  $('#bs-word').addEventListener('change',reset);
+  $$('[data-bw]').forEach(function(b){b.addEventListener('click',function(){
+    $$('[data-bw]').forEach(function(x){x.classList.add('ghost');}); b.classList.remove('ghost');
+    $('#bs-word').value=b.dataset.bw; reset(); });});
+  reset();
+})();
+
+
+/* ---------- ALGORITHM / C++ SWITCHERS ---------- */
+$$('.swapwrap2').forEach(function(w){
+  $$('.swapbtn',w).forEach(function(b){
+    b.addEventListener('click',function(){
+      $$('.swapbtn',w).forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on');
+      $$('.swapbody>div',w).forEach(function(d){ d.classList.toggle('on', d.dataset.pane===b.dataset.sw); });
+    });
+  });
+});
+
+
+/* ---------- 5 · BINARY SEARCH : array + pointers + auto-highlighted code ---------- */
+(function(){
+  var A=[21,25,30,35,41,45,53,66,68,71,82,89,101];
+  var CODE=[
+    '<span class="t">int</span> <span class="f">main</span>() {',
+    '    <span class="t">int</span> a[] = {<span class="n">21</span>,<span class="n">25</span>,<span class="n">30</span>,<span class="n">35</span>,<span class="n">41</span>,<span class="n">45</span>,<span class="n">53</span>,<span class="n">66</span>,<span class="n">68</span>,<span class="n">71</span>,<span class="n">82</span>,<span class="n">89</span>,<span class="n">101</span>};',
+    '    <span class="t">int</span> n = <span class="n">13</span>, key = <span class="n">41</span>;',
+    '',
+    '    <span class="t">int</span> low = <span class="n">0</span>, high = n - <span class="n">1</span>;',
+    '    <span class="t">int</span> ans = -<span class="n">1</span>;',
+    '',
+    '    <span class="k">while</span> (low &lt;= high) {',
+    '        <span class="t">int</span> mid = (low + high) / <span class="n">2</span>;',
+    '',
+    '        <span class="k">if</span>      (a[mid] &lt; key)  low  = mid + <span class="n">1</span>;',
+    '        <span class="k">else if</span> (a[mid] &gt; key)  high = mid - <span class="n">1</span>;',
+    '        <span class="k">else</span> { ans = mid; <span class="k">break</span>; }',
+    '    }',
+    '',
+    '    cout &lt;&lt; ans;   <span class="c">// index, or -1 if not present</span>',
+    '}'
+  ];
+  var L={init:4, cond:7, mid:8, less:10, more:11, eq:12, out:15};
+  /* lines that stay hidden until the animation actually runs them.
+     value = width of the placeholder bar, in monospace characters */
+  var HIDE={8:27, 10:39, 11:39, 12:26};
+  var codeOn=false, condOn=false;
+  var steps=[], sp=-1, tmr=null;
+
+  function whileLine(){
+    return '    <span class="k">while</span> (' +
+      (condOn ? 'low &lt;= high' : '<span class="cph">?</span>') + ') {';
+  }
+
+  function build(){
+    var key=+$('#bin-item').value||0;
+    steps=[]; var low=0, high=A.length-1, n=0;
+    steps.push({low:low,high:high,mid:null,line:L.init,n:0,tone:'set',
+      msg:'<b>low = 0, high = 12.</b> The search space is the whole array — every element is still a candidate.'});
+    while(true){
+      steps.push({low:low,high:high,mid:null,line:L.cond,n:n,tone:'ask',
+        msg:(low<=high
+              ? '<b>low &le; high ?</b> &nbsp;'+low+' &le; '+high+' is <b>true</b> — go round again.'
+              : '<b>low &le; high ?</b> &nbsp;'+low+' &le; '+high+' is <b>false</b>. <b>low has crossed past high</b> — there is no space left between them, so the loop stops.')});
+      if(low>high){
+        steps.push({low:low,high:high,mid:null,line:L.out,n:n,done:1,tone:'miss',
+          msg:'The loop ended without a match. <b>'+key+' is not in the array</b> — and '+n+' look'+(n===1?'':'s')+' were enough to be certain.'});
+        break;
+      }
+      var mid=Math.floor((low+high)/2); n++;
+      steps.push({low:low,high:high,mid:mid,line:L.mid,n:n,tone:'mid',
+        msg:'<b>mid = (low + high) / 2 = ('+low+' + '+high+') / 2 = '+mid+'.</b> a[mid] = <b>'+A[mid]+'</b>.'});
+      if(A[mid]<key){
+        steps.push({low:mid+1,high:high,mid:mid,line:L.less,n:n,tone:'cut',
+          msg:'a[mid] = '+A[mid]+' &lt; '+key+' → <b>low = mid + 1 = '+(mid+1)+'</b>. Everything from '+low+' to '+mid+' is discarded — <b>watch low jump.</b>'});
+        low=mid+1;
+      } else if(A[mid]>key){
+        steps.push({low:low,high:mid-1,mid:mid,line:L.more,n:n,tone:'cut',
+          msg:'a[mid] = '+A[mid]+' &gt; '+key+' → <b>high = mid &minus; 1 = '+(mid-1)+'</b>. Everything from '+mid+' to '+high+' is discarded — <b>watch high jump.</b>'});
+        high=mid-1;
+      } else {
+        steps.push({low:low,high:high,mid:mid,line:L.eq,n:n,found:1,done:1,tone:'found',
+          msg:'a[mid] = '+A[mid]+' = key. <b>Found at index '+mid+', after '+n+' look'+(n===1?'':'s')+'.</b>'});
+        break;
+      }
+    }
+  }
+  function paint(){
+    var st = sp<0 ? null : steps[sp];
+    var lo = st?st.low:0, hi = st?st.high:A.length-1, mid = st?st.mid:null;
+    // array
+    var pad='<div class="bcell pad"><span class="bi">&nbsp;</span><div class="bb">&middot;</div></div>';
+    $('#bin-strip').innerHTML= pad + A.map(function(v,i){
+      var cls='bcell';
+      if(st){
+        if(i<lo||i>hi) cls+=' out';
+        if(mid!==null && i===mid) cls+=(st.found?' hit':' mid');
+      }
+      return '<div class="'+cls+'"><span class="bi">'+i+'</span><div class="bb">'+v+'</div></div>';
+    }).join('') + pad;
+    // pointers — slots run from -1 to n so low/high can step right off the array
+    var last=A.length-1, crossed = st && lo>hi, cells=[], i2;
+    for(i2=-1; i2<=A.length; i2++){
+      var h='', outside=(i2<0 || i2>last);
+      if(st){
+        var tags=[];
+        if(i2===lo) tags.push('<span class="ptag2 lo'+(crossed?' xed':'')+(outside?' off':'')+'">low'+(crossed?' &raquo;':'')+'</span>');
+        if(mid!==null && i2===mid) tags.push('<span class="ptag2 mi">mid</span>');
+        if(i2===hi) tags.push('<span class="ptag2 hi2'+(crossed?' xed':'')+(outside?' off':'')+'">'+(crossed?'&laquo; ':'')+'high</span>');
+        if(tags.length) h='<span class="parrow'+(crossed?' dim':'')+'">▲</span>'+tags.join('');
+      }
+      cells.push('<div class="pcell'+(outside?' pad':'')+'">'+h+'</div>');
+    }
+    $('#bin-ptrs').innerHTML=cells.join('');
+    $('#bin-lo').textContent = st? (lo<=hi?lo:lo) : '—';
+    $('#bin-hi').textContent = st? hi : '—';
+    $('#bin-mi').textContent = st && mid!==null ? mid : '—';
+    $('#bin-steps').textContent = st?st.n:0;
+    var tone = st ? st.tone : 'idle';
+    var ICON = {idle:'\u25B8', set:'\u2194', ask:'?', mid:'\u25CE', cut:'\u2702', found:'\u2713', miss:'\u2715'};
+    var box = $('#bin-msgbox');
+    box.className = 'stepmsg' + (st ? ' t-'+tone : '');
+    $('#bin-msgic').innerHTML = ICON[tone] || '\u25B8';
+    $('#bin-msg').innerHTML = st ? st.msg : 'Press <b>Next step</b> to take the first midpoint.';
+    $('#bin-msgn').innerHTML = st ? (sp+1)+' / '+steps.length : '\u2014';
+    void box.offsetWidth; box.classList.add('bump');
+    // code: scaffolding always visible, loop body revealed step by step
+    var seen={}, before={};
+    for(var q=0;q<sp;q++)  if(steps[q]) before[steps[q].line]=1;
+    for(var q2=0;q2<=sp;q2++) if(steps[q2]) seen[steps[q2].line]=1;
+    $('#bin-code').innerHTML=CODE.map(function(l,i){
+      var on   = st && st.line===i;
+      var body = (i===L.cond) ? whileLine() : l;
+      if(HIDE[i] && !seen[i])
+        body = '        <span class="ph" style="width:'+HIDE[i]+'ch"></span>';
+      var fresh = (HIDE[i] && st && st.line===i && !before[i]) ? ' fresh' : '';
+      return '<span class="al'+(on?' hot2':'')+fresh+'">'+(body||' ')+'</span>';
+    }).join('');
+    var cb=$('#bin-cross');
+    cb.hidden = !crossed;
+    if(crossed){
+      var off = (lo>last) ? ' <b>low has stepped right off the end of the array.</b>'
+              : (hi<0)    ? ' <b>high has stepped off the front of the array.</b>' : '';
+      cb.innerHTML = '<span class="cx2b">&#10007;</span> <b>low = '+lo+'</b> is now past <b>high = '+hi+
+        '</b> &mdash; they have <b>crossed</b>. There is no cell between them, so the search space is <b>empty</b>.'+off;
+    }
+    $('#bin-next').disabled = sp>=steps.length-1;
+  }
+  function reset(){ clearInterval(tmr); tmr=null; $('#bin-play').textContent='▶ Play'; build(); sp=-1; paint(); }
+  $('#bin-next').onclick=function(){ if(sp<steps.length-1){sp++;paint();} };
+  $('#bin-reset').onclick=reset;
+  $('#bin-play').onclick=function(){var b=this;
+    if(tmr){clearInterval(tmr);tmr=null;b.textContent='▶ Play';return;}
+    if(sp>=steps.length-1)sp=-1; b.textContent='⏸ Pause';
+    tmr=setInterval(function(){ if(sp<steps.length-1){sp++;paint();} else {clearInterval(tmr);tmr=null;b.textContent='▶ Play';} },1000);};
+  $('#bin-showcode').onclick=function(){
+    codeOn=!codeOn;
+    $('#bin-codewrap').hidden=!codeOn;
+    this.innerHTML = codeOn ? '\u{1F441} Hide the code' : '\u{1F441} Show the code';
+    this.classList.toggle('ghost', codeOn);
+    if(codeOn) reset();
+  };
+  $('#bin-condgo').onclick=function(){
+    condOn=true; this.style.display='none';
+    $('#bin-condwhy').style.display='block';
+    paint();
+  };
+  $('#bin-item').addEventListener('change',function(){
+    CODE[2]='    <span class="t">int</span> n = <span class="n">13</span>, key = <span class="n">'+(+$('#bin-item').value||0)+'</span>;';
+    reset();});
+  $$('[data-bin]').forEach(function(b){b.addEventListener('click',function(){
+    $$('[data-bin]').forEach(function(x){x.classList.add('ghost');}); b.classList.remove('ghost');
+    $('#bin-item').value=b.dataset.bin;
+    CODE[2]='    <span class="t">int</span> n = <span class="n">13</span>, key = <span class="n">'+b.dataset.bin+'</span>;';
+    reset(); });});
+  reset();
+})();
+
+/* ---------- 5 · HALVING BARS ---------- */
+(function(){
+  var N=13;
+  function paint(){
+    var v=N, rows='', k=0;
+    while(k<=40){
+      var pct=Math.max(1.5, v/N*100);
+      rows+='<div class="hbrow"><span class="hbn">'+(k===0?'start':'look '+k)+'</span>'+
+            '<span class="hbb" style="width:'+pct+'%"></span>'+
+            '<span class="hbv">'+v.toLocaleString('en-US')+'</span></div>';
+      if(v<=1) break;
+      v=Math.ceil(v/2); k++;
+    }
+    $('#halvebars').innerHTML=rows;
+    $('#halvemsg').innerHTML='From <b>'+N.toLocaleString('en-US')+'</b> down to 1 in <b>'+k+' look'+(k===1?'':'s')+'</b>. And log₂('+N.toLocaleString('en-US')+') ≈ <b>'+Math.log2(N).toFixed(1)+'</b> — the same number.';
+  }
+  $$('[data-hb]').forEach(function(b){b.addEventListener('click',function(){
+    $$('[data-hb]').forEach(function(x){x.classList.add('ghost');}); b.classList.remove('ghost');
+    N=+b.dataset.hb; paint(); });});
+  paint();
+})();
+
+/* ---------- QUIZZES ---------- */
+$$('.quiz').forEach(function(q){
+  var o=$$('.qopt',q),e=$('.qexp',q);
+  o.forEach(function(b){b.addEventListener('click',function(){
+    o.forEach(function(x){x.disabled=true;if(x.dataset.ok)x.classList.add('ok');});
+    if(!b.dataset.ok)b.classList.add('no'); e.classList.add('show');
+  });});
+});
+document.addEventListener('keydown',function(e){
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+  if(e.key==='j'||e.key==='ArrowDown'){e.preventDefault();jump(1);}
+  if(e.key==='k'||e.key==='ArrowUp'){e.preventDefault();jump(-1);}
+});
+})();
+
+
+/* ---------- FLOATING JUMP DRAWER ---------- */
+(function(){
+  var CLASSES=[
+    ['1','Linear arrays & memory','01-linear-arrays.html'],
+    ['2','Operations on an array','02-array-operations.html'],
+    ['3','2D arrays, matrices & sparse','03-2d-arrays.html'],
+    ['4','Strings & pattern matching','04-strings.html']
+  ];
+  var here=(location.pathname.split('/').pop()||'');
+  var base = '';
+  var root = /2321-theory|2322-lab/.test(location.pathname) ? '../../index.html' : '../index.html';
+
+  var scrim=document.createElement('div'); scrim.className='scrim';
+  var dr=document.createElement('aside'); dr.className='drawer';
+  dr.setAttribute('aria-hidden','true');
+
+  var secs='';
+  var cards=document.querySelectorAll('.panel:not([hidden]) .card');
+  for(var i=0;i<cards.length;i++){
+    var h=cards[i].querySelector('h2');
+    if(!h)continue;
+    var b=cards[i].querySelector('.badge');
+    secs+='<button class="dl dsec" data-jump="'+i+'"><span class="dn2">'+(b?b.textContent:(i+1))+'</span>'+
+          h.textContent.trim()+'</button>';
+  }
+
+  var links=CLASSES.map(function(c){
+    var on = c[2] && here===c[2];
+    if(!c[2]) return '<span class="dl" style="opacity:.45;cursor:default"><span class="dn2">'+c[0]+'</span>'+c[1]+' — soon</span>';
+    return '<a class="dl'+(on?' here':'')+'" href="'+base+c[2]+'"><span class="dn2">'+c[0]+'</span>'+c[1]+'</a>';
+  }).join('');
+
+  dr.innerHTML='<div class="dh"><p>CSE-2321 · Segment 2</p><b>Jump to</b>'+
+    '<button class="dx" aria-label="Close">✕</button></div>'+
+    '<div class="db">'+
+      '<a class="dl home2" href="'+root+'">☰ &nbsp;All classes &amp; the full course</a>'+
+      '<p class="grp">Segment 2 · Arrays &amp; Strings<span></span></p>'+links+
+      (secs?'<p class="grp">On this page<span></span></p>'+secs:'')+
+    '</div>';
+
+  var fab=document.createElement('div'); fab.className='fab';
+  fab.innerHTML='<button class="fup" aria-label="Previous section">↑</button>'+
+                '<button class="fdn" aria-label="Next section">↓</button>'+
+                '<button class="fmenu" aria-label="Open navigation">☰</button>';
+  document.body.appendChild(scrim); document.body.appendChild(dr); document.body.appendChild(fab);
+
+  function open(v){
+    dr.classList.toggle('on',v); scrim.classList.toggle('on',v);
+    dr.setAttribute('aria-hidden', v?'false':'true');
+    document.body.style.overflow = v?'hidden':'';
+  }
+  fab.querySelector('.fmenu').onclick=function(){open(!dr.classList.contains('on'));};
+  fab.querySelector('.fup').onclick=function(){jump(-1);};
+  fab.querySelector('.fdn').onclick=function(){jump(1);};
+  dr.querySelector('.dx').onclick=function(){open(false);};
+  scrim.onclick=function(){open(false);};
+  dr.addEventListener('click',function(e){
+    var b=e.target.closest('[data-jump]'); if(!b)return;
+    open(false);
+    var c=document.querySelectorAll('.panel:not([hidden]) .card')[+b.dataset.jump];
+    if(c) setTimeout(function(){window.scrollTo({top:Math.max(c.offsetTop-80,0),behavior:'smooth'});},180);
+  });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') open(false); });
+})();
+
+
+/* ---------- CODE THEME TOGGLE ---------- */
+(function(){
+  var KEY='dsa-code-theme';
+  var saved=null; try{saved=localStorage.getItem(KEY);}catch(e){}
+  if(saved!=='dark') document.body.classList.add('codelight');
+  var tabs=document.querySelector('.tabs');
+  if(!tabs)return;
+  var b=document.createElement('button');
+  b.className='codetog'; b.type='button';
+  function label(){ b.textContent = document.body.classList.contains('codelight') ? '🌙 Dark code' : '☀ Light code'; }
+  label();
+  b.addEventListener('click',function(){
+    document.body.classList.toggle('codelight');
+    try{localStorage.setItem(KEY, document.body.classList.contains('codelight')?'light':'dark');}catch(e){}
+    label();
+  });
+  tabs.appendChild(b);
+})();
+
+</script>
+</body>
+</html>

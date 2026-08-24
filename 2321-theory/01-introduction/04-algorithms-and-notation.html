@@ -1,0 +1,2189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algorithms and How We Write Them — CSE-2321 Class 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500;700&family=Noto+Serif+Bengali:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --mono:'Fira Code',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  --bn:'Noto Serif Bengali','Kalpurush','SolaimanLipi','Nirmala UI',serif;
+  --bg:#f1f5f9; --panel:#ffffff; --ink:#1e293b; --ink-soft:#475569; --ink-mute:#64748b;
+  --line:#e2e8f0; --line-strong:#cbd5e1; --dark:#0f172a; --dark-2:#1e293b;
+  --accent:#4f46e5;
+  --r:1rem; --r-sm:.6rem;
+  --sh-sm:0 1px 2px rgba(15,23,42,.06),0 1px 3px rgba(15,23,42,.04);
+  --sh-md:0 4px 6px -1px rgba(15,23,42,.07),0 2px 4px -2px rgba(15,23,42,.05);
+  --sh-lg:0 12px 28px -8px rgba(15,23,42,.18);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
+body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.65;font-size:16px;
+     -webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3,h4{line-height:1.25;margin:0}
+p{margin:0 0 1rem}
+p:last-child{margin-bottom:0}
+a{color:var(--accent)}
+.mono{font-family:var(--mono)}
+.bn{font-family:var(--bn);line-height:1.95;font-size:1.02rem}
+.wrap{max-width:1080px;margin:0 auto;padding:0 1rem}
+@media(min-width:768px){ .wrap{padding:0 1.75rem} body{font-size:16.5px} }
+
+/* ============ HEADER + TABS ============ */
+.topbar{position:sticky;top:0;z-index:60;background:rgba(15,23,42,.97);backdrop-filter:blur(10px);
+        border-bottom:1px solid #334155;color:#e2e8f0}
+.topbar-in{max-width:1080px;margin:0 auto;padding:.6rem 1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+@media(min-width:768px){.topbar-in{padding:.7rem 1.75rem}}
+.brand{display:flex;align-items:center;gap:.6rem;min-width:0}
+.brand-badge{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#6366f1,#8b5cf6);
+             display:grid;place-items:center;font-weight:900;font-size:.8rem;color:#fff;flex:0 0 auto}
+.brand-t{font-size:.78rem;font-weight:800;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand-s{font-size:.66rem;color:#94a3b8;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.tabs{display:flex;gap:.3rem;margin-left:auto;overflow-x:auto;scrollbar-width:none;padding:2px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{appearance:none;border:1px solid transparent;background:transparent;color:#94a3b8;font-family:inherit;
+     font-size:.78rem;font-weight:700;padding:.42rem .85rem;border-radius:.5rem;cursor:pointer;white-space:nowrap;
+     transition:background .15s,color .15s}
+.tab:hover{color:#e2e8f0;background:#1e293b}
+.tab[aria-selected="true"]{background:#e2e8f0;color:#0f172a}
+.tab:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px solid #818cf8;outline-offset:2px}
+.panel[hidden]{display:none}
+
+/* progress rail */
+.rail{height:3px;background:#1e293b;position:relative;overflow:hidden}
+.rail>i{position:absolute;inset:0 100% 0 0;background:linear-gradient(90deg,#6366f1,#22d3ee);transition:right .1s linear}
+
+/* ============ HERO ============ */
+.hero{background:linear-gradient(160deg,#0f172a 0%,#1e1b4b 55%,#312e81 100%);color:#e2e8f0;
+      padding:3rem 0 3.4rem;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;width:520px;height:520px;right:-180px;top:-200px;border-radius:50%;
+             background:radial-gradient(circle,rgba(99,102,241,.32),transparent 68%)}
+.hero .wrap{position:relative;z-index:1}
+.eyebrow{font-size:.68rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#a5b4fc;margin-bottom:.9rem}
+.hero h1{font-size:clamp(1.85rem,6.4vw,3.4rem);font-weight:900;letter-spacing:-.025em;margin-bottom:1rem}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,#818cf8,#22d3ee);-webkit-background-clip:text;
+            background-clip:text;color:transparent}
+.hero-lede{font-size:clamp(1rem,2.5vw,1.15rem);color:#cbd5e1;max-width:44rem}
+.arc{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1.6rem}
+.arc span{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:.4rem .7rem;
+          border-radius:999px;border:1px solid rgba(148,163,184,.35);color:#cbd5e1;background:rgba(15,23,42,.4)}
+.arc span b{color:#fff}
+.hero-meta{display:flex;flex-wrap:wrap;gap:1.4rem;margin-top:1.8rem;font-size:.8rem;color:#94a3b8}
+.hero-meta b{color:#e2e8f0;display:block;font-size:1.05rem;font-weight:800}
+
+/* ============ CARDS ============ */
+main{padding:2.6rem 0 4rem}
+.card{background:var(--panel);border-radius:var(--r);box-shadow:var(--sh-md);padding:1.5rem 1.25rem;
+      margin-bottom:2.6rem;position:relative;border-top:4px solid var(--accent)}
+@media(min-width:768px){.card{padding:2rem 2.25rem}}
+.card>.badge{position:absolute;top:-1.15rem;left:1.25rem;width:2.4rem;height:2.4rem;border-radius:50%;
+             background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:900;font-size:1rem;
+             border:4px solid var(--bg);z-index:2}
+@media(min-width:768px){.card>.badge{left:2rem}}
+.card.numbered{padding-top:2.1rem}
+@media(min-width:768px){.card.numbered{padding-top:2.4rem}}
+.kicker{font-size:.66rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:.45rem}
+.card h2{font-size:clamp(1.2rem,3.6vw,1.7rem);font-weight:800;letter-spacing:-.015em;margin-bottom:.35rem}
+.card h3{font-size:1.02rem;font-weight:800;margin:1.5rem 0 .5rem}
+.subtle{color:var(--ink-mute);font-size:.85rem;font-weight:600}
+.timechip{display:inline-flex;align-items:center;gap:.35rem;font-size:.68rem;font-weight:800;letter-spacing:.05em;
+          padding:.24rem .6rem;border-radius:999px;background:#f1f5f9;color:var(--ink-mute);border:1px solid var(--line)}
+.hdr-row{display:flex;align-items:flex-start;gap:1rem;flex-wrap:wrap;justify-content:space-between;margin-bottom:1.1rem}
+
+/* ============ DARK "SO WHAT" PANEL ============ */
+.bridge{background:linear-gradient(135deg,#0f172a,#1e293b);border-left:5px solid var(--accent);
+        border-radius:.85rem;padding:1.25rem 1.1rem;color:#cbd5e1;margin:1.4rem 0;box-shadow:var(--sh-md)}
+@media(min-width:768px){.bridge{padding:1.5rem 1.6rem}}
+.bridge .lbl{font-size:.64rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#818cf8;margin-bottom:.5rem}
+.bridge p{margin-bottom:.7rem}
+.bridge strong,.bridge b{color:#fff}
+.bridge .say{font-size:clamp(1.02rem,2.9vw,1.28rem);font-weight:800;color:#fff;line-height:1.45}
+
+/* ============ GENERIC BOXES ============ */
+.box{background:#f8fafc;border:1px solid var(--line);border-radius:.8rem;padding:1rem 1.1rem;margin:1rem 0}
+.box.warn{background:#fffbeb;border-color:#fde68a}
+.box.bad{background:#fff1f2;border-color:#fecdd3}
+.box.good{background:#f0fdf4;border-color:#bbf7d0}
+.box.info{background:#eff6ff;border-color:#bfdbfe}
+.box .bt{font-weight:800;font-size:.8rem;letter-spacing:.02em;margin-bottom:.35rem;display:flex;align-items:center;gap:.4rem}
+.box.warn .bt{color:#b45309}.box.bad .bt{color:#be123c}.box.good .bt{color:#15803d}.box.info .bt{color:#1d4ed8}
+.box p{font-size:.9rem;margin-bottom:.5rem}
+.grid2{display:grid;gap:1rem}
+@media(min-width:720px){.grid2{grid-template-columns:1fr 1fr}}
+.grid3{display:grid;gap:.8rem}
+@media(min-width:720px){.grid3{grid-template-columns:repeat(3,1fr)}}
+
+/* ============ TABLES ============ */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:1.1rem 0;border:1px solid var(--line);border-radius:.8rem;background:#fff}
+table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:520px}
+th{background:#f8fafc;text-align:left;font-weight:800;font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;
+   color:var(--ink-mute);padding:.65rem .85rem;border-bottom:1px solid var(--line)}
+td{padding:.7rem .85rem;border-bottom:1px solid #f1f5f9;vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.num{font-family:var(--mono);font-weight:600;white-space:nowrap}
+.hl-bad{color:#be123c;font-weight:800}
+.hl-good{color:#15803d;font-weight:800}
+
+/* ============ CODE ============ */
+pre.code{font-family:var(--mono);font-size:.78rem;line-height:1.75;background:#0f172a;color:#e2e8f0;
+         padding:1rem;border-radius:.7rem;overflow-x:auto;margin:.8rem 0}
+@media(min-width:768px){pre.code{font-size:.83rem}}
+.k{color:#c4b5fd}.t{color:#fcd34d}.f{color:#7dd3fc}.n{color:#fdba74}.c{color:#64748b;font-style:italic}.s{color:#86efac}
+
+/* ============ BUTTONS ============ */
+.btn{appearance:none;font-family:inherit;font-weight:800;font-size:.82rem;padding:.6rem 1.15rem;border-radius:.55rem;
+     cursor:pointer;border:none;background:var(--accent);color:#fff;box-shadow:var(--sh-sm);
+     transition:filter .15s,transform .1s}
+.btn:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn.ghost{background:#fff;color:var(--ink-soft);border:2px solid var(--line)}
+.btn.ghost:hover:not(:disabled){border-color:var(--line-strong);color:var(--ink)}
+.btn.sm{font-size:.74rem;padding:.42rem .8rem}
+.btnrow{display:flex;flex-wrap:wrap;gap:.5rem;margin:.9rem 0}
+
+/* ============ QUIZ ============ */
+.quiz{border:2px solid #e2e8f0;border-radius:.85rem;overflow:hidden;margin:1.3rem 0;background:#fff}
+.quiz .qh{background:#f8fafc;padding:.75rem 1rem;font-size:.66rem;font-weight:800;letter-spacing:.12em;
+          text-transform:uppercase;color:var(--ink-mute);border-bottom:1px solid var(--line)}
+.quiz .qq{padding:1rem;font-weight:700;font-size:.95rem}
+.qopts{display:grid;gap:.45rem;padding:0 1rem 1rem}
+.qopt{appearance:none;text-align:left;font-family:inherit;font-size:.87rem;font-weight:600;padding:.65rem .85rem;
+      border:2px solid var(--line);border-radius:.55rem;background:#fff;color:var(--ink-soft);cursor:pointer;transition:.15s}
+.qopt:hover:not(:disabled){border-color:var(--line-strong);background:#f8fafc}
+.qopt.ok{border-color:#22c55e;background:#f0fdf4;color:#15803d}
+.qopt.no{border-color:#f43f5e;background:#fff1f2;color:#be123c}
+.qopt:disabled{cursor:default}
+.qexp{display:none;padding:1rem;background:#0f172a;color:#cbd5e1;font-size:.87rem;border-top:1px solid var(--line)}
+.qexp.show{display:block}
+.qexp b{color:#fff}
+
+/* ============ TRANSCRIPT MAPPER ============ */
+.tmap{display:grid;gap:.45rem}
+.trow{display:flex;align-items:center;gap:.7rem;padding:.6rem .8rem;border:1px solid var(--line);border-radius:.55rem;
+      background:#fff;cursor:pointer;transition:.18s;text-align:left;font-family:inherit;width:100%;appearance:none}
+.trow:hover{border-color:var(--line-strong);transform:translateX(3px)}
+.trow .tq{flex:1;font-size:.86rem;font-weight:600;color:var(--ink-soft);min-width:0}
+.trow .tw2{font-size:.66rem;font-weight:800;letter-spacing:.04em;padding:.24rem .55rem;border-radius:999px;
+          background:#f1f5f9;color:#94a3b8;white-space:nowrap;opacity:0;transition:opacity .3s}
+.trow.on{border-color:#6366f1;background:#eef2ff}
+.trow.on .tq{color:#1e293b}
+.trow.on .tw2{opacity:1;background:#4f46e5;color:#fff}
+
+/* ============ GUESS WIDGET ============ */
+.guess{display:grid;gap:.5rem;margin:1rem 0}
+.gopt{appearance:none;font-family:inherit;text-align:left;padding:.8rem 1rem;border:2px solid var(--line);
+      border-radius:.6rem;background:#fff;cursor:pointer;font-weight:700;font-size:.92rem;color:var(--ink-soft);transition:.15s}
+.gopt:hover:not(:disabled){border-color:#818cf8;background:#eef2ff}
+.gopt.picked{border-color:#4f46e5;background:#eef2ff;color:#312e81}
+.gopt.truth{border-color:#22c55e;background:#f0fdf4;color:#15803d}
+.gopt:disabled{cursor:default}
+.bignum{font-family:var(--mono);font-size:clamp(2rem,10vw,4.2rem);font-weight:700;line-height:1;letter-spacing:-.03em}
+.reveal{background:linear-gradient(135deg,#0f172a,#312e81);color:#fff;border-radius:.9rem;padding:1.6rem 1.1rem;
+        text-align:center;margin:1.1rem 0;display:none}
+.reveal.show{display:block;animation:pop .5s ease}
+@keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+.reveal .cap{font-size:.68rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#a5b4fc;margin-bottom:.6rem}
+.reveal .sub{color:#c7d2fe;font-size:.88rem;margin-top:.7rem}
+
+/* ============ RACE / COUNTERS ============ */
+.race{display:grid;gap:.9rem;margin:1.1rem 0}
+@media(min-width:720px){.race{grid-template-columns:1fr 1fr}}
+.lane{border:2px solid var(--line);border-radius:.85rem;padding:1rem;background:#fff}
+.lane.win{border-color:#22c55e;background:#f0fdf4}
+.lane.lose{border-color:#fb7185;background:#fff1f2}
+.lane h4{font-size:.9rem;font-weight:800;margin-bottom:.15rem}
+.lane .way{font-size:.7rem;font-weight:700;color:var(--ink-mute);margin-bottom:.7rem}
+.meter{height:12px;border-radius:999px;background:#e2e8f0;overflow:hidden;margin:.6rem 0}
+.meter>i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#6366f1,#22d3ee);transition:width .08s linear}
+.lane.lose .meter>i{background:linear-gradient(90deg,#f43f5e,#fb923c)}
+.lane.win .meter>i{background:linear-gradient(90deg,#16a34a,#4ade80)}
+.count{font-family:var(--mono);font-size:1.35rem;font-weight:700;letter-spacing:-.02em}
+.pct{font-family:var(--mono);font-size:.74rem;color:var(--ink-mute);font-weight:600}
+.verdict{font-weight:800;font-size:.82rem;margin-top:.5rem;min-height:1.2rem}
+
+/* ============ STACK TOY ============ */
+.stacks{display:grid;gap:1rem;margin:1rem 0}
+@media(min-width:600px){.stacks{grid-template-columns:1fr 1fr}}
+.stk{border:2px solid var(--line);border-radius:.8rem;background:#f8fafc;padding:.9rem;min-height:210px;
+     display:flex;flex-direction:column}
+.stk h5{font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);
+        margin-bottom:.6rem;text-align:center}
+.stk.flash{animation:flash .55s ease}
+@keyframes flash{0%,100%{background:#f8fafc;border-color:var(--line)}40%{background:#fee2e2;border-color:#f87171}}
+.cells{display:flex;flex-direction:column-reverse;gap:.3rem;flex:1;justify-content:flex-start}
+.cell{background:#fff;border:2px solid #6366f1;border-radius:.4rem;padding:.4rem;text-align:center;
+      font-family:var(--mono);font-weight:700;font-size:.95rem;color:#4338ca;animation:drop .25s ease}
+.stk.redo .cell{border-color:#f59e0b;color:#b45309}
+@keyframes drop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.empty{color:#cbd5e1;font-size:.78rem;text-align:center;font-weight:700;margin:auto 0}
+.typed{font-family:var(--mono);font-size:1.1rem;font-weight:700;background:#0f172a;color:#e2e8f0;padding:.7rem .9rem;
+       border-radius:.5rem;min-height:2.9rem;word-break:break-all;letter-spacing:.02em}
+.typed .car{display:inline-block;width:2px;height:1.05em;background:#22d3ee;vertical-align:-2px;animation:bl 1s steps(2) infinite}
+@keyframes bl{50%{opacity:0}}
+
+/* ============ PLATFORM CARDS ============ */
+.plat{display:grid;gap:1rem;margin:1.2rem 0}
+@media(min-width:760px){.plat{grid-template-columns:1fr 1fr}}
+.pcard{border:2px solid var(--line);border-radius:.9rem;overflow:hidden;background:#fff}
+.pcard .ph{padding:1rem 1.1rem;color:#fff}
+.pcard.lc .ph{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.pcard.cf .ph{background:linear-gradient(135deg,#1d4ed8,#3b82f6)}
+.pcard .ph h4{font-size:1.15rem;font-weight:900}
+.pcard .ph p{font-size:.78rem;opacity:.92;margin:0}
+.pcard .pb{padding:1rem 1.1rem}
+.pcard dl{margin:0;display:grid;gap:.6rem}
+.pcard dt{font-size:.63rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute)}
+.pcard dd{margin:.1rem 0 0;font-size:.86rem;font-weight:600;color:var(--ink-soft)}
+
+/* ============ MISC ============ */
+.shot{border-radius:.7rem;border:1px solid var(--line);max-width:100%;height:auto;display:block;box-shadow:var(--sh-md)}
+figure{margin:1rem 0}
+figcaption{font-size:.74rem;color:var(--ink-mute);margin-top:.5rem;font-weight:600}
+details{border:1px solid var(--line);border-radius:.6rem;background:#fff;margin:.7rem 0;overflow:hidden}
+details>summary{cursor:pointer;padding:.75rem 1rem;font-weight:700;font-size:.87rem;background:#f8fafc;list-style:none;
+                display:flex;align-items:center;gap:.5rem}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"+";font-family:var(--mono);font-weight:700;color:var(--accent);width:1rem}
+details[open]>summary::before{content:"–"}
+details>div{padding:1rem;border-top:1px solid var(--line);font-size:.88rem}
+ul.tight,ol.tight{margin:.6rem 0;padding-left:1.3rem}
+ul.tight li,ol.tight li{margin-bottom:.4rem;font-size:.9rem}
+.note13{background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;border-radius:.85rem;
+        padding:1.1rem;margin:1.3rem 0;display:flex;gap:.9rem;align-items:flex-start}
+.note13 .ic{font-size:1.5rem;line-height:1;flex:0 0 auto}
+.note13 b{color:#92400e}
+.note13 p{font-size:.88rem;color:#78350f;margin:0}
+.sec-nav{position:fixed;right:.6rem;bottom:.6rem;z-index:50;display:flex;gap:.35rem;background:rgba(15,23,42,.94);
+         padding:.35rem;border-radius:.6rem;box-shadow:var(--sh-lg)}
+.sec-nav button{appearance:none;border:none;background:transparent;color:#94a3b8;font-size:1rem;cursor:pointer;
+                padding:.3rem .5rem;border-radius:.35rem;line-height:1}
+.sec-nav button:hover{background:#334155;color:#fff}
+@media print{.topbar,.sec-nav{display:none}.card{break-inside:avoid;box-shadow:none;border:1px solid #ccc}}
+
+/* ============ CLASS 3 · ALGORITHM NOTATION ============ */
+.algo{background:#fff;border:2px solid var(--line);border-radius:.8rem;overflow:hidden;margin:1rem 0;
+      font-family:var(--mono);font-size:clamp(.72rem,2.9vw,.88rem);line-height:1.9}
+.algo .ahead{background:#fffbeb;border-bottom:2px solid #fde68a;padding:.8rem 1rem;font-family:var(--sans);
+             font-size:.82rem;color:#78350f;line-height:1.6}
+.algo .ahead b{color:#92400e}
+.algo .body{padding:.7rem .4rem}
+.algo .st{display:block;padding:.22rem .7rem;border-radius:.3rem;white-space:pre-wrap;transition:background .2s;color:#334155}
+.algo .st.cur{background:#fef3c7;box-shadow:inset 3px 0 0 #d97706;font-weight:700;color:#78350f}
+.algo .st.done{color:#94a3b8}
+.algo .st .cm{color:#0891b2;font-style:italic}
+.algo .st .kw{color:#be123c;font-weight:700}
+.algo .st .vr{color:#7c3aed;font-weight:700}
+.algo .st .op{color:#d97706;font-weight:700}
+
+/* variable watch */
+.vars{display:grid;gap:.45rem;margin:.9rem 0}
+@media(min-width:540px){.vars{grid-template-columns:repeat(4,1fr)}}
+.vcell{border:1px solid var(--line);border-radius:.5rem;padding:.5rem;text-align:center;background:#f8fafc;transition:.2s}
+.vcell.bump{background:#fef3c7;border-color:#fbbf24;transform:scale(1.05)}
+.vcell .vk{font-family:var(--mono);font-size:.62rem;font-weight:800;letter-spacing:.08em;color:var(--ink-mute)}
+.vcell .vv{font-family:var(--mono);font-size:1.2rem;font-weight:700;color:var(--ink)}
+.arr{display:flex;gap:.3rem;flex-wrap:wrap;margin:.8rem 0;justify-content:center}
+.acell{min-width:46px;border:2px solid var(--line);border-radius:.4rem;background:#fff;text-align:center;padding:.35rem .2rem;transition:.2s}
+.acell .ai{font-family:var(--mono);font-size:.55rem;color:#94a3b8;font-weight:700}
+.acell .av{font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--ink)}
+.acell.look{border-color:#d97706;background:#fffbeb;transform:translateY(-3px)}
+.acell.best{border-color:#16a34a;background:#f0fdf4}
+.acell.best .av{color:#15803d}
+
+/* spot the mistake */
+.findbug{background:#0f172a;border-radius:.7rem;padding:1rem;font-family:var(--mono);
+         font-size:clamp(.72rem,2.9vw,.88rem);line-height:2.1;color:#cbd5e1;margin:1rem 0;overflow-x:auto}
+.findbug .tok{cursor:pointer;border-radius:3px;padding:1px 3px;transition:.15s;border-bottom:2px dotted #475569}
+.findbug .tok:hover{background:#1e293b;border-bottom-color:#94a3b8}
+.findbug .tok.got{background:#14532d;color:#86efac;border-bottom:2px solid #22c55e;cursor:default}
+.findbug .tok.miss{background:#7f1d1d;color:#fecaca;animation:shake .35s}
+.findbug .fix{color:#86efac;font-weight:700}
+.bugbar{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;margin:.8rem 0}
+.bugbar .cnt{font-family:var(--mono);font-weight:700;font-size:1.05rem;color:var(--ink)}
+.bugbar .dots{display:flex;gap:.28rem}
+.bugbar .dots i{width:11px;height:11px;border-radius:50%;background:#e2e8f0;display:block}
+.bugbar .dots i.on{background:#16a34a}
+.buglog{font-size:.82rem;color:var(--ink-soft);min-height:1.4rem;font-weight:600}
+
+/* halving */
+.halve{margin:1rem 0}
+.hbar{height:34px;background:linear-gradient(90deg,#d97706,#f59e0b);border-radius:.4rem;
+      transition:width .45s cubic-bezier(.4,0,.2,1);display:grid;place-items:center;color:#fff;
+      font-family:var(--mono);font-weight:700;font-size:.85rem;min-width:42px;box-shadow:var(--sh-sm)}
+.htrack{background:#f1f5f9;border-radius:.4rem;padding:3px;border:1px solid var(--line)}
+.hsteps{display:flex;gap:.3rem;flex-wrap:wrap;margin:.8rem 0}
+.hstep{font-family:var(--mono);font-size:.72rem;font-weight:700;padding:.28rem .55rem;border-radius:.35rem;
+       background:#fef3c7;color:#92400e;border:1px solid #fde68a;animation:drop .25s}
+
+/* expansion chips */
+.expand{font-family:var(--mono);font-size:clamp(.8rem,3.2vw,1.05rem);font-weight:700;line-height:2;
+        background:#f8fafc;border:1px solid var(--line);border-radius:.6rem;padding:.9rem;margin:.9rem 0;
+        overflow-x:auto;white-space:nowrap}
+.expand .eq{color:#d97706}
+.expand .res{color:#15803d;font-size:1.15em}
+.fibrow{display:flex;gap:.35rem;flex-wrap:wrap;margin:.9rem 0}
+.fib{min-width:52px;text-align:center;border:2px solid var(--line);border-radius:.45rem;padding:.35rem .2rem;background:#fff}
+.fib .fi{font-family:var(--mono);font-size:.55rem;color:#94a3b8;font-weight:700}
+.fib .fv{font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--ink)}
+.fib.add{border-color:#d97706;background:#fffbeb}
+.fib.add .fv{color:#b45309}
+.fib.newv{border-color:#16a34a;background:#f0fdf4;animation:drop .3s}
+.fib.newv .fv{color:#15803d}
+
+/* control structure cards */
+.cs{border:2px solid var(--line);border-radius:.8rem;overflow:hidden;background:#fff;margin-bottom:.9rem}
+.cs .csh{padding:.65rem 1rem;font-weight:800;font-size:.85rem;display:flex;align-items:center;gap:.5rem}
+.cs.seq .csh{background:#eff6ff;color:#1d4ed8;border-bottom:1px solid #bfdbfe}
+.cs.sel .csh{background:#f5f3ff;color:#6d28d9;border-bottom:1px solid #ddd6fe}
+.cs.itr .csh{background:#ecfdf5;color:#047857;border-bottom:1px solid #a7f3d0}
+.cs .csb{padding:.9rem 1rem;font-family:var(--mono);font-size:clamp(.72rem,2.9vw,.85rem);line-height:1.95;
+         white-space:pre-wrap;color:#334155}
+.cs .csn{padding:.7rem 1rem;background:#f8fafc;border-top:1px solid var(--line);font-size:.8rem;color:var(--ink-soft)}
+
+/* ============ SHARED BYLINE (all pages) ============ */
+.byline{display:flex;align-items:center;gap:.75rem;margin-top:1.9rem;padding-top:1.15rem;
+        border-top:1px solid rgba(148,163,184,.22)}
+.byline .av{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.11);
+            border:1px solid rgba(148,163,184,.3);display:grid;place-items:center;
+            font-weight:800;font-size:.7rem;color:#fff;letter-spacing:.03em;flex:0 0 auto}
+.byline .who{font-size:.82rem;font-weight:700;color:#e2e8f0;line-height:1.4;min-width:0}
+.byline .who span{display:block;font-size:.7rem;font-weight:500;color:#94a3b8}
+.pagefoot{border-top:1px solid var(--line);background:#fff;padding:1.7rem 0 2.2rem;margin-top:2rem}
+.pagefoot .fin{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;justify-content:space-between}
+.pagefoot .fw{display:flex;align-items:center;gap:.7rem}
+.pagefoot .av{width:34px;height:34px;border-radius:50%;background:#0f172a;color:#fff;display:grid;
+              place-items:center;font-weight:800;font-size:.68rem;flex:0 0 auto}
+.pagefoot .nm{font-size:.8rem;font-weight:700;color:var(--ink);line-height:1.4}
+.pagefoot .nm span{display:block;font-size:.7rem;font-weight:500;color:var(--ink-mute)}
+.pagefoot .dept{font-size:.72rem;color:var(--ink-mute);font-weight:600}
+.pagefoot a{color:var(--ink-mute);text-decoration:none;font-weight:700}
+.pagefoot a:hover{color:var(--accent)}
+
+
+/* ============ PREV / INDEX / NEXT ============ */
+.pagenav{display:grid;gap:.6rem;margin:2.6rem 0 0}
+@media(min-width:700px){.pagenav{grid-template-columns:1fr auto 1fr;align-items:stretch}}
+.pn{display:flex;align-items:center;gap:.75rem;border:1px solid var(--line);border-radius:.75rem;padding:.85rem 1rem;
+    background:#fff;text-decoration:none;color:inherit;transition:.16s;box-shadow:var(--sh-sm);min-height:64px}
+a.pn:hover{border-color:var(--accent);box-shadow:var(--sh-md);transform:translateY(-2px)}
+.pn.off{opacity:.4;pointer-events:none;border-style:dashed;background:transparent;box-shadow:none}
+.pn .ar{font-size:1.1rem;color:var(--accent);flex:0 0 auto;font-weight:700}
+.pn.off .ar{color:#cbd5e1}
+.pn .tx{min-width:0;flex:1}
+.pn .tx em{font-style:normal;display:block;font-size:.6rem;font-weight:800;letter-spacing:.11em;
+           text-transform:uppercase;color:var(--ink-mute)}
+.pn .tx b{display:block;font-size:.86rem;font-weight:700;line-height:1.35;margin-top:.12rem}
+.pn.nx{text-align:right}
+.pn.nx .ar{order:2}
+.pn.nx .tx{order:1}
+.pn.home{justify-content:center;text-align:center;flex-direction:column;gap:.2rem;padding:.85rem 1.4rem;min-width:120px}
+.pn.home .ar{font-size:1.2rem;color:var(--ink-mute)}
+.pn.home b{font-size:.76rem}
+
+/* ============ RESPONSIVE HARDENING ============ */
+img,svg,video,canvas{max-width:100%;height:auto}
+pre,code,.mono{overflow-wrap:break-word}
+pre.code{white-space:pre;word-break:normal}
+table{min-width:0}
+.tw table{min-width:480px}
+@media(max-width:420px){
+  .wrap{padding:0 .8rem}
+  .card{padding:1.15rem .9rem;border-radius:.8rem}
+  .card.numbered{padding-top:1.9rem}
+  .card>.badge{left:.9rem;width:2.1rem;height:2.1rem;font-size:.85rem}
+  .box{padding:.8rem .85rem}
+  .bridge{padding:1rem .9rem}
+  pre.code{font-size:.7rem;padding:.8rem .7rem}
+  .hero{padding:2.2rem 0 2.4rem}
+  .timechip{display:none}
+  .hdr-row{gap:.4rem}
+}
+@media(max-width:340px){ .bit{width:30px} .byte{width:26px;height:26px;line-height:26px} }
+
+/* footer + pagenav centring */
+.pagenav{margin:2.6rem auto 0 !important}
+.pagefoot .fin{justify-content:center;text-align:center}
+@media(min-width:700px){.pagefoot .fin{justify-content:space-between;text-align:left}}
+.pagefoot .dept{text-align:center}
+@media(min-width:700px){.pagefoot .dept{text-align:right}}
+@media(max-width:699px){
+  .pagenav{grid-template-columns:1fr}
+  .pn{justify-content:flex-start}
+  .pn.nx{text-align:left}
+  .pn.nx .ar{order:0}.pn.nx .tx{order:1}
+  .pn.home{flex-direction:row;justify-content:center;gap:.5rem}
+}
+
+/* ============ FLOATING JUMP DRAWER ============ */
+.fab{position:fixed;right:.7rem;bottom:.7rem;z-index:90;display:flex;flex-direction:column;gap:.4rem}
+.fab button{width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;display:grid;place-items:center;
+            font-size:1.05rem;box-shadow:var(--sh-lg);transition:transform .15s,filter .15s;font-family:inherit}
+.fab button:hover{transform:scale(1.07)}
+.fab .fmenu{background:var(--acc,#4f46e5);color:#fff;font-size:1.15rem}
+.fab .fup,.fab .fdn{background:rgba(15,23,42,.92);color:#e2e8f0;width:38px;height:38px;font-size:.9rem;margin:0 3px}
+@media(max-width:520px){.fab .fup,.fab .fdn{display:none}}
+
+.scrim{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:95;opacity:0;pointer-events:none;transition:opacity .22s}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;right:0;top:0;bottom:0;width:min(340px,86vw);background:#fff;z-index:96;
+        box-shadow:-8px 0 30px rgba(15,23,42,.22);transform:translateX(105%);transition:transform .26s cubic-bezier(.4,0,.2,1);
+        display:flex;flex-direction:column;overflow:hidden}
+.drawer.on{transform:none}
+.drawer .dh{background:linear-gradient(140deg,var(--h1,#0f172a),var(--h3,#312e81));color:#fff;padding:1.05rem 1.1rem;flex:0 0 auto}
+.drawer .dh p{font-size:.6rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:#a5b4fc;margin:0 0 .2rem}
+.drawer .dh b{font-size:1rem;font-weight:800;display:block;line-height:1.3}
+.drawer .dx{position:absolute;right:.7rem;top:.7rem;background:rgba(255,255,255,.14);border:none;color:#fff;
+            width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem;line-height:1}
+.drawer .db{overflow-y:auto;padding:.85rem;flex:1}
+.drawer .grp{font-size:.6rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);
+             margin:.9rem .2rem .45rem;display:flex;align-items:center;gap:.45rem}
+.drawer .grp:first-child{margin-top:0}
+.drawer .grp span{height:1px;background:var(--line);flex:1}
+.drawer a.dl,.drawer button.dl{display:flex;align-items:center;gap:.55rem;width:100%;text-align:left;font-family:inherit;
+     border:1px solid var(--line);background:#fff;border-radius:.55rem;padding:.55rem .7rem;margin-bottom:.3rem;
+     text-decoration:none;color:var(--ink-soft);font-size:.82rem;font-weight:600;cursor:pointer;transition:.14s;line-height:1.4}
+.drawer a.dl:hover,.drawer button.dl:hover{border-color:var(--acc,#4f46e5);color:var(--ink);transform:translateX(2px)}
+.drawer a.dl.here{background:#eef2ff;border-color:#4f46e5;color:#3730a3;font-weight:800}
+.drawer .dn2{font-family:var(--mono);font-size:.62rem;font-weight:700;color:#fff;background:#94a3b8;border-radius:.28rem;
+             padding:.15rem .35rem;flex:0 0 auto;min-width:1.5rem;text-align:center}
+.drawer a.dl.here .dn2{background:#4f46e5}
+.drawer .home2{background:var(--h1,#0f172a);color:#fff;border-color:var(--h1,#0f172a);justify-content:center;font-weight:800}
+.drawer .home2:hover{color:#fff;filter:brightness(1.2)}
+.drawer .dsec{font-size:.78rem;padding:.42rem .7rem}
+.drawer .dsec .dn2{background:#e2e8f0;color:#64748b}
+
+/* ---- flowchart shapes gallery ---- */
+.shapes{display:grid;gap:.6rem;margin:1rem 0}
+@media(min-width:520px){.shapes{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:860px){.shapes{grid-template-columns:repeat(5,1fr)}}
+figure.shp{margin:0;border:1px solid var(--line);border-radius:.6rem;background:#fff;padding:.6rem;text-align:center}
+figure.shp svg{width:100%;height:auto;max-height:56px}
+figure.shp figcaption{margin-top:.4rem}
+figure.shp figcaption b{display:block;font-size:.78rem;font-weight:800;color:var(--ink)}
+figure.shp figcaption span{display:block;font-size:.68rem;color:var(--ink-mute);line-height:1.4;margin-top:.1rem}
+
+/* ---- running flowchart ---- */
+.fcwrap{display:grid;gap:1rem;margin:1.1rem 0;align-items:start}
+@media(min-width:780px){.fcwrap{grid-template-columns:minmax(0,320px) 1fr}}
+#fcsvg{width:100%;height:auto;max-width:340px;margin:0 auto;display:block;
+       border:1px solid var(--line);border-radius:.7rem;background:#fff;padding:.4rem}
+.fcn rect,.fcn path{fill:#f8fafc;stroke:#cbd5e1;stroke-width:2.5;transition:fill .25s,stroke .25s}
+.fcn text{font-family:Inter,sans-serif;font-size:12px;font-weight:700;fill:#64748b;text-anchor:middle;transition:fill .25s}
+.fcn.io rect,.fcn.io path{fill:#eff6ff;stroke:#93c5fd}
+.fcn.pr rect{fill:#f5f3ff;stroke:#c4b5fd}
+.fcn.de path{fill:#fffbeb;stroke:#fcd34d}
+.fcn.ok path{fill:#f0fdf4;stroke:#86efac}
+.fcn.no path{fill:#fff1f2;stroke:#fda4af}
+.fcn.cur rect,.fcn.cur path{fill:#e11d48;stroke:#9f1239}
+.fcn.cur text{fill:#fff}
+.fcedges line,.fcedges path{transition:stroke .25s}
+.fcside{min-width:0}
+.fclbl{font-size:.6rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-mute);margin:0 0 .4rem}
+.fcside .arr{justify-content:flex-start}
+.fcside .acell{min-width:44px}
+.fcside .acell.look{border-color:#e11d48;background:#fff1f2}
+.fcside .acell.look .av{color:#be123c}
+.fcside .acell.hitv{border-color:#16a34a;background:#dcfce7}
+.fcside .acell.hitv .av{color:#15803d}
+.vars{display:grid;gap:.45rem;margin:.8rem 0}
+.vcell{border:1px solid var(--line);border-radius:.5rem;padding:.45rem;text-align:center;background:#f8fafc}
+.vcell .vk{font-family:var(--mono);font-size:.6rem;font-weight:800;letter-spacing:.08em;color:var(--ink-mute)}
+.vcell .vv{font-family:var(--mono);font-size:1.15rem;font-weight:700;color:var(--ink)}
+
+.btn.ghost{background:#fff !important;color:var(--ink-soft) !important;border:2px solid var(--line) !important;box-shadow:none !important}
+.btn.ghost:hover:not(:disabled){border-color:var(--line-strong) !important;color:var(--ink) !important}
+
+/* ---- readout cards (were missing) ---- */
+.readout{display:grid;gap:.6rem;margin:1.1rem 0}
+@media(min-width:620px){.readout{grid-template-columns:repeat(3,1fr)}}
+.ro{border:2px solid var(--line);border-radius:.65rem;padding:.85rem .7rem;background:#fff;text-align:center}
+.ro .rk{font-size:.6rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-mute);margin:0}
+.ro .rv{font-family:var(--mono);font-size:clamp(1.3rem,5vw,1.8rem);font-weight:700;color:var(--ink);margin:.2rem 0 0;word-break:break-all}
+.ro.cool{border-color:#a5f3fc;background:#ecfeff}.ro.cool .rv{color:#0e7490}
+.ro.hot{border-color:#fecdd3;background:#fff1f2}.ro.hot .rv{color:#be123c}
+.inp{font-family:var(--mono);font-size:1rem;font-weight:600;padding:.6rem .8rem;border:2px solid var(--line);
+     border-radius:.5rem;background:#fff;color:var(--ink);width:100%;max-width:320px}
+.inp:focus{border-color:#d97706;outline:none}
+.opdesc{font-size:.87rem;color:var(--ink-soft);line-height:1.65;min-height:1.6rem}
+.opdesc b{color:var(--ink)}
+
+
+/* ---- factorial expansion, nicer ---- */
+.expand{font-family:var(--mono);font-size:clamp(.82rem,3.2vw,1.02rem);font-weight:700;line-height:2.1;
+        background:linear-gradient(180deg,#fffbeb,#fff);border:2px solid #fde68a;border-radius:.7rem;
+        padding:1rem 1.1rem;margin:.9rem 0;overflow-x:auto;white-space:nowrap;text-align:center}
+.expand .eq{color:#d97706;margin:0 .15rem}
+.expand .res{color:#15803d;font-size:1.25em;background:#f0fdf4;border-radius:.35rem;padding:.1rem .5rem;
+             border:1px solid #bbf7d0;display:inline-block}
+.expand b{color:#92400e;font-size:1.15em}
+
+/* ---- spot-the-mistake: one line per row ---- */
+.findbug{background:#0f172a;border-radius:.7rem;padding:1rem .6rem;font-family:var(--mono);
+         font-size:clamp(.72rem,2.9vw,.86rem);line-height:1;color:#cbd5e1;margin:1rem 0;
+         display:grid;gap:.3rem;overflow-x:auto}
+.fbline{display:block;white-space:pre;padding:.42rem .6rem;border-radius:.35rem;background:rgba(148,163,184,.06)}
+.findbug .tok{cursor:pointer;border-radius:3px;padding:1px 3px;transition:.15s;border-bottom:2px dotted #475569}
+.findbug .tok:hover{background:#1e293b;border-bottom-color:#94a3b8}
+.findbug .tok.got{background:#14532d;color:#86efac;border-bottom:2px solid #22c55e;cursor:default}
+.findbug .fix{color:#86efac;font-weight:700}
+
+/* ---- flowchart: no overlaps, live arrow highlight ---- */
+#fcsvg{width:100%;height:auto;max-width:400px;margin:0 auto;display:block;
+       border:1px solid var(--line);border-radius:.7rem;background:#fff;padding:.5rem}
+.fcn rect,.fcn path{fill:#f8fafc;stroke:#cbd5e1;stroke-width:2.5;transition:fill .25s,stroke .25s}
+.fcn text{font-family:Inter,sans-serif;font-size:12.5px;font-weight:700;fill:#64748b;text-anchor:middle;transition:fill .25s}
+.fcn.io rect,.fcn.io path{fill:#eff6ff;stroke:#93c5fd}
+.fcn.pr rect{fill:#f5f3ff;stroke:#c4b5fd}
+.fcn.de path{fill:#fffbeb;stroke:#fcd34d}
+.fcn.ok path{fill:#f0fdf4;stroke:#86efac}
+.fcn.no path{fill:#fff1f2;stroke:#fda4af}
+.fcn.cur rect,.fcn.cur path{fill:#e11d48;stroke:#9f1239}
+.fcn.cur text{fill:#fff}
+.fcedges .fe{transition:stroke .2s,stroke-width .2s}
+.fcedges .fe.lit{stroke:#e11d48;stroke-width:3.4;marker-end:url(#fah)}
+
+.exlist{display:grid;gap:.3rem;margin:.7rem 0 0}
+.exlist span{font-family:var(--mono);font-size:.88rem;font-weight:600;color:var(--ink-soft);
+             background:#fff;border:1px solid var(--line);border-radius:.4rem;padding:.34rem .65rem;
+             display:flex;justify-content:space-between;gap:.8rem}
+.exlist span b{color:#1d4ed8;font-weight:800}
+.exlist.green span b{color:#15803d}
+
+.fcside .arr{justify-content:center;gap:.4rem}
+.fcside .acell{min-width:58px;padding:.5rem .35rem;border-width:2.5px}
+.fcside .acell .ai{font-size:.62rem}
+.fcside .acell .av{font-size:1.3rem}
+.fcside .vars{max-width:340px;margin-left:auto;margin-right:auto}
+.fcside .vcell .vv{font-size:1.3rem}
+.fcside .fclbl{text-align:center}
+.fcside .btnrow{justify-content:center}
+.fcside #fcmsg{text-align:center}
+@media(max-width:420px){.fcside .acell{min-width:46px}.fcside .acell .av{font-size:1.1rem}}
+
+/* ============ DIG DEEPER — richer look (all pages) ============ */
+/* ---- floor / ceil : the building ---- */
+.bldgwrap{display:grid;gap:1.1rem;margin:1.3rem 0;align-items:stretch}
+@media(min-width:780px){.bldgwrap{grid-template-columns:minmax(0,1fr) minmax(220px,290px)}}
+
+.bldg{position:relative;height:440px;overflow:hidden;border-radius:1rem;isolation:isolate;
+      background:linear-gradient(180deg,#111c33 0%,#16213d 46%,#0c1424 100%);
+      box-shadow:0 20px 44px -20px rgba(15,23,42,.6),inset 0 0 0 1px rgba(212,175,55,.22)}
+.bldg::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+      background:radial-gradient(125% 55% at 50% 0%,rgba(226,232,240,.11),transparent 68%)}
+.bldg::after{content:"";position:absolute;inset:0;z-index:4;pointer-events:none;
+      background:linear-gradient(180deg,#0c1424 0%,transparent 13%,transparent 87%,#0c1424 100%)}
+.shaft{position:absolute;left:0;right:0;top:0;z-index:2;transition:transform .8s cubic-bezier(.33,1.1,.4,1)}
+
+.flr{position:absolute;left:0;right:0;height:0;display:flex;align-items:center;gap:.55rem;padding:0 1rem}
+.flr::before{content:"";position:absolute;left:1rem;right:1rem;top:0;height:1px;transition:.45s;
+      background:linear-gradient(90deg,rgba(212,175,55,.08),rgba(212,175,55,.40),rgba(212,175,55,.08))}
+.flr .fnum{position:relative;font-family:var(--mono);font-size:.7rem;font-weight:700;letter-spacing:.03em;
+      color:#cbd5e1;background:rgba(12,20,36,.82);border:1px solid rgba(212,175,55,.30);
+      border-radius:.3rem;padding:.12rem .5rem;transition:.45s;font-variant-numeric:tabular-nums}
+.flr.zero::before{height:2px;background:linear-gradient(90deg,rgba(212,175,55,.2),#d4af37,rgba(212,175,55,.2))}
+.flr.zero .fnum{color:#241a02;background:linear-gradient(135deg,#eed48a,#c9a227);border-color:#eed48a;font-weight:800}
+
+.flr.isf::before{height:3px;box-shadow:0 0 14px rgba(16,185,129,.55);
+      background:linear-gradient(90deg,rgba(16,185,129,.12),#10b981,rgba(16,185,129,.12))}
+.flr.isf  .fnum{color:#022c22;background:linear-gradient(135deg,#8af0c4,#10b981);border-color:#8af0c4;font-weight:800;transform:scale(1.1)}
+.flr.isc::before{height:3px;box-shadow:0 0 14px rgba(96,165,250,.55);
+      background:linear-gradient(90deg,rgba(96,165,250,.12),#60a5fa,rgba(96,165,250,.12))}
+.flr.isc  .fnum{color:#0b2545;background:linear-gradient(135deg,#cfe3ff,#60a5fa);border-color:#cfe3ff;font-weight:800;transform:scale(1.1)}
+.flr.both::before{height:3px;box-shadow:0 0 17px rgba(167,139,250,.6);
+      background:linear-gradient(90deg,rgba(196,181,253,.12),#c4b5fd,rgba(196,181,253,.12))}
+.flr.both .fnum{color:#2e1065;background:linear-gradient(135deg,#e5deff,#a78bfa);border-color:#e5deff;font-weight:800;transform:scale(1.12)}
+
+.flr .ftag{position:relative;font-size:.55rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+      border-radius:.25rem;padding:.15rem .45rem;white-space:nowrap;color:#0c1424}
+.flr.isf .ftag{background:#8af0c4}.flr.isc .ftag{background:#cfe3ff}.flr.both .ftag{background:#e5deff}
+
+.cab{position:absolute;left:50%;z-index:3;transform:translate(-50%,-50%);
+     display:flex;align-items:center;gap:.35rem;padding:.16rem .6rem;border-radius:.4rem;line-height:1.25;
+     background:linear-gradient(135deg,#f6dc95,#c9a227);color:#2a1d05;
+     border:1px solid rgba(255,255,255,.6);white-space:nowrap;
+     box-shadow:0 10px 22px -8px rgba(201,162,39,.7),inset 0 1px 0 rgba(255,255,255,.75);
+     font-family:var(--mono);font-size:.9rem;font-weight:800;font-variant-numeric:tabular-nums;
+     transition:top .8s cubic-bezier(.33,1.1,.4,1),background .4s}
+.cab::after{content:"lift";font-size:.46rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.6}
+.cab.exact{background:linear-gradient(135deg,#e5deff,#a78bfa);color:#2e1065;
+           box-shadow:0 12px 26px -8px rgba(167,139,250,.65),inset 0 1px 0 rgba(255,255,255,.6)}
+
+/* where the lift actually is — a dotted line across the shaft */
+.exline{position:absolute;left:1rem;right:1rem;height:0;z-index:2;pointer-events:none;
+        border-top:2px dotted rgba(246,220,149,.85);transition:top .8s cubic-bezier(.33,1.1,.4,1)}
+
+/* the two ways out, kept clear of the cab so both are always visible */
+.arw{position:absolute;width:3px;transform:translateX(-50%);border-radius:2px;z-index:2;
+     transition:top .65s ease,height .65s ease}
+.arw.dn{left:30%;background:linear-gradient(180deg,rgba(16,185,129,.15),#10b981);box-shadow:0 0 11px rgba(16,185,129,.55)}
+.arw.up{left:70%;background:linear-gradient(0deg,rgba(96,165,250,.15),#60a5fa);box-shadow:0 0 11px rgba(96,165,250,.55)}
+.arw i{position:absolute;left:50%;transform:translateX(-50%);font-style:normal;font-size:.8rem;line-height:1}
+.arw.dn i{bottom:-6px;color:#10b981}
+.arw.up i{top:-6px;color:#60a5fa}
+.arw b{position:absolute;left:50%;transform:translateX(-50%);font-size:.5rem;font-weight:800;letter-spacing:.14em;
+       text-transform:uppercase;border-radius:.25rem;padding:.08rem .3rem;white-space:nowrap}
+.arw.dn b{top:50%;margin-top:-.5em;background:#10b981;color:#022c22}
+.arw.up b{top:50%;margin-top:-.5em;background:#60a5fa;color:#0b2545}
+
+.grndtag{position:absolute;right:.75rem;bottom:.75rem;z-index:5;pointer-events:none;
+      font-size:.54rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:#eed48a;
+      background:rgba(12,20,36,.8);border:1px solid rgba(212,175,55,.4);border-radius:999px;padding:.22rem .62rem}
+
+.bdside{display:grid;gap:.85rem;grid-template-rows:repeat(3,1fr);min-height:440px}
+.bdcard{position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;
+      border:1px solid var(--line);border-radius:.85rem;padding:.85rem 1rem .85rem 1.2rem;
+      background:linear-gradient(180deg,#fff,#fcfcfe);box-shadow:0 12px 26px -20px rgba(15,23,42,.55)}
+.bdcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px}
+.bdcard .bdk{margin:0;font-size:.6rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+.bdcard .bdv{margin:.1rem 0 0;font-family:var(--mono);font-size:clamp(1.55rem,6vw,2.1rem);font-weight:800;
+      line-height:1.05;font-variant-numeric:tabular-nums}
+.bdcard .bdn{margin:.28rem 0 0;font-size:.7rem;color:var(--ink-mute);line-height:1.45}
+.bdcard.f::before{background:linear-gradient(180deg,#6ee7b7,#047857)}.bdcard.f .bdv,.bdcard.f .bdk{color:#047857}
+.bdcard.c::before{background:linear-gradient(180deg,#93c5fd,#1d4ed8)}.bdcard.c .bdv,.bdcard.c .bdk{color:#1d4ed8}
+.bdcard.i::before{background:linear-gradient(180deg,#f6dc95,#b45309)}.bdcard.i .bdv,.bdcard.i .bdk{color:#b45309}
+@media(max-width:779px){.bldg{height:360px}
+  .bdside{min-height:0;grid-template-rows:none;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}}
+.readout.r4{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.ro.sky{background:#eff6ff;border-color:#bfdbfe}
+.ro.sky .rk{color:#1d4ed8}.ro.sky .rv{color:#1d4ed8}
+.digwrap{margin:1.5rem 0}
+.dighead{display:flex;align-items:center;gap:.55rem;font-size:.64rem;font-weight:800;letter-spacing:.14em;
+         text-transform:uppercase;color:var(--ink-mute);margin-bottom:.7rem}
+.dighead::before{content:"";width:16px;height:16px;border-radius:5px;flex:0 0 auto;
+  background:linear-gradient(135deg,var(--accent,#4f46e5),color-mix(in srgb,var(--accent,#4f46e5) 45%,#fff))}
+.dighead span{height:1px;background:linear-gradient(90deg,var(--line),transparent);flex:1}
+
+details.dig{border:1px solid var(--line);border-radius:.75rem;background:#fff;margin-bottom:.55rem;
+            overflow:hidden;position:relative;transition:border-color .2s,box-shadow .2s,transform .2s}
+details.dig::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,var(--accent,#4f46e5),transparent);opacity:0;transition:opacity .25s}
+details.dig:hover{border-color:var(--line-strong);transform:translateX(2px)}
+details.dig[open]{border-color:color-mix(in srgb,var(--accent,#4f46e5) 40%,var(--line));
+                  box-shadow:0 6px 20px -10px color-mix(in srgb,var(--accent,#4f46e5) 60%,transparent)}
+details.dig[open]::before{opacity:1}
+
+details.dig>summary{cursor:pointer;padding:.8rem 2.5rem .8rem 1rem;font-weight:700;font-size:.87rem;
+  list-style:none;display:flex;align-items:center;gap:.65rem;color:var(--ink);position:relative;
+  background:linear-gradient(180deg,#fff,#fafbfd);transition:background .18s;line-height:1.45}
+details.dig>summary::-webkit-details-marker{display:none}
+details.dig>summary:hover{background:#f5f8fc}
+details.dig>summary .dicon{width:26px;height:26px;border-radius:8px;flex:0 0 auto;display:grid;place-items:center;
+  font-size:.78rem;font-weight:800;color:#fff;
+  background:linear-gradient(135deg,var(--accent,#4f46e5),color-mix(in srgb,var(--accent,#4f46e5) 60%,#000));
+  box-shadow:0 2px 6px -1px color-mix(in srgb,var(--accent,#4f46e5) 70%,transparent);transition:transform .25s}
+details.dig[open]>summary .dicon{transform:rotate(-8deg) scale(1.06)}
+details.dig>summary::after{content:"";position:absolute;right:1rem;top:50%;width:9px;height:9px;
+  border-right:2.4px solid var(--accent,#4f46e5);border-bottom:2.4px solid var(--accent,#4f46e5);
+  transform:translateY(-70%) rotate(45deg);transition:transform .25s;opacity:.75}
+details.dig[open]>summary::after{transform:translateY(-30%) rotate(225deg)}
+details.dig[open]>summary{border-bottom:1px solid color-mix(in srgb,var(--accent,#4f46e5) 22%,var(--line))}
+details.dig>div{padding:1rem 1.1rem;font-size:.87rem;color:var(--ink-soft);line-height:1.75;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--accent,#4f46e5) 4%,#fff),#fff)}
+details.dig>div b{color:var(--ink)}
+
+/* ============ LIGHT CODE THEME (default) + toggle ============ */
+body.codelight pre.code,
+body.codelight .carr-code,
+body.codelight .codepane,
+body.codelight .fboard,
+body.codelight .findbug,
+body.codelight .exactbox{
+  background:#f8fafc;color:#334155;border:1px solid #e2e8f0;box-shadow:inset 0 1px 0 #fff}
+body.codelight pre.code .k,body.codelight .carr-code .k,body.codelight .codepane .k{color:#7c3aed}
+body.codelight pre.code .t,body.codelight .carr-code .t,body.codelight .codepane .t{color:#b45309}
+body.codelight pre.code .f,body.codelight .carr-code .f,body.codelight .codepane .f{color:#0369a1}
+body.codelight pre.code .n,body.codelight .carr-code .n,body.codelight .codepane .n{color:#c2410c}
+body.codelight pre.code .c,body.codelight .carr-code .c,body.codelight .codepane .c{color:#94a3b8}
+body.codelight pre.code .s{color:#15803d}
+body.codelight .carr-code .cl{color:#334155}
+body.codelight .carr-code .cl.cur{background:rgba(2,132,199,.14);box-shadow:inset 3px 0 0 #0284c7}
+body.codelight .carr-code .cl.done{background:rgba(148,163,184,.12)}
+body.codelight .codepane .ln{color:#334155}
+body.codelight .codepane .ln.newest{background:rgba(13,148,136,.14);box-shadow:inset 2px 0 0 #0d9488}
+body.codelight .codepane .cursor{background:#0d9488}
+body.codelight .fboard .fline{color:#334155}
+body.codelight .fboard .fline.dim{color:#94a3b8}
+body.codelight .fboard .fv{color:#0369a1}
+body.codelight .fboard .fk{color:#b45309}
+body.codelight .fboard .fr{color:#15803d}
+body.codelight .fboard .fc{color:#94a3b8}
+body.codelight .outpane{background:#f1f5f9;color:#15803d;border:1px solid #e2e8f0}
+body.codelight .findbug{color:#334155}
+body.codelight .findbug .fbline{background:rgba(148,163,184,.10)}
+body.codelight .findbug .tok{border-bottom-color:#cbd5e1}
+body.codelight .findbug .tok:hover{background:#e2e8f0}
+body.codelight .findbug .tok.got{background:#dcfce7;color:#15803d;border-bottom-color:#22c55e}
+body.codelight .findbug .fix{color:#15803d}
+body.codelight .exactbox{color:#334155}
+body.codelight .exactbox .hi{color:#be123c}
+body.codelight .exactbox .lo{color:#94a3b8}
+
+.codetog{appearance:none;border:1px solid #334155;background:transparent;color:#94a3b8;border-radius:.45rem;
+         font-family:inherit;font-size:.68rem;font-weight:700;padding:.3rem .6rem;cursor:pointer;
+         white-space:nowrap;transition:.15s;flex:0 0 auto}
+.codetog:hover{color:#e2e8f0;border-color:#64748b}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <span class="brand-badge" style="background:linear-gradient(135deg,#d97706,#f59e0b)">04</span>
+      <span>
+        <span class="brand-s">CSE-2321 · Segment 1 · Class 4</span>
+        <span class="brand-t">Algorithms &amp; How We Write Them</span>
+      </span>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-tab="lesson">Lesson</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="exam">Exam &amp; Interview</button>
+          </div>
+  </div>
+  <div class="rail"><i id="rail"></i></div>
+</div>
+
+<section class="panel" id="p-lesson">
+
+<header class="hero" style="background:linear-gradient(160deg,#0f172a 0%,#451a03 55%,#92400e 100%)">
+  <div class="wrap">
+    <p class="eyebrow" style="color:#fcd34d">Data Structures · Segment 1 · Class 4</p>
+    <h1>Algorithms — and <em>how to write them on paper</em></h1>
+    <p class="hero-lede">The exam gives you a choice: <b>write an algorithm, draw a flowchart, or write real code</b> — all three are accepted. This class gives you the two you probably do not have yet: the <b>notation</b> and the <b>flowchart</b>, both faster to write under pressure than a full program.</p>
+    <div class="arc">
+      <span>Part 1 · <b>Maths toolkit</b></span><span>Part 2 · <b>What is an algorithm</b></span><span>Part 3 · <b>The 5 rules</b></span><span>Part 4 · <b>Control</b></span><span>Part 5 · <b>Sub-algorithms</b></span>
+    </div>
+    <div class="hero-meta">
+      <div><b>5 rules</b>that earn or lose you marks</div>
+      <div><b>log n</b>the most useful idea in the course</div>
+      <div><b>60 min</b>the highest-marks class of the four</div>
+    </div>
+
+    <div class="byline">
+      <span class="av">JA</span>
+      <span class="who">Jamil As-ad<span>Lecturer, Dept. of CSE &middot; International Islamic University Chittagong</span></span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<div class="box warn" style="margin-bottom:2.2rem">
+  <p class="bt">⚠ Read this before we start</p>
+  <p style="margin:0">Look at your own final paper. <b>"Write an algorithm <em>or program</em> to&hellip;"</b> — Question 1(c). <b>"Implement the push function&hellip;"</b> — Question 2(d). These questions appear every year, and <b>working C/C++ code is accepted just as happily as the notation</b>.<br><br>So learn the notation because it is <b>faster to write and easier to correct under time pressure</b> — not because code would be refused. Write whichever one you are quicker at.</p>
+</div>
+
+<!-- ============ 1 · INT AND ABS ============ -->
+<article class="card numbered" id="s1" style="--accent:#d97706">
+  <span class="badge">1</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section</p><h2>INT(x), ABS(x), FLOOR(x) and CEIL(x)</h2></div>
+    <span class="timechip">⏱ 9 min</span>
+  </div>
+
+  <div class="grid2">
+    <div class="box info" style="margin:0">
+      <p class="bt">INT(x) — the integer value</p>
+      <p style="margin:0">Take a real number and <b>throw away the part after the point</b>. This is called <b>truncating</b>.</p>
+      <div class="exlist">
+        <span>INT(3.14) <b>= 3</b></span>
+        <span>INT(&minus;8.5) <b>= &minus;8</b></span>
+        <span>INT(7) <b>= 7</b></span>
+      </div>
+    </div>
+    <div class="box good" style="margin:0">
+      <p class="bt">ABS(x) or |x| — the absolute value</p>
+      <p style="margin:0">The <b>greater of x and &minus;x</b>. In plain words: drop the minus sign.</p>
+      <div class="exlist green">
+        <span>|&minus;15| <b>= 15</b></span>
+        <span>|3| <b>= 3</b></span>
+        <span>|&minus;8.5| <b>= 8.5</b></span>
+        <span>|0| <b>= 0</b></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="box bad">
+    <p class="bt">⚠ The trap that costs marks every year</p>
+    <p style="margin:0"><b>INT(&minus;8.5) = &minus;8. It is NOT &minus;9.</b> INT cuts toward <b>zero</b> — it does not go down. Cut the <span class="mono">.5</span> off and that is your answer.<br><br>
+    <span class="subtle">A different function, <b>floor</b>, <em>does</em> give &minus;9 — and a third, <b>ceil</b>, gives &minus;8 like INT. Because INT always heads for zero, it <b>matches ceil below zero and floor above it</b>: it is the only one of the three that changes direction. The next part shows you why.</span></p>
+  </div>
+
+  <h3>floor(x) and ceil(x) &mdash; a building with a basement</h3>
+
+  <div class="box info">
+    <p class="bt">🏢 The idea &mdash; then see it move below</p>
+    <p style="margin:0">Floors go up <b>1, 2, 3&hellip;</b> and the basement goes down <b>&minus;1, &minus;2, &minus;3&hellip;</b> The lift stops <b>between</b> two floors. Two doors only:<br><br>
+    <span class="mono" style="color:#15803d;font-weight:800">&#8595; floor(x)</span> &nbsp;climb <b>down</b> &nbsp;&nbsp;&nbsp; <span class="mono" style="color:#1d4ed8;font-weight:800">&#8593; ceil(x)</span> &nbsp;climb <b>up</b><br><br>
+    <b>Down is always down</b> — positive or negative, it makes no difference.</p>
+  </div>
+
+  <p><b>Press a number and watch the lift move.</b></p>
+
+  <div class="btnrow" style="align-items:center">
+    <input class="inp" id="bd-in" type="number" step="any" value="2.7" style="max-width:150px" aria-label="value">
+    <button class="btn sm ghost" data-bd="2.7">2.7</button>
+    <button class="btn sm ghost" data-bd="3.14">3.14</button>
+    <button class="btn sm ghost" data-bd="-0.4">&minus;0.4</button>
+    <button class="btn sm ghost" data-bd="-2.5">&minus;2.5</button>
+    <button class="btn sm ghost" data-bd="-8.5">&minus;8.5</button>
+    <button class="btn sm ghost" data-bd="7">7 (exact)</button>
+  </div>
+
+  <div class="bldgwrap">
+    <div class="bldg" id="bd-view">
+      <div class="shaft" id="bd-shaft"></div>
+      <div class="grndtag">ground floor = 0</div>
+    </div>
+
+    <div class="bdside">
+      <div class="bdcard f"><p class="bdk">&#8595; floor(x)</p><p class="bdv" id="bd-f">&mdash;</p><p class="bdn">the floor <b>below</b> your feet</p></div>
+      <div class="bdcard c"><p class="bdk">&#8593; ceil(x)</p><p class="bdv" id="bd-c">&mdash;</p><p class="bdn">the ceiling <b>above</b> your head</p></div>
+      <div class="bdcard i"><p class="bdk">&#8596; INT(x)</p><p class="bdv" id="bd-i">&mdash;</p><p class="bdn">walk toward the <b>ground floor</b>, 0</p></div>
+    </div>
+  </div>
+  <p class="opdesc" id="bd-msg" style="text-align:center"></p>
+
+  <div class="tw">
+  <table>
+    <thead><tr><th>x</th><th>&#8595; floor(x)</th><th>&#8593; ceil(x)</th><th>&#8596; INT(x)</th><th>Which two agree?</th></tr></thead>
+    <tbody>
+      <tr><td class="num">3.14</td><td class="num">3</td><td class="num">4</td><td class="num">3</td><td>floor and INT</td></tr>
+      <tr><td class="num">2.7</td><td class="num">2</td><td class="num">3</td><td class="num">2</td><td>floor and INT</td></tr>
+      <tr><td class="num">&minus;0.4</td><td class="num">&minus;1</td><td class="num">0</td><td class="num">0</td><td>ceil and INT</td></tr>
+      <tr><td class="num">&minus;2.5</td><td class="num">&minus;3</td><td class="num">&minus;2</td><td class="num">&minus;2</td><td>ceil and INT</td></tr>
+      <tr><td class="num">&minus;8.5</td><td class="num hl-bad">&minus;9</td><td class="num">&minus;8</td><td class="num">&minus;8</td><td>ceil and INT</td></tr>
+      <tr><td class="num">7</td><td class="num">7</td><td class="num">7</td><td class="num">7</td><td>all three</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="subtle">Notice the last row: <b>if x is already a whole number, nothing moves.</b> The lift is standing exactly on a floor, so all three answers are the same.</p>
+
+  <h3>Everything in action &mdash; type any number and see all four</h3>
+  <div class="btnrow" style="align-items:center">
+    <input class="inp" id="int-in" type="number" step="any" value="-8.5" style="max-width:170px" aria-label="number">
+    <button class="btn sm ghost" data-iv="3.14">3.14</button>
+    <button class="btn sm ghost" data-iv="-8.5">&minus;8.5</button>
+    <button class="btn sm ghost" data-iv="7">7</button>
+    <button class="btn sm ghost" data-iv="-0.2">&minus;0.2</button>
+  </div>
+  <div class="readout r4">
+    <div class="ro cool"><p class="rk">INT(x) &mdash; toward 0</p><p class="rv" id="int-t">&mdash;</p></div>
+    <div class="ro"><p class="rk">ABS(x) &mdash; |x|</p><p class="rv" id="int-a">&mdash;</p></div>
+    <div class="ro hot"><p class="rk">&#8595; floor(x) &mdash; down</p><p class="rv" id="int-f">&mdash;</p></div>
+    <div class="ro sky"><p class="rk">&#8593; ceil(x) &mdash; up</p><p class="rv" id="int-c">&mdash;</p></div>
+  </div>
+  <p class="opdesc" id="int-msg"></p>
+
+  <div class="box good">
+    <p class="bt">How to write them</p>
+    <p style="margin:0">In an algorithm you may write either the word or the bracket symbol &mdash; both are accepted:<br><br>
+    <span class="mono" style="font-size:1.05rem;font-weight:800">floor(x) &nbsp;=&nbsp; &lfloor;x&rfloor;</span> &nbsp;&nbsp; the brackets point <b>down</b><br>
+    <span class="mono" style="font-size:1.05rem;font-weight:800">ceil(x) &nbsp;=&nbsp; &lceil;x&rceil;</span> &nbsp;&nbsp; the brackets point <b>up</b><br><br>
+    <span class="subtle">A memory hook: <b>&lfloor;&rfloor;</b> has its little legs at the bottom, like feet on the floor. <b>&lceil;&rceil;</b> has them at the top, like the ceiling.</span></p>
+  </div>
+
+  <div class="digwrap" style="--accent:#d97706">
+    <p class="dighead">Dig deeper<span></span></p>
+    <details class="dig"><summary><span class="dicon">?</span>Where will you actually use floor and ceil?</summary><div>
+      <b>1 &middot; Binary search.</b> <span class="mono">mid = &lfloor;(low + high) / 2&rfloor;</span>. The midpoint of 0 and 5 is 2.5, and there is no cell 2.5 &mdash; so you take the floor and use cell 2.<br><br>
+      <b>2 &middot; Heaps</b> (<span class="sgtag sg8">Segment 8</span>). The parent of node <span class="mono">i</span> is <span class="mono">&lfloor;i / 2&rfloor;</span>.<br><br>
+      <b>3 &middot; "How many full boxes?"</b> 17 students, 5 per bench &rarr; <span class="mono">&lfloor;17/5&rfloor; = 3</span> full benches.<br>
+      <b>4 &middot; "How many boxes do I need?"</b> Same numbers, but now nobody may be left standing &rarr; <span class="mono">&lceil;17/5&rceil; = 4</span> benches. <b>Same division, opposite function.</b> Read the question carefully &mdash; this is where marks are lost.
+    </div></details>
+    <details class="dig"><summary><span class="dicon">?</span>In C++</summary><div>
+      Both live in <span class="mono">&lt;cmath&gt;</span> and both return a <span class="mono">double</span>, so you usually cast:<br><br>
+      <span class="mono">#include &lt;cmath&gt;</span><br>
+      <span class="mono">floor(-8.5)</span> &rarr; <span class="mono">-9.0</span> &nbsp;&nbsp; <span class="mono">ceil(-8.5)</span> &rarr; <span class="mono">-8.0</span><br>
+      <span class="mono">(int)(-8.5)</span> &rarr; <span class="mono">-8</span> &nbsp;&nbsp;&nbsp; <em>a plain cast truncates &mdash; it behaves like INT, not like floor</em><br><br>
+      <b>The bug this causes:</b> <span class="mono">int mid = (low + high) / 2;</span> is fine because <span class="mono">low</span> and <span class="mono">high</span> are never negative. But integer division on a <b>negative</b> number in C++ truncates toward zero, so <span class="mono">-7 / 2</span> gives <span class="mono">-3</span>, not <span class="mono">-4</span>. If you needed the floor, you must ask for it.
+    </div></details>
+  </div>
+</article>
+
+<!-- ============ 2 · FACTORIAL & FIBONACCI ============ -->
+<article class="card numbered" id="s2" style="--accent:#d97706">
+  <span class="badge">2</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section</p><h2>Factorial and Fibonacci</h2></div>
+    <span class="timechip">⏱ 4 min</span>
+  </div>
+
+  <h3>Factorial</h3>
+  <p class="mono" style="font-weight:700">n! = 1 &middot; 2 &middot; 3 &middot; &hellip; &middot; (n&minus;2) &middot; (n&minus;1) &middot; n</p>
+  <p>Multiply every whole number from 1 up to n.</p>
+  <div class="btnrow" style="align-items:center">
+    <input class="inp" id="fac-in" type="number" min="0" max="20" value="4" style="max-width:130px" aria-label="factorial of">
+    <button class="btn sm ghost" data-fac="0">0!</button>
+    <button class="btn sm ghost" data-fac="5">5!</button>
+    <button class="btn sm ghost" data-fac="13">13!</button>
+    <button class="btn sm ghost" data-fac="20">20!</button>
+  </div>
+  <div class="expand" id="fac-out"></div>
+  <p class="subtle" id="fac-msg"></p>
+
+  <div class="box warn">
+    <p class="bt">🔑 The one you must simply remember</p>
+    <p style="margin:0"><b>0! = 1.</b> Not 0. There is no working to show — it is a definition. Exams ask it because it catches people out.</p>
+  </div>
+
+  <div class="box bad">
+    <p class="bt">↩ Class 2 comes back to bite you</p>
+    <p style="margin:0">Factorial grows terrifyingly fast. <span class="mono">13!</span> is already bigger than an <span class="mono">int</span> can hold. <span class="mono">21!</span> is bigger than a <span class="mono">long long</span> can hold.<br><br>
+    Press the <span class="mono">13!</span> and <span class="mono">20!</span> buttons above and read the warning. <b>Remember: it does not crash. It lies.</b></p>
+  </div>
+
+  <h3>Fibonacci</h3>
+  <p class="mono" style="font-weight:700">0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, &hellip;</p>
+  <p>Start with <span class="mono">F<sub>0</sub> = 0</span> and <span class="mono">F<sub>1</sub> = 1</span>. After that, <b>every term is the sum of the two before it</b>.</p>
+
+  <div class="fibrow" id="fib-row"></div>
+  <div class="btnrow">
+    <button class="btn" id="fib-go" style="background:#d97706">Add the next term</button>
+    <button class="btn ghost sm" id="fib-reset">Reset</button>
+  </div>
+  <p class="subtle" id="fib-msg">Press the button. Watch which two boxes light up.</p>
+
+  <div class="box info">
+    <p class="bt">Why we care about this one</p>
+    <p style="margin:0">Fibonacci comes back in <b>Module 5 (recursion)</b> and again in <b>Semester 4 (dynamic programming)</b>. It is the standard example of a function that <b>calls itself</b> — and of a function that <b>wastes enormous time doing the same work again and again</b>. Remember this sequence. You will meet it three more times.</p>
+  </div>
+</article>
+
+<!-- ============ 3 · LOGARITHMS ============ -->
+<article class="card numbered" id="s3" style="--accent:#0891b2">
+  <span class="badge">3</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section</p><h2>Exponents and logarithms</h2></div>
+    <span class="timechip">⏱ 6 min</span>
+  </div>
+
+  <div class="box">
+    <p class="bt">Exponent — repeated multiplication</p>
+    <p class="mono" style="margin:0;font-weight:700">a<sup>m</sup> = a &middot; a &middot; &hellip; &middot; a &nbsp;&nbsp;(m times) &nbsp;&nbsp;·&nbsp;&nbsp; a<sup>0</sup> = 1</p>
+  </div>
+
+  <div class="box info">
+    <p class="bt">Logarithm — the exponent, working backwards</p>
+    <p class="mono" style="font-weight:700">b<sup>y</sup> = x &nbsp;&nbsp;means the same as&nbsp;&nbsp; y = log<sub>b</sub> x</p>
+    <p style="margin:0"><b>In plain words:</b> log<sub>b</sub> x asks <em>"how many times do I multiply b by itself to reach x?"</em></p>
+    <p class="mono" style="margin:.6rem 0 0;font-weight:700">log<sub>2</sub> 8 = 3 &nbsp;&nbsp;(because 2&times;2&times;2 = 8) &nbsp;·&nbsp; log<sub>10</sub> 100 = 2 &nbsp;&nbsp;(because 10&times;10 = 100)</p>
+  </div>
+
+  <div class="box warn">
+    <p class="bt">📌 A rule for this whole course</p>
+    <p style="margin:0">There are three common bases: <b>base 10</b> (common log), <b>base e</b> (natural log), and <b>base 2</b> (binary log).<br><br>
+    <b>In this course, <span class="mono">log x</span> always means <span class="mono">log<sub>2</sub> x</span></b> unless we say otherwise. If you see <span class="mono">log n</span> in any exam question, read it as base 2.</p>
+  </div>
+
+  <h3>The only picture of a logarithm you need</h3>
+  <div class="bridge" style="--accent:#0891b2">
+    <p class="lbl">Say this to yourself every time you see log n</p>
+    <p class="say">"How many times can I cut this in half before only 1 is left?"</p>
+    <p style="margin-top:.9rem">That count <b>is</b> log&#8322; n. Nothing more complicated than that.</p>
+  </div>
+
+  <p>Start with 1024 items. Keep halving. Count the cuts.</p>
+
+  <div class="halve">
+    <div class="htrack"><div class="hbar" id="hv-bar" style="width:100%">1024</div></div>
+    <div class="hsteps" id="hv-steps"></div>
+  </div>
+  <div class="btnrow">
+    <button class="btn" id="hv-go" style="background:#0891b2">Cut it in half</button>
+    <button class="btn ghost sm" id="hv-reset">Reset</button>
+    <select class="btn ghost sm" id="hv-n" style="font-family:var(--mono)">
+      <option value="1024">start at 1024</option>
+      <option value="64">start at 64</option>
+      <option value="1000000">start at 1,000,000</option>
+    </select>
+  </div>
+  <p class="subtle" id="hv-msg">You will need 10 cuts to get from 1024 down to 1. That is why log&#8322; 1024 = 10.</p>
+
+  <div class="box good">
+    <p class="bt">Why this matters more than anything else today</p>
+    <p style="margin:0">A list of <b>1,000,000</b> items. Searching one by one takes <b>1,000,000</b> steps. Cutting it in half each time takes <b>20</b> steps.<br><br>
+    Try it with the "start at 1,000,000" option. <b>Twenty.</b> That is binary search, that is a binary tree, that is a heap, that is half of this course — and it is all this one picture.</p>
+  </div>
+
+  <div class="quiz" data-q="q1">
+    <div class="qh">Quick check</div>
+    <div class="qq">What is log<sub>2</sub> 32?</div>
+    <div class="qopts">
+      <button class="qopt" data-a="0">16 — half of 32</button>
+      <button class="qopt" data-a="1" data-ok="1">5 — because 2&times;2&times;2&times;2&times;2 = 32</button>
+      <button class="qopt" data-a="2">2 — the base</button>
+    </div>
+    <div class="qexp"><b>5.</b> Ask the halving question: 32 → 16 → 8 → 4 → 2 → 1. That is five cuts. Or ask it forwards: how many 2s multiplied together make 32? Five. Same answer, same idea.</div>
+  </div>
+</article>
+
+<!-- ============ 4 · WHAT IS AN ALGORITHM ============ -->
+<article class="card numbered" id="s4" style="--accent:#7c3aed">
+  <span class="badge">4</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section</p><h2>What is an algorithm?</h2></div>
+    <span class="timechip">⏱ 8 min</span>
+  </div>
+
+  <div class="box info">
+    <p class="bt">Learn this line word for word</p>
+    <p style="margin:0">An <b>algorithm</b> is a <b>finite</b> step-by-step list of <b>well-defined instructions</b> for solving a particular problem.</p>
+  </div>
+
+  <p>Two words are doing all the work there. <b>Finite</b> means it must stop. <b>Well-defined</b> means every step must have exactly one meaning.</p>
+
+  <h3>The 5 properties — a standard exam question</h3>
+  <div class="tw">
+  <table>
+    <thead><tr><th>Property</th><th>What it means</th><th>What breaks without it</th></tr></thead>
+    <tbody>
+      <tr><td><b>Finiteness</b></td><td>It must end after a limited number of steps.</td><td>The program runs forever.</td></tr>
+      <tr><td><b>Definiteness</b></td><td>Every step must be clear and have only one meaning.</td><td>"Add some numbers" — how many? Which ones?</td></tr>
+      <tr><td><b>Input</b></td><td>Zero or more inputs are supplied.</td><td>Nothing to work on.</td></tr>
+      <tr><td><b>Output</b></td><td>At least one result is produced.</td><td>It did work, but you get nothing back.</td></tr>
+      <tr><td><b>Effectiveness</b></td><td>Every step must be basic enough to actually be carried out.</td><td>"Guess the right answer" is not a step.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="box bad">
+    <p class="bt">Is this an algorithm?</p>
+    <p style="margin:0"><em>"Step 1. Think of a big number. Step 2. Keep adding 1 to it."</em><br><br>
+    <b>No.</b> It fails <b>definiteness</b> ("big" means nothing) and it fails <b>finiteness</b> (it never stops) and it fails <b>output</b> (nothing is ever produced).</p>
+  </div>
+
+  <h3>The format your exam expects</h3>
+  <p>The formal presentation of an algorithm has <b>two parts</b>.</p>
+
+  <div class="grid2">
+    <div class="box" style="margin:0">
+      <p class="bt">Part 1 — the opening paragraph</p>
+      <p style="margin:0">One paragraph that:<br>• says <b>what the algorithm does</b><br>• <b>names the variables</b> used<br>• <b>lists the input data</b></p>
+    </div>
+    <div class="box" style="margin:0">
+      <p class="bt">Part 2 — the steps</p>
+      <p style="margin:0">The numbered list of steps to be carried out, in order.</p>
+    </div>
+  </div>
+
+  <div class="box warn">
+    <p class="bt">💰 Free marks, and most students throw them away</p>
+    <p style="margin:0">Students jump straight to <b>Step 1</b> and skip the opening paragraph. It takes 20 seconds to write and it is part of the expected answer. <b>Always write the paragraph first.</b></p>
+  </div>
+</article>
+
+<!-- ============ 5 · THE 5 RULES ============ -->
+<article class="card numbered" id="s5" style="--accent:#d97706">
+  <span class="badge">5</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section</p><h2>The 5 rules of algorithmic notation</h2></div>
+    <span class="timechip">⏱ 14 min</span>
+  </div>
+
+  <p>This is the part that earns marks. Five rules. Learn all five.</p>
+
+  <div class="tw">
+  <table>
+    <thead><tr><th>#</th><th>Rule</th><th>What you write</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td><b>Steps, Control, Exit</b><br><span class="subtle">Steps run one after another starting at Step 1. Jump with "Go to Step n". Several statements in one step run left to right. The algorithm ends at <b>Exit</b>.</span></td><td class="mono">Go to Step 2.<br>Exit.</td></tr>
+      <tr><td class="num">2</td><td><b>Comments in square brackets</b><br><span class="subtle">Each step may carry a short comment saying what the step is for.</span></td><td class="mono">Step 1. [Initialize] Set&hellip;</td></tr>
+      <tr><td class="num">3</td><td><b>Variable names in CAPITALS</b><br><span class="subtle">Single letters used as counters or subscripts may be upper or lower case.</span></td><td class="mono">MAX, LOC, DATA<br>K, i, j</td></tr>
+      <tr><td class="num">4</td><td><b>Assignment uses <span style="font-size:1.1em">:=</span></b><br><span class="subtle">Dots-equal. Some books use ← or =. In this course, use <span class="mono">:=</span>.</span></td><td class="mono">Set MAX := DATA[1]</td></tr>
+      <tr><td class="num">5</td><td><b>Input and output</b><br><span class="subtle">Read: for input. Write: for output — messages or variable names.</span></td><td class="mono">Read: N, DATA<br>Write: LOC, MAX</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="bridge" style="--accent:#d97706">
+    <p class="lbl">The 5 rules in one sentence</p>
+    <p class="say">CAPITAL names, <span class="mono">:=</span> to assign, <span class="mono">[comments]</span> in brackets, <span class="mono">Read:</span> and <span class="mono">Write:</span>, and finish with <span class="mono">Exit</span>.</p>
+    <p style="margin-top:.9rem">Say it five times. Write it on the first page of your notebook. You will use it in every exam for the next two years.</p>
+  </div>
+
+  <h3>Here is all five rules in one real algorithm</h3>
+
+  <div class="algo">
+    <div class="ahead"><b>Algorithm (Largest Element in Array).</b> A nonempty array DATA with N numerical values is given. This algorithm finds the location LOC and the value MAX of the largest element of DATA.</div>
+    <div class="body">
+<span class="st">Step 1. <span class="cm">[Initialize]</span> <span class="kw">Set</span> <span class="vr">K</span> <span class="op">:=</span> 1, <span class="vr">LOC</span> <span class="op">:=</span> 1, <span class="vr">MAX</span> <span class="op">:=</span> <span class="vr">DATA</span>[1].</span>
+<span class="st">Step 2. <span class="cm">[Increment counter]</span> <span class="kw">Set</span> <span class="vr">K</span> <span class="op">:=</span> <span class="vr">K</span> + 1.</span>
+<span class="st">Step 3. <span class="cm">[Test counter]</span> <span class="kw">If</span> <span class="vr">K</span> &gt; <span class="vr">N</span>, <span class="kw">then</span>:</span>
+<span class="st">                     <span class="kw">Write:</span> <span class="vr">LOC</span>, <span class="vr">MAX</span>, and <span class="kw">Exit</span>.</span>
+<span class="st">        <span class="cm">[End of If structure]</span></span>
+<span class="st">Step 4. <span class="cm">[Compare and update]</span> <span class="kw">If</span> <span class="vr">MAX</span> &lt; <span class="vr">DATA</span>[<span class="vr">K</span>], <span class="kw">then</span>:</span>
+<span class="st">                     <span class="kw">Set</span> <span class="vr">LOC</span> <span class="op">:=</span> <span class="vr">K</span> and <span class="vr">MAX</span> <span class="op">:=</span> <span class="vr">DATA</span>[<span class="vr">K</span>].</span>
+<span class="st">        <span class="cm">[End of If structure]</span></span>
+<span class="st">Step 5. <span class="cm">[Repeat]</span> <span class="kw">Go to Step 2</span>.</span>
+<span class="st">Step 6. <span class="kw">Exit</span>.</span>
+    </div>
+  </div>
+
+  <p class="subtle">Every one of the 5 rules is in there. CAPITALS. <span class="mono">:=</span>. <span class="mono">[brackets]</span>. <span class="mono">Write:</span>. <span class="mono">Exit</span>. And the opening paragraph.</p>
+
+  <h3>Now walk through it</h3>
+  <p>Press Next and watch what each step actually does. <span class="subtle">DATA = [30, 50, 20, 70, 40], N = 5.</span></p>
+
+  <div class="arr" id="tr-arr"></div>
+  <div class="vars">
+    <div class="vcell" id="v-K"><div class="vk">K</div><div class="vv">&mdash;</div></div>
+    <div class="vcell" id="v-LOC"><div class="vk">LOC</div><div class="vv">&mdash;</div></div>
+    <div class="vcell" id="v-MAX"><div class="vk">MAX</div><div class="vv">&mdash;</div></div>
+    <div class="vcell" id="v-STEP"><div class="vk">AT STEP</div><div class="vv">&mdash;</div></div>
+  </div>
+
+  <div class="algo" id="tr-algo">
+    <div class="body">
+<span class="st" data-l="0">Step 1. [Initialize] Set K := 1, LOC := 1, MAX := DATA[1].</span>
+<span class="st" data-l="1">Step 2. [Increment counter] Set K := K + 1.</span>
+<span class="st" data-l="2">Step 3. [Test counter] If K &gt; N, then: Write: LOC, MAX, and Exit.</span>
+<span class="st" data-l="3">Step 4. [Compare and update] If MAX &lt; DATA[K], then: Set LOC := K and MAX := DATA[K].</span>
+<span class="st" data-l="4">Step 5. [Repeat] Go to Step 2.</span>
+<span class="st" data-l="5">Step 6. Exit.</span>
+    </div>
+  </div>
+  <div class="btnrow">
+    <button class="btn" id="tr-next" style="background:#d97706">Next step ▸</button>
+    <button class="btn ghost sm" id="tr-auto">▶ Play</button>
+    <button class="btn ghost sm" id="tr-reset">Reset</button>
+  </div>
+  <p class="subtle" id="tr-msg">Press Next to begin.</p>
+
+  <h3>Your turn — find the mistakes</h3>
+  <p>The algorithm below does the right thing, but it <b>breaks the notation rules in 5 places</b>. Click each mistake.</p>
+
+  <div class="bugbar">
+    <span class="cnt" id="bug-cnt">0 / 5</span>
+    <span class="dots" id="bug-dots"><i></i><i></i><i></i><i></i><i></i></span>
+    <button class="btn ghost sm" id="bug-reset">Reset</button>
+  </div>
+  <div class="findbug" id="findbug">
+<span class="fbline">Step 1. <span class="tok" data-fix="Set" data-why="Keywords start with a capital: Set, If, Write, Exit.">set</span> k := 1, <span class="tok" data-fix="LOC" data-why="Rule 3 — variable names use CAPITAL letters. Only single letters used as counters may be lower case.">loc</span> := 1, MAX := DATA[1]</span>
+<span class="fbline">Step 2. Set k := k + 1</span>
+<span class="fbline">Step 3. If k &gt; N, then: Write: loc, MAX, and <span class="tok" data-fix="Exit" data-why="Rule 1 — an algorithm ends with the word Exit. Not stop, not end, not return.">stop</span></span>
+<span class="fbline">Step 4. If MAX &lt; <span class="tok" data-fix="DATA" data-why="Rule 3 — DATA is a multi-letter name, so it must be in CAPITALS.">data</span>[k], then: Set loc := k and MAX := DATA[k]</span>
+<span class="fbline">Step 5. Go to Step 2</span>
+<span class="fbline">Step 6. <span class="tok" data-fix="Exit" data-why="Rule 1 — the algorithm is finished at Exit. 'End' is not the convention used in this course.">End</span></span>
+</div>
+  <p class="buglog" id="bug-log">Click on anything you think is wrong.</p>
+</article>
+
+<!-- ============ FLOWCHARTS ============ -->
+<article class="card numbered" id="s6" style="--accent:#e11d48">
+  <span class="badge">6</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 6</p><h2>Flowcharts — the drawing they ask for every year</h2></div>
+    <span class="timechip">⏱ 12 min</span>
+  </div>
+
+  <div class="box bad">
+    <p class="bt">🎓 This is the most reliable 3 marks on the paper</p>
+    <p style="margin:0">
+    <b>Autumn 2025 Q1(b):</b> <em>"Draw a flowchart or write a code for linear search algorithm."</em><br>
+    <b>Spring 2025 Q1(b):</b> <em>"Draw a flowchart for linear search algorithm."</em><br>
+    <b>Spring 2024 Q1(b):</b> <em>"Draw a flowchart for binary search algorithm."</em><br>
+    <b>Spring 2023 Q1(b):</b> <em>"Draw a flowchart for linear search algorithm."</em><br><br>
+    <b>Four papers. Four flowchart questions.</b> Learn the five shapes and you cannot lose these marks.</p>
+  </div>
+
+  <h3>The five shapes</h3>
+  <div class="shapes">
+    <figure class="shp"><svg viewBox="0 0 120 54"><rect x="8" y="10" width="104" height="34" rx="17" fill="#fee2e2" stroke="#dc2626" stroke-width="2.5"/><text x="60" y="32" text-anchor="middle" font-size="13" font-weight="700" fill="#991b1b" font-family="Inter,sans-serif">Start / Stop</text></svg><figcaption><b>Terminal</b><span>where it begins and ends</span></figcaption></figure>
+    <figure class="shp"><svg viewBox="0 0 120 54"><path d="M22 10 H112 L98 44 H8 Z" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5"/><text x="60" y="32" text-anchor="middle" font-size="13" font-weight="700" fill="#1e3a8a" font-family="Inter,sans-serif">Read / Print</text></svg><figcaption><b>Input / Output</b><span>reading or printing</span></figcaption></figure>
+    <figure class="shp"><svg viewBox="0 0 120 54"><rect x="8" y="10" width="104" height="34" rx="3" fill="#ede9fe" stroke="#7c3aed" stroke-width="2.5"/><text x="60" y="32" text-anchor="middle" font-size="13" font-weight="700" fill="#5b21b6" font-family="Inter,sans-serif">i = i + 1</text></svg><figcaption><b>Process</b><span>a calculation or assignment</span></figcaption></figure>
+    <figure class="shp"><svg viewBox="0 0 120 54"><path d="M60 6 L114 27 L60 48 L6 27 Z" fill="#fef3c7" stroke="#d97706" stroke-width="2.5"/><text x="60" y="32" text-anchor="middle" font-size="12" font-weight="700" fill="#92400e" font-family="Inter,sans-serif">i &lt; N ?</text></svg><figcaption><b>Decision</b><span>a yes/no question — <b>two</b> arrows out</span></figcaption></figure>
+    <figure class="shp"><svg viewBox="0 0 120 54"><line x1="60" y1="8" x2="60" y2="38" stroke="#334155" stroke-width="2.5"/><path d="M54 36 L60 46 L66 36 Z" fill="#334155"/></svg><figcaption><b>Flow line</b><span>the order things happen</span></figcaption></figure>
+  </div>
+
+  <div class="box warn">
+    <p class="bt">⚠ The three things that lose marks</p>
+    <p style="margin:0"><b>1.</b> A decision diamond with only <b>one</b> arrow leaving it. It must have two — <b>Yes</b> and <b>No</b>, both labelled.<br>
+    <b>2.</b> No <b>Stop</b> at the end. Every path must reach one.<br>
+    <b>3.</b> Using a rectangle for input. Reading is a <b>parallelogram</b>.</p>
+  </div>
+
+  <h3>Linear search, drawn and running</h3>
+  <p>The array is <span class="mono">[30, 50, 20, 70, 40]</span>. Choose what to look for, then step through — the flowchart lights up as it goes.</p>
+
+  <div class="btnrow" style="align-items:center">
+    <span class="subtle" style="font-weight:700">Search for:</span>
+    <button class="btn sm" data-fckey="70" style="background:#e11d48">70 <span style="opacity:.7">(found)</span></button>
+    <button class="btn sm ghost" data-fckey="99">99 <span style="opacity:.7">(not there)</span></button>
+  </div>
+
+  <div class="fcwrap">
+    <svg viewBox="0 0 380 520" id="fcsvg" role="img" aria-label="Flowchart of the linear search algorithm">
+      <defs>
+        <marker id="fa" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#94a3b8"/></marker>
+        <marker id="fah" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#e11d48"/></marker>
+      </defs>
+      <g class="fcedges" stroke="#94a3b8" stroke-width="2.2" fill="none" marker-end="url(#fa)" stroke-linejoin="round">
+        <path class="fe" data-e="0-1" d="M185 42 V54"/>
+        <path class="fe" data-e="1-2" d="M185 96 V108"/>
+        <path class="fe" data-e="2-3" d="M185 150 V162"/>
+        <path class="fe" data-e="3-4" d="M185 226 V242"/>
+        <path class="fe" data-e="4-5" d="M185 318 V334"/>
+        <path class="fe" data-e="5-3" d="M130 357 H52 V196 H101"/>
+        <path class="fe" data-e="4-6" d="M273 282 H318 V420 H258"/>
+        <path class="fe" data-e="3-7" d="M265 196 H350 V480 H308"/>
+      </g>
+
+      <g class="fcn" data-n="0"><rect x="130" y="10" width="110" height="32" rx="16"/><text x="185" y="31">Start</text></g>
+      <g class="fcn io" data-n="1"><path d="M144 54 H250 L226 96 H120 Z"/><text x="185" y="80">Read A, N, KEY</text></g>
+      <g class="fcn pr" data-n="2"><rect x="130" y="108" width="110" height="42" rx="4"/><text x="185" y="134">i = 0</text></g>
+      <g class="fcn de" data-n="3"><path d="M185 166 L265 196 L185 226 L105 196 Z"/><text x="185" y="201">i &lt; N ?</text></g>
+      <g class="fcn de" data-n="4"><path d="M185 246 L273 282 L185 318 L97 282 Z"/><text x="185" y="287">A[i] = KEY ?</text></g>
+      <g class="fcn pr" data-n="5"><rect x="130" y="334" width="110" height="42" rx="4"/><text x="185" y="360">i = i + 1</text></g>
+      <g class="fcn io ok" data-n="6"><path d="M118 400 H258 L234 440 H94 Z"/><text x="176" y="425">Print i · Stop</text></g>
+      <g class="fcn no" data-n="7"><path d="M118 460 H308 L284 500 H94 Z"/><text x="201" y="485">Print "Not found" · Stop</text></g>
+
+      <g font-family="Inter,sans-serif" font-size="10.5" font-weight="800" fill="#64748b">
+        <text x="272" y="186">No</text>
+        <text x="193" y="240">Yes</text>
+        <text x="281" y="274">Yes</text>
+        <text x="193" y="332">No</text>
+      </g>
+      <text x="46" y="270" font-family="Inter,sans-serif" font-size="9.5" font-weight="700" fill="#94a3b8" transform="rotate(-90 46 270)">loop back</text>
+    </svg>
+
+    <div class="fcside">
+      <p class="fclbl">Array</p>
+      <div class="arr" id="fcarr"></div>
+      <div class="vars" style="grid-template-columns:1fr 1fr">
+        <div class="vcell" id="fc-i"><div class="vk">i</div><div class="vv">—</div></div>
+        <div class="vcell" id="fc-k"><div class="vk">KEY</div><div class="vv">—</div></div>
+      </div>
+      <p class="opdesc" id="fcmsg" style="min-height:3.4rem">Press <b>Next</b> to start.</p>
+      <div class="btnrow" style="margin-bottom:0">
+        <button class="btn sm" id="fc-next" style="background:#e11d48">Next ▸</button>
+        <button class="btn sm ghost" id="fc-play">▶ Play</button>
+        <button class="btn sm ghost" id="fc-reset">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="digwrap">
+    <p class="dighead">Dig deeper<span></span></p>
+    <details class="dig"><summary><span class="dicon">?</span>The same algorithm as an algorithm, not a drawing</summary><div>
+      <b>Algorithm (Linear Search).</b> An array DATA with N elements and a value KEY are given. This algorithm finds the location LOC of KEY in DATA, or sets LOC to &minus;1 if it is not present.<br><br>
+      <span class="mono">
+      Step 1. [Initialize] Set K := 1 and LOC := &minus;1.<br>
+      Step 2. Repeat for K = 1 to N:<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If DATA[K] = KEY, then: Set LOC := K and Go to Step 3.<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[End of If structure]<br>
+      &nbsp;&nbsp;[End of loop]<br>
+      Step 3. Write: LOC.<br>
+      Step 4. Exit.
+      </span><br><br>
+      The question says <b>"draw a flowchart <em>or</em> write a code"</b> — so either is accepted. Draw it if you are quick with shapes; write it if you are quick with the notation. <b>Practise whichever one you are faster at.</b>
+    </div></details>
+    <details class="dig"><summary><span class="dicon">?</span>How would the binary search flowchart differ? <span class="subtle">(asked in Spring 2024)</span></summary><div>
+      Same five shapes, different middle. Instead of one counter <span class="mono">i</span> you keep <b>three</b> variables — <span class="mono">LOW</span>, <span class="mono">HIGH</span> and <span class="mono">MID</span> — and the loop condition becomes <span class="mono">LOW &le; HIGH</span>.<br><br>
+      Inside the loop: compute <span class="mono">MID = (LOW + HIGH) / 2</span>, then <b>one decision with three outcomes</b>, usually drawn as two diamonds:<br>
+      <span class="mono">A[MID] = KEY ?</span> → Yes → print MID, stop.<br>
+      <span class="mono">A[MID] &lt; KEY ?</span> → Yes → <span class="mono">LOW = MID + 1</span> &nbsp;·&nbsp; No → <span class="mono">HIGH = MID &minus; 1</span>.<br><br>
+      Then the arrow loops back to the <span class="mono">LOW &le; HIGH</span> diamond. <b>Remember to state the precondition:</b> binary search only works on a <b>sorted</b> array.
+    </div></details>
+    <details class="dig"><summary><span class="dicon">?</span>Flowchart or pseudocode — which should I write in the exam?</summary><div>
+      When the question offers a choice, pick on <b>speed and safety</b>:<br><br>
+      <b>Flowchart</b> is safer if you find loops confusing, because the arrows force you to say where control goes. It is slower to draw and messy if you run out of space.<br><br>
+      <b>Algorithm notation</b> is faster and easier to correct, but you must remember the conventions from Section 5 — <span class="mono">:=</span>, CAPITALS, <span class="mono">[End of loop]</span>, <span class="mono">Exit</span>.<br><br>
+      <b>What you must not do</b> is mix them — half a diagram and half a list scores badly in both.
+    </div></details>
+  </div>
+</article>
+
+<!-- ============ 6 · CONTROL STRUCTURES ============ -->
+<article class="card numbered" id="s7" style="--accent:#059669">
+  <span class="badge">7</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section</p><h2>Three ways a program can move</h2></div>
+    <span class="timechip">⏱ 12 min</span>
+  </div>
+
+  <p>Every algorithm ever written uses only <b>three</b> kinds of movement. That is all there is.</p>
+
+  <div class="cs seq">
+    <div class="csh">① Sequence — do this, then this, then this</div>
+    <div class="csb">Step 1. Set A := 5.
+Step 2. Set B := 10.
+Step 3. Set SUM := A + B.
+Step 4. Write: SUM.</div>
+    <div class="csn">Straight down the page. No choices, no repeats. The default.</div>
+  </div>
+
+  <div class="cs sel">
+    <div class="csh">② Selection — choose one path</div>
+    <div class="csb"><b>(a) Single alternative</b>
+    If condition, then:
+        [Module A]
+    [End of If structure]
+
+<b>(b) Double alternative</b>
+    If condition, then:
+        [Module A]
+    Else:
+        [Module B]
+    [End of If structure]
+
+<b>(c) Multiple alternatives</b>
+    If condition(1), then:
+        [Module A1]
+    Else if condition(2), then:
+        [Module A2]
+    Else:
+        [Module B]
+    [End of If structure]</div>
+    <div class="csn"><b>Never forget <span class="mono">[End of If structure]</span>.</b> It is part of the notation and examiners look for it.</div>
+  </div>
+
+  <div class="cs itr">
+    <div class="csh">③ Iteration — do it again</div>
+    <div class="csb"><b>(a) Repeat-For — when you know how many times</b>
+    Repeat for K = R to S by T:
+        [Module]
+    [End of loop]
+
+<b>(b) Repeat-While — when you do not know how many times</b>
+    Repeat while condition:
+        [Module]
+    [End of loop]</div>
+    <div class="csn"><b>Repeat-For</b> when you can count the rounds — "for each of the N items". <b>Repeat-While</b> when you cannot — "while the user has not typed 0".</div>
+  </div>
+
+  <div class="box info">
+    <p class="bt">Same algorithm, written two ways</p>
+    <p style="margin:0">The Largest Element algorithm you traced above used <b>Go to Step 2</b> to loop. You can write the exact same thing with <b>Repeat-For</b> and it is shorter:</p>
+  </div>
+
+  <div class="algo">
+    <div class="ahead"><b>Algorithm (Largest Element — loop version).</b> A nonempty array DATA with N values is given. This algorithm finds the location LOC and the value MAX of the largest element.</div>
+    <div class="body">
+<span class="st">Step 1. <span class="cm">[Initialize]</span> <span class="kw">Set</span> <span class="vr">LOC</span> <span class="op">:=</span> 1 and <span class="vr">MAX</span> <span class="op">:=</span> <span class="vr">DATA</span>[1].</span>
+<span class="st">Step 2. <span class="kw">Repeat for</span> <span class="vr">K</span> = 2 <span class="kw">to</span> <span class="vr">N</span>:</span>
+<span class="st">              <span class="kw">If</span> <span class="vr">MAX</span> &lt; <span class="vr">DATA</span>[<span class="vr">K</span>], <span class="kw">then</span>:</span>
+<span class="st">                    <span class="kw">Set</span> <span class="vr">LOC</span> <span class="op">:=</span> <span class="vr">K</span> and <span class="vr">MAX</span> <span class="op">:=</span> <span class="vr">DATA</span>[<span class="vr">K</span>].</span>
+<span class="st">              <span class="cm">[End of If structure]</span></span>
+<span class="st">        <span class="cm">[End of loop]</span></span>
+<span class="st">Step 3. <span class="kw">Write:</span> <span class="vr">LOC</span>, <span class="vr">MAX</span>.</span>
+<span class="st">Step 4. <span class="kw">Exit</span>.</span>
+    </div>
+  </div>
+  <p class="subtle">6 steps became 4. Both are correct. In an exam, either one earns full marks — <b>but the loop version is faster to write and harder to get wrong.</b> Use it.</p>
+
+  <div class="quiz" data-q="q2">
+    <div class="qh">Quick check</div>
+    <div class="qq">You must keep asking the user for a number until they type 0. Which structure?</div>
+    <div class="qopts">
+      <button class="qopt" data-a="0">Repeat-For</button>
+      <button class="qopt" data-a="1" data-ok="1">Repeat-While</button>
+      <button class="qopt" data-a="2">Sequence</button>
+    </div>
+    <div class="qexp"><b>Repeat-While.</b> You do not know how many numbers the user will type — maybe 2, maybe 200. Repeat-For needs a count before you start. When you cannot count the rounds in advance, it is always Repeat-While.</div>
+  </div>
+</article>
+
+<!-- ============ 7 · SUB-ALGORITHMS ============ -->
+<article class="card numbered" id="s8" style="--accent:#7c3aed">
+  <span class="badge">8</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section</p><h2>Breaking a big job into small ones</h2></div>
+    <span class="timechip">⏱ 8 min</span>
+  </div>
+
+  <div class="box info">
+    <p class="bt">Definition</p>
+    <p style="margin:0">A <b>sub-algorithm</b> is a complete and independently defined algorithmic module which is <b>used</b> (or invoked, or called) by some main algorithm, or by some other sub-algorithm.</p>
+  </div>
+
+  <p>It works in three moves:</p>
+  <div class="grid3">
+    <div class="box" style="margin:0"><p class="bt">1 · Receives</p><p style="margin:0">It takes values from the calling algorithm. Those values are called <b>arguments</b>.</p></div>
+    <div class="box" style="margin:0"><p class="bt">2 · Computes</p><p style="margin:0">It does its work on its own.</p></div>
+    <div class="box" style="margin:0"><p class="bt">3 · Sends back</p><p style="margin:0">It returns the result to whoever called it.</p></div>
+  </div>
+
+  <p style="margin-top:1.1rem">Because it is defined independently, <b>many different algorithms can call it</b>, and the same algorithm can call it many times.</p>
+
+  <div class="box good">
+    <p class="bt">If you already program, you already know this</p>
+    <p style="margin:0">The relationship between an algorithm and a sub-algorithm is the same as the relationship between a <b>main program and a function</b>. That is all it is — the exam just wants the word "sub-algorithm".</p>
+  </div>
+
+  <h3>Two differences from a normal algorithm</h3>
+  <div class="tw">
+  <table>
+    <thead><tr><th></th><th>Algorithm</th><th>Sub-algorithm</th></tr></thead>
+    <tbody>
+      <tr><td><b>Heading</b></td><td>A paragraph describing the purpose</td><td class="mono">NAME(PAR1, PAR2, &hellip;, PARK)</td></tr>
+      <tr><td><b>Ends with</b></td><td class="mono">Exit</td><td class="mono"><b>Return</b></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="box bad">
+    <p class="bt">⚠ The single most common mistake in this topic</p>
+    <p style="margin:0">Writing <b>Exit</b> at the end of a sub-algorithm.<br><br>
+    <b>An algorithm ends with Exit. A sub-algorithm ends with Return.</b> Examiners check this line specifically because it is the fastest way to see whether you actually understood the difference.</p>
+  </div>
+
+  <div class="algo">
+    <div class="ahead"><b>Sub-algorithm: MAXIMUM(DATA, N, MAX).</b> An array DATA with N values is given. This sub-algorithm finds the largest value and returns it in MAX.</div>
+    <div class="body">
+<span class="st">Step 1. <span class="cm">[Initialize]</span> <span class="kw">Set</span> <span class="vr">MAX</span> <span class="op">:=</span> <span class="vr">DATA</span>[1].</span>
+<span class="st">Step 2. <span class="kw">Repeat for</span> <span class="vr">K</span> = 2 <span class="kw">to</span> <span class="vr">N</span>:</span>
+<span class="st">              <span class="kw">If</span> <span class="vr">MAX</span> &lt; <span class="vr">DATA</span>[<span class="vr">K</span>], <span class="kw">then</span>: <span class="kw">Set</span> <span class="vr">MAX</span> <span class="op">:=</span> <span class="vr">DATA</span>[<span class="vr">K</span>].</span>
+<span class="st">              <span class="cm">[End of If structure]</span></span>
+<span class="st">        <span class="cm">[End of loop]</span></span>
+<span class="st">Step 3. <span class="kw">Return</span>.</span>
+    </div>
+  </div>
+  <p class="subtle">Note the heading form <span class="mono">NAME(PAR1, PAR2, &hellip;)</span> and the final <span class="mono">Return</span> instead of <span class="mono">Exit</span>. Those two things are what make it a sub-algorithm.</p>
+
+  <div class="quiz" data-q="q3">
+    <div class="qh">Quick check</div>
+    <div class="qq">How does a sub-algorithm end?</div>
+    <div class="qopts">
+      <button class="qopt" data-a="0">With Exit, the same as an algorithm</button>
+      <button class="qopt" data-a="1" data-ok="1">With Return</button>
+      <button class="qopt" data-a="2">With [End of loop]</button>
+    </div>
+    <div class="qexp"><b>Return.</b> This is a 1-mark difference that students throw away every year. Algorithm → <span class="mono">Exit</span>. Sub-algorithm → <span class="mono">Return</span>. Write it on the same page as the 5 rules.</div>
+  </div>
+</article>
+
+<!-- ============ CLOSING ============ -->
+<article class="card numbered" id="s9" style="--accent:#d97706">
+  <span class="badge">9</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Last 2 minutes</p><h2>The page to write in your notebook tonight</h2></div>
+    <span class="timechip">⏱ 2 min</span>
+  </div>
+
+  <div class="box warn">
+    <p class="bt">📝 Copy this out by hand. Not a photo — by hand.</p>
+    <p style="margin:0" class="mono">
+    1. Variable names in CAPITALS &nbsp;(K, i, j may be small)<br>
+    2. Assignment is &nbsp;<b>:=</b>&nbsp; not =<br>
+    3. Comments go in &nbsp;<b>[square brackets]</b><br>
+    4. &nbsp;<b>Read:</b>&nbsp; for input, &nbsp;<b>Write:</b>&nbsp; for output<br>
+    5. Algorithm ends with &nbsp;<b>Exit</b>. Sub-algorithm ends with &nbsp;<b>Return</b>.<br>
+    6. Always close with &nbsp;<b>[End of If structure]</b>&nbsp; and &nbsp;<b>[End of loop]</b><br>
+    7. Write the &nbsp;<b>opening paragraph</b>&nbsp; before Step 1.<br>
+    8. &nbsp;<b>log n</b>&nbsp; means &nbsp;<b>log&#8322; n</b>&nbsp; in this course.<br>
+    9. &nbsp;<b>INT(&minus;8.5) = &minus;8</b>&nbsp; and &nbsp;<b>0! = 1</b>.
+    </p>
+  </div>
+
+  <div class="bridge" style="--accent:#d97706">
+    <p class="lbl">What you can now do that you could not this morning</p>
+    <p class="say">Given any small problem, you can hand it in <b>three different ways</b> — as numbered steps, as a flowchart, or as code — and all three earn full marks.</p>
+    <p style="margin-top:.9rem">That matters because the exam picks the form, not you. <b>Q1(b) says "draw a flowchart". Q1(c) says "write an algorithm or program".</b> Having only one of the three is how people lose marks they had the ideas for.</p>
+  </div>
+
+  <div class="box">
+    <p class="bt">Next class</p>
+    <p style="margin:0"><b>Class 4 — Complexity. How we measure how slow a program is.</b><br>
+    Why we count steps instead of seconds. Best case, worst case, average case. Big-O. And finally — the real answer to <b>"3 billion versus 9"</b> from Class 1.</p>
+  </div>
+</article>
+
+</main>
+</section>
+
+<!-- ==================== EXAM ==================== -->
+<section class="panel" id="p-exam" hidden>
+<header class="hero" style="background:linear-gradient(160deg,#0f172a 0%,#4c0519 55%,#881337 100%)">
+  <div class="wrap">
+    <p class="eyebrow" style="color:#fda4af">Exam questions · CSE-2321</p>
+    <h1>This class is <em>worth the most marks</em></h1>
+    <p class="hero-lede">Set A: short questions on the maths toolkit and definitions. Set B: full "write an algorithm" answers in the exact expected form — the highest-value section in these notes.</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+<article class="card" style="--accent:#e11d48">
+  <p class="kicker">Proof this matters</p>
+  <h2>Real questions from your Spring 2026 final paper</h2>
+  <p class="subtle" style="margin-top:.4rem">Copied word for word from <span class="mono">Final CSE-2321 Sp26.docx</span>. Both ask you to <b>write</b> something.</p>
+  <div class="box bad">
+    <p class="bt">Q1 (c) · 4 marks</p>
+    <p style="margin:0">"<b>Write an algorithm or program</b> to read a string consisting exclusively of opening ( and closing ) parentheses. The program must use a Stack data structure&hellip;"</p>
+  </div>
+  <div class="box bad">
+    <p class="bt">Q2 (d) · 2 marks</p>
+    <p style="margin:0">"<b>Implement</b> the push function of a queue data structure."</p>
+  </div>
+  <p style="margin-top:1rem">Six marks on one paper, both marked against the notation you learned today. Over a two-year course that is a lot of marks riding on nine lines in your notebook.</p>
+</article>
+
+<article class="card" style="--accent:#e11d48">
+  <p class="kicker">Real past questions</p>
+  <h2>The flowchart question — four papers running</h2>
+  <p class="subtle" style="margin-top:.4rem">Copied from the CSE-2321 Mid Term papers. It has appeared every single year.</p>
+
+  <div class="box bad">
+    <p class="bt">Autumn 2025 · Q1(b) · 2 marks</p>
+    <p style="margin:0"><em>"Draw a flowchart or write a code for linear search algorithm."</em> <b>[OR]</b> <em>"Draw a flowchart or write a code for finding the second largest element of an array."</em></p>
+  </div>
+  <div class="box bad">
+    <p class="bt">Spring 2025 · Q1(b) · 3 marks</p>
+    <p style="margin:0"><em>"Draw a flowchart for linear search algorithm."</em> <b>[Or]</b> <em>"Draw a flowchart to find the smallest element of an array."</em></p>
+  </div>
+  <div class="box bad">
+    <p class="bt">Spring 2024 · Q1(b) · 3 marks</p>
+    <p style="margin:0"><em>"Draw a flowchart for binary search algorithm."</em> <b>[Or]</b> <em>"Draw a flowchart to determine whether a given number N is prime or not."</em></p>
+  </div>
+  <div class="box bad">
+    <p class="bt">Spring 2023 · Q1(b) · 3 marks</p>
+    <p style="margin:0"><em>"Draw a flowchart for linear search algorithm."</em> <b>[Or]</b> <em>"Draw a flowchart to find the largest element of an array."</em></p>
+  </div>
+
+  <div class="box good">
+    <p class="bt">✅ What to practise, in priority order</p>
+    <p style="margin:0"><b>1. Linear search</b> — asked three times out of four. Learn this one cold.<br>
+    <b>2. Largest / smallest / second largest of an array</b> — the alternative every year. All three are the same shape: initialise, loop, compare, update.<br>
+    <b>3. Binary search</b> — asked once. Needs LOW, HIGH, MID and a sorted array.<br>
+    <b>4. Prime check</b> — a loop with a divisibility decision.<br><br>
+    Every one of them uses the same <b>five shapes</b> from Section 6. Draw each one twice by hand before the exam and these marks are automatic.</p>
+  </div>
+
+  <details class="dig"><summary><span class="dicon">?</span>Model answer — largest element of an array</summary><div>
+    <b>Start</b> → <span class="mono">Read A, N</span> (parallelogram) → <span class="mono">MAX = A[0]</span> and <span class="mono">i = 1</span> (rectangles) → diamond <span class="mono">i &lt; N ?</span><br><br>
+    <b>No</b> → <span class="mono">Print MAX</span> → <b>Stop</b>.<br>
+    <b>Yes</b> → diamond <span class="mono">A[i] &gt; MAX ?</span> → <b>Yes</b> → <span class="mono">MAX = A[i]</span> → join the No path → <span class="mono">i = i + 1</span> → arrow back to the <span class="mono">i &lt; N ?</span> diamond.<br><br>
+    <b>Smallest</b> is the identical drawing with <span class="mono">&lt;</span> instead of <span class="mono">&gt;</span> and <span class="mono">MIN</span> instead of <span class="mono">MAX</span>. <b>Second largest</b> keeps two variables and updates both.
+  </div></details>
+</article>
+
+<article class="card" style="--accent:#d97706">
+  <p class="kicker">Set A</p>
+  <h2>Short questions — with model answers</h2>
+  <p class="subtle" style="margin-top:.4rem"><b>Not copied from a past paper.</b> These are the standard Module 1 patterns written from the official content and the Lecture-2 slides.</p>
+
+  <details><summary><span class="dicon">?</span>1. Evaluate: INT(3.14), INT(&minus;8.5), INT(7), |&minus;15|, |&minus;8.5|, |0| <span class="subtle">[2 marks]</span></summary><div>
+    <span class="mono">INT(3.14) = 3 &nbsp;·&nbsp; INT(&minus;8.5) = &minus;8 &nbsp;·&nbsp; INT(7) = 7</span><br>
+    <span class="mono">|&minus;15| = 15 &nbsp;·&nbsp; |&minus;8.5| = 8.5 &nbsp;·&nbsp; |0| = 0</span><br><br>
+    <b>⚠ The trap:</b> INT(&minus;8.5) is <b>&minus;8, not &minus;9</b>. INT truncates toward zero — it just deletes the fractional part. It does not round down.
+  </div></details>
+
+  <details><summary><span class="dicon">?</span>2. Define the factorial function. Find 4! and 0!. <span class="subtle">[2 marks]</span></summary><div>
+    <b>Definition:</b> n! = 1 &middot; 2 &middot; 3 &middot; &hellip; &middot; (n&minus;2) &middot; (n&minus;1) &middot; n — the product of all whole numbers from 1 up to n.<br><br>
+    <span class="mono">4! = 1 &times; 2 &times; 3 &times; 4 = <b>24</b></span><br>
+    <span class="mono">0! = <b>1</b></span> &nbsp;<span class="subtle">(this is a definition — do not try to derive it)</span>
+  </div></details>
+
+  <details><summary><span class="dicon">?</span>3. Define the Fibonacci sequence. Write the first 10 terms. <span class="subtle">[2 marks]</span></summary><div>
+    <b>Definition:</b> F<sub>0</sub> = 0 and F<sub>1</sub> = 1, and each succeeding term is the sum of the two preceding terms.<br><br>
+    <span class="mono">0, 1, 1, 2, 3, 5, 8, 13, 21, 34</span><br><br>
+    <span class="subtle">Note the sequence starts at F<sub>0</sub> = 0, not at 1. Starting at the wrong place shifts every answer.</span>
+  </div></details>
+
+  <details><summary><span class="dicon">?</span>4. Evaluate log<sub>2</sub> 8 and log<sub>10</sub> 100. What does "log x" mean in this course? <span class="subtle">[2 marks]</span></summary><div>
+    <span class="mono">log<sub>2</sub> 8 = 3</span> &nbsp;(because 2<sup>3</sup> = 8)<br>
+    <span class="mono">log<sub>10</sub> 100 = 2</span> &nbsp;(because 10<sup>2</sup> = 100)<br><br>
+    In this course, <b><span class="mono">log x</span> means <span class="mono">log<sub>2</sub> x</span></b> — the binary logarithm — unless another base is stated.
+  </div></details>
+
+  <details><summary><span class="dicon">?</span>5. Define an algorithm. State its properties. <span class="subtle">[3 marks]</span></summary><div>
+    <b>Definition:</b> An algorithm is a finite step-by-step list of well-defined instructions for solving a particular problem.<br><br>
+    <b>Properties:</b><br>
+    <b>Finiteness</b> — it must terminate after a finite number of steps.<br>
+    <b>Definiteness</b> — every step must be precisely defined, with only one meaning.<br>
+    <b>Input</b> — zero or more inputs are supplied.<br>
+    <b>Output</b> — at least one output is produced.<br>
+    <b>Effectiveness</b> — every step must be basic enough to be carried out.
+  </div></details>
+
+  <details><summary><span class="dicon">?</span>6. Describe the two parts of the formal presentation of an algorithm. <span class="subtle">[2 marks]</span></summary><div>
+    <b>First part:</b> a paragraph which tells the purpose of the algorithm, identifies the variables which occur in the algorithm, and lists the input data.<br><br>
+    <b>Second part:</b> the list of numbered steps that is to be executed.
+  </div></details>
+
+  <details><summary><span class="dicon">?</span>7. State the conventions used for writing algorithms in this course. <span class="subtle">[4 marks]</span></summary><div>
+    <b>Steps, Control, Exit</b> — steps execute one after the other beginning with Step 1 unless indicated otherwise. Control may be transferred by "Go to Step n". Several statements in the same step execute left to right. The algorithm is complete at <b>Exit</b>.<br><br>
+    <b>Comments</b> — each step may contain a comment in square brackets indicating the main purpose of the step.<br><br>
+    <b>Variable names</b> — variable names use capital letters. Single-letter names (upper or lower case) are used for counters and subscripts.<br><br>
+    <b>Assignment</b> — the dots-equal notation <span class="mono">:=</span> is used. Some texts use ← or =.<br><br>
+    <b>Input and output</b> — <span class="mono">Read:</span> followed by variable names for input; <span class="mono">Write:</span> followed by messages and/or variable names for output.
+  </div></details>
+
+  <details><summary><span class="dicon">?</span>8. What is a sub-algorithm? How does it differ from an algorithm? <span class="subtle">[3 marks]</span></summary><div>
+    A <b>sub-algorithm</b> is a complete and independently defined algorithmic module which is used (invoked/called) by some main algorithm or by another sub-algorithm. It receives values called <b>arguments</b> from the calling algorithm, performs computations, and sends the result back. Because it is defined independently, it may be called by many different algorithms, or many times by the same one. The relationship is like that between a main program and a subprogram.<br><br>
+    <b>Two differences:</b><br>
+    1. A sub-algorithm has a heading of the form <span class="mono">NAME(PAR1, PAR2, &hellip;, PARK)</span>.<br>
+    2. A sub-algorithm ends with <b>Return</b> rather than <b>Exit</b>.
+  </div></details>
+
+  <details><summary><span class="dicon">?</span>9. Name and describe the three control structures. <span class="subtle">[3 marks]</span></summary><div>
+    <b>Sequence logic</b> — modules are executed one after another in the order written.<br><br>
+    <b>Selection logic</b> — one of several modules is chosen based on a condition. Three forms: single alternative (If&hellip;then), double alternative (If&hellip;then&hellip;Else), and multiple alternatives (If&hellip;Else if&hellip;Else). Each closes with <span class="mono">[End of If structure]</span>.<br><br>
+    <b>Iteration logic</b> — a module is executed repeatedly. Two forms: <span class="mono">Repeat for K = R to S by T</span> (a known number of repetitions) and <span class="mono">Repeat while condition</span> (an unknown number). Each closes with <span class="mono">[End of loop]</span>.
+  </div></details>
+</article>
+
+<article class="card" style="--accent:#059669">
+  <p class="kicker">Set B — the highest value section here</p>
+  <h2>"Write an algorithm to&hellip;" — full model answers</h2>
+  <p class="subtle" style="margin-top:.4rem">Read the shape, not just the content. Every answer has: <b>opening paragraph → numbered steps → [comments] → := → Exit</b>. Copy the shape.</p>
+
+  <details><summary><span class="dicon">?</span>Write an algorithm to find the largest element in an array.</summary><div>
+    <b>Algorithm (Largest Element in Array).</b> A nonempty array DATA with N numerical values is given. This algorithm finds the location LOC and the value MAX of the largest element of DATA.<br><br>
+    <span class="mono">
+    Step 1. [Initialize] Set LOC := 1 and MAX := DATA[1].<br>
+    Step 2. Repeat for K = 2 to N:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If MAX &lt; DATA[K], then:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set LOC := K and MAX := DATA[K].<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[End of If structure]<br>
+    &nbsp;&nbsp;[End of loop]<br>
+    Step 3. Write: LOC, MAX.<br>
+    Step 4. Exit.
+    </span>
+  </div></details>
+
+  <details><summary><span class="dicon">?</span>Write an algorithm to find the sum of N numbers in an array.</summary><div>
+    <b>Algorithm (Sum of Array).</b> An array DATA with N numerical values is given. This algorithm finds the sum SUM of the elements of DATA.<br><br>
+    <span class="mono">
+    Step 1. [Initialize] Set SUM := 0.<br>
+    Step 2. Repeat for K = 1 to N:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set SUM := SUM + DATA[K].<br>
+    &nbsp;&nbsp;[End of loop]<br>
+    Step 3. Write: SUM.<br>
+    Step 4. Exit.
+    </span><br><br>
+    <span class="subtle">Note Step 1. Forgetting to initialise SUM := 0 is the single most common mistake in this answer.</span>
+  </div></details>
+
+  <details><summary><span class="dicon">?</span>Write an algorithm to compute N! (factorial).</summary><div>
+    <b>Algorithm (Factorial).</b> A nonnegative integer N is given. This algorithm computes FACT = N!.<br><br>
+    <span class="mono">
+    Step 1. [Initialize] Set FACT := 1.<br>
+    Step 2. If N = 0, then: Write: FACT and Exit.<br>
+    &nbsp;&nbsp;[End of If structure]<br>
+    Step 3. Repeat for K = 1 to N:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set FACT := FACT * K.<br>
+    &nbsp;&nbsp;[End of loop]<br>
+    Step 4. Write: FACT.<br>
+    Step 5. Exit.
+    </span><br><br>
+    <span class="subtle">Step 2 handles 0! = 1. An answer without that case is incomplete.</span>
+  </div></details>
+
+  <details><summary><span class="dicon">?</span>Write an algorithm to print the first N Fibonacci numbers.</summary><div>
+    <b>Algorithm (Fibonacci).</b> A positive integer N is given. This algorithm writes the first N terms of the Fibonacci sequence, using A and B to hold the two preceding terms.<br><br>
+    <span class="mono">
+    Step 1. [Initialize] Set A := 0 and B := 1.<br>
+    Step 2. Write: A.<br>
+    Step 3. Repeat for K = 2 to N:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Write: B.<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set C := A + B.<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set A := B and B := C.<br>
+    &nbsp;&nbsp;[End of loop]<br>
+    Step 4. Exit.
+    </span>
+  </div></details>
+
+  <details><summary><span class="dicon">?</span>Write a SUB-ALGORITHM to find the maximum of an array. <span class="subtle">(note: Return, not Exit)</span></summary><div>
+    <b>Sub-algorithm: MAXIMUM(DATA, N, MAX).</b> An array DATA with N values is given. This sub-algorithm finds the largest value and returns it in MAX.<br><br>
+    <span class="mono">
+    Step 1. [Initialize] Set MAX := DATA[1].<br>
+    Step 2. Repeat for K = 2 to N:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If MAX &lt; DATA[K], then: Set MAX := DATA[K].<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[End of If structure]<br>
+    &nbsp;&nbsp;[End of loop]<br>
+    Step 3. <b>Return.</b>
+    </span><br><br>
+    <b>The two things that make this a sub-algorithm:</b> the heading <span class="mono">NAME(PAR1, PAR2, &hellip;)</span> and the final <span class="mono">Return</span>. Everything else is identical.
+  </div></details>
+
+  <div class="box info">
+    <p class="bt">💡 How to write any of these in an exam</p>
+    <p style="margin:0"><b>1.</b> Write the paragraph. <b>2.</b> Step 1 is almost always <span class="mono">[Initialize]</span>. <b>3.</b> Step 2 is almost always the loop. <b>4.</b> Then Write:. <b>5.</b> Then Exit.<br><br>
+    That skeleton fits about 80% of the "write an algorithm" questions you will ever be asked. Start with the skeleton, then fill in the middle.</p>
+  </div>
+</article>
+
+</main>
+</section>
+
+<nav class="pagenav wrap" style="padding-bottom:0">
+  <a class="pn pv" href="03-data-in-memory.html"><span class="ar">&larr;</span><span class="tx"><em>Previous</em><b>What your data looks like in memory</b></span></a>
+  <a class="pn home" href="../../index.html"><span class="ar">&#9783;</span><b>All classes</b></a>
+  <a class="pn nx" href="05-time-and-space-complexity.html"><span class="ar">&rarr;</span><span class="tx"><em>Next</em><b>Time &amp; space complexity</b></span></a>
+</nav>
+
+<footer class="pagefoot">
+  <div class="wrap fin">
+    <div class="fw">
+      <span class="av">JA</span>
+      <span class="nm">Jamil As-ad<span>Lecturer, Dept. of CSE</span></span>
+    </div>
+    <p class="dept"><a href="../../index.html">&larr; All classes</a> &nbsp;·&nbsp; Data Structures · CSE-2321 · International Islamic University Chittagong</p>
+  </div>
+</footer>
+
+<div class="sec-nav" style="display:none">
+  <button id="nav-up" title="Previous">↑</button>
+  <button id="nav-down" title="Next">↓</button>
+  <button id="nav-top" title="Top">⤒</button>
+</div>
+
+<script>
+(function(){
+"use strict";
+var $=function(s,r){return (r||document).querySelector(s);};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+
+/* TABS */
+$$('.tab').forEach(function(t){t.addEventListener('click',function(){
+  $$('.tab').forEach(function(x){x.setAttribute('aria-selected','false');});
+  t.setAttribute('aria-selected','true');
+  $$('.panel').forEach(function(p){p.hidden=true;});
+  $('#p-'+t.dataset.tab).hidden=false; window.scrollTo({top:0,behavior:'instant'});
+});});
+
+/* RAIL */
+window.addEventListener('scroll',function(){
+  var h=document.documentElement,m=h.scrollHeight-h.clientHeight;
+  $('#rail').style.right=(100-(m>0?(h.scrollTop/m)*100:0))+'%';
+},{passive:true});
+
+function jump(d){
+  var s=$$('.panel:not([hidden]) .card'); if(!s.length)return;
+  var y=window.scrollY, cur=0, i;
+  for(i=0;i<s.length;i++){ if(s[i].offsetTop-120<=y) cur=i; }
+  var t=cur+d;
+  if(d<0 && y>s[cur].offsetTop-60) t=cur;      /* scrolled inside a card -> snap to its top first */
+  if(t<0){window.scrollTo({top:0,behavior:'smooth'});return;}
+  if(t>s.length-1)t=s.length-1;
+  window.scrollTo({top:Math.max(s[t].offsetTop-80,0),behavior:'smooth'});
+}
+$('#nav-down').onclick=function(){jump(1);};$('#nav-up').onclick=function(){jump(-1);};
+$('#nav-top').onclick=function(){window.scrollTo({top:0,behavior:'smooth'});};
+
+/* ---- INT / ABS / FLOOR ---- */
+function paintInt(){
+  var v=parseFloat($('#int-in').value); if(isNaN(v))v=0;
+  var t=Math.trunc(v), f=Math.floor(v), c=Math.ceil(v), a=Math.abs(v);
+  var g=function(n){return n<0?'\u2212'+Math.abs(n):''+n;};
+  $('#int-t').textContent=g(t); $('#int-a').textContent=g(a);
+  $('#int-f').textContent=g(f); $('#int-c').textContent=g(c);
+  $('#int-msg').innerHTML = (f===c)
+    ? '<b>'+g(v)+' is a whole number</b> — nothing to round, so all four agree (except ABS, which only drops the sign).'
+    : (t===c
+        ? '<b style="color:#be123c">Negative:</b> INT gives <b>'+g(t)+'</b> and so does ceil — but floor gives <b>'+g(f)+'</b>. INT walked <b>up</b> toward zero.'
+        : 'Positive: INT gives <b>'+g(t)+'</b> and so does floor — but ceil gives <b>'+g(c)+'</b>. INT walked <b>down</b> toward zero.');
+}
+$('#int-in').addEventListener('input',paintInt);
+$$('[data-iv]').forEach(function(b){b.addEventListener('click',function(){$('#int-in').value=b.dataset.iv;paintInt();});});
+paintInt();
+
+/* ---- FLOOR / CEIL : the building with a basement ---- */
+(function(){
+  var TOP=14, BOT=-14, U=64;                 /* floors shown, and pixels per floor */
+  var view=$('#bd-view'), shaft=$('#bd-shaft');
+  var H=(TOP-BOT+1)*U;
+
+  function yOf(v){ return (TOP-v)*U + U/2; } /* pixel position of a value inside the shaft */
+
+  function build(){
+    var h='';
+    for(var v=TOP; v>=BOT; v--){
+      h+='<div class="flr" data-v="'+v+'" style="top:'+yOf(v)+'px">'+
+           '<span class="fnum">'+(v===0?'0':(v>0?v:'\u2212'+Math.abs(v)))+'</span>'+
+           '<span class="ftag"></span>'+
+         '</div>';
+    }
+    h+='<div class="exline" id="bd-line"></div>'+
+       '<div class="arw dn" id="bd-adn" style="display:none"><b>down</b><i>\u25BC</i></div>'+
+       '<div class="arw up" id="bd-aup" style="display:none"><b>up</b><i>\u25B2</i></div>'+
+       '<div class="cab" id="bd-cab"><span id="bd-cabv">0</span></div>';
+    shaft.style.height=H+'px';
+    shaft.innerHTML=h;
+    $$('.flr',shaft).forEach(function(f){ if(+f.dataset.v===0) f.classList.add('zero'); });
+  }
+
+  function paint(){
+    var x=parseFloat($('#bd-in').value);
+    if(isNaN(x)) x=0;
+    x=Math.max(BOT+1, Math.min(TOP-1, x));
+    var f=Math.floor(x), c=Math.ceil(x), t=Math.trunc(x), exact=(f===c);
+
+    /* results */
+    $('#bd-f').textContent=f; $('#bd-c').textContent=c; $('#bd-i').textContent=t;
+
+    /* floors */
+    $$('.flr',shaft).forEach(function(el){
+      var v=+el.dataset.v, tag=$('.ftag',el);
+      el.classList.remove('isf','isc','both'); tag.textContent='';
+      if(exact && v===f){ el.classList.add('both'); tag.textContent='floor = ceil = INT'; }
+      else if(v===f){ el.classList.add('isf'); tag.textContent='floor'+(t===f?' = INT':''); }
+      else if(v===c){ el.classList.add('isc'); tag.textContent='ceil'+(t===c?' = INT':''); }
+    });
+
+    /* the cab */
+    var cab=$('#bd-cab'), yx=yOf(x);
+    cab.style.top=yx+'px';
+    $('#bd-line').style.top=yx+'px';
+    cab.classList.toggle('exact',exact);
+    $('#bd-cabv').textContent=(x<0?'\u2212'+Math.abs(x):''+x);
+
+    /* the two arrows */
+    var dn=$('#bd-adn'), up=$('#bd-aup');
+    if(exact){ dn.style.display='none'; up.style.display='none'; }
+    else {
+      dn.style.display=''; dn.style.top=yx+'px';       dn.style.height=(yOf(f)-yx)+'px';
+      up.style.display=''; up.style.top=yOf(c)+'px';   up.style.height=(yx-yOf(c))+'px';
+    }
+
+    /* slide the shaft so the cab sits in the middle of the window */
+    var vp=view.clientHeight||420;
+    var tr=Math.max(-(H-vp), Math.min(0, -(yx-vp/2)));
+    shaft.style.transform='translateY('+tr+'px)';
+
+    /* the sentence */
+    var m;
+    if(exact) m='<b>'+fmt(x)+' is already a whole number</b> — the lift is standing exactly on floor '+fmt(f)+', so it does not move. floor, ceil and INT all give <b>'+fmt(f)+'</b>.';
+    else m='The lift is stuck at <b>'+fmt(x)+'</b>, between floor <b>'+fmt(f)+'</b> and floor <b>'+fmt(c)+'</b>. '+
+           'Go <b style="color:#15803d">down</b> → floor = <b>'+fmt(f)+'</b>. Go <b style="color:#1d4ed8">up</b> → ceil = <b>'+fmt(c)+'</b>. '+
+           'Walk toward the ground floor → INT = <b style="color:#b45309">'+fmt(t)+'</b>'+
+           (x<0 ? ' — and here that means going <b>up</b>, which is why INT matches ceil for negative numbers.'
+                : ' — and here that means going <b>down</b>, which is why INT matches floor for positive numbers.');
+    $('#bd-msg').innerHTML=m;
+  }
+  function fmt(v){ return v<0 ? '\u2212'+Math.abs(v) : ''+v; }
+
+  build();
+  $('#bd-in').addEventListener('input',paint);
+  $$('[data-bd]').forEach(function(b){b.addEventListener('click',function(){
+    $$('[data-bd]').forEach(function(x){x.classList.add('ghost');}); b.classList.remove('ghost');
+    $('#bd-in').value=b.dataset.bd; paint(); });});
+  paint();
+})();
+
+/* ---- FACTORIAL ---- */
+function paintFac(){
+  var n=parseInt($('#fac-in').value,10);
+  if(isNaN(n)||n<0)n=0; if(n>20)n=20; $('#fac-in').value=n;
+  var parts=[],r=1;
+  for(var i=1;i<=n;i++){parts.push(i); r*=i;}
+  var lhs = n===0 ? '(empty product)' : parts.join(' <span class="eq">&times;</span> ');
+  $('#fac-out').innerHTML='<b>'+n+'!</b> <span class="eq">=</span> '+lhs+' <span class="eq">=</span> <span class="res">'+
+    (n===0?'1':r.toLocaleString('en-US'))+'</span>';
+  var m='';
+  if(n===0) m='0! = 1 by definition. There is nothing to multiply, and the empty product is 1.';
+  else if(r>9223372036854775807) m='⚠ This is bigger than a long long can hold. Even 64 bits is not enough.';
+  else if(r>2147483647) m='⚠ This is bigger than an int can hold ('+ (2147483647).toLocaleString('en-US') +'). You would need long long — and it would NOT warn you.';
+  else m='This still fits comfortably in an int.';
+  $('#fac-msg').innerHTML=m;
+}
+$('#fac-in').addEventListener('input',paintFac);
+$$('[data-fac]').forEach(function(b){b.addEventListener('click',function(){$('#fac-in').value=b.dataset.fac;paintFac();});});
+paintFac();
+
+/* ---- FIBONACCI ---- */
+var FIB=[0,1];
+function paintFib(newIdx){
+  var row=$('#fib-row'); row.innerHTML='';
+  FIB.forEach(function(v,i){
+    var d=document.createElement('div');
+    var cls='fib';
+    if(newIdx!==undefined){
+      if(i===newIdx) cls+=' newv';
+      else if(i===newIdx-1||i===newIdx-2) cls+=' add';
+    }
+    d.className=cls;
+    d.innerHTML='<div class="fi">F'+i+'</div><div class="fv">'+v+'</div>';
+    row.appendChild(d);
+  });
+}
+$('#fib-go').onclick=function(){
+  if(FIB.length>=15){$('#fib-msg').textContent='That is enough terms. Press Reset to start again.';return;}
+  var n=FIB.length;
+  FIB.push(FIB[n-1]+FIB[n-2]);
+  paintFib(n);
+  $('#fib-msg').innerHTML='F'+n+' = F'+(n-1)+' + F'+(n-2)+' = '+FIB[n-1]+' + '+FIB[n-2]+' = <b>'+FIB[n]+'</b>';
+};
+$('#fib-reset').onclick=function(){FIB=[0,1];paintFib();$('#fib-msg').textContent='Press the button. Watch which two boxes light up.';};
+paintFib();
+
+/* ---- HALVING / LOG ---- */
+var hvStart=1024, hvCur=1024, hvCuts=0;
+function paintHv(){
+  var pct=Math.max(hvCur/hvStart*100,3.2);
+  $('#hv-bar').style.width=pct+'%';
+  $('#hv-bar').textContent=hvCur.toLocaleString('en-US');
+}
+function resetHv(){
+  hvStart=parseInt($('#hv-n').value,10); hvCur=hvStart; hvCuts=0;
+  $('#hv-steps').innerHTML=''; paintHv();
+  $('#hv-msg').textContent='Keep cutting until only 1 is left. Count the cuts.';
+}
+$('#hv-go').onclick=function(){
+  if(hvCur<=1){$('#hv-msg').innerHTML='<b>Done in '+hvCuts+' cuts.</b> That is exactly what log&#8322; '+hvStart.toLocaleString('en-US')+' means.';return;}
+  hvCur=Math.ceil(hvCur/2); hvCuts++;
+  var s=document.createElement('span'); s.className='hstep';
+  s.textContent='cut '+hvCuts+' → '+hvCur.toLocaleString('en-US');
+  $('#hv-steps').appendChild(s); paintHv();
+  if(hvCur<=1) $('#hv-msg').innerHTML='<b>Only 1 left. It took '+hvCuts+' cuts.</b> &nbsp;log&#8322; '+hvStart.toLocaleString('en-US')+' = '+hvCuts+'. From '+hvStart.toLocaleString('en-US')+' items to the answer in '+hvCuts+' steps.';
+  else $('#hv-msg').textContent=hvCuts+' cut'+(hvCuts>1?'s':'')+' so far. '+hvCur.toLocaleString('en-US')+' left.';
+};
+$('#hv-reset').onclick=resetHv;
+$('#hv-n').addEventListener('change',resetHv);
+resetHv();
+
+/* ---- ALGORITHM TRACER ---- */
+var DATA=[30,50,20,70,40], N=5;
+var TR=[], timer=null;
+(function buildTrace(){
+  var K=null,LOC=null,MAX=null;
+  function snap(line,msg,look){TR.push({l:line,K:K,LOC:LOC,MAX:MAX,m:msg,look:look});}
+  K=1;LOC=1;MAX=DATA[0];
+  snap(0,'Set K := 1, LOC := 1, MAX := DATA[1] = 30. We assume the first element is the biggest until proved wrong.',0);
+  var guard=0;
+  while(guard++<40){
+    K=K+1; snap(1,'Set K := K + 1. Now K = '+K+'.',null);
+    if(K>N){ snap(2,'Is K &gt; N?  '+K+' &gt; '+N+' is TRUE. So Write: LOC, MAX and Exit.',null);
+             snap(5,'Finished. LOC = '+LOC+', MAX = '+MAX+'.',null); break; }
+    snap(2,'Is K &gt; N?  '+K+' &gt; '+N+' is FALSE. Carry on to Step 4.',null);
+    var d=DATA[K-1];
+    if(MAX<d){ LOC=K; MAX=d;
+      snap(3,'Is MAX &lt; DATA['+K+']?  Yes ('+d+' beats the old MAX). So Set LOC := '+K+' and MAX := '+d+'.',K-1);
+    } else {
+      snap(3,'Is MAX &lt; DATA['+K+']?  No, '+MAX+' is still bigger than '+d+'. Change nothing.',K-1);
+    }
+    snap(4,'Go to Step 2.',null);
+  }
+})();
+var tp=-1;
+function paintTrace(){
+  var s = tp<0 ? null : TR[tp];
+  $$('#tr-algo .st').forEach(function(el,i){
+    el.classList.toggle('cur', !!s && i===s.l);
+  });
+  $('#v-K').querySelector('.vv').textContent = s&&s.K!==null?s.K:'—';
+  $('#v-LOC').querySelector('.vv').textContent = s&&s.LOC!==null?s.LOC:'—';
+  $('#v-MAX').querySelector('.vv').textContent = s&&s.MAX!==null?s.MAX:'—';
+  $('#v-STEP').querySelector('.vv').textContent = s?(s.l+1):'—';
+  var arr=$('#tr-arr'); arr.innerHTML='';
+  DATA.forEach(function(v,i){
+    var d=document.createElement('div'); d.className='acell';
+    if(s&&s.look===i)d.className+=' look';
+    if(s&&s.LOC===i+1)d.className+=' best';
+    d.innerHTML='<div class="ai">['+(i+1)+']</div><div class="av">'+v+'</div>';
+    arr.appendChild(d);
+  });
+  $('#tr-msg').innerHTML = s?s.m:'Press Next to begin.';
+}
+$('#tr-next').onclick=function(){ if(tp<TR.length-1){tp++;paintTrace();} };
+$('#tr-reset').onclick=function(){ clearInterval(timer);timer=null;$('#tr-auto').textContent='▶ Play';tp=-1;paintTrace(); };
+$('#tr-auto').onclick=function(){
+  var b=this;
+  if(timer){clearInterval(timer);timer=null;b.textContent='▶ Play';return;}
+  b.textContent='⏸ Pause';
+  timer=setInterval(function(){
+    if(tp<TR.length-1){tp++;paintTrace();}
+    else{clearInterval(timer);timer=null;b.textContent='▶ Play';}
+  },1100);
+};
+paintTrace();
+
+/* ---- SPOT THE MISTAKE ---- */
+var found=0, TOTAL=5;
+function paintBugs(){
+  $('#bug-cnt').textContent=found+' / '+TOTAL;
+  $$('#bug-dots i').forEach(function(d,i){d.classList.toggle('on',i<found);});
+}
+$$('#findbug .tok').forEach(function(t){
+  t.addEventListener('click',function(){
+    if(t.classList.contains('got'))return;
+    t.classList.add('got');
+    t.innerHTML=t.textContent+' <span class="fix">→ '+t.dataset.fix+'</span>';
+    found++; paintBugs();
+    $('#bug-log').innerHTML='<b>Found it.</b> '+t.dataset.why;
+    if(found===TOTAL) $('#bug-log').innerHTML='<b style="color:#15803d">All 5 found.</b> Those five mistakes are exactly what costs marks — the answer was correct, the writing was not.';
+  });
+});
+$('#findbug').addEventListener('click',function(e){
+  if(e.target===this||(e.target.nodeType===1&&!e.target.classList.contains('tok')&&!e.target.classList.contains('fix'))){
+    $('#bug-log').textContent='Nothing wrong there. Look at names, at the assignment sign, and at how it ends.';
+  }
+});
+$('#bug-reset').onclick=function(){
+  found=0; paintBugs();
+  $$('#findbug .tok').forEach(function(t){
+    t.classList.remove('got');
+    t.innerHTML=t.textContent.replace(/\s*→.*$/,'');
+  });
+  $('#bug-log').textContent='Click on anything you think is wrong.';
+};
+paintBugs();
+
+
+/* ---------- FLOWCHART RUNNER ---------- */
+(function(){
+  var A=[30,50,20,70,40], KEY=70, steps=[], sp=-1, tmr=null;
+  function build(){
+    steps=[]; var i=0;
+    steps.push({n:0,e:null,i:null,m:'<b>Start.</b>'});
+    steps.push({n:1,e:'0-1',i:null,m:'<b>Read A, N, KEY.</b> The array, its size (5) and the value we are hunting for ('+KEY+').'});
+    steps.push({n:2,e:'1-2',i:0,m:'<b>i = 0.</b> Begin at the first box.'});
+    var guard=0, first=true;
+    while(guard++<20){
+      steps.push({n:3,e:first?'2-3':'5-3',i:i,m:'<b>i &lt; N ?</b> &nbsp;'+i+' &lt; 5 is '+(i<5?'<b>Yes</b> — carry on.':'<b>No</b> — the array is finished.')});
+      first=false;
+      if(i>=A.length){ steps.push({n:7,e:'3-7',i:i,m:'<b>Print "Not found".</b> Every box was checked and '+KEY+' was never there — <b>'+A.length+' comparisons</b>, the worst case.',end:1}); break; }
+      var hit=A[i]===KEY;
+      steps.push({n:4,e:'3-4',i:i,look:1,m:'<b>A['+i+'] = KEY ?</b> &nbsp;'+A[i]+' = '+KEY+' is '+(hit?'<b>Yes</b> — found it.':'<b>No</b>.')});
+      if(hit){ steps.push({n:6,e:'4-6',i:i,found:1,m:'<b>Print i.</b> Found at position <b>'+i+'</b>, after <b>'+(i+1)+' comparison'+(i?'s':'')+'</b>.',end:1}); break; }
+      steps.push({n:5,e:'4-5',i:i,m:'<b>i = i + 1.</b> Move to the next box.'});
+      i++;
+    }
+  }
+  function paint(){
+    var st = sp<0 ? null : steps[sp];
+    $$('#fcsvg .fcn').forEach(function(g){ g.classList.toggle('cur', !!st && +g.dataset.n===st.n); });
+    $$('#fcsvg .fe').forEach(function(e){ e.classList.toggle('lit', !!st && e.dataset.e===st.e); });
+    $('#fcarr').innerHTML=A.map(function(v,k){
+      var cls='acell';
+      if(st && st.look && k===st.i) cls+=' look';
+      if(st && st.found && k===st.i) cls+=' hitv';
+      return '<div class="'+cls+'"><span class="ai">['+k+']</span><span class="av">'+v+'</span></div>';
+    }).join('');
+    $('#fc-i').querySelector('.vv').textContent = st && st.i!==null && st.i!==undefined ? st.i : '—';
+    $('#fc-k').querySelector('.vv').textContent = KEY;
+    $('#fcmsg').innerHTML = st ? st.m : 'Press <b>Next</b> to start.';
+    $('#fc-next').disabled = sp>=steps.length-1;
+  }
+  function reset(){ clearInterval(tmr); tmr=null; $('#fc-play').textContent='▶ Play'; build(); sp=-1; paint(); }
+  $('#fc-next').onclick=function(){ if(sp<steps.length-1){sp++;paint();} };
+  $('#fc-reset').onclick=reset;
+  $('#fc-play').onclick=function(){
+    var b=this;
+    if(tmr){ clearInterval(tmr); tmr=null; b.textContent='▶ Play'; return; }
+    if(sp>=steps.length-1) sp=-1;
+    b.textContent='⏸ Pause';
+    tmr=setInterval(function(){
+      if(sp<steps.length-1){ sp++; paint(); }
+      else { clearInterval(tmr); tmr=null; b.textContent='▶ Play'; }
+    },950);
+  };
+  $$('[data-fckey]').forEach(function(b){
+    b.addEventListener('click',function(){
+      $$('[data-fckey]').forEach(function(x){x.classList.add('ghost');});
+      b.classList.remove('ghost'); KEY=+b.dataset.fckey; reset();
+    });
+  });
+  reset();
+})();
+
+$$('.quiz').forEach(function(q){
+  var o=$$('.qopt',q),e=$('.qexp',q);
+  o.forEach(function(b){b.addEventListener('click',function(){
+    o.forEach(function(x){x.disabled=true;if(x.dataset.ok)x.classList.add('ok');});
+    if(!b.dataset.ok)b.classList.add('no'); e.classList.add('show');
+  });});
+});
+
+document.addEventListener('keydown',function(e){
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+  if(e.key==='j'||e.key==='ArrowDown'){e.preventDefault();jump(1);}
+  if(e.key==='k'||e.key==='ArrowUp'){e.preventDefault();jump(-1);}
+});
+})();
+
+/* ---------- FLOATING JUMP DRAWER ---------- */
+(function(){
+  var CLASSES=[
+    ['1','Why do we need data structures?','01-why-data-structures.html'],
+    ['2','Data, data structures and the ADT','02-data-and-adt.html'],
+    ['3','What your data looks like in memory','03-data-in-memory.html'],
+    ['4','Algorithms — and how we write them','04-algorithms-and-notation.html'],
+    ['5','Time & space complexity','05-time-and-space-complexity.html']
+  ];
+  var here=(location.pathname.split('/').pop()||'');
+  var base = /2321-theory/.test(location.pathname) ? '' : '../2321-theory/01-introduction/';
+  var root = /2321-theory|2322-lab/.test(location.pathname) ? '../../index.html' : '../index.html';
+
+  var scrim=document.createElement('div'); scrim.className='scrim';
+  var dr=document.createElement('aside'); dr.className='drawer';
+  dr.setAttribute('aria-hidden','true');
+
+  var secs='';
+  var cards=document.querySelectorAll('.panel:not([hidden]) .card');
+  for(var i=0;i<cards.length;i++){
+    var h=cards[i].querySelector('h2');
+    if(!h)continue;
+    var b=cards[i].querySelector('.badge');
+    secs+='<button class="dl dsec" data-jump="'+i+'"><span class="dn2">'+(b?b.textContent:(i+1))+'</span>'+
+          h.textContent.trim()+'</button>';
+  }
+
+  var links=CLASSES.map(function(c){
+    var on = c[2] && here===c[2];
+    if(!c[2]) return '<span class="dl" style="opacity:.45;cursor:default"><span class="dn2">'+c[0]+'</span>'+c[1]+' — soon</span>';
+    return '<a class="dl'+(on?' here':'')+'" href="'+base+c[2]+'"><span class="dn2">'+c[0]+'</span>'+c[1]+'</a>';
+  }).join('');
+
+  dr.innerHTML='<div class="dh"><p>CSE-2321 · Segment 1</p><b>Jump to</b>'+
+    '<button class="dx" aria-label="Close">✕</button></div>'+
+    '<div class="db">'+
+      '<a class="dl home2" href="'+root+'">☰ &nbsp;All classes &amp; the full course</a>'+
+      '<p class="grp">Segment 1 · Introduction<span></span></p>'+links+
+      (secs?'<p class="grp">On this page<span></span></p>'+secs:'')+
+    '</div>';
+
+  var fab=document.createElement('div'); fab.className='fab';
+  fab.innerHTML='<button class="fup" aria-label="Previous section">↑</button>'+
+                '<button class="fdn" aria-label="Next section">↓</button>'+
+                '<button class="fmenu" aria-label="Open navigation">☰</button>';
+  document.body.appendChild(scrim); document.body.appendChild(dr); document.body.appendChild(fab);
+
+  function open(v){
+    dr.classList.toggle('on',v); scrim.classList.toggle('on',v);
+    dr.setAttribute('aria-hidden', v?'false':'true');
+    document.body.style.overflow = v?'hidden':'';
+  }
+  fab.querySelector('.fmenu').onclick=function(){open(!dr.classList.contains('on'));};
+  fab.querySelector('.fup').onclick=function(){jump(-1);};
+  fab.querySelector('.fdn').onclick=function(){jump(1);};
+  dr.querySelector('.dx').onclick=function(){open(false);};
+  scrim.onclick=function(){open(false);};
+  dr.addEventListener('click',function(e){
+    var b=e.target.closest('[data-jump]'); if(!b)return;
+    open(false);
+    var c=document.querySelectorAll('.panel:not([hidden]) .card')[+b.dataset.jump];
+    if(c) setTimeout(function(){window.scrollTo({top:Math.max(c.offsetTop-80,0),behavior:'smooth'});},180);
+  });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') open(false); });
+})();
+
+
+/* ---------- CODE THEME TOGGLE ---------- */
+(function(){
+  var KEY='dsa-code-theme';
+  var saved=null; try{saved=localStorage.getItem(KEY);}catch(e){}
+  if(saved!=='dark') document.body.classList.add('codelight');
+  var tabs=document.querySelector('.tabs');
+  if(!tabs)return;
+  var b=document.createElement('button');
+  b.className='codetog'; b.type='button';
+  function label(){ b.textContent = document.body.classList.contains('codelight') ? '🌙 Dark code' : '☀ Light code'; }
+  label();
+  b.addEventListener('click',function(){
+    document.body.classList.toggle('codelight');
+    try{localStorage.setItem(KEY, document.body.classList.contains('codelight')?'light':'dark');}catch(e){}
+    label();
+  });
+  tabs.appendChild(b);
+})();
+
+</script>
+</body>
+</html>

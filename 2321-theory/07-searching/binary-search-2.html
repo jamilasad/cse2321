@@ -1,0 +1,2284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Binary Search — Session Two: Binary Search on the Answer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+            options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'] }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+
+    <style>
+        :root { --bg-color: #f8fafc; --card-bg: #ffffff; --card-color: #7c3aed; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: #334155; line-height: 1.6; }
+        .code-font { font-family: 'Fira Code', monospace; }
+
+        .info-card {
+            background: var(--card-bg); border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,.05), 0 2px 4px -1px rgba(0,0,0,.03);
+            padding: 2rem; margin-bottom: 2.5rem; position: relative; border-top: 4px solid var(--card-color);
+        }
+        @media (max-width: 640px) { .info-card { padding: 1.25rem; padding-top: 2.5rem; } }
+
+        .step-badge {
+            background: var(--card-color); color: #fff; width: 2.5rem; height: 2.5rem; border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem;
+            position: absolute; top: -1.25rem; left: 2rem; border: 4px solid var(--bg-color); z-index: 10;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        .btn-primary {
+            background: var(--card-color); color: #fff; padding: .55rem 1rem; border-radius: .5rem;
+            font-weight: 700; font-size: .875rem; border: none; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,.1);
+            display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+            transition: filter .15s, transform .1s;
+        }
+        #hide-go { padding-inline: .85rem; }
+        .btn-primary:hover:not(:disabled) { filter: brightness(.9); transform: translateY(-1px); }
+        .btn-primary:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+        .btn-secondary {
+            background: #fff; color: #475569; padding: .55rem 1.1rem; border-radius: .5rem;
+            font-weight: 700; font-size: .875rem; border: 2px solid #e2e8f0; cursor: pointer; transition: all .15s;
+        }
+        .btn-secondary:hover:not(:disabled) { border-color: #94a3b8; color: #1e293b; }
+        .btn-secondary:disabled { opacity: .45; cursor: not-allowed; }
+        button:focus-visible, select:focus-visible, input:focus-visible, [tabindex]:focus-visible { outline: 3px solid #6366f1; outline-offset: 2px; }
+
+        .code-block {
+            font-family: 'Fira Code', monospace; font-size: .85rem; line-height: 1.7;
+            padding: 1rem .5rem; border-radius: .5rem; background: #1e293b; color: #e2e8f0; overflow-x: auto;
+        }
+        .code-kw { color: #c678dd; } .code-type { color: #e5c07b; } .code-fn { color: #61afef; }
+        .code-num { color: #d19a66; } .code-comment { color: #7f848e; font-style: italic; }
+
+        .cells-scroll { display: flex; overflow-x: auto; justify-content: safe center; }
+        .cells-scroll > .cellrow { flex: 0 0 auto; }
+        .cellrow { display: inline-grid; grid-auto-flow: column; gap: 8px; padding: 2px; }
+        .cellcol { display: grid; grid-template-rows: 26px 18px 60px 30px; justify-items: center; align-items: center; }
+        .cell {
+            width: 50px; height: 60px; border: 2px solid #cbd5e1; border-radius: .6rem; background: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font: 700 20px/1 'Fira Code', monospace; color: #334155;
+            transition: transform .18s, border-color .18s, background .18s, box-shadow .18s;
+        }
+        .cell.mid { border-color: #f59e0b; background: #fffbeb; transform: translateY(-2px) scale(1.08); box-shadow: 0 6px 16px rgba(245,158,11,.3); z-index: 5; }
+        .cell.one  { border-color: #10b981; background: #d1fae5; color: #065f46; }
+        .cell.zero { border-color: #fca5a5; background: #fef2f2; color: #b91c1c; }
+        .cell.dim { opacity: .28; filter: grayscale(.6); }
+        .cell.sel { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.35); }
+        .cell.boundary { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,.45); animation: pulseB .9s ease-in-out infinite; }
+        @keyframes pulseB { 0%,100% { box-shadow: 0 0 0 3px rgba(124,58,237,.45); } 50% { box-shadow: 0 0 0 6px rgba(124,58,237,.18); } }
+        .cell.flip { transition: background .4s, color .4s, border-color .4s; }
+        .cell.feeding { border-color: #7c3aed; background: #f5f3ff; transform: translateY(-3px) scale(1.06); box-shadow: 0 8px 20px rgba(124,58,237,.28); z-index: 6; }
+
+        /* §1 — "feed the value into check()" animation */
+        #hide-stage { position: relative; }
+        .feed-overlay { position: absolute; inset: 0; pointer-events: none; overflow: visible; z-index: 30; }
+        .feed-token {
+            position: absolute; top: 0; left: 0; display: inline-flex; align-items: center; justify-content: center;
+            min-width: 34px; height: 34px; padding: 0 9px; border-radius: 9px;
+            font: 800 15px/1 'Fira Code', monospace; white-space: nowrap;
+            box-shadow: 0 8px 20px rgba(0,0,0,.20);
+            transition: transform .36s cubic-bezier(.45,.05,.25,1), opacity .28s ease, background .25s, color .25s, border-color .25s;
+            will-change: transform, opacity;
+        }
+        .feed-token.val      { background: #ede9fe; color: #6d28d9; border: 2px solid #c4b5fd; }
+        .feed-token.res-one  { background: #d1fae5; color: #065f46; border: 2px solid #6ee7b7; }
+        .feed-token.res-zero { background: #fee2e2; color: #b91c1c; border: 2px solid #fca5a5; }
+        #hide-code { transition: transform .2s; }
+        #hide-code .code-block { transition: box-shadow .25s, transform .2s; }
+        #hide-code.active .code-block { box-shadow: 0 0 0 3px rgba(124,58,237,.4), 0 12px 30px -6px rgba(124,58,237,.35); transform: translateY(-1px); }
+        .chk-hot { border-radius: 4px; padding: 1px 4px; transition: background .2s, color .2s, box-shadow .2s; }
+        #hide-code.active .chk-hot { background: #facc15; color: #1e293b; box-shadow: 0 0 14px rgba(250,204,21,.6); }
+        .chk-param { border-radius: 4px; padding: 1px 4px; transition: background .2s, color .2s, box-shadow .2s; }
+        #hide-code.inlet .chk-param { background: rgba(167,139,250,.28); box-shadow: 0 0 0 2px rgba(167,139,250,.55); color: #ede9fe; }
+        .strip-wrap { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 1.1rem .75rem 1rem; overflow-x: auto; }
+        .idx { font: 600 13px/1 'Fira Code', monospace; color: #94a3b8; }
+        .ptr { font: 800 12px/1 'Inter', sans-serif; letter-spacing: .04em; text-transform: uppercase; padding: 4px 7px; border-radius: 5px; white-space: nowrap; }
+        .ptr-L  { background: #e2e8f0; color: #334155; } .ptr-R  { background: #dbeafe; color: #1d4ed8; }
+        .ptr-lo { background: #fee2e2; color: #b91c1c; } .ptr-hi { background: #dcfce7; color: #047857; }
+        .ptr-mid { background: #fef3c7; color: #b45309; box-shadow: 0 0 0 2px rgba(245,158,11,.35); }
+        .cell.ghost { border-style: dashed; border-color: #cbd5e1; background: #f8fafc; color: #cbd5e1; }
+
+        .log {
+            background: #0f172a; color: #e2e8f0; border-radius: .75rem; padding: 1rem 1.25rem;
+            font: 500 .95rem/1.75 'Fira Code', monospace; border-left: 5px solid #64748b; min-height: 5.5rem; text-align: left;
+        }
+        @media (max-width: 640px) { .log { font-size: .8rem; padding: .8rem; } }
+        .log b, .log strong { color: #fff; font-weight: 700; }
+        .log .ok  { color: #6ee7b7; font-weight: 700; } .log .bad { color: #fda4af; font-weight: 700; }
+        .log .warn{ color: #fcd34d; font-weight: 700; } .log .dimtext { color: #94a3b8; }
+        .log.good { border-left-color: #10b981; } .log.err  { border-left-color: #f43f5e; } .log.warnb{ border-left-color: #f59e0b; }
+
+        .takeaway { background: linear-gradient(180deg, rgba(254,240,138,0) 55%, #fde68a 55%); padding: 0 3px; font-weight: 600; color: #422006; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+        .takeaway-dark { background: linear-gradient(180deg, rgba(167,139,250,0) 60%, rgba(167,139,250,.35) 60%); padding: 0 3px; font-weight: 700; color: #ede9fe; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+        .hook { background: linear-gradient(135deg, #eef2ff 0%, #f0f9ff 100%); border-left: 4px solid #6366f1; border-radius: 8px; padding: .85rem 1.15rem; font-weight: 600; color: #3730a3; box-shadow: 0 2px 8px rgba(99,102,241,.08); }
+
+        .quiz-card { background: #fff; border: 1px solid #e2e8f0; border-left: 5px solid #6366f1; border-radius: 1rem; padding: 1.5rem; margin-top: 2rem; }
+        .session-rule { display: flex; align-items: center; gap: 1rem; margin: 4rem 0 2.5rem; }
+        .session-rule hr { flex: 1; border: none; border-top: 2px dashed #cbd5e1; }
+        .session-rule span { font: 800 .72rem/1 'Inter'; letter-spacing: .18em; text-transform: uppercase; color: #64748b; white-space: nowrap; }
+        .crumb { cursor: pointer; } .crumb.active { color: #1e293b; } .crumb.active i { color: var(--card-color); }
+        details > summary { cursor: pointer; list-style: none; } details > summary::-webkit-details-marker { display: none; }
+
+        /* ---- Session-2 components ---- */
+        .stop-think { background: #fffbeb; border: 2px solid #fcd34d; border-radius: 14px; padding: 1rem 1.25rem; }
+        .stop-think .st-tag { font: 800 .68rem/1 'Inter'; letter-spacing: .12em; text-transform: uppercase; color: #b45309; display: inline-flex; align-items: center; gap: .4rem; margin-bottom: .5rem; }
+        .predict { background: #eef2ff; border-left: 4px solid #6366f1; border-radius: 8px; padding: .85rem 1.1rem; }
+
+        /* progressive reveal (Socratic stepper) */
+        .reveal { max-height: 0; opacity: 0; overflow: hidden; transition: max-height .4s ease, opacity .4s ease, margin .4s ease; margin: 0; }
+        .reveal.show { max-height: 600px; opacity: 1; margin-top: .75rem; }
+        .stage { border-radius: 12px; padding: .9rem 1.1rem; font-size: .9rem; }
+        .stage-hint   { background: #eef2ff; border: 1px solid #c7d2fe; color: #3730a3; }
+        .stage-answer { background: #dcfce7; border: 1px solid #86efac; color: #14532d; }
+        .stage-why    { background: #f1f5f9; border: 1px solid #cbd5e1; color: #334155; }
+        .stage .stage-lbl { font: 800 .6rem/1 'Inter'; letter-spacing: .1em; text-transform: uppercase; opacity: .7; display: block; margin-bottom: .35rem; }
+
+        /* flip-to-reveal card (retrieval / playbook) */
+        .rev-btn { background: #fff; border: 2px solid #e2e8f0; border-radius: 10px; padding: .5rem .85rem; font: 700 .8rem/1 'Inter'; color: #6366f1; cursor: pointer; transition: all .15s; }
+        .rev-btn:hover { border-color: #6366f1; background: #eef2ff; }
+        .rev-ans { display: none; margin-top: .5rem; color: #14532d; font-weight: 600; }
+        .rev-ans.show { display: block; }
+
+        /* §0 only — 3D "unfold" reveal (scoped so other reveal cards are untouched) */
+        #s-recall .stop-think { perspective: 900px; }
+        #s-recall .rev-btn { transition: all .15s, transform .15s; }
+        #s-recall .rev-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99,102,241,.18); }
+        #s-recall .rev-ans {
+            display: block; margin-top: 0; max-height: 0; overflow: hidden; opacity: 0;
+            padding: 0 1rem; border: 1px solid transparent; border-radius: 12px; box-shadow: none;
+            background: linear-gradient(135deg, #ecfdf5 0%, #eef2ff 100%); color: #065f46;
+            transform: rotateX(-92deg) translateY(-6px); transform-origin: top center;
+            transform-style: preserve-3d; backface-visibility: hidden;
+            transition: transform .55s cubic-bezier(.16,.84,.28,1.02), opacity .4s ease .05s,
+                        max-height .5s ease, margin-top .4s ease, padding .4s ease,
+                        border-color .4s ease, box-shadow .45s ease;
+        }
+        #s-recall .rev-ans.show {
+            max-height: 340px; opacity: 1; margin-top: .7rem; padding: .8rem 1rem;
+            border-color: #a7f3d0; box-shadow: 0 14px 30px -8px rgba(16,185,129,.28);
+            transform: rotateX(0deg) translateY(0);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #s-recall .rev-ans { transform: none; }
+            #s-recall .rev-ans.show { transform: none; }
+        }
+
+        /* §2 — "invent it" reveal cards (screenshot-style) */
+        .invent-card { background: #faf9ff; border: 1px solid #e0d7fb; border-radius: 16px; padding: 1.15rem 1.35rem; }
+        .invent-card + .invent-card { margin-top: 1rem; }
+        .invent-q { font-weight: 700; color: #1e293b; line-height: 1.5; }
+        .invent-reveal { display: none; }
+        .invent-reveal.show { display: block; animation: inv-in .4s ease both; margin-top: .85rem; }
+        @keyframes inv-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+        .invent-btn { margin-top: .85rem; }
+        .invent-lines { font: 500 .95rem/1.9 'Fira Code', monospace; color: #166534; }
+        .epiphany { display: none; }
+        .epiphany.show { display: block; animation: inv-in .45s ease both; }
+
+        /* §2 — code-line tracer */
+        .trace-code { font: 500 .82rem/1.7 'Fira Code', monospace; background: #1e293b; color: #e2e8f0; border-radius: .6rem; padding: .9rem .5rem; overflow-x: auto; }
+        .trace-code .cl { display: block; padding: 1px 10px; border-left: 3px solid transparent; white-space: pre; transition: background .18s, border-color .18s; }
+        .trace-code .cl.on { background: rgba(124,58,237,.22); border-left-color: #a78bfa; }
+        .trace-pill { display: inline-block; font: 700 .7rem/1 'Inter'; letter-spacing: .04em; text-transform: uppercase; padding: 4px 9px; border-radius: 6px; background: #ede9fe; color: #6d28d9; }
+
+        /* feasibility simulator (ropes / koko) */
+        .sim-stage { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 1.25rem 1rem 1rem; }
+        /* overflow-x + no-shrink (same pattern as .cells-scroll): without these the bars are
+           squashed to slivers on narrow screens instead of scrolling. 'safe center' keeps the
+           left edge reachable when the content is wider than the track. */
+        /* overflow-x:auto makes this a scroll container in BOTH axes, so a couple of stray pixels
+           (bar + gap + caption) used to raise a vertical scrollbar — the bottom padding absorbs them */
+        .sim-bars { display: flex; gap: 14px; align-items: flex-end; justify-content: safe center; min-height: 150px; padding: 0 6px 6px; overflow-x: auto; overflow-y: hidden; }
+        .sim-barcol { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 0 0 auto; }
+        .sim-bar { width: 46px; flex: 0 0 auto; border-radius: 6px 6px 3px 3px; display: flex; flex-direction: column-reverse; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+        .sim-seg { border-top: 2px solid rgba(255,255,255,.85); }
+        .sim-caption { font: 700 13px/1 'Fira Code'; color: #64748b; }
+        .sim-slider { width: 100%; accent-color: var(--card-color); height: 6px; }
+        .sim-readout { font: 700 1rem/1.4 'Fira Code'; text-align: center; }
+        .sim-limit { position: relative; }
+        .sim-limit-line { border-top: 2px dashed #ef4444; position: relative; }
+        .sim-limit-tag { position: absolute; right: 0; top: -10px; background: #ef4444; color: #fff; font: 700 .7rem/1 'Inter'; padding: 3px 7px; border-radius: 5px; }
+
+        /* reusable equation chip — same look everywhere it appears */
+        .eq-box { display: inline-flex; align-items: center; gap: .4rem; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 8px; padding: .3rem .65rem; font: 700 .95rem/1.3 'Fira Code', monospace; color: #3730a3; white-space: nowrap; box-shadow: 0 1px 2px rgba(79,70,229,.1); }
+        .eq-box.eq-teal { background: #f0fdfa; border-color: #99f6e4; color: #0f766e; box-shadow: 0 1px 2px rgba(13,148,136,.1); }
+
+        /* linked sim + strip block */
+        .sim-link { border: 2px solid #e2e8f0; border-radius: 16px; padding: 1rem 1rem .5rem; background: #fbfcfe; }
+        .sim-hidden { display: none; }
+        .link-tag { display: inline-flex; align-items: center; gap: .35rem; font: 700 .68rem/1 'Inter'; letter-spacing: .1em; text-transform: uppercase; color: #64748b; }
+
+        /* rope-styled bars (ropes sim) */
+        .rope-bar { width: 46px; border-radius: 7px; display: flex; flex-direction: column-reverse; overflow: hidden; box-shadow: 0 1px 3px rgba(120,72,20,.25); }
+        .rope-seg { background: repeating-linear-gradient(45deg, #c8944e 0 5px, #b07d3a 5px 10px); border-top: 2px dashed #7c4a12; }
+        .rope-seg.rope-rem { background: #ece3d3; border-top: 1px solid #d6c9b0; }
+        .sim-slider-rope { accent-color: #b07d3a; }
+
+        /* one L, three views: the slider value, the 0/1 it returns, and the strip cell all flash together */
+        /* inline-block, no overflow clipping: the number keeps its baseline and stays level with the text beside it */
+        .flash-target { display: inline-block; border-radius: 6px; padding: 0 .35rem; --flash-color: #92400e; --flash-bg: transparent; }
+        /* neon wash: the element lights up, its text flips to the matching dark ink, then both fade back to normal.
+           --flash-color / --flash-bg are each element's resting look, so the fade-out lands exactly where it started. */
+        .flash-target.flashing, .cell.flashing { animation: neonFlash 1.15s ease-out; }
+        .cell.flashing { z-index: 6; }
+        .cell.one  { --flash-color: #065f46; --flash-bg: #d1fae5; }
+        .cell.zero { --flash-color: #b91c1c; --flash-bg: #fef2f2; }
+        /* each simulator sets its own neon: cool cyan for the ropes, banana yellow for Koko */
+        .sim-link { --neon-bg: #22d3ee; --neon-ink: #082f49; --neon-glow: 34,211,238; --neon-line: #0e7490; --line-rest: #f472b6; }
+        #koko-play { --neon-bg: #fde047; --neon-ink: #78350f; --neon-glow: 250,204,21; --neon-line: #b45309; --line-rest: #14b8a6; }
+        #frog-sim { --neon-bg: #fda4af; --neon-ink: #4c0519; --neon-glow: 244,63,94; --neon-line: #9f1239; --line-rest: #fb7185; }
+        @keyframes neonFlash {
+            0%   { background: var(--flash-bg); color: var(--flash-color); box-shadow: 0 0 0 0 rgba(var(--neon-glow),0); }
+            14%  { background: var(--neon-bg); color: var(--neon-ink); box-shadow: 0 0 22px 5px rgba(var(--neon-glow),.75), 0 0 6px rgba(var(--neon-glow),.9); }
+            50%  { background: var(--neon-bg); color: var(--neon-ink); box-shadow: 0 0 20px 4px rgba(var(--neon-glow),.5), 0 0 5px rgba(var(--neon-glow),.6); }
+            100% { background: var(--flash-bg); color: var(--flash-color); box-shadow: 0 0 0 0 rgba(var(--neon-glow),0); }
+        }
+        /* the bridge caption lights up with them — it names what the three of them share */
+        .flash-line.flashing { animation: neonLine 1.15s ease-out; }
+        @keyframes neonLine {
+            0%,100% { color: var(--line-rest); text-shadow: none; }
+            14%, 50% { color: var(--neon-line); text-shadow: 0 0 12px rgba(var(--neon-glow),.95), 0 0 4px rgba(var(--neon-glow),.85); }
+        }
+
+        /* LeetCode problem badge + statement block */
+        .lc-badge {
+            display: inline-flex; align-items: center; gap: .5rem; text-decoration: none;
+            background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: .45rem .7rem;
+            font: 700 .8rem/1 'Inter', sans-serif; color: #334155;
+            box-shadow: 0 1px 2px rgba(15,23,42,.06); transition: border-color .18s, box-shadow .18s, transform .18s;
+        }
+        .lc-badge:hover { border-color: #cbd5e1; box-shadow: 0 4px 12px -4px rgba(15,23,42,.18); transform: translateY(-1px); }
+        .prob-statement {
+            background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #0d9488; border-radius: 12px;
+            padding: 1rem 1.1rem; color: #334155; font-size: .95rem; line-height: 1.6;
+        }
+        @media (prefers-reduced-motion: reduce) { .flash-target.flashing, .cell.flashing, .flash-line.flashing { animation: none; } }
+
+        /* banana piles (koko sim) — the pile drains one hour-band at a time */
+        .sim-slider-banana { accent-color: #eab308; }
+        .ban-col { width: 46px; display: flex; flex-direction: column; justify-content: flex-end; }
+        /* border-box, or the 1px border pushes the tallest pile past its column and .sim-bars
+           (a scroll container, because overflow-x is auto) sprouts a 2px vertical scrollbar */
+        .ban-pile { box-sizing: border-box; display: flex; flex-direction: column; border-radius: 9px 9px 4px 4px; overflow: hidden; box-shadow: 0 1px 3px rgba(202,138,4,.35); border: 1px solid #eab308; }
+        /* one band = one hour's worth of eating (v bananas; the bottom band is the leftover) */
+        .ban-band {
+            background: linear-gradient(180deg, #fde047, #f59e0b);
+            border-bottom: 1px dashed rgba(124,74,18,.45);
+            display: flex; align-items: center; justify-content: center;
+            font: 700 9px/1 'Fira Code', monospace; color: #78350f; overflow: hidden;
+        }
+        .ban-band:last-child { border-bottom: none; }
+        /* eaten: the band empties from the top of the pile down, one hour after another */
+        .ban-band.eaten { animation: eatBand .42s ease-in forwards; animation-delay: var(--d, 0s); }
+        @keyframes eatBand {
+            0%   { background: linear-gradient(180deg, #fde047, #f59e0b); color: #78350f; }
+            100% { background: #fffbeb; color: rgba(120,53,15,.45); box-shadow: inset 0 0 0 1px rgba(234,179,8,.35); }
+        }
+        .ban-band.eaten-static { background: #fffbeb; color: rgba(120,53,15,.45); }
+        @media (prefers-reduced-motion: reduce) { .ban-band.eaten { animation: none; } }
+
+        /* digit lock-in (fractions sim) */
+        .digit-row { display: flex; gap: 3px; justify-content: center; font: 800 26px/1 'Fira Code', monospace; }
+        .digit { padding: 4px 2px; border-radius: 6px; color: #94a3b8; transition: color .3s, background .3s; min-width: 18px; text-align: center; }
+        /* underline, not just colour: "locked" is load-bearing meaning, so it can't be colour-only */
+        .digit.locked { color: #4338ca; background: #eef2ff; box-shadow: inset 0 -3px 0 #4338ca; }
+        .digit.point { color: #334155; background: none; }
+        /* a digit that locked on THIS halving announces itself, then settles into the locked style */
+        .digit.just-locked { animation: digitLock 1.1s ease-out; }
+        @keyframes digitLock {
+            0%   { background: #4338ca; color: #fff; box-shadow: 0 0 16px 3px rgba(67,56,202,.55); }
+            55%  { background: #4338ca; color: #fff; box-shadow: 0 0 12px 2px rgba(67,56,202,.35); }
+            100% { background: #eef2ff; color: #4338ca; box-shadow: inset 0 -3px 0 #4338ca; }
+        }
+
+        /* frog track */
+        .frog-track { display: flex; gap: 4px; justify-content: safe center; flex-wrap: nowrap; overflow-x: auto; padding: 30px 4px 8px; }
+        .frog-cell { width: 42px; height: 42px; flex: 0 0 auto; border-radius: 8px; border: 2px solid #cbd5e1; background: #fff; display: flex; align-items: center; justify-content: center; position: relative; font: 700 13px/1 'Fira Code'; color: #94a3b8; }
+        .frog-cell.obstacle { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+        .frog-cell.goal { background: #dcfce7; border-color: #16a34a; }
+        .frog-cell.landed { box-shadow: 0 0 0 3px rgba(124,58,237,.35); background: #f5f3ff; border-color: #a78bfa; color: #6d28d9; }
+        .frog-cell.crash { background: #b91c1c; border-color: #7f1d1d; color: #fff; animation: crashShake .4s ease-in-out; }
+        .frog-cell.start { background: #fef9c3; border-color: #facc15; color: #a16207; font-size: 18px; }
+        .frog-cell.reached { box-shadow: 0 0 0 3px rgba(22,163,74,.45); }
+        @keyframes crashShake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+        .frog-token { position: absolute; top: -26px; left: 50%; transform: translateX(-50%); font-size: 20px; }
+        .frog-token.hop { animation: frogHop .28s ease-out; }
+        @keyframes frogHop { 0% { transform: translateX(-50%) translateY(-14px) scale(1.15); } 100% { transform: translateX(-50%) translateY(0) scale(1); } }
+
+        /* round 3D pads — one per legal jump size */
+        .jump-pad { display: flex; flex-wrap: wrap; gap: .75rem; justify-content: center; }
+        .jump-btn {
+            width: 48px; height: 48px; border-radius: 50%; border: none; cursor: pointer;
+            font: 800 17px/1 'Fira Code', monospace; color: #fff;
+            background: radial-gradient(circle at 32% 28%, #fb7185 0%, #e11d48 55%, #be123c 100%);
+            box-shadow: 0 5px 0 #881337, 0 10px 18px -6px rgba(190,18,60,.55), inset 0 2px 5px rgba(255,255,255,.4);
+            transition: transform .12s ease, box-shadow .12s ease;
+        }
+        .jump-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #881337, 0 14px 22px -6px rgba(190,18,60,.55), inset 0 2px 5px rgba(255,255,255,.4); }
+        .jump-btn:active, .jump-btn.pressed { transform: translateY(4px); box-shadow: 0 1px 0 #881337, 0 3px 8px -4px rgba(190,18,60,.5), inset 0 3px 7px rgba(0,0,0,.28); }
+        .jump-btn.pressed { background: radial-gradient(circle at 32% 28%, #f43f5e 0%, #9f1239 60%, #881337 100%); }
+        @media (prefers-reduced-motion: reduce) { .jump-btn, .frog-token.hop, .frog-cell.crash { transition: none; animation: none; } }
+
+        /* miniature 0/1 row — the same story as a strip, inline in a sentence */
+        .mini-cells { display: inline-flex; gap: 3px; vertical-align: middle; margin: 0 .15rem; }
+        .mini-cells b { display: inline-flex; align-items: center; justify-content: center; width: 21px; height: 21px; border-radius: 5px; border: 1.5px solid; font: 700 11px/1 'Fira Code', monospace; }
+        .mini-cells b.z { border-color: #fca5a5; background: #fef2f2; color: #b91c1c; }
+        .mini-cells b.o { border-color: #6ee7b7; background: #d1fae5; color: #065f46; }
+        .mini-cells b.dip { box-shadow: 0 0 0 2px rgba(225,29,72,.5); }
+        .log .mini-cells b.z { border-color: #f87171; }
+
+        /* interview board */
+        .chip { border: 2px solid #e2e8f0; background: #fff; color: #475569; border-radius: 999px; padding: .35rem .85rem; font: 700 .78rem/1 'Inter'; cursor: pointer; transition: all .15s; }
+        .chip.active { background: #0f172a; color: #fff; border-color: #0f172a; }
+        .freq { display: inline-flex; gap: 3px; }
+        .freq i { width: 8px; height: 8px; border-radius: 50%; background: #e2e8f0; display: inline-block; }
+        .freq i.on { background: #f59e0b; }
+        .badge-e { background: #dcfce7; color: #166534; } .badge-m { background: #fef3c7; color: #92400e; }
+        .badge { font: 800 .62rem/1 'Inter'; letter-spacing: .05em; text-transform: uppercase; padding: 3px 8px; border-radius: 5px; }
+        .tag-pattern { font: 700 .68rem/1 'Inter'; color: #6d28d9; background: #ede9fe; padding: 3px 8px; border-radius: 5px; white-space: nowrap; }
+        .tag-answer { color: #b45309; background: #fef3c7; }
+
+        /* assignment cards */
+        .asn { display: grid; grid-template-columns: 2.2rem 1fr auto; gap: .9rem; align-items: start; border: 1px solid #e2e8f0; border-radius: 12px; padding: .9rem 1rem; background: #fff; }
+        .asn-num { width: 2.2rem; height: 2.2rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; font: 800 .9rem/1 'Fira Code'; }
+
+        /* fraction zoom line — l and r are real pointer pills here, same language as the array sims */
+        .zoomline { position: relative; height: 122px; background: #f1f5f9; border: 2px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+        .zone { position: absolute; top: 0; bottom: 0; }
+        .zone-lo { background: #dcfce7; }            /* check = 0: m is not too big */
+        .zone-hi { background: #fee2e2; }            /* check = 1: m is too big */
+        .zone-out { background: #e2e8f0; }           /* already discarded — outside the bracket */
+        .ztarget { position: absolute; top: 0; bottom: 0; width: 2px; background: #4f46e5; }
+        .ztarget-tag { position: absolute; top: 5px; transform: translateX(-50%); font: 800 11px/1 'Fira Code', monospace; color: #4f46e5; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 5px; padding: 2px 5px; white-space: nowrap; }
+        /* the pins: a chip carrying the value, on a stem that points at the exact spot */
+        .zpin { position: absolute; bottom: 6px; transform: translateX(-50%); display: flex; flex-direction: column-reverse; align-items: center; z-index: 3; }
+        .zpin .stem { width: 3px; height: 30px; border-radius: 2px; }
+        .zpin .chip { padding: 5px 9px; border-radius: 8px; font: 800 12px/1 'Fira Code', monospace; white-space: nowrap; box-shadow: 0 3px 8px rgba(15,23,42,.18); }
+        .zpin.l .chip { background: #d1fae5; color: #065f46; border: 2px solid #34d399; } .zpin.l .stem { background: #10b981; }
+        .zpin.r .chip { background: #fee2e2; color: #b91c1c; border: 2px solid #f87171; } .zpin.r .stem { background: #ef4444; }
+        .zpin.m .chip { background: #fef3c7; color: #b45309; border: 2px solid #fbbf24; } .zpin.m .stem { background: #f59e0b; height: 48px; }
+        /* mid rides in its own lane at the top — L and R chips sit at the bottom, so the
+           pointer walking onto mid never collides with mid's own chip */
+        .zpin.m { top: 24px; bottom: auto; z-index: 4; }
+        /* the scale below: tick values converge as the bracket zooms in */
+        .zscale { position: relative; height: 30px; margin-top: 4px; }
+        .ztick { position: absolute; top: 0; transform: translateX(-50%); text-align: center; }
+        .ztick i { display: block; width: 1px; height: 7px; background: #cbd5e1; margin: 0 auto 3px; }
+        .ztick span { font: 600 9px/1 'Fira Code', monospace; color: #94a3b8; white-space: nowrap; }
+        /* the gap gauge: a measuring bar drawn between the L and R pins, carrying |r - l| */
+        .zgap { position: absolute; bottom: 2px; height: 18px; z-index: 2; }
+        .zgap .bar { position: absolute; top: 8px; left: 0; right: 0; height: 2px; background: #4f46e5; }
+        .zgap .cap { position: absolute; top: 2px; width: 2px; height: 14px; background: #4f46e5; border-radius: 1px; }
+        .zgap .cap.a { left: 0; } .zgap .cap.b { right: 0; }
+        .zoom-badge { display: inline-flex; align-items: center; gap: .4rem; background: #eef2ff; border: 1px solid #c7d2fe; color: #3730a3; border-radius: 999px; padding: .3rem .8rem; font: 800 .72rem/1 'Fira Code', monospace; }
+        .zoom-badge.pop { animation: zoomPop .55s cubic-bezier(.25,.8,.3,1); }
+        @keyframes zoomPop { 0% { transform: scale(1); } 35% { transform: scale(1.16); box-shadow: 0 0 0 6px rgba(79,70,229,.14); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(79,70,229,0); } }
+
+        /* interview board table — academic register: booktabs-style rules, quiet chips, ink dots.
+           Color lives only in the small brand marks; the table itself stays ink-on-paper. */
+        .itable-wrap { border: 1px solid #e2e8f0; border-radius: 12px; overflow-x: auto; background: #fff; }
+        .itable { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 640px; }
+        .itable th { font: 700 .68rem/1 'Inter', sans-serif; text-transform: uppercase; letter-spacing: .09em; color: #475569; text-align: left; padding: .85rem 1rem; background: #f8fafc; border-bottom: 2px solid #cbd5e1; white-space: nowrap; }
+        .itable td { padding: .85rem 1rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        .itable tbody tr:last-child td { border-bottom: none; }
+        .itable tbody tr { transition: background .15s; }
+        .itable tbody tr:hover { background: #f8fafc; }
+        .prob-link { font: 700 .9rem/1.35 'Inter', sans-serif; color: #0f172a; text-decoration: none; }
+        .prob-link:hover { color: #4f46e5; text-decoration: underline; text-underline-offset: 3px; }
+        .lc-num { display: inline-flex; align-items: center; gap: .3rem; margin-left: .35rem; font: 700 .68rem/1 'Fira Code', monospace; color: #475569; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 3px 6px; vertical-align: middle; }
+        /* company chips — quiet white chips; the brand mark is the only colour */
+        .co { display: inline-flex; align-items: center; gap: .35rem; background: #fff; border: 1px solid #e2e8f0; border-radius: 999px; padding: .28rem .6rem; margin: 2px 4px 2px 0; font: 600 .72rem/1 'Inter', sans-serif; color: #334155; white-space: nowrap; }
+        .co i { font-size: .85rem; color: #64748b; }
+        .co-amazon i { color: #ff9900; } .co-google i { color: #4285f4; } .co-microsoft i { color: #00a4ef; }
+        .co-apple i { color: #111827; } .co-meta i { color: #0866ff; }
+        /* the two badges that say "you have already done this" */
+        .built, .sib { display: inline-flex; align-items: center; gap: .25rem; border-radius: 999px; padding: 3px 8px; margin-left: .35rem; font: 800 .62rem/1 'Inter', sans-serif; text-transform: uppercase; letter-spacing: .05em; vertical-align: middle; }
+        .built { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
+        .sib { background: #eef2ff; border: 1px solid #c7d2fe; color: #3730a3; text-transform: none; letter-spacing: 0; font-weight: 700; }
+        /* frequency: three ink dots — filled vs hollow, uniform across rows */
+        .freq { display: inline-flex; gap: 5px; align-items: center; }
+        .freq b { display: block; width: 10px; height: 10px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 1.5px #94a3b8; }
+        .freq b.on { background: #1e293b; box-shadow: none; }
+        .freq-tag { display: block; font: 700 .58rem/1 'Inter', sans-serif; text-transform: uppercase; letter-spacing: .08em; margin-top: 5px; color: #64748b; }
+
+        /* §7 name-the-tool mini-quiz */
+        .tool-row { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1rem; }
+        .tool-opts { display: flex; flex-wrap: wrap; gap: .5rem; }
+        .tool-opt { border: 1.5px solid #cbd5e1; background: #fff; color: #334155; border-radius: 999px; padding: .4rem .85rem; font: 700 .78rem/1 'Inter', sans-serif; cursor: pointer; transition: border-color .15s, background .15s, transform .15s; }
+        .tool-opt:hover:not(:disabled) { border-color: #0d9488; transform: translateY(-1px); }
+        .tool-opt:disabled { cursor: default; opacity: .55; }
+        .tool-opt.correct { background: #ecfdf5; border-color: #10b981; color: #065f46; opacity: 1; }
+        .tool-opt.wrong { background: #fef2f2; border-color: #f87171; color: #b91c1c; opacity: 1; }
+        .tool-verdict { font-size: .82rem; color: #475569; margin: .6rem 0 0; display: none; }
+        .tool-verdict.show { display: block; }
+
+        .grid > div { min-width: 0; }   /* grid items must be shrinkable, or code blocks punch through the track */
+        .mermaid { display: flex; justify-content: center; margin: 0 auto; }
+        .mermaid svg { max-width: 100%; height: auto; }
+
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+        /* Print = a study handout, so it must show the ANSWERS. This page hides almost all of
+           its content behind progressive reveals; printing without forcing them open yields a
+           worksheet of questions and nothing else. Interactive controls are dropped, and the
+           dark code/log blocks are inverted to ink-on-paper (browsers strip backgrounds by
+           default, which would otherwise print light text on white = invisible). */
+        @media print {
+            #sticky-progress-container, .btn-primary, .btn-secondary, .rev-btn,
+            .sim-slider, .chip, .trace-pill { display: none !important; }
+            .info-card { break-inside: auto; box-shadow: none; border: 1px solid #cbd5e1; }
+            .info-card, .quiz-card, .stop-think, .epiphany, pre, .log { break-inside: avoid; }
+            /* force every reveal open */
+            .reveal { max-height: none !important; opacity: 1 !important; overflow: visible !important; }
+            .invent-reveal, .epiphany, .rev-ans, .sim-hidden,
+            .stage-hint, .stage-answer, .stage-why { display: block !important; }
+            details { display: block !important; }
+            details > summary { list-style: none; font-weight: 700; }
+            details > *:not(summary) { display: revert !important; }
+            /* dark blocks -> ink on paper */
+            .code-block, .trace-code, .log, .epiphany {
+                background: #fff !important; color: #0f172a !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+            .code-block *, .trace-code *, .log *, .epiphany * { color: #0f172a !important; }
+            .code-comment { color: #64748b !important; font-style: italic; }
+            /* scrolling regions must not clip off-page */
+            .cells-scroll, .frog-track, .sim-bars, .trace-code, .code-block {
+                overflow: visible !important; flex-wrap: wrap !important;
+            }
+            a[href]::after { content: " (" attr(href) ")"; font-size: .7rem; color: #64748b; word-break: break-all; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+
+<body>
+<a href="../../index.html" style="position:fixed;left:12px;top:12px;z-index:9999;display:inline-flex;align-items:center;gap:.4rem;background:rgba(15,23,42,.94);color:#e2e8f0;font:700 12px/1 Inter,system-ui,sans-serif;padding:8px 12px;border-radius:8px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.25)">&larr; All classes</a>
+
+
+<div id="sticky-progress-container" class="fixed top-0 left-0 w-full z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-200 transition-transform duration-300 transform -translate-y-full">
+    <div class="h-1 w-full bg-slate-100" role="progressbar" aria-label="Reading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="scroll-progress-track"><div id="scroll-progress-bar" class="h-full w-0" style="background: var(--card-color); transition: width .15s ease-out;"></div></div>
+    <nav aria-label="Section navigation" id="crumb-bar" class="max-w-6xl mx-auto px-4 py-2 flex items-center gap-1.5 overflow-x-auto custom-scrollbar whitespace-nowrap text-xs font-bold text-slate-400">
+        <span class="crumb" data-for="s-hide"><i class="fas fa-eye-slash" aria-hidden="true"></i> Hide the Array</span> <i class="fas fa-chevron-right text-[9px] mx-1" aria-hidden="true"></i>
+        <span class="crumb" data-for="s-sqrt"><i class="fas fa-superscript" aria-hidden="true"></i> Sqrt</span> <i class="fas fa-chevron-right text-[9px] mx-1" aria-hidden="true"></i>
+        <span class="crumb" data-for="s-ropes"><i class="fas fa-scissors" aria-hidden="true"></i> Ropes</span> <i class="fas fa-chevron-right text-[9px] mx-1" aria-hidden="true"></i>
+        <span class="crumb" data-for="s-generalize"><i class="fas fa-diagram-project" aria-hidden="true"></i> Pattern</span> <i class="fas fa-chevron-right text-[9px] mx-1" aria-hidden="true"></i>
+        <span class="crumb" data-for="s-koko"><i class="fas fa-gauge-high" aria-hidden="true"></i> Your Turn</span> <i class="fas fa-chevron-right text-[9px] mx-1" aria-hidden="true"></i>
+        <span class="crumb" data-for="s-frog"><i class="fas fa-frog" aria-hidden="true"></i> Landmine</span> <i class="fas fa-chevron-right text-[9px] mx-1" aria-hidden="true"></i>
+        <span class="crumb" data-for="s-interview"><i class="fas fa-building" aria-hidden="true"></i> Interviews</span> <i class="fas fa-chevron-right text-[9px] mx-1" aria-hidden="true"></i>
+        <span class="crumb" data-for="s-assign"><i class="fas fa-pen-to-square" aria-hidden="true"></i> Assignment</span>
+    </nav>
+</div>
+
+<main class="max-w-5xl mx-auto px-4 py-10 md:px-8">
+
+    <div class="mb-12 bg-slate-900 rounded-2xl p-6 md:p-8 text-white shadow-lg flex flex-col md:flex-row items-center gap-6">
+        <div class="w-16 h-16 bg-white text-slate-900 rounded-full flex items-center justify-center font-bold text-2xl shrink-0">JA</div>
+        <div class="text-center md:text-left">
+            <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Lesson Plan Prepared By</p>
+            <h2 class="text-2xl font-extrabold mb-1">Jamil As-ad</h2>
+            <p class="text-slate-300 text-sm">Lecturer, Dept. of CSE, International Islamic University Chittagong</p>
+        </div>
+    </div>
+
+    <header class="text-center mb-10">
+        <p class="text-xs font-bold uppercase tracking-widest text-violet-600 mb-3">Advanced Binary Search &middot; Session Two of Two</p>
+        <h1 class="text-3xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">Binary Search on the Answer</h1>
+        <h2 class="text-lg md:text-2xl font-bold text-violet-600 mb-6 code-font">Searching for a boundary when there is no array</h2>
+        <p class="text-base md:text-lg text-slate-600 max-w-3xl mx-auto">
+            In Session One the array was on screen. Here it disappears. We solve real problems &mdash; square roots, cutting ropes, eating speeds &mdash; by <strong>guessing an answer</strong> and asking one yes/no question about it, and we find the same boundary search underneath all of them.
+        </p>
+        <div class="mt-6 inline-block hook">Prerequisite: Session One &mdash; the boundary template, sentinels, and the <span class="code-font">check(m)</span> abstraction.</div>
+    </header>
+
+    <div class="info-card" style="--card-color: #7c3aed;">
+        <div class="step-badge"><i class="fas fa-bullseye text-sm" aria-hidden="true"></i></div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-2 flex items-center gap-2"><i class="fas fa-rocket text-violet-600" aria-hidden="true"></i> Session Two &mdash; Learning Outcomes</h2>
+        <p class="text-sm text-slate-500 mb-6">By the end of this session, students will be able to:</p>
+        <div class="flex flex-col gap-3">
+            <div class="border-l-4 border-violet-500 bg-slate-50 py-3 px-4 rounded-r-xl flex items-center gap-4">
+                <div class="bg-violet-100 text-violet-700 rounded-full w-6 h-6 flex items-center justify-center font-bold shrink-0 text-xs">1</div>
+                <p class="text-sm md:text-base text-slate-700 m-0 leading-tight"><strong>Recognise</strong> that "binary search on the answer" is just searching for the <span class="code-font">0&rarr;1</span> boundary of a <span class="code-font">check(m)</span>.</p>
+            </div>
+            <div class="border-l-4 border-fuchsia-500 bg-slate-50 py-3 px-4 rounded-r-xl flex items-center gap-4">
+                <div class="bg-fuchsia-100 text-fuchsia-700 rounded-full w-6 h-6 flex items-center justify-center font-bold shrink-0 text-xs">2</div>
+                <p class="text-sm md:text-base text-slate-700 m-0 leading-tight"><strong>Design</strong> a monotone <span class="code-font">check(m)</span> for a new problem &mdash; and read off the answer as <span class="code-font">l</span> or <span class="code-font">r</span>.</p>
+            </div>
+            <div class="border-l-4 border-rose-500 bg-slate-50 py-3 px-4 rounded-r-xl flex items-center gap-4">
+                <div class="bg-rose-100 text-rose-700 rounded-full w-6 h-6 flex items-center justify-center font-bold shrink-0 text-xs">3</div>
+                <p class="text-sm md:text-base text-slate-700 m-0 leading-tight"><strong>Test</strong> whether a check is monotone, and explain why the search fails when it is not.</p>
+            </div>
+            <div class="border-l-4 border-teal-500 bg-slate-50 py-3 px-4 rounded-r-xl flex items-center gap-4">
+                <div class="bg-teal-100 text-teal-700 rounded-full w-6 h-6 flex items-center justify-center font-bold shrink-0 text-xs">4</div>
+                <p class="text-sm md:text-base text-slate-700 m-0 leading-tight"><strong>Extend</strong> the method to real-valued answers, and recognise the pattern in real interview problems.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="session-rule"><hr><span>Session Two &middot; The Answer</span><hr></div>
+
+    <!-- ===== §0 RETRIEVAL ===== -->
+    <div class="info-card" id="s-recall" style="--card-color: #7c3aed;">
+        <div class="step-badge"><i class="fas fa-rotate-left text-sm" aria-hidden="true"></i></div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">Recall: What We Know Already</h2>
+        <p class="mb-4 text-slate-700 text-sm md:text-base">Before we start, answer these in your head &mdash; no notes. Then reveal to check.</p>
+        <div class="grid gap-3">
+            <div class="stop-think">
+                <p class="text-sm md:text-base text-slate-800 font-semibold m-0">1. Across every Session One problem, what part of the code <strong>changed</strong> &mdash; and what part <strong>never moved</strong>?</p>
+                <button class="rev-btn mt-2" data-rev>Reveal</button>
+                <div class="rev-ans text-sm">Only the yes/no question changed. The halving loop and the <span class="code-font">l/r</span> update stayed <strong>byte-for-byte the same.</strong></div>
+            </div>
+            <div class="stop-think">
+                <p class="text-sm md:text-base text-slate-800 font-semibold m-0">2. Here is the real one: if I <strong>hide the array values</strong> and show you only the row of <span class="code-font">0</span>s and <span class="code-font">1</span>s, can binary search still find the boundary?</p>
+                <button class="rev-btn mt-2" data-rev>Reveal</button>
+                <div class="rev-ans text-sm">Hold that thought &mdash; <strong>Section 1 proves the answer.</strong> (If you already said "yes, of course," you have the whole session.)</div>
+            </div>
+            <div class="stop-think">
+                <p class="text-sm md:text-base text-slate-800 font-semibold m-0">3. Where did those <span class="code-font">0</span>s and <span class="code-font">1</span>s actually come from in the first place?</p>
+                <button class="rev-btn mt-2" data-rev>Reveal</button>
+                <div class="rev-ans text-sm">From <span class="code-font">check(m)</span> &mdash; the search never read a value directly, only the <span class="code-font">0/1</span> it returned.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== §1 HIDE THE ARRAY ===== -->
+    <div class="info-card" id="s-hide" style="--card-color: #7c3aed;">
+        <div class="step-badge">1</div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">The Array Was Never the Point</h2>
+        <p class="mb-4 text-slate-700 text-sm md:text-base">
+            You just met the question in the warm-up. Here is the proof. This is a sorted array from Session One &mdash; and our task is the classic one: <strong>find where it crosses from below&nbsp;5 to 5-or-more</strong> (the <span class="code-font">lower_bound</span> of 5).
+        </p>
+        <div class="predict mb-5">
+            <p class="text-sm md:text-base text-slate-800 m-0"><strong><i class="fas fa-lightbulb text-indigo-500" aria-hidden="true"></i> Predict first:</strong> to find that crossing, does the search need the <em>values</em> <span class="code-font">1, 3, 5, 5&hellip;</span> &mdash; or only the answer to "<span class="code-font">a[i] &ge; 5?</span>" at each cell?</p>
+        </div>
+        <div id="hide-stage" class="bg-slate-50 border border-slate-200 rounded-xl p-4 md:p-6 mb-5 relative">
+            <div id="hide-code">
+                <pre class="code-block mb-4"><span class="code-type">bool</span> <span class="code-fn">check</span>(<span class="chk-param"><span class="code-type">int</span> i</span>) { <span class="code-kw">return</span> <span class="chk-hot">a[i] &gt;= <span class="code-num">5</span></span>; }   <span class="code-comment">// the only question we ever ask a cell</span></pre>
+            </div>
+
+            <div id="hide-cells" class="cells-scroll custom-scrollbar mt-5 mb-6"></div>
+
+            <div class="flex flex-wrap gap-2 justify-center mb-2">
+                <button class="btn-primary" id="hide-go" style="--card-color:#7c3aed"><i class="fas fa-bolt" aria-hidden="true"></i> &#9312; Feed every value into check()</button>
+                <button class="btn-secondary" id="hide-reset"><i class="fas fa-undo" aria-hidden="true"></i> Reset</button>
+            </div>
+            <div id="hide-log" class="log mt-6" aria-live="polite" role="status"></div>
+        </div>
+        <div class="rounded-2xl bg-slate-900 text-white p-6 md:p-8">
+            <p class="text-[.7rem] font-extrabold uppercase tracking-widest text-violet-300 mb-3">The point</p>
+            <p class="text-base md:text-lg text-slate-200 m-0">The search only ever read the <span class="code-font text-violet-300">0/1 answers</span> from <span class="code-font text-violet-300">check</span>. Once they existed, the values were dead weight &mdash; the array was just <strong>one way to produce them.</strong></p>
+            <p class="text-base md:text-lg text-slate-200 mt-3 mb-0">So here is the question that runs through all of Session Two: <span class="takeaway-dark">if we don't need an array, what if the answers came from <strong>arithmetic</strong> instead of memory?</span></p>
+        </div>
+    </div>
+
+    <!-- ===== §2 INTEGER SQUARE ROOT ===== -->
+    <div class="info-card" id="s-sqrt" style="--card-color: #7c3aed;">
+        <div class="step-badge">2</div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">Inventing: Integer Square Root</h2>
+        <p class="mb-3 text-slate-700 text-sm md:text-base">
+            <strong>The goal:</strong> find $\lfloor \sqrt{x} \rfloor$ &mdash; the largest integer whose square is at most $x$. No <span class="code-font">sqrt()</span> allowed, and <strong>no array exists.</strong>
+        </p>
+        <div class="grid sm:grid-cols-3 gap-2 mb-5 text-sm">
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 code-font text-slate-700">&lfloor;&radic;50&rfloor; = <b>7</b><br><span class="text-xs text-slate-400">7&sup2;=49 &le; 50 &lt; 64=8&sup2;</span></div>
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 code-font text-slate-700">&lfloor;&radic;49&rfloor; = <b>7</b><br><span class="text-xs text-slate-400">7&sup2;=49 &le; 49 &lt; 64=8&sup2;</span></div>
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 code-font text-slate-700">&lfloor;&radic;64&rfloor; = <b>8</b><br><span class="text-xs text-slate-400">8&sup2;=64 &le; 64 &lt; 81=9&sup2;</span></div>
+        </div>
+        <div class="predict mb-5">
+            <p class="text-sm md:text-base text-slate-800 m-0"><strong><i class="fas fa-lightbulb text-indigo-500" aria-hidden="true"></i> Predict first:</strong> Section 1 proved that any <span class="code-font">0/1</span> row can be searched. So &mdash; can you invent a <span class="code-font">check(m)</span> that turns candidate <em>answers</em> into such a row here? Build it one card at a time.</p>
+        </div>
+
+        <p class="text-xs font-extrabold uppercase tracking-widest text-violet-600 mb-3"><i class="fas fa-shoe-prints" aria-hidden="true"></i> Invent it &mdash; one card at a time</p>
+        <div class="mb-6">
+            <div class="invent-card">
+                <p class="invent-q">1. The Space: If we are guessing the answer, what is the absolute minimum and maximum it could be?</p>
+                <button class="btn-primary invent-btn" data-reveal="inv-space" style="--card-color:#7c3aed">Reveal Bounds</button>
+                <div id="inv-space" class="invent-reveal invent-lines">$L = 0$ (lowest possible)<br>$R = 50$ (highest possible)</div>
+            </div>
+
+            <div class="invent-card">
+                <p class="invent-q">2. The Guess: Let's guess $m = 8$. We need to know if 8 is too big. What single yes/no math question proves this without using <span class="code-font">sqrt()</span>?</p>
+                <button class="btn-primary invent-btn" data-reveal="inv-check" style="--card-color:#7c3aed">Show the Check Function</button>
+                <div id="inv-check" class="invent-reveal">
+                    <pre class="code-block m-0"><span class="code-type">bool</span> <span class="code-fn">check</span>(<span class="code-type">int</span> m) {
+    <span class="code-kw">return</span> m * m &gt; <span class="code-num">50</span>;  <span class="code-comment">// true if m is strictly too big</span>
+}</pre>
+                </div>
+            </div>
+
+            <div class="invent-card">
+                <p class="invent-q">3. The Pattern: If we apply this question to guesses $m = 3, 4, \ldots, 12$, what are the boolean answers?</p>
+                <button class="btn-primary invent-btn" data-reveal="inv-pattern" data-epiphany style="--card-color:#7c3aed">Generate Labels</button>
+                <div id="inv-pattern" class="invent-reveal">
+                    <div class="strip-wrap"><div id="inv-pattern-cells" class="cells-scroll custom-scrollbar"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="epiphany rounded-2xl bg-slate-900 text-white p-6 md:p-8 mb-6" id="inv-epiphany">
+            <p class="text-lg md:text-xl font-extrabold text-emerald-400 mb-3">The Epiphany</p>
+            <p class="text-base md:text-lg text-slate-200 m-0">Does this look familiar? It is exactly the <span class="code-font">0&hellip;0&nbsp;1&hellip;1</span> boundary from Session One. The first <span class="code-font">1</span> appears at $m = 8$ (the first number that is too big). Therefore the correct floor is $8 - 1 = 7$.</p>
+            <p class="text-base md:text-lg text-slate-200 mt-3 mb-0"><strong>We don't need a new algorithm. We just feed this <span class="code-font">check(m)</span> into yesterday's template.</strong></p>
+        </div>
+
+        <p class="mb-4 text-slate-700 text-sm md:text-base">
+            So here is the whole thing &mdash; the same boundary template as always, with <span class="code-font">check</span> pulled out as a plain function (it takes <span class="code-font">x</span> as a second argument now that it is no longer inside <span class="code-font">isqrt</span>). Step through <span class="code-font">isqrt(50)</span> and watch the trace:
+        </p>
+
+        <div class="bg-slate-50 border-2 border-violet-200 rounded-2xl p-4 md:p-6 mb-5" id="trace-box">
+            <p class="text-xs font-extrabold uppercase tracking-widest text-violet-600 mb-1"><i class="fas fa-shoe-prints" aria-hidden="true"></i> Trace it &mdash; one line at a time</p>
+            <p class="text-sm text-slate-600 mb-4">Watch which line runs, how <span class="code-font">check</span> turns each guess into a <span class="code-font">0/1</span>, and how <span class="code-font">l</span> and <span class="code-font">r</span> close in on the boundary &mdash; all on the number line, with no array in sight.</p>
+            <div class="grid lg:grid-cols-2 gap-4 items-start">
+                <div class="trace-code" id="trace-code"><span class="cl" data-ln="0"><span class="code-type">bool</span> <span class="code-fn">check</span>(<span class="code-type">long long</span> m, <span class="code-type">long long</span> x) {</span><span class="cl" data-ln="1">    <span class="code-kw">return</span> m &gt; x / m;                 <span class="code-comment">// m*m &gt; x, overflow-safe (true = too big)</span></span><span class="cl" data-ln="2">}</span><span class="cl" data-ln="-1"> </span><span class="cl" data-ln="4"><span class="code-type">long long</span> <span class="code-fn">isqrt</span>(<span class="code-type">long long</span> x) {         <span class="code-comment">// requires x &gt;= 0</span></span><span class="cl" data-ln="5">    <span class="code-type">long long</span> l = <span class="code-num">0</span>, r = x + <span class="code-num">1</span>;       <span class="code-comment">// 0 always fits; x+1 never does</span></span><span class="cl" data-ln="6">    <span class="code-kw">while</span> (r - l &gt; <span class="code-num">1</span>) {</span><span class="cl" data-ln="7">        <span class="code-type">long long</span> m = l + (r - l) / <span class="code-num">2</span>;</span><span class="cl" data-ln="8">        <span class="code-kw">if</span> (<span class="code-fn">check</span>(m, x)) r = m;         <span class="code-comment">// too big &rarr; drop the right</span></span><span class="cl" data-ln="9">        <span class="code-kw">else</span>            l = m;         <span class="code-comment">// fits &rarr; raise the left</span></span><span class="cl" data-ln="10">    }</span><span class="cl" data-ln="11">    <span class="code-kw">return</span> l;                          <span class="code-comment">// last m that fits == floor(sqrt(x))</span></span><span class="cl" data-ln="12">}</span></div>
+                <div>
+                    <div class="mb-1 text-xs font-bold text-slate-500 uppercase tracking-wide">The number line &middot; candidate answers 0&hellip;50</div>
+                    <div id="trace-line" class="mb-3"></div>
+                    <div id="trace-log" class="log" aria-live="polite" role="status"></div>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-2 mt-4">
+                <button class="btn-secondary" id="trace-prev"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev</button>
+                <button class="btn-primary" id="trace-next" style="--card-color:#7c3aed">Next <i class="fas fa-arrow-right" aria-hidden="true"></i></button>
+                <button class="btn-secondary" id="trace-reset"><i class="fas fa-undo" aria-hidden="true"></i> Restart</button>
+                <span class="text-xs text-slate-500 code-font self-center ml-auto" id="trace-count"></span>
+            </div>
+        </div>
+
+        <div class="bg-emerald-50 border-l-4 border-emerald-500 rounded-r-lg p-3 mb-2 text-sm text-emerald-900">
+            <strong><i class="fas fa-circle-check" aria-hidden="true"></i> Why <span class="code-font">&gt;</span>, not <span class="code-font">&ge;</span>:</strong> we want the largest <span class="code-font">m</span> with <span class="code-font">m*m &le; x</span>. Using <span class="code-font">m*m &gt; x</span> keeps perfect squares on the "fits" side, so <span class="code-font">isqrt(1024) = 32</span>, not 31.
+        </div>
+
+        <div class="bg-amber-50 border-l-4 border-amber-500 rounded-r-lg p-3 mb-2 text-sm text-amber-900">
+            <strong><i class="fas fa-triangle-exclamation" aria-hidden="true"></i> Why <span class="code-font">l = 0</span> here, not <span class="code-font">l = &minus;1</span>:</strong> don't copy the sentinel from Session One without thinking. In <span class="code-font">lower_bound</span> we needed <span class="code-font">l = &minus;1</span> because there might be <em>no</em> valid index &mdash; the sentinel had to sit below the whole range. Here we require <span class="code-font">x &ge; 0</span>, and <span class="code-font">0</span> is a genuine answer: <span class="code-font">0&middot;0 = 0 &le; x</span> always fits. So <span class="code-font">l = 0</span> is not a placeholder, it is a real lower bound &mdash; and it matters. With <span class="code-font">l = &minus;1</span> the first midpoint is <span class="code-font">m = 0</span> whenever <span class="code-font">x &le; 1</span>, and <span class="code-font">check</span> then computes <span class="code-font">x / 0</span>. The "overflow-safe" line crashes on the two smallest inputs. <strong>The template is a tool, not a ritual.</strong>
+        </div>
+    </div>
+
+    <!-- ===== §3 ROPES ===== -->
+    <div class="info-card" id="s-ropes" style="--card-color: #db2777;">
+        <div class="step-badge">3</div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-3">Second Example: Cutting Ropes</h2>
+        <a href="https://codeforces.com/edu/course/2/lesson/6/2" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-pink-700 mb-4">
+            <svg width="18" height="18" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="3" y="13" width="8" height="20" rx="2.5" fill="#ED1C24"/>
+                <rect x="14" y="6" width="8" height="27" rx="2.5" fill="#FFCC00"/>
+                <rect x="25" y="19" width="8" height="14" rx="2.5" fill="#1E90D6"/>
+            </svg>
+            Codeforces EDU &middot; Binary Search, Step 2&middot;B
+        </a>
+        <p class="mb-4 text-slate-700 text-sm md:text-base">
+            You have <span class="code-font">n</span> ropes of lengths <span class="code-font">a&#7522;</span>. You want <span class="code-font">k</span> pieces that are all the <strong>same length</strong> <span class="code-font">L</span> &mdash; find the <strong>largest</strong> <span class="code-font">L</span> possible. A rope of length <span class="code-font">a</span> gives <span class="code-font">&lfloor;a/L&rfloor;</span> whole pieces (the leftover is wasted).
+        </p>
+        <p class="mb-4 text-slate-700 text-sm md:text-base">
+            Add up the pieces from every rope. A length <span class="code-font">L</span> <strong>works</strong> if the total is <span class="code-font">k</span> or more &mdash; in symbols, <span class="eq-box">total = &Sigma;&lfloor;a&#7522;&#8202;/&#8202;L&rfloor; &ge; k</span>.
+        </p>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 md:p-5 mb-5">
+            <p class="text-sm font-bold text-slate-700 mb-3">Worked example &mdash; ropes <span class="code-font">[8, 5, 12, 7]</span>, need <span class="code-font">k = 6</span> pieces:</p>
+            <div class="grid sm:grid-cols-2 gap-3 text-sm">
+                <div class="bg-white border-2 border-emerald-200 rounded-lg p-3">
+                    <p class="font-bold text-emerald-700 m-0 mb-1">L = 4 &rarr; works</p>
+                    <p class="code-font text-slate-700 m-0">8&rarr;2, 5&rarr;1, 12&rarr;3, 7&rarr;1</p>
+                    <p class="text-slate-600 m-0 mt-1">The rope of length 8 gives 2 pieces of length 4, the rope of 5 gives 1, the rope of 12 gives 3, the rope of 7 gives 1.</p>
+                    <p class="text-slate-600 m-0 mt-1">total = <b>7</b> pieces, and 7 &ge; 6 <i class="fas fa-check text-emerald-600" aria-hidden="true"></i></p>
+                </div>
+                <div class="bg-white border-2 border-rose-200 rounded-lg p-3">
+                    <p class="font-bold text-rose-700 m-0 mb-1">L = 5 &rarr; fails</p>
+                    <p class="code-font text-slate-700 m-0">8&rarr;1, 5&rarr;1, 12&rarr;2, 7&rarr;1</p>
+                    <p class="text-slate-600 m-0 mt-1">Now the pieces are longer, so each rope gives fewer: 8 gives only 1, 5 gives 1, 12 gives 2, 7 gives 1.</p>
+                    <p class="text-slate-600 m-0 mt-1">total = <b>5</b> pieces, and 5 &lt; 6 <i class="fas fa-xmark text-rose-600" aria-hidden="true"></i></p>
+                </div>
+            </div>
+            <p class="text-sm text-slate-700 mt-3 m-0">Stretching each piece from 4 to 5 drops the total from 7 down to 5 &mdash; below the 6 we need. So <strong>4 is the largest length that still works</strong>: the answer is <b>4</b>, not 5.</p>
+        </div>
+
+        <div class="stop-think mb-5">
+            <span class="st-tag"><i class="fas fa-brain" aria-hidden="true"></i> Your turn first</span>
+            <p class="text-sm md:text-base text-slate-800 m-0 mb-1">Before you open the simulator: what should <span class="code-font">check(L)</span> return so the labels come out <span class="code-font">0&hellip;0&nbsp;1&hellip;1</span> (the shape our loop wants)?</p>
+            <button class="rev-btn mt-1" data-rev>Reveal</button>
+            <div class="rev-ans text-sm">
+                <p class="m-0 mb-2">Ask one question about <span class="code-font">L</span>: <strong>"is this length too long?"</strong></p>
+                <ul class="m-0 mb-3 pl-5 list-disc space-y-1">
+                    <li>Count the pieces at length <span class="code-font">L</span>, and return <strong>true when there are too few</strong> &mdash; <span class="eq-box">total &lt; k</span>.</li>
+                    <li>A <strong>small</strong> <span class="code-font">L</span> gives many pieces &rarr; not too long &rarr; <span class="code-font">0</span>.</li>
+                    <li>A <strong>large</strong> <span class="code-font">L</span> gives too few pieces &rarr; too long &rarr; <span class="code-font">1</span>.</li>
+                    <li>So the row reads <span class="code-font">0&hellip;0&nbsp;1&hellip;1</span>, and the <strong>last 0</strong> is the largest length that still works.</li>
+                </ul>
+                <pre class="code-block m-0"><span class="code-type">bool</span> <span class="code-fn">check</span>(<span class="code-type">long long</span> L) {          <span class="code-comment">// true = L is too long</span>
+    <span class="code-type">long long</span> pieces = <span class="code-num">0</span>;
+    <span class="code-kw">for</span> (<span class="code-type">long long</span> a : rope) pieces += a / L;   <span class="code-comment">// whole pieces this rope gives</span>
+    <span class="code-kw">return</span> pieces &lt; k;                     <span class="code-comment">// too few pieces = too long</span>
+}</pre>
+            </div>
+        </div>
+
+        <div class="text-center mb-4" id="ropes-reveal-wrap">
+            <button class="btn-primary" id="ropes-reveal" style="--card-color:#db2777"><i class="fas fa-scissors" aria-hidden="true"></i> Reveal the rope simulator</button>
+        </div>
+
+        <div class="sim-link sim-hidden mb-5" id="ropes-play">
+            <span class="link-tag mb-2"><i class="fas fa-grip-lines" aria-hidden="true"></i> The four ropes, cut into L-long pieces</span>
+            <div class="text-center"><span class="text-sm font-bold text-amber-800">Piece length L = <span id="ropes-Lval" class="code-font flash-target">3</span></span></div>
+            <input type="range" min="1" max="12" value="3" id="ropes-slider" class="sim-slider sim-slider-rope mt-2" aria-label="Piece length L (1 to 12)">
+            <div class="sim-readout mt-3 mb-1" id="ropes-readout"></div>
+            <div class="sim-bars" id="ropes-bars"></div>
+            <div class="text-center my-3 text-pink-400 flash-line" id="ropes-bridge"><i class="fas fa-arrow-down" aria-hidden="true"></i> <span class="text-[.7rem] font-bold uppercase tracking-widest">that same L, written as one 0/1 cell</span> <i class="fas fa-arrow-down" aria-hidden="true"></i></div>
+            <div class="strip-wrap" id="ropes-strip"></div>
+        </div>
+
+        <p class="mb-4 text-slate-700 text-sm md:text-base">
+            Feasibility is naturally <span class="code-font">1 1 1 &hellip; 0 0</span> (small <span class="code-font">L</span> works, large doesn't). To get the <span class="code-font">0&hellip;0&nbsp;1&hellip;1</span> the loop expects, <span class="code-font">check</span> tests the <strong>negation</strong> &mdash; "too long." The <strong>last 0</strong> (<span class="code-font">return l</span>) is the largest length that still works. Same loop as sqrt &mdash; only <span class="code-font">check</span> changed, and it is a plain function now:
+        </p>
+        <pre class="code-block m-0"><span class="code-type">bool</span> <span class="code-fn">check</span>(<span class="code-type">long long</span> L, vector&lt;<span class="code-type">long long</span>&gt;&amp; rope, <span class="code-type">int</span> k) {     <span class="code-comment">// true = L too long (too few pieces)</span>
+    <span class="code-type">long long</span> pieces = <span class="code-num">0</span>;
+    <span class="code-kw">for</span> (<span class="code-type">long long</span> a : rope) pieces += a / L;              <span class="code-comment">// bigger L -&gt; fewer pieces</span>
+    <span class="code-kw">return</span> pieces &lt; k;
+}
+
+<span class="code-type">long long</span> <span class="code-fn">largestLength</span>(vector&lt;<span class="code-type">long long</span>&gt;&amp; rope, <span class="code-type">int</span> k, <span class="code-type">long long</span> maxLen) {
+    <span class="code-type">long long</span> l = <span class="code-num">0</span>, r = maxLen + <span class="code-num">1</span>;              <span class="code-comment">// lo = 1, hi = maxLen  --  SAME template</span>
+    <span class="code-kw">while</span> (r - l &gt; <span class="code-num">1</span>) {
+        <span class="code-type">long long</span> m = l + (r - l) / <span class="code-num">2</span>;
+        <span class="code-kw">if</span> (<span class="code-fn">check</span>(m, rope, k)) r = m;
+        <span class="code-kw">else</span>                    l = m;
+    }
+    <span class="code-kw">return</span> l;                                     <span class="code-comment">// last L that is NOT too long = largest feasible L</span>
+}</pre>
+    </div>
+
+    <!-- ===== §4 GENERALIZE ===== -->
+    <div class="info-card" id="s-generalize" style="--card-color: #7c3aed;">
+        <div class="step-badge">4</div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">Generalizing the Pattern</h2>
+        <div class="stop-think mb-5">
+            <span class="st-tag"><i class="fas fa-brain" aria-hidden="true"></i> Stop &amp; Think</span>
+            <p class="text-sm md:text-base text-slate-800 m-0">What did square root and ropes have in common? Say it in one sentence before reading on.</p>
+        </div>
+        <p class="mb-4 text-slate-700 text-sm md:text-base">
+            Both times: <strong>guess a value <span class="code-font">m</span></strong>, <strong>run a yes/no <span class="code-font">check(m)</span></strong>, and the labels came out as all-<span class="code-font">0</span>s-then-all-<span class="code-font">1</span>s (or the mirror). So we search for the flip. Here is the whole loop, drawn once:
+        </p>
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 md:p-6 mb-5">
+            <pre class="mermaid">
+flowchart TD
+    S(["l, r = the two sentinels"]) --> E{"is there still a gap?<br/>r - l &gt; 1"}
+    E -- "yes" --> A["guess the middle<br/>m = l + (r - l) / 2"]
+    A --> B["ask check(m)<br/>if 1: r = m<br/>if 0: l = m"]
+    B -- "gap is now half as big" --> E
+    E -- "no: l and r are neighbours" --> F(["the flip is between them"])
+    style B fill:#ede9fe,stroke:#7c3aed,stroke-width:2px
+    style F fill:#dcfce7,stroke:#16a34a,stroke-width:2px
+            </pre>
+        </div>
+        <p class="mb-4 text-slate-700 text-sm md:text-base"><span class="takeaway">The <strong>same template</strong> solves any problem with a monotone check.</span> Generic:</p>
+        <pre class="code-block mb-6"><span class="code-comment">// Binary search on the answer -- one template, every time</span>
+<span class="code-type">bool</span> <span class="code-fn">check</span>(<span class="code-type">long long</span> m) { <span class="code-comment">/* true if m is "good enough" */</span> }
+
+<span class="code-type">long long</span> <span class="code-fn">solve</span>(<span class="code-type">long long</span> lo, <span class="code-type">long long</span> hi) {
+    <span class="code-type">long long</span> l = lo - <span class="code-num">1</span>, r = hi + <span class="code-num">1</span>;   <span class="code-comment">// l: known-false side, r: known-true side</span>
+    <span class="code-kw">while</span> (r - l &gt; <span class="code-num">1</span>) {
+        <span class="code-type">long long</span> m = l + (r - l) / <span class="code-num">2</span>;
+        <span class="code-kw">if</span> (<span class="code-fn">check</span>(m)) r = m;
+        <span class="code-kw">else</span>           l = m;
+    }
+    <span class="code-kw">return</span> r;   <span class="code-comment">// r = first true. (Return l instead when you want the last false.)</span>
+}</pre>
+
+        <div class="border-2 border-amber-300 bg-amber-50 rounded-xl p-5 md:p-6">
+            <p class="font-bold text-amber-900 mb-2 text-sm md:text-base"><i class="fas fa-key" aria-hidden="true"></i> The one rule that trips everyone: <span class="code-font">l</span> or <span class="code-font">r</span>?</p>
+            <p class="text-sm md:text-base text-slate-800 mb-3">The loop is <strong>byte-for-byte identical</strong> every time. The only thing that changes is which side you read off when it stops:</p>
+            <div class="grid md:grid-cols-2 gap-3">
+                <div class="bg-white border border-amber-200 rounded-lg p-3 text-sm">
+                    <p class="font-bold text-slate-800 m-0 mb-1">Want the <span class="text-emerald-700">first true</span>? &rarr; return <span class="code-font">r</span></p>
+                    <p class="text-slate-600 m-0">e.g. the <strong>smallest rope length that is <em>too long</em></strong> &mdash; the first cell where <span class="code-font">check</span> turns on.</p>
+                </div>
+                <div class="bg-white border border-amber-200 rounded-lg p-3 text-sm">
+                    <p class="font-bold text-slate-800 m-0 mb-1">Want the <span class="text-rose-700">last false</span>? &rarr; return <span class="code-font">l</span></p>
+                    <p class="text-slate-600 m-0">$\lfloor\sqrt{x}\rfloor$ (last "fits"), and the <strong>largest rope length</strong> (last "not too long").</p>
+                </div>
+            </div>
+            <p class="text-xs text-slate-500 mt-3 m-0">Sqrt returned <span class="code-font">l</span>. Ropes returned <span class="code-font">l</span> (the largest length that works) &mdash; but reading <span class="code-font">r</span> from the very same run gives the smallest length that fails. Same loop &mdash; different read-off.</p>
+        </div>
+    </div>
+
+    <!-- ===== §5 KOKO — BUILD YOUR OWN CHECK ===== -->
+    <div class="info-card" id="s-koko" style="--card-color: #0d9488;">
+        <div class="step-badge">5</div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">Your Turn: Koko Eating Bananas</h2>
+
+        <a class="lc-badge mb-4" href="https://leetcode.com/problems/koko-eating-bananas/" target="_blank" rel="noopener">
+            <svg viewBox="0 0 32 32" width="18" height="18" aria-hidden="true" focusable="false">
+                <path d="M21.6 3.6 10.9 14.3a5.7 5.7 0 0 0 0 8l4.4 4.4a5.7 5.7 0 0 0 8 0l3-3" fill="none" stroke="#ffa116" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M14.6 8.9 8.8 14.7a5.7 5.7 0 0 0 0 8" fill="none" stroke="#3e4a56" stroke-width="3.2" stroke-linecap="round"/>
+                <path d="M13.6 18.3h12.2" fill="none" stroke="#00b8a3" stroke-width="3.2" stroke-linecap="round"/>
+            </svg>
+            <span>LeetCode 875 &middot; Koko Eating Bananas</span>
+            <i class="fas fa-arrow-up-right-from-square text-[.6rem] opacity-60" aria-hidden="true"></i>
+        </a>
+
+        <div class="prob-statement mb-5">
+            <p class="m-0 mb-2">Koko loves to eat bananas. There are <span class="code-font">n</span> piles of bananas; the <span class="code-font">i</span>-th pile has <span class="code-font">piles[i]</span> bananas. The guards have gone and will come back in <span class="code-font">H</span> hours.</p>
+            <p class="m-0 mb-2">Koko decides her eating speed <span class="code-font">v</span> (bananas per hour). <strong>Each hour, she chooses one pile and eats <span class="code-font">v</span> bananas from it.</strong> If that pile has fewer than <span class="code-font">v</span> bananas left, she eats all of them instead, and <strong>will not eat any more bananas during that hour</strong> &mdash; the rest of the hour is simply wasted, and she only moves to another pile when the next hour starts.</p>
+            <p class="m-0 mb-2">Koko likes to eat slowly, but she still wants to finish all the bananas before the guards return.</p>
+            <p class="m-0"><strong>Return the minimum integer speed <span class="code-font">v</span> such that she can eat all the bananas within <span class="code-font">H</span> hours.</strong></p>
+            <p class="text-xs text-slate-500 mt-3 m-0"><i class="fas fa-circle-info" aria-hidden="true"></i> That wasted-time rule is the whole reason a pile of <span class="code-font">p</span> bananas costs <span class="code-font">&lceil;p / v&rceil;</span> <em>whole</em> hours: leftovers never carry over into the next pile.</p>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 md:p-5 mb-5">
+            <p class="text-sm font-bold text-slate-700 mb-3">Worked example &mdash; piles <span class="code-font">[3, 6, 7, 11]</span>, guards return in <span class="code-font">H = 8</span> hours:</p>
+            <div class="grid sm:grid-cols-2 gap-3 text-sm">
+                <div class="bg-white border-2 border-emerald-200 rounded-lg p-3">
+                    <p class="font-bold text-emerald-700 m-0 mb-1">v = 4 &rarr; fast enough</p>
+                    <p class="code-font text-slate-700 m-0">3&rarr;1h, 6&rarr;2h, 7&rarr;2h, 11&rarr;3h</p>
+                    <p class="text-slate-600 m-0 mt-1">The pile of 3 is gone in one hour (she eats 3 and idles). The pile of 6 takes 2 hours (4 then 2). The pile of 7 also takes 2 (4 then 3). The pile of 11 takes 3 (4, 4, then 3).</p>
+                    <p class="text-slate-600 m-0 mt-1">total = <b>8</b> hours, and 8 &le; 8 <i class="fas fa-check text-emerald-600" aria-hidden="true"></i></p>
+                </div>
+                <div class="bg-white border-2 border-rose-200 rounded-lg p-3">
+                    <p class="font-bold text-rose-700 m-0 mb-1">v = 3 &rarr; too slow</p>
+                    <p class="code-font text-slate-700 m-0">3&rarr;1h, 6&rarr;2h, 7&rarr;3h, 11&rarr;4h</p>
+                    <p class="text-slate-600 m-0 mt-1">Eating slower means more hours per pile: the pile of 7 now needs a third hour for its last banana, and the pile of 11 needs a fourth.</p>
+                    <p class="text-slate-600 m-0 mt-1">total = <b>10</b> hours, and 10 &gt; 8 <i class="fas fa-xmark text-rose-600" aria-hidden="true"></i></p>
+                </div>
+            </div>
+            <p class="text-sm text-slate-700 mt-3 m-0">Every speed of 4 or more finishes in time; every speed below 4 does not. So <strong>4 is the smallest speed that works</strong> &mdash; and that <span class="code-font">0&hellip;0&nbsp;1&hellip;1</span> shape is exactly what we search.</p>
+        </div>
+
+        <p class="mb-4 text-slate-700 text-sm md:text-base">You have the template now. <strong>Fill in the four pillars yourself</strong> before revealing &mdash; this is the exam skill.</p>
+
+        <div class="grid md:grid-cols-2 gap-3 mb-5">
+            <div class="stop-think">
+                <p class="font-semibold text-sm text-slate-800 m-0">1. The space &mdash; range of <span class="code-font">v</span>?</p>
+                <button class="rev-btn mt-2" data-rev>Reveal</button>
+                <div class="rev-ans text-sm">From <span class="code-font">1</span> to <span class="code-font">max(pile)</span> &mdash; faster than the biggest pile never helps.</div>
+            </div>
+            <div class="stop-think">
+                <p class="font-semibold text-sm text-slate-800 m-0">2. The guess &mdash; what is <span class="code-font">m</span>?</p>
+                <button class="rev-btn mt-2" data-rev>Reveal</button>
+                <div class="rev-ans text-sm">A candidate speed <span class="code-font">v</span>.</div>
+            </div>
+            <div class="stop-think">
+                <p class="font-semibold text-sm text-slate-800 m-0">3. The check &mdash; what does <span class="code-font">check(v)</span> compute?</p>
+                <button class="rev-btn mt-2" data-rev>Reveal</button>
+                <div class="rev-ans text-sm">Add up the hours each pile needs at speed <span class="code-font">v</span> &mdash; a pile of <span class="code-font">p</span> bananas takes <span class="code-font">&lceil;p/v&rceil;</span> hours (round up). Feasible if the total fits in <span class="code-font">H</span>: <span class="eq-box eq-teal">&Sigma;&lceil;pile/v&rceil; &le; H</span>.</div>
+            </div>
+            <div class="stop-think">
+                <p class="font-semibold text-sm text-slate-800 m-0">4. The boundary &mdash; return <span class="code-font">l</span> or <span class="code-font">r</span>?</p>
+                <button class="rev-btn mt-2" data-rev>Reveal</button>
+                <div class="rev-ans text-sm">Slow = infeasible (0), fast = feasible (1). We want the <strong>first</strong> feasible &rarr; return <span class="code-font">r</span>.</div>
+            </div>
+        </div>
+
+        <p class="mb-4 text-slate-700 text-sm md:text-base">
+            Once you have your check, open the simulator: drag the speed and watch Koko eat each pile hour by hour, then compare the total against <span class="code-font">H</span>. Same simulator shape as ropes &mdash; only the check changed.
+        </p>
+
+        <div class="text-center mb-4" id="koko-reveal-wrap">
+            <button class="btn-primary" id="koko-reveal" style="--card-color:#0d9488"><i class="fas fa-utensils" aria-hidden="true"></i> Reveal the banana simulator</button>
+        </div>
+
+        <div class="sim-link sim-hidden mb-5" id="koko-play">
+            <span class="link-tag mb-2"><i class="fas fa-layer-group" aria-hidden="true"></i> The banana piles, eaten hour by hour at speed v</span>
+            <div class="text-center"><span class="text-sm font-bold text-amber-700">Speed v = <span id="koko-vval" class="code-font flash-target">3</span> bananas/hr</span></div>
+            <input type="range" min="1" max="11" value="3" id="koko-slider" class="sim-slider sim-slider-banana mt-2" aria-label="Eating speed v, bananas per hour (1 to 11 = the biggest pile)">
+            <div class="sim-readout mt-3 mb-1" id="koko-readout"></div>
+            <div class="sim-bars" id="koko-bars"></div>
+            <div class="text-center my-3 text-teal-500 flash-line" id="koko-bridge"><i class="fas fa-arrow-down" aria-hidden="true"></i> <span class="text-[.7rem] font-bold uppercase tracking-widest">that same v, written as one 0/1 cell</span> <i class="fas fa-arrow-down" aria-hidden="true"></i></div>
+            <div class="strip-wrap" id="koko-strip"></div>
+        </div>
+
+        <p class="mb-4 text-slate-700 text-sm md:text-base"><strong>The loop is byte-identical to sqrt and ropes.</strong> Only <span class="code-font">check</span> (now a plain function) and the returned side (<span class="code-font">r</span>, not <span class="code-font">l</span>) change:</p>
+        <pre class="code-block m-0"><span class="code-type">bool</span> <span class="code-fn">check</span>(<span class="code-type">long long</span> v, vector&lt;<span class="code-type">long long</span>&gt;&amp; piles, <span class="code-type">long long</span> H) {     <span class="code-comment">// true = fast enough (hours &le; H)</span>
+    <span class="code-type">long long</span> hours = <span class="code-num">0</span>;
+    <span class="code-kw">for</span> (<span class="code-type">long long</span> p : piles) hours += (p + v - <span class="code-num">1</span>) / v;         <span class="code-comment">// ceil(p / v)</span>
+    <span class="code-kw">return</span> hours &lt;= H;
+}
+
+<span class="code-type">long long</span> <span class="code-fn">minSpeed</span>(vector&lt;<span class="code-type">long long</span>&gt;&amp; piles, <span class="code-type">long long</span> H, <span class="code-type">long long</span> maxPile) {
+    <span class="code-type">long long</span> l = <span class="code-num">0</span>, r = maxPile + <span class="code-num">1</span>;            <span class="code-comment">// lo = 1, hi = maxPile  --  SAME template</span>
+    <span class="code-kw">while</span> (r - l &gt; <span class="code-num">1</span>) {
+        <span class="code-type">long long</span> m = l + (r - l) / <span class="code-num">2</span>;
+        <span class="code-kw">if</span> (<span class="code-fn">check</span>(m, piles, H)) r = m;
+        <span class="code-kw">else</span>                     l = m;
+    }
+    <span class="code-kw">return</span> r;                                     <span class="code-comment">// first feasible (fast enough) speed</span>
+}</pre>
+    </div>
+
+    <!-- ===== §6 THE LANDMINE (FROG) ===== -->
+    <div class="info-card" id="s-frog" style="--card-color: #be123c;">
+        <div class="step-badge">6</div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">The Landmine: When the Search Lies</h2>
+        <p class="mb-4 text-slate-700 text-sm md:text-base">
+            A frog must cross a river laid out as a row of cells: <span class="code-font">*</span> is its start, <span class="code-font">.</span> is open water it may land on, <span class="code-font">#</span> is a rock it must avoid, and <span class="code-font">D</span> is the far bank. It always jumps a <strong>fixed size <span class="code-font">s</span></strong>, landing on <span class="code-font">s, 2s, 3s, &hellip;</span> until it reaches <span class="code-font">D</span>. One extra rule: it is a small frog, so <strong><span class="code-font">s</span> can be at most half the path length</strong>. Find the <strong>smallest <span class="code-font">s</span></strong> that gets across.
+        </p>
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 md:p-5 mb-5">
+            <p class="text-sm font-bold text-slate-700 mb-2">Sample test case</p>
+            <p class="code-font font-bold text-base text-slate-800 m-0 mb-2 tracking-[.2em]">*.#....#.#.D</p>
+            <p class="text-sm text-slate-600 m-0">Twelve cells, numbered <span class="code-font">0&hellip;11</span>. The frog starts on the <span class="code-font">*</span> at <span class="code-font">0</span>, the far bank <span class="code-font">D</span> is at <span class="code-font">11</span>, and rocks (<span class="code-font">#</span>) sit at <span class="code-font">2, 7, 9</span>. At jump size <span class="code-font">s</span> it lands on <span class="code-font">s, 2s, 3s, &hellip;</span> &mdash; so <span class="code-font">s = 3</span> means landing on <span class="code-font">3, 6, 9</span>, and <span class="code-font">9</span> is a rock. The half-length rule caps <span class="code-font">s</span> at <span class="code-font">6</span>.</p>
+        </div>
+
+        <div class="predict mb-5">
+            <p class="text-sm md:text-base text-slate-800 m-0"><strong><i class="fas fa-lightbulb text-indigo-500" aria-hidden="true"></i> Predict first:</strong> "bigger jumps skip more cells, so once a size works, every bigger one does too." That sounds obviously monotone. Watch what actually happens.</p>
+        </div>
+        <p class="mb-4 text-slate-700 text-sm md:text-base">
+            Press a jump size and watch the frog hop. Each size is one candidate answer, and <span class="code-font">check(s)</span> is simply "does it cross?" &mdash; <span class="code-font">1</span> = crosses, <span class="code-font">0</span> = lands on a rock:
+        </p>
+        <div class="sim-stage mb-5" id="frog-sim">
+            <div class="flex flex-wrap items-center justify-center gap-2 mb-1">
+                <span class="text-xs font-bold uppercase tracking-widest text-slate-500">Sample map</span>
+                <span class="code-font font-bold text-sm text-slate-800 bg-white border border-slate-200 rounded-md px-2 py-1 tracking-[.15em]">*.#....#.#.D</span>
+            </div>
+            <div class="frog-track" id="frog-track"></div>
+            <div class="mt-3 text-center"><span class="text-xs uppercase tracking-widest font-bold text-slate-500">Pick a jump size s</span></div>
+            <div class="jump-pad mt-2" id="frog-pad"></div>
+            <div class="sim-readout mt-3" id="frog-readout"></div>
+            <div class="text-center my-3 text-rose-400 flash-line" id="frog-bridge"><i class="fas fa-arrow-down" aria-hidden="true"></i> <span class="text-[.7rem] font-bold uppercase tracking-widest">every jump size, written as one 0/1 cell</span> <i class="fas fa-arrow-down" aria-hidden="true"></i></div>
+            <div class="strip-wrap" id="frog-cells"></div>
+        </div>
+
+        <div class="stop-think mb-5">
+            <span class="st-tag"><i class="fas fa-check-double" aria-hidden="true"></i> Looks perfectly safe</span>
+            <p class="text-sm md:text-base text-slate-800 m-0 mb-2">The row came out <span class="mini-cells"><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="o">1</b><b class="o">1</b><b class="o">1</b></span> &mdash; all <span class="code-font">0</span>s, then all <span class="code-font">1</span>s, flipping once. Textbook monotone. So binary search must be safe here. Let's run it and submit.</p>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 md:p-6 mb-5">
+            <div class="flex flex-wrap gap-2 justify-center mb-4">
+                <button class="btn-primary" id="frog-run" style="--card-color:#be123c"><i class="fas fa-play" aria-hidden="true"></i> Run binary search on the sample</button>
+                <button class="btn-secondary" id="frog-runreset"><i class="fas fa-undo" aria-hidden="true"></i> Reset</button>
+            </div>
+            <div id="frog-log" class="log" aria-live="polite" role="status"></div>
+        </div>
+
+        <p class="mb-4 text-slate-700 text-sm md:text-base">
+            It returned <b>s = 4</b>, which really is the smallest jump that crosses the sample. Green check, sample passes. Ship it? <strong>Here is the hidden test the judge runs:</strong>
+        </p>
+        <div class="text-center mb-4" id="frog-hidden-wrap">
+            <button class="btn-primary" id="frog-hidden" style="--card-color:#be123c"><i class="fas fa-flask" aria-hidden="true"></i> Run the hidden test</button>
+        </div>
+        <div class="sim-hidden bg-rose-50 border-2 border-rose-200 rounded-xl p-4 md:p-5 mb-5" id="frog-hidden-out">
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+                <span class="text-sm font-bold text-rose-800">Hidden map</span>
+                <span class="code-font font-bold text-sm text-slate-800 bg-white border border-rose-200 rounded-md px-2 py-1 tracking-[.15em]">*..#.......D</span>
+                <span class="text-sm text-rose-800">&mdash; a single rock, at position 3.</span>
+            </div>
+            <div class="frog-track" id="frog-hidden-track"></div>
+            <p class="text-center text-xs uppercase tracking-widest font-bold text-slate-500 mt-2 mb-2">the same 0/1 row, for s = 1&hellip;6</p>
+            <div class="strip-wrap" id="frog-hidden-cells"></div>
+            <p class="text-sm text-slate-700 mt-3 mb-2">See the dip at <span class="code-font">s = 3</span>? A jump of 3 lands <em>exactly</em> on the rock, even though 2 (smaller) and 4 (larger) skip it. The row reads <span class="mini-cells"><b class="z">0</b><b class="o">1</b><b class="z dip">0</b><b class="o">1</b><b class="o">1</b><b class="o">1</b></span> &mdash; it flips back, so it is <strong>not monotone</strong>.</p>
+            <div class="log warnb" id="frog-hidden-bs" aria-live="polite" role="status"></div>
+        </div>
+
+        <p class="mb-4 text-slate-700 text-sm md:text-base">
+            Binary search needs a <strong>monotone</strong> check: all <span class="code-font">0</span>s then all <span class="code-font">1</span>s, flipping once. On the sample it does, so the search is right. On the hidden test a jump lands exactly on a rock a neighbour skips, so feasibility flips back &mdash; and the search confidently returns a working-but-not-smallest answer. <span class="takeaway">Nothing errors; the sample even passed. That is what makes it dangerous.</span>
+        </p>
+        <ul class="text-sm md:text-base text-slate-700 space-y-2 list-disc pl-5 mb-5">
+            <li><span class="mini-cells"><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="o">1</b><b class="o">1</b><b class="o">1</b></span> &mdash; one clean flip, monotone, <strong class="text-emerald-700">safe to binary-search</strong>.</li>
+            <li><span class="mini-cells"><b class="z">0</b><b class="o">1</b><b class="z dip">0</b><b class="o">1</b><b class="o">1</b><b class="o">1</b></span> &mdash; flips back at <span class="code-font">s = 3</span>, <strong class="text-rose-700">the search lies</strong> (returns 4; the answer was 2).</li>
+        </ul>
+
+        <details class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden mb-3">
+            <summary class="p-4 font-bold text-slate-800 text-sm hover:bg-slate-100 transition-colors"><i class="fas fa-pen-nib text-rose-500 mr-1" aria-hidden="true"></i> How to actually prove a check is monotone</summary>
+            <div class="p-5 border-t border-slate-200 text-sm text-slate-700 space-y-3">
+                <p class="m-0">Three lines: <strong>Assume</strong> <span class="code-font">check(m)</span> is true. <strong>Name the reason</strong> it passed. <strong>Show that reason still holds at <span class="code-font">m+1</span></strong> &mdash; then labels can never fall back to 0.</p>
+                <p class="m-0"><strong>On Koko:</strong> assume speed <span class="code-font">v</span> finishes in &le; H hours. Every pile took <span class="code-font">&lceil;pile/v&rceil;</span> hours. At <span class="code-font">v+1</span> every ceiling stays equal or drops, so the total is still &le; H. Feasible stays feasible. <i class="fas fa-check text-emerald-600" aria-hidden="true"></i> The frog check has no such argument &mdash; that is the tell.</p>
+            </div>
+        </details>
+    </div>
+
+    <!-- ===== §7 TOOLBOX ===== -->
+    <div class="info-card" id="s-toolbox" style="--card-color: #0d9488;">
+        <div class="step-badge">7</div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">Binary Search in Your Toolbox</h2>
+        <p class="mb-4 text-slate-700 text-sm md:text-base">Binary search on an answer is <strong>another tool</strong> next to the ones you already have:</p>
+        <div class="flex flex-wrap gap-2 mb-5">
+            <span class="px-3 py-1.5 bg-slate-100 rounded-lg text-sm font-semibold text-slate-700">Sorting</span>
+            <span class="px-3 py-1.5 bg-slate-100 rounded-lg text-sm font-semibold text-slate-700">Two pointers</span>
+            <span class="px-3 py-1.5 bg-slate-100 rounded-lg text-sm font-semibold text-slate-700">Greedy</span>
+            <span class="px-3 py-1.5 bg-slate-100 rounded-lg text-sm font-semibold text-slate-700">Prefix sums</span>
+            <span class="px-3 py-1.5 bg-teal-100 rounded-lg text-sm font-bold text-teal-800 ring-2 ring-teal-300">Binary search on the answer</span>
+        </div>
+        <div class="stop-think">
+            <span class="st-tag"><i class="fas fa-brain" aria-hidden="true"></i> The habit to build</span>
+            <p class="text-sm md:text-base text-slate-800 m-0 mb-2">On a new problem you almost never start by hunting for a <span class="code-font">check</span>. You start by asking <strong>which tool fits</strong> &mdash; sorting? two pointers? greedy? &hellip; binary search on the answer? So the real habit is two steps:</p>
+            <div class="grid sm:grid-cols-2 gap-3">
+                <div class="bg-white border border-teal-200 rounded-lg p-3 text-sm">
+                    <p class="font-bold text-teal-800 m-0 mb-1">1 &middot; Guess the tool</p>
+                    <p class="text-slate-700 m-0">Does the problem smell like "<strong>pick an answer, then test if it works</strong>," with harder-on-one-side behaviour? That shape is your cue to <em>try</em> binary search on the answer.</p>
+                </div>
+                <div class="bg-white border border-teal-200 rounded-lg p-3 text-sm">
+                    <p class="font-bold text-teal-800 m-0 mb-1">2 &middot; Then find the check</p>
+                    <p class="text-slate-700 m-0">Only now do you design a <strong>monotone</strong> <span class="code-font">check(m)</span> and prove it flips <span class="code-font">0&rarr;1</span> once. If you can, you are three lines from a solution.</p>
+                </div>
+            </div>
+            <p class="text-sm text-slate-600 m-0 mt-3">Reaching for the tool first is what lets you even <em>consider</em> binary search on problems that never mention an array &mdash; square roots, ropes, eating speeds.</p>
+        </div>
+
+        <p class="text-sm md:text-base font-semibold text-slate-800 mt-5 mb-3"><i class="fas fa-hand-pointer text-teal-600" aria-hidden="true"></i> Practise the habit &mdash; name the tool before reading on:</p>
+        <div id="tool-quiz" class="grid gap-3"></div>
+    </div>
+
+    <!-- ===== §8 SUMMARY ===== -->
+    <div class="info-card" id="s-summary" style="--card-color: #16a34a;">
+        <div class="step-badge"><i class="fas fa-graduation-cap text-sm" aria-hidden="true"></i></div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">Summary Card</h2>
+        <p class="mb-5 text-slate-700 text-sm md:text-base">Everything on one screen. Memorise the <em>shape</em>, not the lines &mdash; it is the same loop from <a href="#s-generalize" class="text-green-700 font-semibold underline">Section 4</a>.</p>
+        <pre class="code-block mb-6">l = lo - <span class="code-num">1</span>, r = hi + <span class="code-num">1</span>      <span class="code-comment">// l: known-false side, r: known-true side</span>
+<span class="code-kw">while</span> (r - l &gt; <span class="code-num">1</span>) {
+    m = l + (r - l) / <span class="code-num">2</span>     <span class="code-comment">// never overflows</span>
+    <span class="code-kw">if</span> (check(m)) r = m      <span class="code-comment">// never m &plusmn; 1</span>
+    <span class="code-kw">else</span>          l = m
+}
+<span class="code-kw">return</span> r  <span class="code-comment">// first true  (return l for last false)</span></pre>
+        <div class="grid md:grid-cols-2 gap-4">
+            <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+                <p class="font-bold text-green-800 text-sm mb-1">1 &middot; Reframe</p>
+                <p class="text-sm text-slate-700 m-0">Not "where is the value" but "where does <span class="code-font">check</span> flip <span class="code-font">0&rarr;1</span>".</p>
+            </div>
+            <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+                <p class="font-bold text-green-800 text-sm mb-1">2 &middot; Monotone or nothing</p>
+                <p class="text-sm text-slate-700 m-0">If the check flips back, the answer is garbage and <em>nothing warns you</em>. Proving monotonicity is the real work.</p>
+            </div>
+            <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+                <p class="font-bold text-green-800 text-sm mb-1">3 &middot; Guess, don't read</p>
+                <p class="text-sm text-slate-700 m-0"><span class="code-font">m</span> is a candidate <em>answer</em>; its label is <strong>computed</strong> by <span class="code-font">check(m)</span> &mdash; no array needed.</p>
+            </div>
+            <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+                <p class="font-bold text-green-800 text-sm mb-1">4 &middot; Cost</p>
+                <p class="text-sm text-slate-700 m-0"><span class="code-font">log(range) &times; cost(check)</span> &mdash; the answer range and the work per check are two different sizes.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== §9 INTERVIEW BOARD ===== -->
+    <div class="info-card" id="s-interview" style="--card-color: #0f172a;">
+        <div class="step-badge"><i class="fas fa-building text-sm" aria-hidden="true"></i></div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-2">Where This Shows Up in Real Interviews</h2>
+        <p class="text-sm md:text-base text-slate-700 mb-2">What you learned today is not a niche trick. <strong>It is one of the highest-leverage patterns in the interview canon</strong> &mdash; the five questions below are all the same loop you have already written, wearing different clothes.</p>
+        <p class="text-sm text-slate-600 mb-5">Read the table as a scoreboard: the template from Section 4 solves <strong>every row</strong>. Two of them you have <em>already built by hand</em> in this session.</p>
+
+        <div class="itable-wrap mb-3">
+            <table class="itable">
+                <thead>
+                    <tr>
+                        <th>Problem</th>
+                        <th>Reported at</th>
+                        <th class="text-right">Reported frequency</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <a class="prob-link" href="https://leetcode.com/problems/koko-eating-bananas/" target="_blank" rel="noopener">Koko Eating Bananas <i class="fas fa-arrow-up-right-from-square text-[.6rem] opacity-50" aria-hidden="true"></i></a>
+                            <span class="lc-num"><svg viewBox="0 0 32 32" width="12" height="12" aria-hidden="true" class="shrink-0"><path d="M21.6 3.6 10.9 14.3a5.7 5.7 0 0 0 0 8l4.4 4.4a5.7 5.7 0 0 0 8 0l3-3" fill="none" stroke="#ffa116" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.6 8.9 8.8 14.7a5.7 5.7 0 0 0 0 8" fill="none" stroke="#3e4a56" stroke-width="3.4" stroke-linecap="round"/><path d="M13.6 18.3h12.2" fill="none" stroke="#00b8a3" stroke-width="3.4" stroke-linecap="round"/></svg> LC 875</span>
+                            <span class="built"><i class="fas fa-check" aria-hidden="true"></i> you built this</span>
+                        </td>
+                        <td>
+                            <span class="co co-amazon"><i class="fab fa-amazon" aria-hidden="true"></i> Amazon</span>
+                            <span class="co co-google"><i class="fab fa-google" aria-hidden="true"></i> Google</span>
+                            <span class="co co-microsoft"><i class="fab fa-microsoft" aria-hidden="true"></i> Microsoft</span>
+                            <span class="co co-apple"><i class="fab fa-apple" aria-hidden="true"></i> Apple</span>
+                        </td>
+                        <td class="text-right"><span class="freq hi" title="high"><b class="on"></b><b class="on"></b><b class="on"></b></span><span class="freq-tag hi">high</span></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a class="prob-link" href="https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/" target="_blank" rel="noopener">Capacity to Ship Packages in D Days <i class="fas fa-arrow-up-right-from-square text-[.6rem] opacity-50" aria-hidden="true"></i></a>
+                            <span class="lc-num"><svg viewBox="0 0 32 32" width="12" height="12" aria-hidden="true" class="shrink-0"><path d="M21.6 3.6 10.9 14.3a5.7 5.7 0 0 0 0 8l4.4 4.4a5.7 5.7 0 0 0 8 0l3-3" fill="none" stroke="#ffa116" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.6 8.9 8.8 14.7a5.7 5.7 0 0 0 0 8" fill="none" stroke="#3e4a56" stroke-width="3.4" stroke-linecap="round"/><path d="M13.6 18.3h12.2" fill="none" stroke="#00b8a3" stroke-width="3.4" stroke-linecap="round"/></svg> LC 1011</span>
+                            <span class="sib"><i class="fas fa-scissors" aria-hidden="true"></i> the ropes check, re-skinned</span>
+                        </td>
+                        <td>
+                            <span class="co co-amazon"><i class="fab fa-amazon" aria-hidden="true"></i> Amazon</span>
+                            <span class="co"><i class="fas fa-building-columns" aria-hidden="true"></i> D. E. Shaw</span>
+                        </td>
+                        <td class="text-right"><span class="freq mid" title="medium"><b class="on"></b><b class="on"></b><b></b></span><span class="freq-tag mid">medium</span></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a class="prob-link" href="https://leetcode.com/problems/split-array-largest-sum/" target="_blank" rel="noopener">Split Array Largest Sum <i class="fas fa-arrow-up-right-from-square text-[.6rem] opacity-50" aria-hidden="true"></i></a>
+                            <span class="lc-num"><svg viewBox="0 0 32 32" width="12" height="12" aria-hidden="true" class="shrink-0"><path d="M21.6 3.6 10.9 14.3a5.7 5.7 0 0 0 0 8l4.4 4.4a5.7 5.7 0 0 0 8 0l3-3" fill="none" stroke="#ffa116" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.6 8.9 8.8 14.7a5.7 5.7 0 0 0 0 8" fill="none" stroke="#3e4a56" stroke-width="3.4" stroke-linecap="round"/><path d="M13.6 18.3h12.2" fill="none" stroke="#00b8a3" stroke-width="3.4" stroke-linecap="round"/></svg> LC 410</span>
+                        </td>
+                        <td>
+                            <span class="co co-google"><i class="fab fa-google" aria-hidden="true"></i> Google</span>
+                            <span class="co co-meta"><i class="fab fa-meta" aria-hidden="true"></i> Meta</span>
+                            <span class="co co-amazon"><i class="fab fa-amazon" aria-hidden="true"></i> Amazon</span>
+                        </td>
+                        <td class="text-right"><span class="freq mid" title="medium"><b class="on"></b><b class="on"></b><b></b></span><span class="freq-tag mid">medium</span></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a class="prob-link" href="https://leetcode.com/problems/minimum-number-of-days-to-make-m-bouquets/" target="_blank" rel="noopener">Min Days to Make m Bouquets <i class="fas fa-arrow-up-right-from-square text-[.6rem] opacity-50" aria-hidden="true"></i></a>
+                            <span class="lc-num"><svg viewBox="0 0 32 32" width="12" height="12" aria-hidden="true" class="shrink-0"><path d="M21.6 3.6 10.9 14.3a5.7 5.7 0 0 0 0 8l4.4 4.4a5.7 5.7 0 0 0 8 0l3-3" fill="none" stroke="#ffa116" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.6 8.9 8.8 14.7a5.7 5.7 0 0 0 0 8" fill="none" stroke="#3e4a56" stroke-width="3.4" stroke-linecap="round"/><path d="M13.6 18.3h12.2" fill="none" stroke="#00b8a3" stroke-width="3.4" stroke-linecap="round"/></svg> LC 1482</span>
+                        </td>
+                        <td>
+                            <span class="co co-amazon"><i class="fab fa-amazon" aria-hidden="true"></i> Amazon</span>
+                            <span class="co co-meta"><i class="fab fa-meta" aria-hidden="true"></i> Meta</span>
+                        </td>
+                        <td class="text-right"><span class="freq low" title="lower"><b class="on"></b><b></b><b></b></span><span class="freq-tag low">lower</span></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a class="prob-link" href="https://leetcode.com/problems/magnetic-force-between-two-balls/" target="_blank" rel="noopener">Magnetic Force Between Two Balls <i class="fas fa-arrow-up-right-from-square text-[.6rem] opacity-50" aria-hidden="true"></i></a>
+                            <span class="lc-num"><svg viewBox="0 0 32 32" width="12" height="12" aria-hidden="true" class="shrink-0"><path d="M21.6 3.6 10.9 14.3a5.7 5.7 0 0 0 0 8l4.4 4.4a5.7 5.7 0 0 0 8 0l3-3" fill="none" stroke="#ffa116" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.6 8.9 8.8 14.7a5.7 5.7 0 0 0 0 8" fill="none" stroke="#3e4a56" stroke-width="3.4" stroke-linecap="round"/><path d="M13.6 18.3h12.2" fill="none" stroke="#00b8a3" stroke-width="3.4" stroke-linecap="round"/></svg> LC 1552</span>
+                            <span class="sib"><i class="fas fa-rotate" aria-hidden="true"></i> returns <span class="code-font">l</span>, not <span class="code-font">r</span></span>
+                        </td>
+                        <td><span class="co"><i class="fas fa-book-open" aria-hidden="true"></i> pattern example &mdash; lighter sourcing</span></td>
+                        <td class="text-right"><span class="freq low" title="lower"><b class="on"></b><b></b><b></b></span><span class="freq-tag low">lower</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="text-xs text-slate-400 mb-5 m-0"><i class="fas fa-circle-info" aria-hidden="true"></i> <strong>On frequency:</strong> there is no official per-company frequency data. The dots are community signal from curated lists and interview reports &mdash; read them as "worth prioritising," not a promise. Which company asks what drifts over time.</p>
+
+        <div class="bg-slate-900 text-slate-200 rounded-xl p-4 md:p-5">
+            <p class="text-xs font-extrabold uppercase tracking-widest text-slate-400 mb-2"><i class="fas fa-comment-dots" aria-hidden="true"></i> How it actually gets asked</p>
+            <ul class="text-sm space-y-2 list-disc pl-5 m-0">
+                <li>Nobody says "binary search." You get the raw prompt &mdash; a speed, a capacity, a number of days &mdash; and the recognition is <em>your</em> move. That recognition is exactly what this session drilled.</li>
+                <li>The classic curve-ball: the interviewer first asks for a brute-force over every speed/capacity, then &mdash; "can you do better?" The jump they are listening for is <em>"guess the answer and test it."</em></li>
+                <li>The follow-up that separates candidates is not the loop but the <strong>monotonicity argument</strong>: "why is faster always still feasible?" Have that one-sentence proof ready (Section 6).</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ===== §10 PLAYBOOK ===== -->
+    <div class="info-card" id="s-playbook" style="--card-color: #7c3aed;">
+        <div class="step-badge">10</div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">The Playbook (Check Your Understanding)</h2>
+        <p class="mb-5 text-slate-700 text-sm md:text-base">On <em>any</em> search-on-the-answer problem, answer these six in order. Try each yourself, then reveal.</p>
+        <div class="grid gap-2">
+            <div class="flex flex-wrap items-center gap-3 border border-slate-200 rounded-lg p-3">
+                <span class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 font-bold flex items-center justify-center shrink-0 text-sm">1</span>
+                <span class="font-semibold text-sm flex-1">What am I guessing?</span>
+                <button class="rev-btn shrink-0" data-rev>Reveal</button>
+                <div class="rev-ans text-sm w-full order-last">the candidate answer value <span class="code-font">m</span></div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 border border-slate-200 rounded-lg p-3">
+                <span class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 font-bold flex items-center justify-center shrink-0 text-sm">2</span>
+                <span class="font-semibold text-sm flex-1">What is <span class="code-font">check(m)</span>?</span>
+                <button class="rev-btn shrink-0" data-rev>Reveal</button>
+                <div class="rev-ans text-sm w-full order-last">the yes/no question <span class="code-font">m</span> answers</div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 border border-rose-200 bg-rose-50 rounded-lg p-3">
+                <span class="w-7 h-7 rounded-full bg-rose-100 text-rose-500 font-bold flex items-center justify-center shrink-0 text-sm">3</span>
+                <span class="font-semibold text-sm flex-1 text-rose-800">Is the check monotone?</span>
+                <button class="rev-btn shrink-0" data-rev>Reveal</button>
+                <div class="rev-ans text-sm w-full order-last text-rose-800">does it flip <span class="code-font">0&rarr;1</span> only once? <strong>prove it</strong></div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 border border-slate-200 rounded-lg p-3">
+                <span class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 font-bold flex items-center justify-center shrink-0 text-sm">4</span>
+                <span class="font-semibold text-sm flex-1">What am I searching for?</span>
+                <button class="rev-btn shrink-0" data-rev>Reveal</button>
+                <div class="rev-ans text-sm w-full order-last">the boundary between false and true</div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 border border-slate-200 rounded-lg p-3">
+                <span class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 font-bold flex items-center justify-center shrink-0 text-sm">5</span>
+                <span class="font-semibold text-sm flex-1">Which side to update?</span>
+                <button class="rev-btn shrink-0" data-rev>Reveal</button>
+                <div class="rev-ans text-sm w-full order-last">true &rarr; <span class="code-font">r = m</span> &middot; false &rarr; <span class="code-font">l = m</span></div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 border border-slate-200 rounded-lg p-3">
+                <span class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 font-bold flex items-center justify-center shrink-0 text-sm">6</span>
+                <span class="font-semibold text-sm flex-1">What do I return?</span>
+                <button class="rev-btn shrink-0" data-rev>Reveal</button>
+                <div class="rev-ans text-sm w-full order-last"><span class="code-font">r</span> for first-true, <span class="code-font">l</span> for last-false</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== §11 FRACTIONS ===== -->
+    <div class="info-card" id="s-frac" style="--card-color: #4f46e5;">
+        <div class="step-badge"><i class="fas fa-infinity text-sm" aria-hidden="true"></i></div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-4">Binary Search on Fractions</h2>
+        <p class="mb-4 text-slate-700 text-sm md:text-base">
+            Everything so far searched over <strong>integers</strong>. But the answer can be a real number &mdash; like $\sqrt{2}$. The check is <em>identical</em> (<span class="code-font">m &times; m &gt; x</span>); only one thing breaks.
+        </p>
+        <div class="stop-think mb-5">
+            <span class="st-tag"><i class="fas fa-brain" aria-hidden="true"></i> Stop &amp; Think</span>
+            <p class="text-sm md:text-base text-slate-800 m-0">With real numbers, when do we stop? There is no "<span class="code-font">r - l == 1</span>" &mdash; between any two reals there is always another. So how does the loop ever end?</p>
+        </div>
+
+        <p class="mb-4 text-slate-700 text-sm md:text-base">Here we approximate $\sqrt{2}$. The bracket <span class="code-font">[l, r]</span> straddles it, and each halving keeps the half that still contains the answer &mdash; so more and more <strong>leading digits stop changing</strong>. They lock in. Halve it and watch:</p>
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 md:p-6 mb-5">
+            <div class="text-center text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">Approximating &radic;2 &mdash; locked digits turn indigo</div>
+            <div class="digit-row mb-4" id="sqrt-digits"></div>
+            <div class="zoomline" id="sqrt-line"></div>
+            <div class="zscale" id="sqrt-scale"></div>
+            <div class="text-center mb-3"><span class="zoom-badge" id="sqrt-zoom"></span></div>
+            <div class="text-center text-sm mb-3" id="sqrt-readout"></div>
+            <div class="flex flex-wrap gap-2 justify-center">
+                <button class="btn-primary" id="sqrt-step" style="--card-color:#4f46e5"><i class="fas fa-scissors" aria-hidden="true"></i> Halve the interval</button>
+                <button class="btn-secondary" id="sqrt-jump"><i class="fas fa-forward" aria-hidden="true"></i> Jump to 40 steps</button>
+                <button class="btn-secondary" id="sqrt-reset"><i class="fas fa-undo" aria-hidden="true"></i> Reset</button>
+            </div>
+        </div>
+
+        <p class="mb-4 text-slate-700 text-sm md:text-base">The digits never <em>all</em> lock &mdash; the interval shrinks forever but never reaches zero. So we don't wait for it to vanish; we stop on purpose. The <span class="code-font">check</span> stays the same plain function as before:</p>
+        <pre class="code-block mb-4"><span class="code-type">bool</span> <span class="code-fn">check</span>(<span class="code-type">double</span> m, <span class="code-type">double</span> x) { <span class="code-kw">return</span> m * m &gt; x; }   <span class="code-comment">// exactly the integer check, now on reals</span></pre>
+
+        <p class="mb-3 text-slate-700 text-sm md:text-base">Two ways to decide <em>when to stop</em> &mdash; open each and compare:</p>
+        <details class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden mb-3" open>
+            <summary class="p-4 font-bold text-slate-800 text-sm hover:bg-slate-100 transition-colors"><i class="fas fa-stopwatch text-indigo-500 mr-1" aria-hidden="true"></i> Loop A &mdash; fixed iteration count <span class="text-emerald-600 font-normal">(recommended)</span></summary>
+            <div class="p-5 border-t border-slate-200">
+                <pre class="code-block m-0 mb-3"><span class="code-type">double</span> <span class="code-fn">sqrtFixed</span>(<span class="code-type">double</span> x) {
+    <span class="code-type">double</span> l = <span class="code-num">0</span>, r = max(<span class="code-num">1.0</span>, x);
+    <span class="code-kw">for</span> (<span class="code-type">int</span> i = <span class="code-num">0</span>; i &lt; <span class="code-num">100</span>; i++) {   <span class="code-comment">// fixed count -- cannot hang</span>
+        <span class="code-type">double</span> m = (l + r) / <span class="code-num">2</span>;
+        <span class="code-kw">if</span> (<span class="code-fn">check</span>(m, x)) r = m;
+        <span class="code-kw">else</span>             l = m;
+    }
+    <span class="code-kw">return</span> l;                          <span class="code-comment">// l and r agree to the limit of double (~15-16 digits)</span>
+}</pre>
+                <p class="text-sm text-slate-700 m-0">100 halvings crush any sane interval past <span class="code-font">10&#8315;&#185;&#8309;</span>. It cannot hang, and you never think about tolerances. Note the ceiling: a <span class="code-font">double</span> carries only ~15&ndash;16 significant digits, so after roughly 50&ndash;60 halvings <span class="code-font">l</span> and <span class="code-font">r</span> become adjacent doubles and the interval stops shrinking &mdash; the remaining iterations are free, but they buy you nothing. The &radic;2 simulator below shows exactly this stall.</p>
+            </div>
+        </details>
+        <details class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden mb-5">
+            <summary class="p-4 font-bold text-slate-800 text-sm hover:bg-slate-100 transition-colors"><i class="fas fa-ruler-horizontal text-indigo-500 mr-1" aria-hidden="true"></i> Loop B &mdash; epsilon tolerance</summary>
+            <div class="p-5 border-t border-slate-200">
+                <pre class="code-block m-0 mb-3"><span class="code-type">double</span> <span class="code-fn">sqrtEps</span>(<span class="code-type">double</span> x) {
+    <span class="code-type">double</span> l = <span class="code-num">0</span>, r = max(<span class="code-num">1.0</span>, x);
+    <span class="code-kw">while</span> (r - l &gt; <span class="code-num">1e-9</span>) {              <span class="code-comment">// stop once the gap is small enough</span>
+        <span class="code-type">double</span> m = (l + r) / <span class="code-num">2</span>;
+        <span class="code-kw">if</span> (<span class="code-fn">check</span>(m, x)) r = m;
+        <span class="code-kw">else</span>             l = m;
+    }
+    <span class="code-kw">return</span> l;
+}</pre>
+                <p class="text-sm text-slate-700 m-0">Reads naturally and is fine for modest ranges. But for <em>huge</em> <span class="code-font">x</span> the gap between two adjacent doubles can already exceed <span class="code-font">1e-9</span>, so it never gets that small and spins forever &mdash; see the first trap below. Cap the iterations, or scale the epsilon to the magnitude of <span class="code-font">x</span>.</p>
+            </div>
+        </details>
+
+        <div class="bg-indigo-50 border-l-4 border-indigo-500 rounded-r-lg p-4 mb-5">
+            <p class="font-bold text-indigo-900 text-sm mb-1"><i class="fas fa-pen-to-square" aria-hidden="true"></i> Your turn (Codeforces EDU Step 2&middot;E &mdash; "Equation")</p>
+            <p class="text-sm text-slate-700 m-0">Find <span class="code-font">x</span> with $x^2 + \sqrt{x} = c$. It is strictly increasing for $x \ge 0$, so the <em>same fixed loop</em> works &mdash; the only new part is a check that returns <span class="code-font">m*m + sqrt(m) &gt; c</span>. Search <span class="code-font">x</span> in <span class="code-font">[0, c]</span>.</p>
+        </div>
+
+        <details class="bg-indigo-50 border border-indigo-200 rounded-xl overflow-hidden mb-6">
+            <summary class="p-4 font-bold text-indigo-800 text-sm hover:bg-indigo-100 transition-colors flex items-center gap-2">
+                <svg width="18" height="18" viewBox="0 0 48 48" class="shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="4"  y="16" width="10" height="28" rx="2.5" fill="#e63329"/>
+                    <rect x="19" y="8"  width="10" height="36" rx="2.5" fill="#1f8ac0"/>
+                    <rect x="34" y="16" width="10" height="28" rx="2.5" fill="#f5c500"/>
+                </svg>
+                Bonus: the <em>full</em> rope problem &mdash; when L can be any real length
+                <span class="text-[.65rem] font-bold uppercase tracking-widest text-indigo-500">Codeforces EDU</span>
+            </summary>
+            <div class="p-5 border-t border-indigo-200 text-sm text-slate-700 space-y-3">
+                <p class="m-0">Section 3 kept <span class="code-font">L</span> a whole number. The original Codeforces version lets <span class="code-font">L</span> be any real length &mdash; so it is exactly this section's fixed loop, with the rope check dropped in. Same "too long" test, now on a real <span class="code-font">L</span>:</p>
+                <pre class="code-block m-0"><span class="code-type">bool</span> <span class="code-fn">check</span>(<span class="code-type">double</span> L, vector&lt;<span class="code-type">double</span>&gt;&amp; rope, <span class="code-type">int</span> k) {
+    <span class="code-type">long long</span> pieces = <span class="code-num">0</span>;
+    <span class="code-kw">for</span> (<span class="code-type">double</span> a : rope) pieces += (<span class="code-type">long long</span>)(a / L);   <span class="code-comment">// whole pieces at real length L</span>
+    <span class="code-kw">return</span> pieces &lt; k;
+}
+
+<span class="code-type">double</span> <span class="code-fn">largestLength</span>(vector&lt;<span class="code-type">double</span>&gt;&amp; rope, <span class="code-type">int</span> k) {
+    <span class="code-type">double</span> l = <span class="code-num">0</span>, r = *max_element(rope.begin(), rope.end());
+    <span class="code-kw">for</span> (<span class="code-type">int</span> i = <span class="code-num">0</span>; i &lt; <span class="code-num">100</span>; i++) {       <span class="code-comment">// fixed loop -- real answer</span>
+        <span class="code-type">double</span> m = (l + r) / <span class="code-num">2</span>;
+        <span class="code-kw">if</span> (<span class="code-fn">check</span>(m, rope, k)) r = m;        <span class="code-comment">// too long -> shrink</span>
+        <span class="code-kw">else</span>                   l = m;        <span class="code-comment">// still fits -> grow</span>
+    }
+    <span class="code-kw">return</span> l;                              <span class="code-comment">// largest real length that still makes k pieces</span>
+}</pre>
+                <p class="m-0">Only two things changed from Section 3: the type is <span class="code-font">double</span>, and the integer stop rule <span class="code-font">r - l &gt; 1</span> became the fixed loop. The check is untouched.</p>
+            </div>
+        </details>
+
+        <p class="text-sm font-bold text-slate-600 uppercase tracking-widest mb-3">The traps that bite here</p>
+        <details class="bg-rose-50 border border-rose-200 rounded-xl overflow-hidden mb-3">
+            <summary class="p-4 font-bold text-rose-800 text-sm hover:bg-rose-100 transition-colors"><i class="fas fa-triangle-exclamation mr-1" aria-hidden="true"></i> The <span class="code-font">while (r - l &gt; 1e-9)</span> hang</summary>
+            <div class="p-5 border-t border-rose-200 text-sm text-slate-700 space-y-2">
+                <p class="m-0">This is Loop B's failure mode. Near <span class="code-font">10&#185;&#8312;</span> two <em>adjacent</em> doubles are already about 128 apart &mdash; the gap can never drop below <span class="code-font">1e-9</span>, so the loop spins forever. A fixed iteration count sidesteps it entirely. The digit sim above never fully locks for the same reason.</p>
+            </div>
+        </details>
+        <details class="bg-rose-50 border border-rose-200 rounded-xl overflow-hidden mb-3">
+            <summary class="p-4 font-bold text-rose-800 text-sm hover:bg-rose-100 transition-colors"><i class="fas fa-repeat mr-1" aria-hidden="true"></i> The integer "floor-mid" infinite loop</summary>
+            <div class="p-5 border-t border-rose-200 text-sm text-slate-700 space-y-2">
+                <p class="m-0">Back in the integer world, writing <span class="code-font">while (l &lt; r) { m = (l + r) / 2; if (check(m)) r = m; else l = m; }</span> loops forever when <span class="code-font">r - l == 1</span>: integer <span class="code-font">m</span> rounds down to <span class="code-font">l</span>, and <span class="code-font">l = m</span> changes nothing. The <span class="code-font">r - l &gt; 1</span> form (used all through this session) has no such fixed point.</p>
+            </div>
+        </details>
+        <details class="bg-rose-50 border border-rose-200 rounded-xl overflow-hidden">
+            <summary class="p-4 font-bold text-rose-800 text-sm hover:bg-rose-100 transition-colors"><i class="fas fa-equals mr-1" aria-hidden="true"></i> Comparing floats with <span class="code-font">==</span></summary>
+            <div class="p-5 border-t border-rose-200 text-sm text-slate-700 space-y-2">
+                <p class="m-0">Never test <span class="code-font">m * m == x</span> for reals &mdash; rounding means it is almost never exactly equal. Compare against a tolerance, or (better) just run the fixed loop and trust the last <span class="code-font">l</span>. The problem's error bound (usually <span class="code-font">1e-6</span>) tells you how many iterations are plenty.</p>
+            </div>
+        </details>
+    </div>
+
+    <!-- ===== §12 ASSIGNMENT ===== -->
+    <div class="info-card" id="s-assign" style="--card-color: #ea580c;">
+        <div class="step-badge"><i class="fas fa-pen-to-square text-sm" aria-hidden="true"></i></div>
+        <h2 class="text-xl md:text-2xl font-bold text-slate-800 mb-2">Practice Assignment (Before Next Class)</h2>
+        <p class="text-sm text-slate-500 mb-5">Ten problems. None needs graphs or DP. Design the <span class="code-font">check</span> yourself, then decide <span class="code-font">l</span> vs <span class="code-font">r</span>. Bring the two you found hardest.</p>
+
+        <p class="text-xs font-extrabold uppercase tracking-widest text-emerald-700 mb-2">Warm-ups &mdash; predicate boundaries (6)</p>
+        <div class="grid gap-2 mb-5" id="asn-easy"></div>
+        <p class="text-xs font-extrabold uppercase tracking-widest text-amber-700 mb-2">Core &mdash; search on the answer (4)</p>
+        <div class="grid gap-2" id="asn-med"></div>
+
+        <div class="rounded-2xl bg-slate-900 text-white p-6 md:p-8 text-center mt-6">
+            <p class="text-base md:text-xl font-extrabold text-white mb-2">Guess an answer. Ask a monotone question. Search for the boundary.</p>
+            <p class="text-sm text-slate-400 m-0">That is the whole method. Bring a problem you cannot label &mdash; we will find its <span class="code-font">check</span> together.</p>
+        </div>
+    </div>
+
+    <!-- ================= SESSION TWO CHECKPOINT ================= -->
+    <div class="info-card" style="--card-color: #10b981;">
+        <h2 class="text-lg md:text-xl font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fas fa-clipboard-check text-emerald-600" aria-hidden="true"></i> Checkpoint &mdash; end of Session Two</h2>
+
+        <p class="text-sm text-slate-600 mb-4">Here is the path we took. Each step threw away more of the array &mdash; the binary search never changed.</p>
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 md:p-6 mb-5">
+            <div class="flex flex-col items-stretch gap-0 max-w-xl mx-auto text-center text-sm">
+                <div class="rounded-lg bg-blue-100 text-blue-800 font-bold py-2 px-3">Session One <span class="font-normal text-blue-600">&mdash; search an array for a boundary</span></div>
+                <div class="text-slate-300 py-1"><i class="fas fa-arrow-down" aria-hidden="true"></i></div>
+                <div class="rounded-lg bg-violet-100 text-violet-800 font-bold py-2 px-3">Hide the values <span class="font-normal text-violet-600">&mdash; the search only ever read the 0/1 row</span></div>
+                <div class="text-slate-300 py-1"><i class="fas fa-arrow-down" aria-hidden="true"></i></div>
+                <div class="rounded-lg bg-amber-100 text-amber-900 font-bold py-2 px-3">Delete the array <span class="font-normal text-amber-700">&mdash; guess an answer, compute its 0/1</span></div>
+                <div class="text-slate-300 py-1"><i class="fas fa-arrow-down" aria-hidden="true"></i></div>
+                <div class="rounded-lg bg-violet-200 text-violet-900 font-extrabold py-2.5 px-3 ring-2 ring-violet-400">check(m) <span class="font-normal text-violet-700">&mdash; the only part that ever changes</span></div>
+                <div class="text-slate-300 py-1"><i class="fas fa-arrow-down" aria-hidden="true"></i></div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="rounded-lg bg-sky-100 text-sky-800 font-bold py-2 px-3">&radic;x <span class="block font-normal text-sky-600 text-xs">check: m&times;m &gt; x</span></div>
+                    <div class="rounded-lg bg-sky-100 text-sky-800 font-bold py-2 px-3">ropes <span class="block font-normal text-sky-600 text-xs">check: &Sigma;&lfloor;a/L&rfloor; &lt; k</span></div>
+                    <div class="rounded-lg bg-sky-100 text-sky-800 font-bold py-2 px-3">koko <span class="block font-normal text-sky-600 text-xs">check: &Sigma;&lceil;p/v&rceil; &le; H</span></div>
+                </div>
+            </div>
+            <p class="text-center text-xs text-slate-500 mt-4 m-0">Three different problems. <span class="code-font text-violet-700 font-bold">One</span> loop &mdash; byte for byte.</p>
+        </div>
+
+        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 md:p-5 mb-4">
+            <p class="text-xs font-extrabold uppercase tracking-widest text-emerald-700 mb-3">You can now</p>
+            <ul class="text-sm text-slate-700 space-y-2 list-disc pl-5 m-0">
+                <li>Spot "binary search on the answer" in a problem that never mentions an array &mdash; a speed, a length, a capacity, a day.</li>
+                <li>Write the <span class="code-font">check(m)</span> so the labels come out <span class="code-font">0&hellip;0&nbsp;1&hellip;1</span>, negating the question when you must.</li>
+                <li>Read off the right end: <span class="code-font">r</span> for the <strong>first true</strong>, <span class="code-font">l</span> for the <strong>last false</strong>.</li>
+                <li>Prove the check is <strong>monotone</strong> before you trust it &mdash; and recognise the frog trap when it is not.</li>
+                <li>Handle real-valued answers with a <strong>fixed iteration count</strong> instead of an epsilon that can hang.</li>
+            </ul>
+        </div>
+        <p class="text-sm text-slate-600 m-0"><strong><i class="fas fa-lightbulb text-amber-500" aria-hidden="true"></i> Predict before you leave:</strong> ropes <span class="code-font">[8, 5, 12, 7]</span> but now you need <span class="code-font">k = 12</span> pieces &mdash; is the answer bigger or smaller than 4? <span class="text-slate-400">(Smaller: more pieces demanded &rarr; shorter pieces. The check did not change at all.)</span></p>
+    </div>
+
+    <!-- ================= REFERENCES ================= -->
+    <div class="info-card" style="--card-color: #6366f1;">
+        <h2 class="text-lg md:text-xl font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fas fa-book-open text-indigo-600" aria-hidden="true"></i> Go Deeper &mdash; Reading</h2>
+        <p class="text-sm text-slate-600 mb-4">Three references that cover <em>searching on the answer</em>. Read any one to reinforce today's session.</p>
+        <div class="grid md:grid-cols-3 gap-3">
+            <a href="https://codeforces.com/edu/course/2/lesson/6/2" target="_blank" rel="noopener" class="group flex gap-3 bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 rounded-xl p-4 transition-colors">
+                <svg width="40" height="40" viewBox="0 0 48 48" class="shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="4"  y="16" width="10" height="28" rx="2.5" fill="#e63329"/>
+                    <rect x="19" y="8"  width="10" height="36" rx="2.5" fill="#1f8ac0"/>
+                    <rect x="34" y="16" width="10" height="28" rx="2.5" fill="#f5c500"/>
+                </svg>
+                <div>
+                    <p class="font-bold text-slate-800 text-sm mb-1">Codeforces EDU &mdash; Step 2</p>
+                    <p class="text-xs text-slate-600 m-0">ITMO Academy, "Binary search on the answer" &mdash; the source of the ropes problem. <span class="text-indigo-600 group-hover:underline">codeforces.com <i class="fas fa-arrow-up-right-from-square text-[9px]" aria-hidden="true"></i></span></p>
+                </div>
+            </a>
+            <a href="https://usaco.guide/silver/binary-search" target="_blank" rel="noopener" class="group flex gap-3 bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 rounded-xl p-4 transition-colors">
+                <svg width="40" height="40" viewBox="0 0 48 48" class="shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="48" height="48" rx="9" fill="#2563eb"/>
+                    <path d="M14 13 v12 a10 10 0 0 0 20 0 V13" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+                    <rect x="12" y="35" width="24" height="4" rx="2" fill="#fbbf24"/>
+                </svg>
+                <div>
+                    <p class="font-bold text-slate-800 text-sm mb-1">USACO Guide</p>
+                    <p class="text-xs text-slate-600 m-0">Binary Search (Silver) &mdash; the "search on the answer" section, contest-focused. <span class="text-indigo-600 group-hover:underline">usaco.guide <i class="fas fa-arrow-up-right-from-square text-[9px]" aria-hidden="true"></i></span></p>
+                </div>
+            </a>
+            <a href="https://neetcode.io/practice?tab=neetcode250" target="_blank" rel="noopener" class="group flex gap-3 bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 rounded-xl p-4 transition-colors">
+                <svg width="40" height="40" viewBox="0 0 48 48" class="shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="48" height="48" rx="10" fill="#0f172a"/>
+                    <path d="M15 34V14l18 20V14" fill="none" stroke="#22c55e" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div>
+                    <p class="font-bold text-slate-800 text-sm mb-1">NeetCode 250 &mdash; Binary Search</p>
+                    <p class="text-xs text-slate-600 m-0">Work the Binary Search section of the 250 list. The later problems there are all "search on the answer." <span class="text-indigo-600 group-hover:underline">neetcode.io <i class="fas fa-arrow-up-right-from-square text-[9px]" aria-hidden="true"></i></span></p>
+                </div>
+            </a>
+        </div>
+        <p class="text-center text-xs text-slate-400 mt-5 m-0">Data Structures &middot; Dept. of CSE &middot; International Islamic University Chittagong</p>
+    </div>
+
+</main>
+
+<script>
+/* ============================================================
+   Shared helpers
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const setLog = (el, html, tone) => { if (!el) return; el.className = 'log ' + (tone || ''); el.innerHTML = html; };
+const ptr = (t, c) => `<span class="ptr ${c}">${t}</span>`;
+
+/* the guess you dragged, the 0/1 check returns, and the cell holding it are one and the same — light them up together */
+const flashNeon = els => {
+    if (REDUCED) return;
+    els.forEach(el => {
+        if (!el) return;
+        el.classList.remove('flashing');
+        void el.offsetWidth;              // restart the animation on every drag step
+        el.classList.add('flashing');
+    });
+};
+
+function cellsHTML(items) {
+    return `<div class="cellrow">` + items.map(it => `<div class="cellcol">
+        <div>${it.top || ''}</div>
+        <div class="idx">${it.idx || ''}</div>
+        <div class="cell ${it.cls || ''}">${it.val}</div>
+        <div>${it.bot || ''}</div>
+    </div>`).join('') + `</div>`;
+}
+
+/* boundary-search frame recorder */
+function frames(l0, r0, P) {
+    const F = [{ l: l0, r: r0, m: null, v: null, phase: 'init' }];
+    let l = l0, r = r0, g = 0;
+    while (r - l > 1 && g++ < 500) {
+        const m = l + Math.floor((r - l) / 2), v = !!P(m);
+        F.push({ l, r, m, v, phase: 'probe' });
+        if (v) r = m; else l = m;
+        F.push({ l, r, m, v, phase: 'apply' });
+    }
+    F.push({ l, r, m: null, v: null, phase: 'done' });
+    return F;
+}
+
+/* number line for answer-space search */
+function lineHTML(lo, hi, l, r, m, fmt) {
+    fmt = fmt || (v => v);
+    const span = (hi - lo) || 1, pc = v => Math.max(0, Math.min(100, (v - lo) / span * 100));
+    return `<div style="position:relative;height:64px;background:#f1f5f9;border:2px solid #e2e8f0;border-radius:.6rem;overflow:hidden">
+        <div style="position:absolute;top:0;bottom:0;left:0;width:${pc(l)}%;background:#dcfce7"></div>
+        <div style="position:absolute;top:0;bottom:0;left:${pc(r)}%;right:0;background:#fee2e2"></div>
+        ${m != null ? `<div style="position:absolute;top:0;bottom:0;left:${pc(m)}%;width:2px;background:#f59e0b">
+            <span style="position:absolute;top:4px;left:50%;transform:translateX(-50%);background:#f59e0b;color:#fff;font:700 10px/1 'Fira Code';padding:2px 5px;border-radius:4px;white-space:nowrap">m = ${fmt(m)}</span></div>` : ''}
+        <div style="position:absolute;bottom:5px;left:6px;font:700 11px/1 'Fira Code';color:#047857">l = ${fmt(l)}</div>
+        <div style="position:absolute;bottom:5px;right:6px;font:700 11px/1 'Fira Code';color:#b91c1c">r = ${fmt(r)}</div>
+    </div>`;
+}
+
+function stepper(el, F, draw, accent) {
+    el.innerHTML = `<div data-line></div><div class="log mt-3" data-log aria-live="polite" role="status"></div>
+        <div class="flex flex-wrap gap-2 mt-3">
+          <button class="btn-secondary" data-p><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev</button>
+          <button class="btn-primary" data-n style="--card-color:${accent}">Next <i class="fas fa-arrow-right" aria-hidden="true"></i></button>
+          <button class="btn-secondary" data-r><i class="fas fa-undo" aria-hidden="true"></i></button>
+          <span class="text-xs text-slate-500 code-font self-center ml-auto" data-c></span></div>`;
+    const line = el.querySelector('[data-line]'), log = el.querySelector('[data-log]'), cnt = el.querySelector('[data-c]');
+    let i = 0;
+    const go = () => {
+        draw(F[i], line, log);
+        cnt.textContent = `frame ${i + 1} / ${F.length}`;
+        el.querySelector('[data-p]').disabled = i === 0;
+        el.querySelector('[data-n]').disabled = i === F.length - 1;
+    };
+    el.querySelector('[data-p]').onclick = () => { if (i > 0) { i--; go(); } };
+    el.querySelector('[data-n]').onclick = () => { if (i < F.length - 1) { i++; go(); } };
+    el.querySelector('[data-r]').onclick = () => { i = 0; go(); };
+    go();
+}
+
+/* animate a boundary search over a row of .cell elements (cellEls[i] == value lo+i).
+   Returns a cancel() handle: the setTimeout chain below is self-scheduling and writes to
+   shared cells, so two overlapping runs would interleave their probe frames and logs.
+   Callers must cancel any in-flight run before starting another (and on reset). */
+function runBoundaryAnim(cellEls, lo, P, opts) {
+    opts = opts || {};
+    let cancelled = false;
+    const cancel = () => { cancelled = true; };
+    const n = cellEls.length, hi = lo + n - 1;
+    const cellAt = v => (v >= lo && v <= hi) ? cellEls[v - lo] : null;
+    const clear = () => cellEls.forEach(c => c.classList.remove('mid', 'sel', 'boundary'));
+    const dimOutside = (l, r) => cellEls.forEach((c, i) => { const v = lo + i; c.classList.toggle('dim', v <= l || v >= r); });
+    const F = []; let l = lo - 1, r = hi + 1;
+    while (r - l > 1) { const m = l + Math.floor((r - l) / 2), v = !!P(m); F.push({ m, v, l, r }); if (v) r = m; else l = m; }
+    const finalL = l, finalR = r;
+    const settle = () => {
+        if (cancelled) return;
+        clear(); dimOutside(finalL, finalR);
+        [cellAt(finalL), cellAt(finalR)].forEach(c => { if (c) { c.classList.remove('dim'); c.classList.add('boundary'); } });
+        if (opts.logEl && opts.doneHTML) setLog(opts.logEl, opts.doneHTML(finalL, finalR), 'good');
+        opts.onDone && opts.onDone(finalL, finalR);
+    };
+    if (REDUCED || !F.length) { settle(); return cancel; }
+    const delay = opts.delay || 640;
+    clear(); dimOutside(lo - 1, hi + 1);
+    let i = 0;
+    const tick = () => {
+        if (cancelled) return;
+        clear(); dimOutside(F[i].l, F[i].r);
+        const mc = cellAt(F[i].m); if (mc) { mc.classList.remove('dim'); mc.classList.add('mid'); }
+        if (opts.logEl) setLog(opts.logEl, `probe m = <b>${F[i].m}</b> &rarr; check = <span class="${F[i].v ? 'bad' : 'ok'}">${F[i].v ? 1 : 0}</span> &rarr; discard the <span class="${F[i].v ? 'bad' : 'ok'}">${F[i].v ? 'right' : 'left'}</span> half`, 'warnb');
+        i++;
+        setTimeout(i < F.length ? tick : settle, delay);
+    };
+    tick();
+    return cancel;
+}
+
+/* build a Session-One-style answer strip: cells = candidate answers, values computed by check */
+function buildStrip(hostId, opts) {
+    const host = $(hostId); if (!host) return null;
+    const { lo, hi, P, accent, one } = opts;
+    const vf = opts.valfmt || (v => v);
+    const items = [];
+    for (let v = lo; v <= hi; v++) items.push({ idx: vf(v), val: P(v) ? 1 : 0, cls: (P(v) ? 'one' : 'zero') + ' flip' });
+    host.innerHTML = `<div class="cells-scroll custom-scrollbar mb-3">${cellsHTML(items)}</div>
+        <p class="text-xs text-slate-500 mb-3 text-center m-0">index above = candidate answer &middot; <span class="code-font">1</span> = ${one}</p>
+        <div class="flex flex-wrap gap-2 justify-center mb-4">
+            <button class="btn-primary" data-run style="--card-color:${accent}">Run the boundary search</button>
+            <button class="btn-secondary" data-reset><i class="fas fa-undo" aria-hidden="true"></i> Reset</button></div>
+        <div class="log mt-3" data-log aria-live="polite" role="status"></div>`;
+    const cellEls = [...host.querySelectorAll('.cell')];
+    const logEl = host.querySelector('[data-log]');
+    let cancelRun = null;  // kill any in-flight animation before starting another or resetting
+    const reset = () => { if (cancelRun) { cancelRun(); cancelRun = null; } cellEls.forEach(c => c.classList.remove('mid', 'sel', 'dim', 'boundary')); setLog(logEl, `Each cell is a candidate answer; its <span class="code-font">0/1</span> is computed by <span class="code-font">check</span>. Press run to search for the flip.`); };
+    host.querySelector('[data-run]').onclick = () => { if (cancelRun) cancelRun(); cancelRun = runBoundaryAnim(cellEls, lo, P, { accent, logEl, doneHTML: opts.doneHTML }); };
+    host.querySelector('[data-reset]').onclick = reset;
+    reset();
+    return {
+        // drop 'flashing' from the previously lit cell too, or its neon lingers while the new one flashes
+        highlight(v) { cellEls.forEach(c => c.classList.remove('sel', 'flashing')); if (v >= lo && v <= hi) cellEls[v - lo].classList.add('sel'); },
+        cellAt(v) { return (v >= lo && v <= hi) ? cellEls[v - lo] : null; }
+    };
+}
+
+/* generic reveal buttons (retrieval / koko pillars / playbook) */
+document.querySelectorAll('[data-rev]').forEach(btn => {
+    const ans = btn.parentElement.querySelector('.rev-ans');
+    btn.onclick = () => {
+        const open = ans.classList.toggle('show');
+        btn.textContent = open ? 'Hide' : 'Reveal';
+    };
+});
+
+/* ============================================================
+   §1 — the array was never the point
+   ============================================================ */
+(() => { try {
+    const A = [1, 3, 5, 5, 5, 5, 7, 9, 13, 13];   // the SAME sorted array as Session One
+    const N = A.length;
+    const cells = $('hide-cells'), log = $('hide-log');
+    const stage = $('hide-stage'), codeBox = $('hide-code'), goBtn = $('hide-go');
+    if (!cells || !stage) return;
+    const check = i => A[i] >= 5;                  // 0 0 1 1 1 1 1 1 1 1  (lower_bound(5) = index 2)
+    const hot = codeBox.querySelector('.chk-hot');
+    const param = codeBox.querySelector('.chk-param');
+    const chkDefault = hot ? hot.innerHTML : '';
+    let busy = false, phase = 'feed', cellEls = [], runToken = 0;
+
+    const LABEL_FEED = '<i class="fas fa-bolt" aria-hidden="true"></i> &#9312; Feed every value into check()';
+    const LABEL_SEARCH = '<i class="fas fa-magnifying-glass" aria-hidden="true"></i> &#9313; Run the boundary search';
+    const LABEL_DONE = '<i class="fas fa-check" aria-hidden="true"></i> Done';
+
+    const firstTrue = A.findIndex((_, i) => check(i));   // the cell lower_bound(5) is after
+    const drawValues = () => {
+        cells.innerHTML = cellsHTML(A.map((v, i) => ({ idx: `[${i}]`, val: v, cls: i === firstTrue ? 'boundary' : '' })));
+        return [...cells.querySelectorAll('.cell')];
+    };
+    const sub = i => `${check(i) ? 1 : 0}<span style="font-size:9px;opacity:.55;margin-left:3px">${A[i]}</span>`;
+    const toLabel = (cell, i) => { cell.classList.add('flip', check(i) ? 'one' : 'zero'); cell.innerHTML = sub(i); };
+    const clearOverlay = () => { const o = stage.querySelector('.feed-overlay'); if (o) o.remove(); };
+
+    const reset = () => {
+        busy = false; phase = 'feed'; runToken++;
+        clearOverlay();
+        if (hot) hot.innerHTML = chkDefault;
+        codeBox.classList.remove('active', 'inlet');
+        cellEls = drawValues();
+        goBtn.disabled = false; goBtn.innerHTML = LABEL_FEED;
+        setLog(log, `The check function is on top; the ten values sit below. Click &#9312; &mdash; each value rides up into <span class="code-font">check(int i)</span> and drops back down as the <span class="code-font">0</span> or <span class="code-font">1</span> it returns.`);
+    };
+
+    /* ---- Phase 1: feed each value UP into check(int i), return the 0/1 DOWN ---- */
+    const timing = i => (i < 3)
+        ? { move: 380, fire: 430, back: 720, land: 1130 }   // first three: slow (~1.1s)
+        : { move: 140, fire: 165, back: 270, land: 430 };   // the rest: quick (~0.4s)
+
+    const feedDone = () => {
+        busy = false; phase = 'search';
+        goBtn.disabled = false; goBtn.innerHTML = LABEL_SEARCH;
+        setLog(log, `Every value has passed through <span class="code-font">check</span>: the row is now <b>0 0 1 1 1 1 1 1 1 1</b>. The numbers are dead weight &mdash; click &#9313; and the search reads only the <span class="code-font">0/1</span>.`, 'warnb');
+    };
+    const runFeed = () => {
+        busy = true; goBtn.disabled = true;
+        cellEls = drawValues();
+        setLog(log, `Feeding each value up into <span class="code-font">check(int i)</span> &mdash; it evaluates <span class="code-font">a[i] &ge; 5</span> and sends a <span class="code-font">0/1</span> back down.`, 'warnb');
+        if (REDUCED) { cellEls.forEach((c, i) => toLabel(c, i)); feedDone(); return; }
+
+        clearOverlay();
+        const my = ++runToken;
+        const overlay = document.createElement('div');
+        overlay.className = 'feed-overlay';
+        stage.appendChild(overlay);
+        const srect = () => stage.getBoundingClientRect();
+        const inlet = () => (param || codeBox).getBoundingClientRect();
+        const live = () => my === runToken;
+
+        let i = 0;
+        const feedOne = () => {
+            if (!live()) return;
+            const cell = cellEls[i]; if (!cell) { overlay.remove(); feedDone(); return; }
+            const d = timing(i);
+            cell.classList.add('feeding');
+            const v = A[i];
+            const sr = srect(), cr = cell.getBoundingClientRect();
+            const sx = cr.left - sr.left + cr.width / 2, sy = cr.top - sr.top + cr.height / 2;
+
+            const tok = document.createElement('div');
+            tok.className = 'feed-token val'; tok.textContent = v;
+            tok.style.transition = 'none';              // place at the cell with no animation first
+            overlay.appendChild(tok);
+            const w = tok.offsetWidth, h = tok.offsetHeight;
+            const at = (x, y, s) => `translate(${x - w / 2}px, ${y - h / 2}px)${s ? ` scale(${s})` : ''}`;
+            tok.style.transform = at(sx, sy, 1);
+            void tok.offsetWidth;                       // commit the start position
+
+            // 1) ride UP into the int i parameter
+            tok.style.transition = `transform ${d.move}ms cubic-bezier(.45,.05,.25,1), opacity .18s ease, background .15s, color .15s, border-color .15s`;
+            requestAnimationFrame(() => {
+                const tr = inlet(), s2 = srect();
+                tok.style.transform = at(tr.left - s2.left + tr.width / 2, tr.top - s2.top + tr.height / 2, .82);
+            });
+            // 2) check fires: light the inlet + comparison, substitute the value, emit 0/1
+            setTimeout(() => {
+                if (!live()) return;
+                codeBox.classList.add('active', 'inlet');
+                if (hot) hot.innerHTML = `${v} &gt;= <span class="code-num">5</span>`;
+                const one = check(i);
+                tok.textContent = one ? 1 : 0;
+                tok.className = 'feed-token ' + (one ? 'res-one' : 'res-zero');
+            }, d.fire);
+            // 3) the 0/1 drops back DOWN to its cell
+            setTimeout(() => {
+                if (!live()) return;
+                codeBox.classList.remove('active', 'inlet');
+                if (hot) hot.innerHTML = chkDefault;
+                const nr = srect(), cr2 = cell.getBoundingClientRect();
+                tok.style.transform = at(cr2.left - nr.left + cr2.width / 2, cr2.top - nr.top + cr2.height / 2, 1);
+            }, d.back);
+            // 4) land: the cell becomes the returned 0/1
+            setTimeout(() => {
+                if (!live()) return;
+                toLabel(cell, i); cell.classList.remove('feeding');
+                tok.style.opacity = '0';
+                setTimeout(() => tok.remove(), 220);
+                i++; feedOne();
+            }, d.land);
+        };
+        feedOne();
+    };
+
+    /* ---- Phase 2: boundary search with L / R / mid pointers and sentinels ---- */
+    const ptrMid = ptr('mid', 'ptr-mid'), ptrL = ptr('L', 'ptr-L'), ptrR = ptr('R', 'ptr-R');
+    const renderFrame = (f, settled) => {
+        const l = f.l, r = f.r, m = f.phase === 'probe' ? f.m : null;
+        const items = [];
+        items.push({ idx: '[-1]', val: '0', cls: 'ghost', bot: l === -1 ? ptrL : '' });
+        for (let i = 0; i < N; i++) {
+            let cls = check(i) ? 'one' : 'zero';
+            if (!settled && (i <= l || i >= r)) cls += ' dim';
+            if (m === i) cls += ' mid';
+            if (settled && (i === l || i === r)) cls += ' boundary';
+            items.push({ idx: `[${i}]`, val: sub(i), cls, top: m === i ? ptrMid : '', bot: i === l ? ptrL : (i === r ? ptrR : '') });
+        }
+        items.push({ idx: `[${N}]`, val: '1', cls: 'ghost', bot: r === N ? ptrR : '' });
+        cells.innerHTML = cellsHTML(items);
+    };
+    const runSearch = () => {
+        busy = true; goBtn.disabled = true;
+        const my = ++runToken;
+        const F = frames(-1, N, check);
+        if (REDUCED) {
+            const last = F[F.length - 1];
+            renderFrame(last, true);
+            setLog(log, `Boundary between index <b>${last.l}</b> and <b>${last.r}</b> &mdash; <span class="code-font">lower_bound(5) = ${last.r}</span>.`, 'good');
+            busy = false; phase = 'done'; goBtn.disabled = true; goBtn.innerHTML = LABEL_DONE; return;
+        }
+        let k = 0;
+        const tick = () => {
+            if (my !== runToken) return;
+            const f = F[k], settled = f.phase === 'done';
+            renderFrame(f, settled);
+            if (f.phase === 'init')
+                setLog(log, `Sentinels in place: <b>L = &minus;1</b> (a virtual <span class="code-font">&lt;5</span> off the left) and <b>R = ${N}</b> (a virtual <span class="code-font">&ge;5</span> off the right). The flip is somewhere between.`, 'warnb');
+            else if (f.phase === 'probe')
+                setLog(log, `probe <b>m = ${f.m}</b> &rarr; <span class="code-font">check(${f.m})</span> reads cell <b>${f.m}</b> = <span class="${f.v ? 'ok' : 'bad'}">${f.v ? 1 : 0}</span>`, 'warnb');
+            else if (f.phase === 'apply')
+                setLog(log, f.v
+                    ? `a <span class="ok">1</span> &rarr; the first 1 is here or to the left &rarr; <b>R = ${f.r}</b>, drop the right half`
+                    : `a <span class="bad">0</span> &rarr; the first 1 must be further right &rarr; <b>L = ${f.l}</b>, drop the left half`);
+            else
+                setLog(log, `Stop &mdash; <b>R &minus; L = 1</b>. The flip sits between index <b>${f.l}</b> and <b>${f.r}</b>, so <span class="code-font">lower_bound(5) = ${f.r}</span>. <span class="ok">The search only ever read the 0/1 row.</span>`, 'good');
+            k++;
+            if (k < F.length) setTimeout(tick, 850);
+            else { busy = false; phase = 'done'; goBtn.disabled = true; goBtn.innerHTML = LABEL_DONE; }
+        };
+        tick();
+    };
+
+    const run = () => {
+        if (busy) return;
+        if (phase === 'feed') runFeed();
+        else if (phase === 'search') runSearch();
+    };
+
+    goBtn.onclick = run;
+    $('hide-reset').onclick = reset;
+    reset();
+} catch (e) { console.error('[widget]', e); } })();
+
+/* ============================================================
+   §2 — invent-it reveal cards + 10-cell pattern
+   ============================================================ */
+(() => { try {
+    document.querySelectorAll('.invent-btn').forEach(btn => {
+        btn.onclick = () => {
+            const t = document.getElementById(btn.dataset.reveal);
+            if (t) t.classList.add('show');
+            if (btn.hasAttribute('data-epiphany')) { const e = $('inv-epiphany'); if (e) e.classList.add('show'); }
+            btn.style.display = 'none';
+            if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([t].filter(Boolean));
+        };
+    });
+    const host = $('inv-pattern-cells');
+    if (host) {
+        const items = [];
+        for (let m = 3; m <= 12; m++) {
+            const big = m * m > 50;
+            items.push({
+                idx: m === 8 ? `<b style="color:#7c3aed">m=8</b>` : `m=${m}`,
+                val: big ? 1 : 0,
+                cls: (big ? 'one' : 'zero') + (m === 8 ? ' boundary' : ''),
+                bot: `<span style="font:600 10px/1 'Fira Code';color:#94a3b8">${m * m} &gt; 50</span>`
+            });
+        }
+        host.innerHTML = cellsHTML(items);
+    }
+} catch (e) { console.error('[widget]', e); } })();
+
+/* ============================================================
+   §2 — code-line tracer for isqrt(50) (manual, line-highlighting)
+   ============================================================ */
+(() => { try {
+    const codeEl = $('trace-code'), lineEl = $('trace-line'), logEl = $('trace-log'), cnt = $('trace-count');
+    if (!codeEl) return;
+    const X = 50;
+    const clAll = [...codeEl.querySelectorAll('.cl')];
+    const setLines = arr => clAll.forEach(el => el.classList.toggle('on', arr.indexOf(+el.dataset.ln) !== -1));
+    const L = arr => arr.map(s => `<div>${s}</div>`).join('');
+
+    function build(x) {
+        const F = []; let l = 0, r = x + 1;
+        F.push({ lines: [5], m: null, l, r, tone: '', note: L([
+            `<b>l = 0</b>, <b>r = ${x + 1}</b> &mdash; a real lower bound and a sentinel.`,
+            `<span class="code-font">0</span> always fits (<span class="code-font">0&middot;0 &le; ${x}</span>), and <span class="code-font">${x + 1}</span> never does.`]) });
+        while (r - l > 1) {
+            const m = l + Math.floor((r - l) / 2), sq = m * m, big = sq > x;
+            F.push({ lines: [6], m: null, l, r, tone: 'warnb', note: L([
+                `Loop test: <span class="code-font">r &minus; l = ${r - l} &gt; 1</span> &rarr; keep going.`]) });
+            F.push({ lines: [7], m, l, r, tone: 'warnb', note: L([
+                `Take the midpoint: <span class="code-font">m = ${m}</span>.`]) });
+            F.push({ lines: [1], m, l, r, tone: 'warnb', note: L([
+                `Call <span class="code-font">check(${m}, ${x})</span>.`,
+                `Inside: <span class="code-font">${m}&middot;${m} = ${sq}</span>, and <span class="code-font">${sq} ${big ? '&gt;' : '&le;'} ${x}</span>,`,
+                `so it returns <span class="${big ? 'bad' : 'ok'}">${big ? '1 &mdash; too big' : '0 &mdash; fits'}</span>.`]) });
+            if (big) { r = m; F.push({ lines: [8], m, l, r, tone: '', note: L([
+                `check was <span class="bad">1</span> &rarr; run <span class="code-font">r = m</span>.`,
+                `Now <b>r = ${r}</b>; the whole right half is too big &mdash; dropped.`]) }); }
+            else { l = m; F.push({ lines: [9], m, l, r, tone: '', note: L([
+                `check was <span class="ok">0</span> &rarr; run <span class="code-font">l = m</span>.`,
+                `Now <b>l = ${l}</b>; everything up to here fits.`]) }); }
+        }
+        F.push({ lines: [6], m: null, l, r, tone: '', note: L([
+            `Loop test: <span class="code-font">r &minus; l = 1</span> &mdash; not <span class="code-font">&gt; 1</span>.`,
+            `The window is one step wide, so the loop stops.`]) });
+        F.push({ lines: [11], m: null, l, r, tone: 'good', note: L([
+            `<span class="code-font">return l</span> &rarr; <b>&lfloor;&radic;${x}&rfloor; = ${l}</b>.`,
+            `Same template as always &mdash; only <span class="code-font">check</span> was new.`]) });
+        return F;
+    }
+
+    const F = build(X);
+    let i = 0;
+    const go = () => {
+        const f = F[i];
+        setLines(f.lines);
+        lineEl.innerHTML = lineHTML(0, X + 1, f.l, f.r, f.m);
+        setLog(logEl, f.note, f.tone);
+        cnt.textContent = `step ${i + 1} / ${F.length}`;
+        $('trace-prev').disabled = i === 0;
+        $('trace-next').disabled = i === F.length - 1;
+    };
+    $('trace-prev').onclick = () => { if (i > 0) { i--; go(); } };
+    $('trace-next').onclick = () => { if (i < F.length - 1) { i++; go(); } };
+    $('trace-reset').onclick = () => { i = 0; go(); };
+    go();
+} catch (e) { console.error('[widget]', e); } })();
+
+/* ============================================================
+   Feasibility simulator — shared vertical-bar renderer
+   ============================================================ */
+function barCol(heightPx, segs, gapVal, color, caption, remPx) {
+    const segHtml = segs.map(h => `<div class="sim-seg" style="height:${h}px;background:${color}"></div>`).join('');
+    const rem = remPx > 0 ? `<div style="height:${remPx}px;background:#e2e8f0"></div>` : '';
+    return `<div class="sim-barcol">
+        <div class="sim-bar" style="height:${heightPx}px">${segHtml}${rem}</div>
+        <div class="sim-caption">${caption}</div>
+    </div>`;
+}
+
+/* ---- §3 ropes (check: pieces < k, i.e. "L too long"; 1 = too long; answer = last 0 = l) ---- */
+(() => { try {
+    const rope = [8, 5, 12, 7], k = 6, unit = 11;
+    const bars = $('ropes-bars'); if (!bars) return;
+    const tooLong = L => { let p = 0; for (const a of rope) p += Math.floor(a / L); return p < k; };
+    const strip = buildStrip('ropes-strip', {
+        lo: 1, hi: 12, P: tooLong, accent: '#db2777',
+        one: 'L too long (<span class="code-font">&lt; k</span> pieces)',
+        doneHTML: (l, r) => `The <b>last 0</b> is L = <b>${l}</b> &mdash; the largest length that still makes ${k} pieces. Return <span class="code-font">l</span> = <b>${l}</b>. <span class="ok">Same loop as sqrt.</span>`
+    });
+    const draw = (L) => {
+        let total = 0;
+        bars.innerHTML = rope.map(a => {
+            const pieces = Math.floor(a / L); total += pieces;
+            const segH = L * unit;
+            const segHtml = Array.from({ length: pieces }, () => `<div class="rope-seg" style="height:${segH}px"></div>`).join('');
+            const remPx = (a - pieces * L) * unit;
+            const rem = remPx > 0 ? `<div class="rope-seg rope-rem" style="height:${remPx}px"></div>` : '';
+            return `<div class="sim-barcol">
+                <div class="rope-bar" style="height:${a * unit}px">${segHtml}${rem}</div>
+                <div class="sim-caption">${a} &rarr; <b style="color:#be185d">${pieces}</b></div>
+            </div>`;
+        }).join('');
+        const long = total < k;
+        $('ropes-Lval').textContent = L;
+        $('ropes-readout').innerHTML = `<span class="eq-box">total = &Sigma;&lfloor;a/L&rfloor; = ${total}</span> <span class="text-slate-500 text-sm">(need ${k})</span> &nbsp;&rarr;&nbsp; check("too long") = <span id="ropes-bit" class="flash-target" style="--flash-color:${long ? '#e11d48' : '#16a34a'};color:var(--flash-color);font-weight:800">${long ? 1 : 0}</span> <span class="text-slate-400 text-sm">(${long ? 'too long' : 'still fits'})</span>`;
+        strip && strip.highlight(L);
+        flashNeon([$('ropes-Lval'), $('ropes-bit'), $('ropes-bridge'), strip && strip.cellAt(L)]);
+    };
+    $('ropes-slider').oninput = e => draw(+e.target.value);
+    const rev = $('ropes-reveal');
+    if (rev) rev.onclick = () => {
+        $('ropes-play').classList.remove('sim-hidden');
+        const w = $('ropes-reveal-wrap'); if (w) w.style.display = 'none';
+        draw(+$('ropes-slider').value);
+    };
+    draw(3);
+} catch (e) { console.error('[widget]', e); } })();
+
+/* ---- §5 koko (check: hours <= H, "fast enough"; 1 = feasible; answer = first 1 = r) ---- */
+(() => { try {
+    const piles = [3, 6, 7, 11], H = 8, unit = 12, maxPile = Math.max(...piles);
+    const bars = $('koko-bars'); if (!bars) return;
+    const fastEnough = v => { let h = 0; for (const p of piles) h += Math.ceil(p / v); return h <= H; };
+    const strip = buildStrip('koko-strip', {
+        lo: 1, hi: 12, P: fastEnough, accent: '#0d9488',
+        one: 'fast enough (<span class="code-font">hours &le; H</span>)',
+        doneHTML: (l, r) => `The <b>first 1</b> is v = <b>${r}</b> &mdash; the slowest speed that still finishes in time. Return <span class="code-font">r</span> = <b>${r}</b>. <span class="ok">Same loop &mdash; we just read the other side.</span>`
+    });
+    const draw = (v) => {
+        let total = 0;
+        bars.innerHTML = piles.map(p => {
+            const h = Math.ceil(p / v); total += h;
+            // one band per hour, top-down: she eats v a time, and the bottom band is whatever is left over
+            const bands = Array.from({ length: h }, (_, j) => {
+                const eaten = (j < h - 1) ? v : p - v * (h - 1);
+                const cls = REDUCED ? 'ban-band eaten-static' : 'ban-band eaten';
+                return `<div class="${cls}" style="height:${eaten * unit}px;--d:${(j * 0.42).toFixed(2)}s" title="hour ${j + 1}: eats ${eaten}">${j + 1}h</div>`;
+            }).join('');
+            return `<div class="sim-barcol">
+                <div class="ban-col" style="height:${maxPile * unit}px">
+                    <div class="ban-pile" style="height:${p * unit}px">${bands}</div>
+                </div>
+                <div class="sim-caption">${p}<span style="color:#94a3b8">&rarr;</span><b style="color:#b45309">${h}h</b></div>
+            </div>`;
+        }).join('');
+        const ok = total <= H;
+        $('koko-vval').textContent = v;
+        $('koko-readout').innerHTML = `<span class="eq-box eq-teal">total hours = &Sigma;&lceil;pile/v&rceil; = ${total}</span> <span class="text-slate-500 text-sm">(H = ${H})</span> &nbsp;&rarr;&nbsp; check("fits") = <span id="koko-bit" class="flash-target" style="--flash-color:${ok ? '#16a34a' : '#e11d48'};color:var(--flash-color);font-weight:800">${ok ? 1 : 0}</span> <span class="text-slate-400 text-sm">(${ok ? 'fits in time' : 'too slow'})</span>`;
+        strip && strip.highlight(v);
+        flashNeon([$('koko-vval'), $('koko-bit'), $('koko-bridge'), strip && strip.cellAt(v)]);
+    };
+    $('koko-slider').oninput = e => draw(+e.target.value);
+    const rev = $('koko-reveal');
+    if (rev) rev.onclick = () => {
+        $('koko-play').classList.remove('sim-hidden');
+        const w = $('koko-reveal-wrap'); if (w) w.style.display = 'none';
+        draw(+$('koko-slider').value);
+    };
+    draw(3);
+} catch (e) { console.error('[widget]', e); } })();
+
+/* ============================================================
+   §6 — the frog (non-monotone landmine)
+   ============================================================ */
+(() => { try {
+    const track = $('frog-track'); if (!track) return;
+
+    function makeFrog(GOAL, ROCK) {
+        const feasible = s => { for (let pos = s; pos < GOAL; pos += s) if (ROCK.has(pos)) return false; return true; };
+        const landings = s => { const L = []; for (let pos = s; pos < GOAL; pos += s) L.push(pos); return L; };
+        return { GOAL, ROCK, feasible, landings };
+    }
+    const SIZES = [1, 2, 3, 4, 5, 6];
+    // hops = every cell the frog touches, in order, ending on the rock it hits or on D
+    function hops(F, s) {
+        const path = [];
+        for (let pos = s; pos < F.GOAL; pos += s) {
+            path.push(pos);
+            if (F.ROCK.has(pos)) return { path, crashAt: pos };
+        }
+        path.push(F.GOAL);
+        return { path, crashAt: null };
+    }
+    // upto = how many hops have been taken so far; 0 = the frog is still on the star
+    function renderTrack(el, F, s, upto) {
+        const taken = s == null ? [] : hops(F, s).path.slice(0, upto);
+        const at = taken.length ? taken[taken.length - 1] : 0;
+        el.innerHTML = Array.from({ length: F.GOAL + 1 }, (_, i) => {
+            let cls = 'frog-cell';
+            if (i === 0) cls += ' start';
+            else if (i === F.GOAL) cls += ' goal';
+            else if (F.ROCK.has(i)) cls += ' obstacle';
+            if (taken.includes(i)) cls += F.ROCK.has(i) ? ' crash' : (i === F.GOAL ? ' reached' : ' landed');
+            const frog = i === at ? `<span class="frog-token${upto ? ' hop' : ''}">&#128056;</span>` : '';
+            const face = i === 0 ? '*' : i === F.GOAL ? '&#127937;' : F.ROCK.has(i) ? '&#129704;' : i;
+            return `<div class="${cls}">${frog}${face}</div>`;
+        }).join('');
+    }
+    // the 0/1 row: one cell per candidate jump size, exactly like every other strip on the page
+    const cellsFor = (F, cur) => cellsHTML(SIZES.map(s => ({
+        idx: `${s}`,
+        val: F.feasible(s) ? 1 : 0,
+        cls: (F.feasible(s) ? 'one' : 'zero') + (s === cur ? ' sel' : '')
+    })));
+    const bsReturn = F => { const fr = frames(0, 7, F.feasible); return fr[fr.length - 1].r; };
+
+    /* ---- sample: 0 0 0 1 1 1, BS returns 4 (correct) ---- */
+    const sample = makeFrog(11, new Set([2, 7, 9]));
+    let timer = null, chosen = null;
+
+    const play = (s) => {                       // hop cell by cell, so the path is watched, not just read
+        if (timer) { clearTimeout(timer); timer = null; }
+        chosen = s;
+        const { path, crashAt } = hops(sample, s);
+        [...$('frog-pad').children].forEach(b => b.classList.toggle('pressed', +b.dataset.s === s));
+        $('frog-cells').innerHTML = cellsFor(sample, s);
+        flashNeon([$('frog-bridge'), $('frog-cells').querySelectorAll('.cell')[s - 1]]);
+
+        const land = sample.landings(s);
+        const done = () => {
+            $('frog-readout').innerHTML = crashAt == null
+                ? `s = ${s}: lands on ${land.join(', ') || '(nothing)'} then reaches <b>D</b> &nbsp;&rarr;&nbsp; <span style="color:#16a34a;font-weight:700">check(${s}) = 1 (crosses)</span>`
+                : `s = ${s}: lands on the rock at <b>${crashAt}</b> &nbsp;&rarr;&nbsp; <span style="color:#e11d48;font-weight:700">check(${s}) = 0 (crash)</span>`;
+        };
+        if (REDUCED) { renderTrack(track, sample, s, path.length); done(); return; }
+
+        renderTrack(track, sample, s, 0);       // start on the star, then hop
+        $('frog-readout').innerHTML = `s = ${s}: hopping &hellip;`;
+        let step = 0;
+        const tick = () => {
+            step++;
+            renderTrack(track, sample, s, step);
+            if (step < path.length) { timer = setTimeout(tick, 300); return; }
+            timer = null; done();
+        };
+        timer = setTimeout(tick, 260);
+    };
+
+    $('frog-pad').innerHTML = SIZES.map(s =>
+        `<button class="jump-btn" data-s="${s}" aria-label="jump size ${s}">${s}</button>`).join('');
+    [...$('frog-pad').children].forEach(b => { b.onclick = () => play(+b.dataset.s); });
+
+    renderTrack(track, sample, null, 0);        // the frog waits on the star until you pick a size
+    $('frog-cells').innerHTML = cellsFor(sample, null);
+    $('frog-readout').innerHTML = `The frog is on the <span class="code-font">*</span>. Press a jump size to send it across.`;
+
+    $('frog-run').onclick = () => {
+        const fr = frames(0, 7, sample.feasible);
+        const probes = fr.filter(f => f.phase === 'probe');
+        const ret = fr[fr.length - 1].r;
+        setLog($('frog-log'),
+            `The row is <span class="mini-cells"><b class="z">0</b><b class="z">0</b><b class="z">0</b><b class="o">1</b><b class="o">1</b><b class="o">1</b></span> &mdash; one clean flip, so the search runs happily:<br>` +
+            probes.map(p => `&nbsp;&nbsp;probe s = <b>${p.m}</b> &rarr; <span class="${p.v ? 'ok' : 'bad'}">${p.v ? 'crosses (1)' : 'crash (0)'}</span>`).join('<br>') +
+            `<br>Returns <b>s = ${ret}</b> &mdash; and that is the true smallest. <span class="ok">Sample passed &check;</span>`, 'good');
+    };
+    $('frog-runreset').onclick = () => setLog($('frog-log'), `Press run to search the sample for the smallest working jump.`);
+    setLog($('frog-log'), `Press run to search the sample for the smallest working jump.`);
+
+    /* ---- hidden: 0 1 0 1 1 1, BS returns 4 but the true smallest is 2 (WA) ---- */
+    const hidden = makeFrog(11, new Set([3]));
+    const hb = $('frog-hidden');
+    if (hb) hb.onclick = () => {
+        $('frog-hidden-out').classList.remove('sim-hidden');
+        const w = $('frog-hidden-wrap'); if (w) w.style.display = 'none';
+        renderTrack($('frog-hidden-track'), hidden, 3, hops(hidden, 3).path.length);   // s = 3 crashing on the rock
+        $('frog-hidden-cells').innerHTML = cellsFor(hidden, 3);
+        const ret = bsReturn(hidden);
+        setLog($('frog-hidden-bs'),
+            `Binary search first probes the middle, <b>s = 3</b> &rarr; lands on the rock &rarr; <span class="bad">0</span>. ` +
+            `It throws away the whole left half &mdash; including <b>s = 2</b> &mdash; and returns <b>s = ${ret}</b>. ` +
+            `But <b>s = 2</b> crosses and is smaller: the judge wanted <b>2</b>. <span class="bad">Wrong Answer &mdash; and nothing crashed.</span>`, 'warnb');
+    };
+} catch (e) { console.error('[widget]', e); } })();
+
+/* ============================================================
+   §7 — name-the-tool mini-quiz
+   ============================================================ */
+(() => { try {
+    const host = $('tool-quiz'); if (!host) return;
+    const TOOLS = ['Sorting', 'Two pointers', 'Binary search on the answer'];
+    const QS = [
+        { q: 'A ship must deliver all the packages within D days. What is the minimum daily capacity?',
+          a: 2, why: 'Guess a capacity, ask the yes/no question "does everything ship within D days?" — and a bigger capacity always still works. Monotone check &rarr; binary search on the answer (this is LC 1011 from the table below).' },
+        { q: 'In a sorted array, is there a pair of values that sums to exactly X?',
+          a: 1, why: 'There is no single value to guess and test. Walk one pointer from each end inward — the classic two-pointers scan. Sortedness is what makes it work.' },
+        { q: 'Given an unsorted array, output its median once.',
+          a: 0, why: 'One sort answers it directly — no yes/no question about a guessed value anywhere. Not every problem is a boundary search; naming when a tool does NOT fit is part of the habit.' },
+    ];
+    host.innerHTML = QS.map((item, qi) => `<div class="tool-row">
+        <p class="text-sm text-slate-800 font-semibold m-0 mb-2">${qi + 1}. ${item.q}</p>
+        <div class="tool-opts">${TOOLS.map((t, ti) =>
+            `<button class="tool-opt" data-q="${qi}" data-t="${ti}">${t}</button>`).join('')}</div>
+        <p class="tool-verdict" aria-live="polite"></p>
+    </div>`).join('');
+    host.querySelectorAll('.tool-opt').forEach(btn => btn.onclick = () => {
+        const qi = +btn.dataset.q, item = QS[qi], row = btn.closest('.tool-row');
+        row.querySelectorAll('.tool-opt').forEach(b => {
+            b.disabled = true;
+            if (+b.dataset.t === item.a) b.classList.add('correct');
+            else if (b === btn) b.classList.add('wrong');
+        });
+        const v = row.querySelector('.tool-verdict');
+        v.innerHTML = (+btn.dataset.t === item.a
+            ? '<strong class="text-emerald-700">Right.</strong> '
+            : `<strong class="text-rose-700">Not quite — it is ${TOOLS[item.a].toLowerCase()}.</strong> `) + item.why;
+        v.classList.add('show');
+    });
+} catch (e) { console.error('[widget]', e); } })();
+
+/* ============================================================
+   §9 — interview board is now static (no table to populate)
+   ============================================================ */
+
+/* ============================================================
+   §11 — sqrt(2) digit lock-in
+   ============================================================ */
+(() => { try {
+    const digitsEl = $('sqrt-digits'), lineEl = $('sqrt-line'), scaleEl = $('sqrt-scale'),
+          zoomEl = $('sqrt-zoom'), out = $('sqrt-readout');
+    if (!digitsEl) return;
+    const X = 2, T = Math.SQRT2, DEC = 10;
+    let l = 1, r = 2, k = 0, stalled = false, busy = false;
+    const check = m => m * m > X;                       // the same check, now on reals
+    // TRUNCATE, never round: a rounded digit is not a known digit. toFixed(DEC) would
+    // report l=1.41421356234 and r=1.41421356237 as both "1.4142135624" and claim the
+    // 10th decimal is 4 -- but sqrt(2) = 1.4142135623(7), so that 4 is a lie.
+    const trunc = v => { const s = v.toFixed(DEC + 3); return s.slice(0, s.indexOf('.') + 1 + DEC); };
+    // show just enough decimals for l and r to still look different at this zoom level
+    const fmt = (v, width) => v.toFixed(Math.max(2, Math.min(12, Math.ceil(-Math.log10(width)) + 2)));
+
+    // The bracket is drawn inside an inset track, so the end pins sit fully inside the box.
+    const A = 9, B = 91;
+    const paint = (dl, dr, pinL, pinR, mid) => {
+        const w = dr - dl;
+        const at = v => A + (v - dl) / w * (B - A);          // value -> % across the box
+        const clamp = p => Math.max(0, Math.min(100, p));
+        const t = clamp(at(T));
+        const pin = (cls, v) => `<div class="zpin ${cls}" style="left:${clamp(at(v))}%">
+            <div class="stem"></div><div class="chip">${cls === 'l' ? 'L' : cls === 'r' ? 'R' : 'mid'} = ${fmt(v, w)}</div></div>`;
+        // the gauge spans whatever L and R currently are — it visibly halves in act 1, then
+        // stretches back out in act 2 as the view zooms. The number is what really shrinks.
+        const ga = clamp(at(pinL)), gb = clamp(at(pinR));
+        const gap = `<div class="zgap" style="left:${ga}%;width:${Math.max(0, gb - ga)}%">
+            <div class="cap a"></div><div class="bar"></div><div class="cap b"></div></div>`;
+        lineEl.innerHTML =
+            `<div class="zone zone-out" style="left:0;width:100%"></div>
+             <div class="zone zone-lo" style="left:${A}%;width:${Math.max(0, t - A)}%"></div>
+             <div class="zone zone-hi" style="left:${t}%;width:${Math.max(0, B - t)}%"></div>
+             <div class="ztarget" style="left:${t}%"></div>
+             <div class="ztarget-tag" style="left:${t}%">&radic;2</div>
+             ${gap}${pin('l', pinL)}${pin('r', pinR)}${mid == null ? '' : pin('m', mid)}`;
+        // the scale: five ticks across the bracket. Their labels converge as we zoom in.
+        scaleEl.innerHTML = [0, .25, .5, .75, 1].map(f => {
+            const v = dl + w * f;
+            return `<div class="ztick" style="left:${A + f * (B - A)}%"><i></i><span>${fmt(v, w)}</span></div>`;
+        }).join('');
+        zoomEl.innerHTML = `<i class="fas fa-left-right" aria-hidden="true"></i> distance R &minus; L = ${(pinR - pinL).toExponential(2)} &nbsp;&middot;&nbsp; halved ${k}&times;`;
+    };
+
+    let lastAgree = 0;
+    const drawDigits = () => {
+        const ls = trunc(l), rs = trunc(r), ms = trunc((l + r) / 2);
+        // A digit is locked only if l and r genuinely share it. Truncation is monotone, so
+        // when the two ends agree on a prefix, every value between them does too -- including mid.
+        let agree = 0; while (agree < ls.length && ls[agree] === rs[agree]) agree++;
+        digitsEl.innerHTML = ms.split('').map((ch, i) =>
+            ch === '.' ? `<span class="digit point">.</span>`
+                       : `<span class="digit ${i < agree ? 'locked' : ''}${i >= lastAgree && i < agree ? ' just-locked' : ''}">${ch}</span>`).join('');
+        lastAgree = agree;
+        const dec = Math.max(0, agree - 2);
+        out.innerHTML = `after <b>${k}</b> halvings: interval width <span class="code-font">${(r - l).toExponential(2)}</span> &mdash; <b>${dec}</b> decimal digit${dec === 1 ? '' : 's'} locked in <span class="text-slate-400">(&radic;2 = 1.41421356237&hellip;)</span>`
+            + (stalled ? `<div class="mt-1 text-rose-700 font-semibold">Converged &mdash; <span class="code-font">(l + r) / 2</span> now rounds to <span class="code-font">l</span> or <span class="code-font">r</span> itself. The interval cannot shrink further: <code>double</code> has run out of bits. More halvings would be theatre.</div>` : '');
+    };
+    const draw = () => { paint(l, r, l, r, null); drawDigits(); };
+
+    const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const anim = (ms, frame, done) => {
+        if (REDUCED || ms <= 0) { frame(1); done(); return; }
+        const t0 = performance.now();
+        const tick = now => {
+            const p = Math.min(1, (now - t0) / ms);
+            frame(ease(p));
+            p < 1 ? requestAnimationFrame(tick) : done();
+        };
+        requestAnimationFrame(tick);
+    };
+
+    const setBusy = b => { busy = b; ['sqrt-step', 'sqrt-jump'].forEach(id => { $(id).disabled = b; }); };
+
+    // one halving, in two acts: (1) the losing pointer walks to mid, (2) the surviving
+    // half is stretched back to full width — the zoom that makes the digits legible.
+    const halve = () => {
+        if (busy || stalled) return;
+        const mid = (l + r) / 2;
+        if (mid <= l || mid >= r) { stalled = true; draw(); return; }
+        const tooBig = check(mid), dl0 = l, dr0 = r, from = tooBig ? r : l;
+        setBusy(true);
+        anim(520, p => {                                   // act 1: R (or L) slides down to mid
+            const moving = from + (mid - from) * p;
+            paint(dl0, dr0, tooBig ? l : moving, tooBig ? moving : r, mid);
+        }, () => {
+            if (tooBig) r = mid; else l = mid;             // commit the halving
+            k++;
+            const nl = l, nr = r;
+            anim(700, p => {                               // act 2: zoom the survivor to full width
+                paint(dl0 + (nl - dl0) * p, dr0 + (nr - dr0) * p, nl, nr, null);
+            }, () => {
+                setBusy(false); draw();
+                zoomEl.classList.remove('pop'); void zoomEl.offsetWidth; zoomEl.classList.add('pop');
+            });
+        });
+    };
+    // Returns false once the midpoint stops moving -- at that point (l+r)/2 rounds to an
+    // endpoint, the bisection makes no progress, and counting further halvings is a lie.
+    const stepFast = () => {
+        const m = (l + r) / 2;
+        if (m <= l || m >= r) { stalled = true; return false; }
+        if (check(m)) r = m; else l = m;
+        k++; return true;
+    };
+    $('sqrt-step').onclick = halve;
+    $('sqrt-jump').onclick = () => { if (busy) return; for (let i = 0; i < 40 && stepFast(); i++); draw(); };
+    $('sqrt-reset').onclick = () => { if (busy) return; l = 1; r = 2; k = 0; stalled = false; draw(); };
+    draw();
+} catch (e) { console.error('[s-frac]', e); } })();
+
+/* ============================================================
+   §12 — assignment cards
+   ============================================================ */
+(() => { try {
+    const easy = [
+        { n: 'First Bad Version', s: 'LC 278', u: 'https://leetcode.com/problems/first-bad-version/', t: 'Find the first bad version. There is no array &mdash; only an <span class="code-font">isBadVersion(k)</span> check.' },
+        { n: 'Guess Number Higher or Lower', s: 'LC 374', u: 'https://leetcode.com/problems/guess-number-higher-or-lower/', t: 'The check is an API call. Pure predicate boundary search.' },
+        { n: 'Valid Perfect Square', s: 'LC 367', u: 'https://leetcode.com/problems/valid-perfect-square/', t: 'Is <span class="code-font">num</span> a perfect square? The §2 idea, one step removed &mdash; mind the overflow.' },
+        { n: 'Kth Missing Positive Number', s: 'LC 1539', u: 'https://leetcode.com/problems/kth-missing-positive-number/', t: 'Invent a monotone "how many are missing by index i" function, then search it.' },
+        { n: 'Arranging Coins', s: 'LC 441', u: 'https://leetcode.com/problems/arranging-coins/', t: 'Largest k full rows from n coins. Guess k, check feasibility.' },
+        { n: 'Special Array With X Elements ≥ X', s: 'LC 1608', u: 'https://leetcode.com/problems/special-array-with-x-elements-greater-than-or-equal-to-x/', t: 'Search x; the check counts how many numbers are &ge; x. Self-referential boundary.' }
+    ];
+    const med = [
+        { n: 'Capacity to Ship Packages in D Days', s: 'LC 1011', u: 'https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/', t: 'Guess a ship capacity; the check greedily counts days. Sibling of the ropes check.' },
+        { n: 'Magnetic Force Between Two Balls', s: 'LC 1552', u: 'https://leetcode.com/problems/magnetic-force-between-two-balls/', t: 'Maximise the minimum gap. This one returns <span class="code-font">l</span>, not <span class="code-font">r</span> &mdash; watch the direction flip.' },
+        { n: 'Very Easy Task', s: 'CF EDU 2·C', u: 'https://codeforces.com/edu/course/2/lesson/6/2', t: 'Two copiers, n copies, min time. The check counts copies done by time t. Watch for overflow. <span class="text-slate-400">Open the <b>Practice</b> tab on this step, then problem <b>C</b>.</span>' },
+        { n: 'Ropes', s: 'CF EDU 2·B', u: 'https://codeforces.com/edu/course/2/lesson/6/2', t: 'The §3 problem &mdash; but real-valued. Same check; swap the integer stop rule for the fixed loop from §11. <span class="text-slate-400">Open the <b>Practice</b> tab on this step, then problem <b>B</b>.</span>' }
+    ];
+    const card = (x, i, tone) => `<a href="${x.u}" target="_blank" rel="noopener" class="asn hover:border-slate-400 transition-colors" style="text-decoration:none;color:inherit">
+        <span class="asn-num" style="background:${tone.bg};color:${tone.fg}">${i}</span>
+        <span><span class="font-bold text-slate-800">${x.n}</span> <span class="text-xs code-font text-slate-400">${x.s}</span><br><span class="text-sm text-slate-600">${x.t}</span></span>
+        <span class="text-slate-300 self-center"><i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i></span>
+    </a>`;
+    $('asn-easy').innerHTML = easy.map((x, i) => card(x, i + 1, { bg: '#dcfce7', fg: '#166534' })).join('');
+    $('asn-med').innerHTML = med.map((x, i) => card(x, i + 7, { bg: '#fef3c7', fg: '#92400e' })).join('');
+} catch (e) { console.error('[widget]', e); } })();
+
+/* ============================================================
+   Mermaid + scrollspy + progress
+   ============================================================ */
+(() => { try {
+    if (window.mermaid) window.mermaid.initialize({ startOnLoad: true, theme: 'base', themeVariables: {
+        fontFamily: 'Inter, sans-serif', fontSize: '14px',
+        primaryColor: '#f8fafc', primaryBorderColor: '#cbd5e1', primaryTextColor: '#334155', lineColor: '#94a3b8'
+    }});
+} catch (e) { console.error('[widget]', e); } })();
+
+(() => { try {
+    const bar = $('scroll-progress-bar'), wrap = $('sticky-progress-container');
+    const crumbs = [...document.querySelectorAll('.crumb')];
+    crumbs.forEach(c => {
+        c.tabIndex = 0; c.setAttribute('role', 'link');
+        const go = () => $(c.dataset.for) && $(c.dataset.for).scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'start' });
+        c.onclick = go;
+        c.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } };
+    });
+    const track = $('scroll-progress-track');
+    const onScroll = () => {
+        const h = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = h > 0 ? (window.scrollY / h) * 100 : 0;
+        bar.style.width = pct + '%';
+        if (track) track.setAttribute('aria-valuenow', Math.round(pct));
+        wrap.classList.toggle('-translate-y-full', window.scrollY < 400);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    // The crumbs cover only the milestone sections, so watch EVERY card and light up the
+    // nearest crumb at or above it -- otherwise scrolling through Toolbox/Summary/Playbook
+    // (which have no crumb of their own) would leave the whole bar unlit.
+    const allSecs = [...document.querySelectorAll('.info-card[id]')];
+    const crumbIds = crumbs.map(c => c.dataset.for);
+    const ownerOf = id => {
+        const i = allSecs.findIndex(s => s.id === id);
+        let owner = crumbIds[0];
+        for (let j = 0; j <= i; j++) if (crumbIds.includes(allSecs[j].id)) owner = allSecs[j].id;
+        return owner;
+    };
+    // crumbs can overflow the bar on mobile, so the active one must be scrolled into view
+    const barEl = $('crumb-bar');
+    let lastActive = null;
+    const revealCrumb = c => {
+        if (!barEl || !c || c === lastActive) return;
+        lastActive = c;
+        const cl = c.offsetLeft, cr = cl + c.offsetWidth;
+        const vl = barEl.scrollLeft, vr = vl + barEl.clientWidth;
+        if (cl < vl || cr > vr) {
+            barEl.scrollTo({ left: cl - (barEl.clientWidth - c.offsetWidth) / 2, behavior: REDUCED ? 'auto' : 'smooth' });
+        }
+    };
+    const seen = new Set();
+    const io = new IntersectionObserver(es => {
+        es.forEach(e => e.isIntersecting ? seen.add(e.target.id) : seen.delete(e.target.id));
+        const first = allSecs.find(s => seen.has(s.id));
+        const ownerId = first ? ownerOf(first.id) : null;
+        crumbs.forEach(c => {
+            const on = c.dataset.for === ownerId;
+            c.classList.toggle('active', on);
+            c.setAttribute('aria-current', on ? 'true' : 'false');
+            if (on) revealCrumb(c);
+        });
+        if (first) wrap.style.setProperty('--card-color', getComputedStyle(first).getPropertyValue('--card-color') || '#7c3aed');
+    }, { rootMargin: '-15% 0px -60% 0px' });
+    allSecs.forEach(s => io.observe(s));
+} catch (e) { console.error('[widget]', e); } })();
+</script>
+</body>
+</html>
