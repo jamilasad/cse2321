@@ -68,7 +68,7 @@ a{color:var(--accent)}
 .hero h1{font-size:clamp(1.85rem,6.4vw,3.4rem);font-weight:900;letter-spacing:-.025em;margin-bottom:1rem}
 .hero h1 em{font-style:normal;background:linear-gradient(90deg,#818cf8,#22d3ee);-webkit-background-clip:text;
             background-clip:text;color:transparent}
-.hero-lede{font-size:clamp(1rem,2.5vw,1.15rem);color:#cbd5e1;max-width:44rem}
+.hero-lede{font-size:clamp(1rem,2.5vw,1.15rem);color:#cbd5e1}
 .arc{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1.6rem}
 .arc span{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:.4rem .7rem;
           border-radius:999px;border:1px solid rgba(148,163,184,.35);color:#cbd5e1;background:rgba(15,23,42,.4)}
@@ -554,7 +554,16 @@ var SEGMENTS = [
 {
   wk:'Wk 4–6', title:'Linked Lists', sub:'Three weeks — the first structure you build by hand',
   topics:'Linked lists and their representation in memory · traversing · searching · insertion and deletion · header linked lists · two-way (doubly) linked lists · the slow pointer and fast pointer technique',
-  theory:[], lab:[]
+  theory:[
+    { t:'1 \u00b7 What & why: the linked list', d:'Memory is fragmented, so the array will not fit \u00b7 scatter the values \u00b7 write the address down \u00b7 head \u00b7 the node \u00b7 lift it off the RAM \u00b7 traversal \u00b7 insert first / last / at position n \u00b7 delete first / last / n-th', h:'2321-theory/03-linked-lists/01-why-linked-list.html', k:'lesson' },
+    { t:'2 \u00b7 Pointers, structures and ->', d:'Address vs value \u00b7 & and * \u00b7 nullptr \u00b7 a struct that points at its own type \u00b7 the arrow operator \u00b7 four hard-coded nodes and a display loop', h:'2321-theory/03-linked-lists/02-pointers-and-structures.html', k:'lesson' },
+    { t:'3 \u00b7 new, delete and the first real list', d:'Stack vs heap \u00b7 the node that dies at the brace \u00b7 new and delete \u00b7 build the list \u00b7 insert \u00d73 and delete \u00d73 in real C++ \u00b7 leaks and dangling pointers', h:'2321-theory/03-linked-lists/03-new-delete-and-the-list.html', k:'lesson' },
+    { t:'4 \u00b7 Search & the two-pointer trick', d:'Search unsorted and sorted \u00b7 why binary search dies \u00b7 walking procedures (max, max even, sum) \u00b7 add at the end \u00b7 the fast/slow pointer that finds the middle in one pass', h:'2321-theory/03-linked-lists/04-search-and-two-pointers.html', k:'lesson' },
+    { t:'5 \u00b7 Tail, revision & reverse', d:'The cost of finding the end \u00b7 keeping tail true, including the empty list \u00b7 O(1) at the end \u00b7 why tail cannot rescue delete-last \u00b7 reverse in one pass \u00b7 every operation on one page \u00b7 Class Test 1', h:'2321-theory/03-linked-lists/05-tail-and-reverse.html', k:'lesson' },
+    { t:'6 \u00b7 The OOP wrap', d:'class LinkedList \u00b7 encapsulation \u00b7 constructor and destructor \u00b7 leaks and unique_ptr \u00b7 LeetCode', h:'', k:'soon' },
+    { t:'7 \u00b7 Two-way & header lists', d:'FORW and BACK \u00b7 forming a two-way list from a one-way one \u00b7 circular header lists \u00b7 the dummy node \u00b7 LRU cache', h:'', k:'soon' },
+    { t:'8 \u00b7 Review, exam notation & test', d:'INFO / LINK / START / AVAIL tables drilled on past papers \u00b7 Class Test 2', h:'', k:'soon' }
+  ], lab:[]
 },
 {
   wk:'Wk 7–8', title:'Stacks &amp; Recursion', sub:'Stacks in week 7, recursion in week 8',
@@ -641,8 +650,11 @@ function render(){
     if((!showTh||!th.length)&&(!showLb||!lb.length))
       body+='<p class="nowt">Material for this segment will be posted here. The syllabus above is what it will cover.</p>';
 
-    var open = (th.length||lb.length) ? ' open' : '';
-    out+='<div class="seg'+open+'">'+
+    /* what you left open last time wins; a segment with material is open
+       by default the first time you ever see the page */
+    var want = (SEGOPEN[S.wk]!==undefined) ? SEGOPEN[S.wk] : !!(th.length||lb.length);
+    var open = want ? ' open' : '';
+    out+='<div class="seg'+open+'" data-wk="'+S.wk+'">'+
       '<button class="seghead" type="button">'+
         '<span class="wk">'+S.wk+'</span>'+
         '<span class="mt"><b>'+S.title+'</b><em>'+S.sub+'</em></span>'+
@@ -653,8 +665,24 @@ function render(){
   });
   $('#spine').innerHTML=out;
   $$('.seghead').forEach(function(h){
-    h.addEventListener('click',function(){h.parentNode.classList.toggle('open');});
+    h.addEventListener('click',function(){
+      var seg=h.parentNode;
+      seg.classList.toggle('open');
+      SEGOPEN[seg.dataset.wk]=seg.classList.contains('open');
+      saveOpen();
+    });
   });
+  syncExpandLabel();
+}
+
+/* ---------- remember which segments were left open ---------- */
+var OPENKEY='cse-site-segopen', SEGOPEN={};
+try{ SEGOPEN=JSON.parse(localStorage.getItem(OPENKEY)||'{}')||{}; }catch(e){ SEGOPEN={}; }
+function saveOpen(){ try{ localStorage.setItem(OPENKEY,JSON.stringify(SEGOPEN)); }catch(e){} }
+function syncExpandLabel(){
+  var b=$('#expand-all'); if(!b) return;
+  var any=$$('.seg').some(function(s){return !s.classList.contains('open');});
+  b.textContent = any ? 'expand all \u25be' : 'collapse all \u25b4';
 }
 
 $$('.filters .fb[data-f]').forEach(function(b){
@@ -665,12 +693,132 @@ $$('.filters .fb[data-f]').forEach(function(b){
 });
 $('#expand-all').addEventListener('click',function(){
   var any=$$('.seg').some(function(s){return !s.classList.contains('open');});
-  $$('.seg').forEach(function(s){s.classList.toggle('open',any);});
-  this.textContent = any ? 'collapse all ▴' : 'expand all ▾';
+  $$('.seg').forEach(function(s){
+    s.classList.toggle('open',any);
+    SEGOPEN[s.dataset.wk]=any;
+  });
+  saveOpen(); syncExpandLabel();
 });
 
 render();
 })();
 </script>
+
+<style>
+/* ---- portable section nav (self-contained; no dependency on this page's CSS) ---- */
+.xfab{position:fixed;right:.7rem;bottom:.7rem;z-index:2147483000;display:flex;flex-direction:column;gap:.4rem}
+.xfab button{appearance:none;border:1px solid rgba(148,163,184,.35);background:rgba(15,23,42,.94);color:#e2e8f0;
+  width:42px;height:42px;border-radius:50%;font-size:1.05rem;line-height:1;cursor:pointer;
+  display:grid;place-items:center;box-shadow:0 6px 18px -6px rgba(0,0,0,.55);
+  transition:background .15s,transform .15s;font-family:inherit;padding:0}
+.xfab button:hover{background:#1e293b;transform:translateY(-2px)}
+.xfab button:active{transform:translateY(0)}
+.xfab .xmenu{background:#4f46e5;border-color:#6366f1}
+.xfab .xmenu:hover{background:#4338ca}
+.xscrim{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:2147482000;opacity:0;pointer-events:none;transition:opacity .2s}
+.xscrim.on{opacity:1;pointer-events:auto}
+.xdrawer{position:fixed;right:0;top:0;bottom:0;width:min(330px,86vw);background:#fff;z-index:2147482500;
+  transform:translateX(102%);transition:transform .25s ease;display:flex;flex-direction:column;
+  box-shadow:-14px 0 40px -18px rgba(15,23,42,.6);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.xdrawer.on{transform:none}
+.xdrawer .xh{background:linear-gradient(140deg,#0f172a,#312e81);color:#fff;padding:1rem 1.05rem;position:relative;flex:0 0 auto}
+.xdrawer .xh p{font-size:.6rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:#a5b4fc;margin:0 0 .2rem}
+.xdrawer .xh b{font-size:1rem;font-weight:800;display:block;line-height:1.3}
+.xdrawer .xx{position:absolute;right:.7rem;top:.7rem;background:rgba(255,255,255,.14);border:none;color:#fff;
+  width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:.85rem;line-height:1}
+.xdrawer .xb{overflow-y:auto;padding:.8rem;flex:1}
+.xdrawer .xg{font-size:.6rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#64748b;
+  margin:1rem 0 .45rem;display:flex;align-items:center;gap:.5rem}
+.xdrawer .xg span{height:1px;background:#e2e8f0;flex:1}
+.xdrawer .xg:first-child{margin-top:0}
+.xdrawer a.xl,.xdrawer button.xl{display:flex;align-items:center;gap:.55rem;width:100%;text-align:left;
+  font-family:inherit;font-size:.83rem;font-weight:600;color:#334155;background:#fff;border:1px solid #e2e8f0;
+  border-radius:.5rem;padding:.5rem .6rem;margin-bottom:.35rem;cursor:pointer;text-decoration:none;transition:.15s}
+.xdrawer a.xl:hover,.xdrawer button.xl:hover{border-color:#4f46e5;color:#0f172a;transform:translateX(2px)}
+.xdrawer .xl .xn{flex:0 0 auto;width:20px;height:20px;border-radius:.35rem;background:#eef2ff;color:#4338ca;
+  font-size:.62rem;font-weight:800;display:grid;place-items:center}
+.xdrawer a.home2{background:#0f172a;color:#fff;border-color:#0f172a;font-weight:700}
+@media print{.xfab,.xdrawer,.xscrim{display:none}}
+</style>
+<script>
+(function(){
+  if(window.__xfab) return; window.__xfab=1;
+  function ready(fn){ if(document.readyState!=='loading') setTimeout(fn,60); else document.addEventListener('DOMContentLoaded',function(){setTimeout(fn,60);}); }
+  ready(function(){
+    var ROOT = /2321-theory|2322-lab|exam-prep|tools/.test(location.pathname) ? '../../index.html' : 'index.html';
+    if(/\/tools\/|\/exam-prep\//.test(location.pathname)) ROOT='../index.html';
+
+    function targets(){
+      var out=[], seen={};
+      var els=document.querySelectorAll('.seg .seghead');
+      for(var i=0;i<els.length;i++){
+        var e=els[i];
+        if(!e.offsetParent && e.offsetHeight===0) continue;         /* hidden */
+        var t=(e.textContent||'').replace(/\s+/g,' ').trim();
+        if(!t || t.length<3) continue;
+        if(/^Jamil As-ad/i.test(t)) continue;                        /* the byline */
+        if(seen[t]) continue; seen[t]=1;
+        out.push({el:e, txt:t.length>52?t.slice(0,52)+'…':t});
+      }
+      return out;
+    }
+    function tops(){ return targets().map(function(o){
+      var y=0,n=o.el; while(n){ y+=n.offsetTop||0; n=n.offsetParent; } return Math.max(y-70,0); }); }
+
+    function jump(d){
+      var ys=tops(); if(!ys.length) return;
+      var y=window.scrollY, cur=0, i;
+      for(i=0;i<ys.length;i++) if(ys[i]-50<=y) cur=i;
+      var t=cur+d;
+      if(d<0 && y>ys[cur]+10) t=cur;
+      if(t<0){ window.scrollTo({top:0,behavior:'smooth'}); return; }
+      if(t>ys.length-1) t=ys.length-1;
+      window.scrollTo({top:ys[t],behavior:'smooth'});
+    }
+
+    var scrim=document.createElement('div'); scrim.className='xscrim';
+    var dr=document.createElement('aside'); dr.className='xdrawer'; dr.setAttribute('aria-hidden','true');
+    var fab=document.createElement('div'); fab.className='xfab';
+    fab.innerHTML='<button class="xup" aria-label="Previous section">&#8593;</button>'+
+                  '<button class="xdn" aria-label="Next section">&#8595;</button>'+
+                  '<button class="xmenu" aria-label="Open navigation">&#9776;</button>';
+
+    function build(){
+      var t=targets(), secs='';
+      for(var i=0;i<t.length;i++)
+        secs+='<button class="xl" data-x="'+i+'"><span class="xn">'+(i+1)+'</span>'+t[i].txt+'</button>';
+      dr.innerHTML='<div class="xh"><p>'+'CSE-2321 · Course index'+'</p><b>Jump to</b><button class="xx" aria-label="Close">&#10005;</button></div>'+
+        '<div class="xb"><a class="xl home2" href="'+ROOT+'">&#9776; &nbsp;All classes &amp; the full course</a>'+
+        (secs?'<p class="xg">On this page<span></span></p>'+secs:'')+'</div>';
+      dr.querySelector('.xx').onclick=function(){open(false);};
+    }
+    function open(v){
+      dr.classList.toggle('on',v); scrim.classList.toggle('on',v);
+      dr.setAttribute('aria-hidden', v?'false':'true');
+      document.body.style.overflow = v?'hidden':'';
+    }
+    document.body.appendChild(scrim); document.body.appendChild(dr); document.body.appendChild(fab);
+    build();
+    fab.querySelector('.xup').onclick=function(){jump(-1);};
+    fab.querySelector('.xdn').onclick=function(){jump(1);};
+    fab.querySelector('.xmenu').onclick=function(){ build(); open(!dr.classList.contains('on')); };
+    scrim.onclick=function(){open(false);};
+    dr.addEventListener('click',function(e){
+      var b=e.target.closest?e.target.closest('[data-x]'):null; if(!b)return;
+      open(false);
+      var ys=tops(), y=ys[+b.dataset.x];
+      if(y!==undefined) setTimeout(function(){window.scrollTo({top:y,behavior:'smooth'});},180);
+    });
+    document.addEventListener('keydown',function(e){
+      if(e.key==='Escape'){ open(false); return; }
+      var tag=(e.target.tagName||'');
+      if(tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA')return;
+      if(e.key==='j'||e.key==='ArrowDown'){e.preventDefault();jump(1);}
+      if(e.key==='k'||e.key==='ArrowUp'){e.preventDefault();jump(-1);}
+    });
+  });
+})();
+</script>
+
 </body>
 </html>

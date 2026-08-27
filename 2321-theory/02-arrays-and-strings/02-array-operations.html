@@ -68,7 +68,7 @@ a{color:var(--accent)}
 .hero h1{font-size:clamp(1.85rem,6.4vw,3.4rem);font-weight:900;letter-spacing:-.025em;margin-bottom:1rem}
 .hero h1 em{font-style:normal;background:linear-gradient(90deg,#818cf8,#22d3ee);-webkit-background-clip:text;
             background-clip:text;color:transparent}
-.hero-lede{font-size:clamp(1rem,2.5vw,1.15rem);color:#cbd5e1;max-width:44rem}
+.hero-lede{font-size:clamp(1rem,2.5vw,1.15rem);color:#cbd5e1}
 .arc{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1.6rem}
 .arc span{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:.4rem .7rem;
           border-radius:999px;border:1px solid rgba(148,163,184,.35);color:#cbd5e1;background:rgba(15,23,42,.4)}
@@ -543,7 +543,6 @@ figure.shp figcaption span{display:block;font-size:.68rem;color:var(--ink-mute);
 .cpl{font-size:.78rem;color:var(--ink-mute);font-weight:700}
 .cpv{font-weight:700;font-size:.95rem;text-align:right;word-break:break-all;max-width:62%}
 
-.hero-lede{max-width:60rem}
 .arc span{white-space:nowrap}
 .hero-meta div{white-space:nowrap}
 @media(max-width:520px){.hero-meta div{white-space:normal}}
@@ -978,6 +977,14 @@ body:not(.codelight) .autocode .ph{border-color:#334155;background:repeating-lin
 .autocode .cph{display:inline-block;width:11ch;text-align:center;border-radius:3px;font-weight:800;
                color:#be123c;border:1px dashed #f9a8d4;background:rgba(244,63,94,.09)}
 body:not(.codelight) .autocode .cph{color:#fda4af;border-color:#9f1239;background:rgba(244,63,94,.14)}
+
+/* ---- the bar gets out of the way ----
+   Vertical space is the scarce thing in a lecture room, so the bar slides
+   away as you read down and comes back the moment you scroll up. It is
+   never hidden while a menu or an overlay is open. */
+.topbar{transition:transform .26s ease}
+.topbar.tucked{transform:translateY(-100%)}
+@media (prefers-reduced-motion:reduce){.topbar{transition:none}}
 </style>
 </head>
 <body>
@@ -1770,9 +1777,6 @@ body:not(.codelight) .autocode .cph{color:#fda4af;border-color:#9f1239;backgroun
   </div>
 </footer>
 
-<div class="sec-nav" style="display:none">
-  <button id="nav-up">↑</button><button id="nav-down">↓</button><button id="nav-top">⤒</button>
-</div>
 <script>
 
 
@@ -1806,8 +1810,6 @@ function jump(d){
   if(t>s.length-1)t=s.length-1;
   window.scrollTo({top:Math.max(s[t].offsetTop-80,0),behavior:'smooth'});
 }
-$('#nav-down').onclick=function(){jump(1);};$('#nav-up').onclick=function(){jump(-1);};
-$('#nav-top').onclick=function(){window.scrollTo({top:0,behavior:'smooth'});};
 
 var BASE6=[30,50,20,70,40,90];
 function drawStrip(el,arr,marks,startIdx){
@@ -2312,6 +2314,27 @@ document.addEventListener('keydown',function(e){
   tabs.appendChild(b);
 })();
 
+
+/* ---------- HIDE THE BAR ON THE WAY DOWN ---------- */
+(function(){
+  var bar=document.querySelector('.topbar'); if(!bar) return;
+  var last=window.scrollY, tick=null;
+  function upd(){
+    tick=null;
+    var y=window.scrollY, dy=y-last;
+    if(Math.abs(dy)<6) return;                       /* ignore the jitter */
+    last=y;
+    /* never tuck it away over an open overlay, drawer, or near the top */
+    var blocked=document.body.classList.contains('fsopen')||
+                document.body.classList.contains('noscroll')||
+                document.querySelector('.drawer.on');
+    if(blocked){ bar.classList.remove('tucked'); return; }
+    bar.classList.toggle('tucked', dy>0 && y>bar.offsetHeight+40);
+  }
+  window.addEventListener('scroll',function(){
+    if(!tick) tick=requestAnimationFrame(upd);
+  },{passive:true});
+})();
 </script>
 </body>
 </html>
