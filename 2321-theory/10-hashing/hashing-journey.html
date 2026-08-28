@@ -1763,7 +1763,34 @@
             <p class="text-center text-xs text-slate-400 mt-5 m-0">Data Structures &middot; Dept. of CSE &middot; International Islamic University Chittagong</p>
         </div>
 
-    </main>
+    <style>
+/* ---- prev / index / next, self-contained for pages that do not carry the
+   shared stylesheet ---- */
+.pagenav{display:grid;gap:.6rem;margin:2.6rem auto 2rem;max-width:1080px;padding:0 1rem;
+  font-family:Inter,system-ui,sans-serif}
+@media(min-width:700px){.pagenav{grid-template-columns:1fr auto 1fr;align-items:stretch}}
+.pgn{display:flex;align-items:center;gap:.75rem;border:1px solid #e5e8f2;border-radius:.75rem;
+  padding:.85rem 1rem;background:#fff;text-decoration:none;color:#1e1b4b;transition:.16s;min-height:64px}
+a.pgn:hover{border-color:#4f46e5;transform:translateY(-2px)}
+.pgn.off{opacity:.4;pointer-events:none;border-style:dashed;background:transparent}
+.pgn .ar{font-size:1.1rem;color:#4f46e5;flex:0 0 auto;font-weight:700}
+.pgn.off .ar{color:#cbd5e1}
+.pgn .tx{min-width:0;flex:1}
+.pgn .tx em{font-style:normal;display:block;font-size:.6rem;font-weight:800;letter-spacing:.11em;
+  text-transform:uppercase;color:#7b8199}
+.pgn .tx b{display:block;font-size:.86rem;font-weight:700;line-height:1.35;margin-top:.12rem}
+.pgn.nx{text-align:right}.pgn.nx .ar{order:2}.pgn.nx .tx{order:1}
+.pgn.home{justify-content:center;text-align:center;flex-direction:column;gap:.2rem;padding:.85rem 1.4rem;min-width:120px}
+.pgn.home .ar{font-size:1.2rem;color:#7b8199}.pgn.home b{font-size:.76rem}
+@media(max-width:699px){.pgn.nx{text-align:left}.pgn.nx .ar{order:0}
+  .pgn.home{flex-direction:row;justify-content:center;gap:.5rem}}
+</style>
+<nav class="pagenav" aria-label="Course navigation">
+  <a class="pgn pv" href="../09-balanced-trees/avl-trees.html"><span class="ar">&#8592;</span><span class="tx"><em>Previous</em><b>AVL Trees &mdash; how trees fix their own shape</b></span></a>
+  <a class="pgn home" href="../../index.html"><span class="ar">&#9776;</span><b>All classes</b></a>
+  <a class="pgn nx" href="../../tools/hash-simulator.html"><span class="ar">&#8594;</span><span class="tx"><em>Next</em><b>Hash System Debugger</b></span></a>
+</nav>
+</main>
 
     <script>
         // Standard Dataset definitions

@@ -364,22 +364,22 @@ ul.tight li,ol.tight li{margin-bottom:.4rem;font-size:.9rem}
 /* ============ PREV / INDEX / NEXT ============ */
 .pagenav{display:grid;gap:.6rem;margin:2.6rem 0 0}
 @media(min-width:700px){.pagenav{grid-template-columns:1fr auto 1fr;align-items:stretch}}
-.pn{display:flex;align-items:center;gap:.75rem;border:1px solid var(--line);border-radius:.75rem;padding:.85rem 1rem;
+.pgn{display:flex;align-items:center;gap:.75rem;border:1px solid var(--line);border-radius:.75rem;padding:.85rem 1rem;
     background:#fff;text-decoration:none;color:inherit;transition:.16s;box-shadow:var(--sh-sm);min-height:64px}
 a.pn:hover{border-color:var(--accent);box-shadow:var(--sh-md);transform:translateY(-2px)}
-.pn.off{opacity:.4;pointer-events:none;border-style:dashed;background:transparent;box-shadow:none}
-.pn .ar{font-size:1.1rem;color:var(--accent);flex:0 0 auto;font-weight:700}
-.pn.off .ar{color:#cbd5e1}
-.pn .tx{min-width:0;flex:1}
-.pn .tx em{font-style:normal;display:block;font-size:.6rem;font-weight:800;letter-spacing:.11em;
+.pgn.off{opacity:.4;pointer-events:none;border-style:dashed;background:transparent;box-shadow:none}
+.pgn .ar{font-size:1.1rem;color:var(--accent);flex:0 0 auto;font-weight:700}
+.pgn.off .ar{color:#cbd5e1}
+.pgn .tx{min-width:0;flex:1}
+.pgn .tx em{font-style:normal;display:block;font-size:.6rem;font-weight:800;letter-spacing:.11em;
            text-transform:uppercase;color:var(--ink-mute)}
-.pn .tx b{display:block;font-size:.86rem;font-weight:700;line-height:1.35;margin-top:.12rem}
-.pn.nx{text-align:right}
-.pn.nx .ar{order:2}
-.pn.nx .tx{order:1}
-.pn.home{justify-content:center;text-align:center;flex-direction:column;gap:.2rem;padding:.85rem 1.4rem;min-width:120px}
-.pn.home .ar{font-size:1.2rem;color:var(--ink-mute)}
-.pn.home b{font-size:.76rem}
+.pgn .tx b{display:block;font-size:.86rem;font-weight:700;line-height:1.35;margin-top:.12rem}
+.pgn.nx{text-align:right}
+.pgn.nx .ar{order:2}
+.pgn.nx .tx{order:1}
+.pgn.home{justify-content:center;text-align:center;flex-direction:column;gap:.2rem;padding:.85rem 1.4rem;min-width:120px}
+.pgn.home .ar{font-size:1.2rem;color:var(--ink-mute)}
+.pgn.home b{font-size:.76rem}
 
 /* ---- memory map ---- */
 .memsplit{display:grid;gap:1rem;margin:1rem 0}
@@ -452,10 +452,10 @@ table{min-width:0}
 @media(min-width:700px){.pagefoot .dept{text-align:right}}
 @media(max-width:699px){
   .pagenav{grid-template-columns:1fr}
-  .pn{justify-content:flex-start}
-  .pn.nx{text-align:left}
-  .pn.nx .ar{order:0}.pn.nx .tx{order:1}
-  .pn.home{flex-direction:row;justify-content:center;gap:.5rem}
+  .pgn{justify-content:flex-start}
+  .pgn.nx{text-align:left}
+  .pgn.nx .ar{order:0}.pgn.nx .tx{order:1}
+  .pgn.home{flex-direction:row;justify-content:center;gap:.5rem}
 }
 
 /* ============ FLOATING JUMP DRAWER ============ */
@@ -664,7 +664,86 @@ table{min-width:0}
   background:#fff;border:4px solid #0891b2;cursor:pointer;box-shadow:0 3px 10px rgba(8,145,178,.45)}
 .bigslide input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;background:#fff;
   border:4px solid #0891b2;cursor:pointer;box-shadow:0 3px 10px rgba(8,145,178,.45)}
-.bigticks{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.6rem;color:#94a3b8;font-weight:700}
+/* ---- the frequency-count walkthrough (section 7) ---------------------
+   A small self-contained stepper. The linked-list classes have a whole
+   engine for this; one figure on one page does not need it, so this is
+   the same feel built from four elements, namespaced fq- throughout. */
+.fqsim{border:1px solid #d9f2ee;border-radius:1rem;margin:1.15rem 0;overflow:hidden;
+  background:linear-gradient(180deg,#fff 0%,#fbfefe 55%,#f5fdfb 100%);box-shadow:0 14px 32px -26px rgba(13,148,136,.45)}
+.fqhd{display:flex;align-items:center;gap:.7rem;padding:.55rem .9rem;border-bottom:1px solid #eafaf7}
+.fqfocus{margin-left:auto;appearance:none;font-family:inherit;font-size:.68rem;font-weight:800;
+  border:1px solid #b6e7e0;background:#fff;color:#0f766e;border-radius:.45rem;
+  padding:.28rem .6rem;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:.35rem}
+.fqfocus:hover{border-color:#0d9488;background:#0d9488;color:#fff}
+/* Focus: the whole block takes the screen, and everything in it grows. Nothing
+   here is a scaled canvas, so it needs no refit — only bigger type. */
+body.fqfull{overflow:hidden}
+.fqsim.full{position:fixed;inset:0;z-index:120;margin:0;border-radius:0;overflow:auto;
+  background:#f4f6fc;box-shadow:none;display:flex;flex-direction:column;justify-content:center}
+.fqsim.full .fqgrid{width:100%;max-width:1500px;margin:0 auto;gap:1.4rem;padding:1.2rem 1.6rem}
+@media(min-width:900px){.fqsim.full .fqgrid{grid-template-columns:1.3fr .9fr}}
+.fqsim.full .fqstage{padding:1.4rem 1.2rem}
+.fqsim.full .fqch{width:58px;height:66px;font-size:1.6rem}
+.fqsim.full .fqarr{gap:.4rem}
+.fqsim.full .fqcell{padding:.4rem .1rem}
+.fqsim.full .fqcell .fl{font-size:.72rem}
+.fqsim.full .fqcell .fv{font-size:1.3rem}
+.fqsim.full .fql{font-size:1rem;line-height:1.95}
+.fqsim.full .fqcap{font-size:.66rem}
+.fqsim.full .fqtx{font-size:1.06rem}
+.fqsim.full .fqw b{font-size:1.05rem}
+.fqsim.full .fqmsg{max-width:1500px;margin:0 auto;width:calc(100% - 3.2rem)}
+.fqsim.full .btnrow{max-width:1500px;margin:0 auto;width:100%;justify-content:center}
+.fqhint{display:none;gap:1rem;justify-content:center;padding:.2rem 1rem .9rem;
+  font-size:.68rem;font-weight:600;color:#8f96b0}
+.fqsim.full .fqhint{display:flex}
+.fqhint kbd{font-family:var(--mono);font-size:.66rem;border:1px solid #dfe3f2;border-bottom-width:2px;
+  border-radius:.25rem;padding:.02rem .3rem;background:#fff;color:#6d7392}
+.fqttl{font-family:var(--mono);font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#5eada3}
+.fqgrid{display:grid;gap:.9rem;padding:.9rem}
+@media(min-width:900px){.fqgrid{grid-template-columns:1.25fr .95fr;align-items:start}}
+.fqstage{background:#fbfdfd;border:1px solid #eef6f5;border-radius:.8rem;padding:.9rem .8rem}
+.fqcap{margin:0 0 .45rem;font-size:.58rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#a9bcb9}
+.fqstr{display:flex;gap:.35rem;flex-wrap:wrap}
+.fqch{width:40px;height:46px;border:1.5px solid #cbd5e1;border-radius:.45rem;background:#fff;
+  display:grid;place-items:center;font-family:var(--mono);font-size:1.15rem;font-weight:800;color:#0f172a;transition:.25s}
+.fqch.done{opacity:.45}
+.fqch.now{border-color:#0d9488;background:#f0fdfa;color:#0f766e;transform:translateY(-4px);
+  box-shadow:0 6px 16px -7px rgba(13,148,136,.75)}
+.fqarr{display:grid;grid-template-columns:repeat(13,1fr);gap:.28rem}
+.fqcell{border:1.5px solid #e3e7f6;border-radius:.4rem;background:#fff;padding:.22rem .1rem;text-align:center;transition:.25s}
+.fqcell .fl{display:block;font-family:var(--mono);font-size:.58rem;font-weight:800;color:#a8b0c8}
+.fqcell .fv{display:block;font-family:var(--mono);font-size:.95rem;font-weight:800;color:#cbd2e4;line-height:1.25}
+.fqcell.has{border-color:#99f6e4;background:#f0fdfa}
+.fqcell.has .fv{color:#0f766e}
+.fqcell.hit{border-color:#0d9488;background:#ccfbf1;transform:translateY(-3px);box-shadow:0 6px 16px -7px rgba(13,148,136,.8)}
+.fqcell.hit .fv{color:#0f766e}
+.fqcode{background:#0f172a;border-radius:.7rem;padding:.7rem .25rem;overflow-x:auto}
+.fql{display:grid;grid-template-columns:20px 1fr;gap:.5rem;align-items:start;width:100%;
+  border-left:3px solid transparent;padding:.05rem .5rem .05rem .4rem;
+  font-family:var(--mono);font-size:.82rem;line-height:1.85;color:#8590b5}
+.fql .g{color:#4a5578;text-align:right;font-size:.8em;font-variant-numeric:tabular-nums}
+.fql .s{white-space:pre-wrap}
+.fql.on{background:rgba(45,212,191,.14);border-left-color:#2dd4bf;color:#e6fffb;font-weight:700}
+.fql.on .g{color:#2dd4bf}
+.fql .k{color:#c4b5fd}.fql .t{color:#fbbf24}.fql .n{color:#fca5a5}.fql .q{color:#86efac}
+.fqwatch{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem}
+.fqw{display:inline-flex;align-items:baseline;gap:.35rem;border:1.5px solid #e3e7f6;background:#fbfcff;
+  border-radius:.45rem;padding:.2rem .5rem}
+.fqw em{font-style:normal;font-size:.56rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8}
+.fqw b{font-family:var(--mono);font-size:.92rem;font-weight:800;color:#1e1b4b}
+.fqw.lit{border-color:#5eead4;background:#f0fdfa}
+.fqw.lit b{color:#0f766e}
+.fqmsg{display:flex;align-items:flex-start;gap:.6rem;margin:0 .9rem .2rem;padding:.7rem .85rem;
+  border-left:4px solid #0d9488;border-radius:.55rem;background:#f0fdfa}
+.fqic{font-size:.95rem;line-height:1.5;color:#0d9488}
+.fqtx{margin:0;flex:1;font-size:.93rem;line-height:1.6;color:var(--ink)}
+.fqn{font-family:var(--mono);font-size:.72rem;font-weight:800;color:#5eada3;white-space:nowrap;padding-top:.15rem}
+.fqsim .btnrow{padding:.2rem .9rem .9rem;margin:0}
+@media(max-width:560px){.fqch{width:34px;height:40px;font-size:1rem}.fqarr{gap:.2rem}.fqcell .fv{font-size:.82rem}}
+
+.bigticks{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.66rem;color:#94a3b8;font-weight:700;
+  padding:0 15px;margin-top:.15rem}   /* 15px = half the thumb, so a label sits over its own stop */
 .bitrange{display:grid;gap:.55rem;margin-top:1rem}
 @media(min-width:560px){.bitrange{grid-template-columns:repeat(3,1fr)}}
 .brc{border:2px solid var(--line);border-radius:.6rem;background:#fff;padding:.8rem .6rem;text-align:center}
@@ -1164,8 +1243,8 @@ body.codelight .exactbox .lo{color:#94a3b8}
 
   <div class="bigslide">
     <div class="bsl"><span>Total bits</span><b id="nbl">4</b></div>
-    <input type="range" id="nbits" min="2" max="64" step="1" value="4">
-    <div class="bigticks"><span>2</span><span>8</span><span>16</span><span>32</span><span>64</span></div>
+    <input type="range" id="nbits" min="0" max="6" step="1" value="2" aria-label="how many bits">
+    <div class="bigticks"><span>2</span><span>3</span><span>4</span><span>8</span><span>16</span><span>32</span><span>64</span></div>
     <div class="bitrange" id="bitrange"></div>
   </div>
 
@@ -1180,11 +1259,13 @@ body.codelight .exactbox .lo{color:#94a3b8}
     <div class="qh">Quick check</div>
     <div class="qq">A <span class="mono">short</span> is 2 bytes. What is its biggest positive value?</div>
     <div class="qopts">
-      <button class="qopt" data-a="0">65,535</button>
-      <button class="qopt" data-a="1" data-ok="1">32,767</button>
-      <button class="qopt" data-a="2">32,768</button>
+      <button class="qopt" data-a="0">65,535 &nbsp;<span class="subtle">= 2<sup>16</sup> &minus; 1</span></button>
+      <button class="qopt" data-a="1" data-ok="1">32,767 &nbsp;<span class="subtle">= 2<sup>15</sup> &minus; 1</span></button>
+      <button class="qopt" data-a="2">32,768 &nbsp;<span class="subtle">= 2<sup>15</sup></span></button>
     </div>
-    <div class="qexp"><b>32,767.</b> 2 bytes = 16 bits. One goes to the sign, leaving 15 for the value: 2<sup>15</sup> = 32,768 patterns counting 0 to 32,767. (65,535 would be right for an <span class="mono">unsigned short</span>, which spends no bit on a sign.)</div>
+    <div class="qexp"><b>32,767 = 2<sup>15</sup> &minus; 1.</b> 2 bytes = 16 bits. One goes to the sign, leaving <b>15</b> for the value. Those 15 bits make 2<sup>15</sup> = 32,768 patterns, and they must cover <b>zero as well</b> &mdash; so they run 0 to 32,767.<br><br>
+    2<sup>15</sup> = 32,768 is the <em>count</em> of patterns, not the biggest one; it is the answer people give when they forget zero. 2<sup>16</sup> &minus; 1 = 65,535 is right for an <span class="mono">unsigned short</span>, which spends no bit on a sign.<br><br>
+    <b>Two powers are worth knowing by sight:</b> 2<sup>10</sup> = 1,024 and 2<sup>15</sup> = 32,768. Everything else is doubling.</div>
   </div>
 
 </article>
@@ -1378,6 +1459,43 @@ cout &lt;&lt; sum;</pre>
 <span class="k">for</span> (<span class="t">char</span> c : s)
     count[c - <span class="s">'a'</span>]++;   <span class="c">// 'a' goes to slot 0, 'b' to slot 1, 'z' to slot 25</span></pre>
 
+  <h3>Watch it happen</h3>
+  <p>One short word, twenty-six counters, and a single line doing all the work. Press <b>Next step</b> and watch which slot goes up.</p>
+
+  <div class="fqsim">
+    <div class="fqhd"><span class="fqttl">count[c &minus; 'a']++</span>
+      <button class="fqfocus" type="button" id="fq-focus">&#10530; Focus</button></div>
+    <div class="fqgrid">
+      <div class="fqmain">
+        <div class="fqstage">
+          <p class="fqcap">the string</p>
+          <div class="fqstr" id="fq-str"></div>
+          <p class="fqcap" style="margin-top:1rem">count[26] &mdash; one slot per letter</p>
+          <div class="fqarr" id="fq-arr"></div>
+        </div>
+      </div>
+      <div class="fqside">
+        <div class="fqcode" id="fq-code"></div>
+        <div class="fqwatch" id="fq-watch"></div>
+      </div>
+    </div>
+    <div class="fqmsg" id="fq-msgbox">
+      <span class="fqic" id="fq-ic">&#9656;</span>
+      <p class="fqtx" id="fq-msg">Press <b>Next step</b>.</p>
+      <span class="fqn" id="fq-num">&mdash;</span>
+    </div>
+    <div class="btnrow" style="justify-content:center">
+      <button class="btn sm ghost" id="fq-back">&#9666; Back</button>
+      <button class="btn" id="fq-next" style="background:#0d9488">Next step &#9656;</button>
+      <button class="btn sm ghost" id="fq-reset">Reset</button>
+    </div>
+    <div class="fqhint">
+      <span><kbd>n</kbd> <kbd>b</kbd> <kbd>r</kbd> next &middot; back &middot; reset</span>
+      <span><kbd>&larr;</kbd> <kbd>&rarr;</kbd> step</span>
+      <span><kbd>Esc</kbd> close</span>
+    </div>
+  </div>
+
   <div class="box good">
     <p class="bt">🔧 You need this in Lab 2</p>
     <p style="margin:0">Half of the string problems on your Codeforces sheet are solved with these three lines. Anagram check, first non-repeating character, most common letter &mdash; all the same trick. <b>Learn it now, use it for 14 weeks.</b></p>
@@ -1533,6 +1651,11 @@ cout &lt;&lt; sum;</pre>
   </div>
 </article>
 
+<nav class="pagenav" aria-label="Course navigation">
+  <a class="pgn pv" href="02-data-and-adt.html"><span class="ar">&#8592;</span><span class="tx"><em>Previous</em><b>Data, data structures and the ADT</b></span></a>
+  <a class="pgn home" href="../../index.html"><span class="ar">&#9776;</span><b>All classes</b></a>
+  <a class="pgn nx" href="04-algorithms-and-notation.html"><span class="ar">&#8594;</span><span class="tx"><em>Next</em><b>Algorithms &mdash; and how we write them</b></span></a>
+</nav>
 </main>
 </section>
 
@@ -1854,8 +1977,13 @@ $$('#vbits .btn').forEach(function(b){
 paintComb();
 
 /* ---------- 4b · BIT COUNT SLIDER ---------- */
+/* The slider used to run 2..64 in steps of one, with five tick labels spread
+   evenly underneath — so every label pointed at the wrong place and most stops
+   were widths no type has. It now indexes a list of real widths, and each
+   label sits exactly over its own stop. */
+var NB=[2,3,4,8,16,32,64];
 function paintRange(){
-  var n=+$('#nbits').value;
+  var n=NB[+$('#nbits').value];
   $('#nbl').textContent=n;
   var pat=Math.pow(2,n), half=Math.pow(2,n-1);
   function nice(x){
@@ -1865,8 +1993,8 @@ function paintRange(){
   var name={8:'char',16:'short',32:'int',64:'long long'}[n];
   $('#bitrange').innerHTML=
     '<div class="brc pat"><p class="bk">Patterns · 2<sup>'+n+'</sup></p><p class="bv">'+nice(pat)+'</p></div>'+
-    '<div class="brc neg"><p class="bk">Smallest</p><p class="bv">&minus;'+nice(half)+'</p></div>'+
-    '<div class="brc pos"><p class="bk">Biggest</p><p class="bv">'+nice(half-1)+'</p></div>'+
+    '<div class="brc neg"><p class="bk">Smallest · &minus;2<sup>'+(n-1)+'</sup></p><p class="bv">&minus;'+nice(half)+'</p></div>'+
+    '<div class="brc pos"><p class="bk">Biggest · 2<sup>'+(n-1)+'</sup> &minus; 1</p><p class="bv">'+nice(half-1)+'</p></div>'+
     (name?'<div class="brc" style="grid-column:1/-1;border-color:#a5f3fc;background:#ecfeff"><p class="bk">That is exactly a</p><p class="bv" style="color:#0e7490">'+name+'</p></div>':'');
 }
 $('#nbits').addEventListener('input',paintRange);
@@ -2041,6 +2169,106 @@ document.addEventListener('keydown',function(e){
   if(e.key==='j'||e.key==='ArrowDown'){e.preventDefault();jump(1);}
   if(e.key==='k'||e.key==='ArrowUp'){e.preventDefault();jump(-1);}
 });
+
+/* ---------- 7b · COUNTING LETTERS, ONE STEP AT A TIME ----------
+   The word is deliberately tiny and repetitive: six characters, three
+   distinct letters, and one of them lands on slot 0, so the c - 'a'
+   mapping is visible at its base case.                              */
+(function(){
+  var box=$('#fq-str'); if(!box) return;
+  var W='banana', N=W.length;
+  var CODE=[
+    '<span class="t">string</span> s = <span class="q">"banana"</span>;',
+    '<span class="t">int</span> count[<span class="n">26</span>] = {<span class="n">0</span>};',
+    '',
+    '<span class="k">for</span> (<span class="t">char</span> c : s)',
+    '    count[c - <span class="q">&#39;a&#39;</span>]++;'
+  ];
+  var arr=$('#fq-arr'), code=$('#fq-code'), watch=$('#fq-watch');
+
+  var SEQ=[
+    {ln:0,i:-1,show:false,hit:-1,
+     t:'<span class="mono">string s = "banana";</span> &mdash; six characters, and only three different letters.'},
+    {ln:1,i:-1,show:true,hit:-1,
+     t:'<span class="mono">int count[26] = {0};</span> &mdash; one slot for every letter of the alphabet, all starting at zero. <b>Twenty-six separate variables would have been twenty-six names to remember.</b>'}
+  ];
+  for(var i=0;i<N;i++){
+    var c=W.charAt(i), k=c.charCodeAt(0)-97;
+    SEQ.push({ln:3,i:i,show:true,hit:-1,
+      t:'<span class="mono">c = &#39;'+c+'&#39;</span> &mdash; the loop hands us character <b>'+(i+1)+'</b> of six.'});
+    SEQ.push({ln:4,i:i,show:true,hit:k,bump:true,
+      t:'<span class="mono">c - &#39;a&#39;</span> is <b>'+c.charCodeAt(0)+' &minus; 97 = '+k+'</b>, so <span class="mono">count['+k+']</span> goes up by one. That slot is <b>'+c+'</b>.'});
+  }
+  SEQ.push({ln:4,i:N,show:true,hit:-1,done:true,
+    t:'Done, in <b>one pass</b> over the word. <span class="mono">a</span> 3, <span class="mono">b</span> 1, <span class="mono">n</span> 2 &mdash; and the other twenty-three slots never needed a line of code of their own.'});
+
+  function tally(sp){
+    var t=[],k;
+    for(k=0;k<26;k++) t.push(0);
+    for(k=0;k<=sp && k<SEQ.length;k++) if(SEQ[k].bump) t[SEQ[k].hit]++;
+    return t;
+  }
+  var cur=-1;
+  function draw(sp){
+    cur=sp;
+    var st=SEQ[sp], t=tally(sp), out=[], k;
+    for(k=0;k<N;k++){
+      out.push('<div class="fqch'+(k===st.i?' now':(st.i>k?' done':''))+'">'+W.charAt(k)+'</div>');
+    }
+    box.innerHTML=out.join('');
+    out=[];
+    for(k=0;k<26;k++){
+      var cl='fqcell'+(st.show&&t[k]?' has':'')+(st.hit===k?' hit':'');
+      out.push('<div class="'+cl+'"><span class="fl">'+String.fromCharCode(97+k)+
+               '</span><span class="fv">'+(st.show?t[k]:'&middot;')+'</span></div>');
+    }
+    arr.innerHTML=out.join('');
+    out=[];
+    for(k=0;k<CODE.length;k++){
+      out.push('<div class="fql'+(st.ln===k?' on':'')+'"><span class="g">'+(k+1)+
+               '</span><span class="s">'+(CODE[k]||'&nbsp;')+'</span></div>');
+    }
+    code.innerHTML=out.join('');
+    var c=(st.i>=0&&st.i<N)?W.charAt(st.i):null;
+    watch.innerHTML=
+      '<span class="fqw'+(c?' lit':'')+'"><em>c</em><b>'+(c?'&#39;'+c+'&#39;':'&mdash;')+'</b></span>'+
+      '<span class="fqw'+(c?' lit':'')+'"><em>c &minus; &#39;a&#39;</em><b>'+(c?(c.charCodeAt(0)-97):'&mdash;')+'</b></span>'+
+      '<span class="fqw"><em>a</em><b>'+t[0]+'</b></span>'+
+      '<span class="fqw"><em>b</em><b>'+t[1]+'</b></span>'+
+      '<span class="fqw"><em>n</em><b>'+t[13]+'</b></span>';
+    $('#fq-msg').innerHTML=st.t;
+    $('#fq-ic').innerHTML=st.done?'&#10003;':(st.bump?'&#8593;':'&#10022;');
+    $('#fq-num').innerHTML=(sp+1)+' / '+SEQ.length;
+    $('#fq-back').disabled=(sp<=0);
+    $('#fq-next').disabled=(sp>=SEQ.length-1);
+  }
+  function next(){ if(cur<SEQ.length-1) draw(cur+1); }
+  function back(){ if(cur>0) draw(cur-1); }
+  $('#fq-next').addEventListener('click',next);
+  $('#fq-back').addEventListener('click',back);
+  $('#fq-reset').addEventListener('click',function(){ draw(0); });
+
+  /* ---- Focus: this is a lecture figure, so it has to fill a projector ---- */
+  var sim=$('.fqsim'), fb=$('#fq-focus');
+  function full(on){
+    sim.classList.toggle('full',on);
+    document.body.classList.toggle('fqfull',on);
+    fb.innerHTML = on ? '&#10006; Close' : '&#10530; Focus';
+  }
+  fb.addEventListener('click',function(){ full(!sim.classList.contains('full')); });
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey||e.shiftKey) return;
+    var tg=e.target.tagName;
+    if(tg==='INPUT'||tg==='TEXTAREA'||tg==='SELECT'||e.target.isContentEditable) return;
+    if(e.key==='Escape' && sim.classList.contains('full')){ e.preventDefault(); full(false); return; }
+    if(!sim.classList.contains('full')) return;      /* the page keys stay the page's */
+    var k=(e.key||'').toLowerCase();
+    if(k==='n'||e.key==='ArrowRight'){ e.preventDefault(); next(); }
+    else if(k==='b'||e.key==='ArrowLeft'){ e.preventDefault(); back(); }
+    else if(k==='r'){ e.preventDefault(); draw(0); }
+  });
+  draw(0);
+})();
 })();
 
 /* ---------- FLOATING JUMP DRAWER ---------- */

@@ -368,22 +368,22 @@ ul.tight li,ol.tight li{margin-bottom:.4rem;font-size:.9rem}
 /* ============ PREV / INDEX / NEXT ============ */
 .pagenav{display:grid;gap:.6rem;margin:2.6rem 0 0}
 @media(min-width:700px){.pagenav{grid-template-columns:1fr auto 1fr;align-items:stretch}}
-.pn{display:flex;align-items:center;gap:.75rem;border:1px solid var(--line);border-radius:.75rem;padding:.85rem 1rem;
+.pgn{display:flex;align-items:center;gap:.75rem;border:1px solid var(--line);border-radius:.75rem;padding:.85rem 1rem;
     background:#fff;text-decoration:none;color:inherit;transition:.16s;box-shadow:var(--sh-sm);min-height:64px}
 a.pn:hover{border-color:var(--accent);box-shadow:var(--sh-md);transform:translateY(-2px)}
-.pn.off{opacity:.4;pointer-events:none;border-style:dashed;background:transparent;box-shadow:none}
-.pn .ar{font-size:1.1rem;color:var(--accent);flex:0 0 auto;font-weight:700}
-.pn.off .ar{color:#cbd5e1}
-.pn .tx{min-width:0;flex:1}
-.pn .tx em{font-style:normal;display:block;font-size:.6rem;font-weight:800;letter-spacing:.11em;
+.pgn.off{opacity:.4;pointer-events:none;border-style:dashed;background:transparent;box-shadow:none}
+.pgn .ar{font-size:1.1rem;color:var(--accent);flex:0 0 auto;font-weight:700}
+.pgn.off .ar{color:#cbd5e1}
+.pgn .tx{min-width:0;flex:1}
+.pgn .tx em{font-style:normal;display:block;font-size:.6rem;font-weight:800;letter-spacing:.11em;
            text-transform:uppercase;color:var(--ink-mute)}
-.pn .tx b{display:block;font-size:.86rem;font-weight:700;line-height:1.35;margin-top:.12rem}
-.pn.nx{text-align:right}
-.pn.nx .ar{order:2}
-.pn.nx .tx{order:1}
-.pn.home{justify-content:center;text-align:center;flex-direction:column;gap:.2rem;padding:.85rem 1.4rem;min-width:120px}
-.pn.home .ar{font-size:1.2rem;color:var(--ink-mute)}
-.pn.home b{font-size:.76rem}
+.pgn .tx b{display:block;font-size:.86rem;font-weight:700;line-height:1.35;margin-top:.12rem}
+.pgn.nx{text-align:right}
+.pgn.nx .ar{order:2}
+.pgn.nx .tx{order:1}
+.pgn.home{justify-content:center;text-align:center;flex-direction:column;gap:.2rem;padding:.85rem 1.4rem;min-width:120px}
+.pgn.home .ar{font-size:1.2rem;color:var(--ink-mute)}
+.pgn.home b{font-size:.76rem}
 
 /* ============ RESPONSIVE HARDENING ============ */
 img,svg,video,canvas{max-width:100%;height:auto}
@@ -413,10 +413,10 @@ table{min-width:0}
 @media(min-width:700px){.pagefoot .dept{text-align:right}}
 @media(max-width:699px){
   .pagenav{grid-template-columns:1fr}
-  .pn{justify-content:flex-start}
-  .pn.nx{text-align:left}
-  .pn.nx .ar{order:0}.pn.nx .tx{order:1}
-  .pn.home{flex-direction:row;justify-content:center;gap:.5rem}
+  .pgn{justify-content:flex-start}
+  .pgn.nx{text-align:left}
+  .pgn.nx .ar{order:0}.pgn.nx .tx{order:1}
+  .pgn.home{flex-direction:row;justify-content:center;gap:.5rem}
 }
 
 /* ============ FLOATING JUMP DRAWER ============ */
@@ -795,17 +795,18 @@ details.prob.lc .plink{background:#d97706}
 
 /* ============ LIGHT CODE THEME (default) + toggle ============ */
 body.codelight pre.code,
+body.codelight .twin code,
 body.codelight .carr-code,
 body.codelight .codepane,
 body.codelight .fboard,
 body.codelight .findbug,
 body.codelight .exactbox{
   background:#f8fafc;color:#334155;border:1px solid #e2e8f0;box-shadow:inset 0 1px 0 #fff}
-body.codelight pre.code .k,body.codelight .carr-code .k,body.codelight .codepane .k{color:#7c3aed}
-body.codelight pre.code .t,body.codelight .carr-code .t,body.codelight .codepane .t{color:#b45309}
-body.codelight pre.code .f,body.codelight .carr-code .f,body.codelight .codepane .f{color:#0369a1}
-body.codelight pre.code .n,body.codelight .carr-code .n,body.codelight .codepane .n{color:#c2410c}
-body.codelight pre.code .c,body.codelight .carr-code .c,body.codelight .codepane .c{color:#94a3b8}
+body.codelight .twin code .k,body.codelight pre.code .k,body.codelight .carr-code .k,body.codelight .codepane .k{color:#7c3aed}
+body.codelight .twin code .t,body.codelight pre.code .t,body.codelight .carr-code .t,body.codelight .codepane .t{color:#b45309}
+body.codelight .twin code .f,body.codelight pre.code .f,body.codelight .carr-code .f,body.codelight .codepane .f{color:#0369a1}
+body.codelight .twin code .n,body.codelight pre.code .n,body.codelight .carr-code .n,body.codelight .codepane .n{color:#c2410c}
+body.codelight .twin code .c,body.codelight pre.code .c,body.codelight .carr-code .c,body.codelight .codepane .c{color:#94a3b8}
 body.codelight pre.code .s{color:#15803d}
 body.codelight .carr-code .cl{color:#334155}
 body.codelight .carr-code .cl.cur{background:rgba(2,132,199,.14);box-shadow:inset 3px 0 0 #0284c7}
@@ -2133,9 +2134,10 @@ body:not(.codelight) .algolive .st .cm{color:#67e8f9}
 .twin .twL .tlab::before{content:"\2715"}
 .twin .twR .tlab{color:#047857}
 .twin .twR .tlab::before{content:"\2713"}
-.twin code{font-family:var(--mono);font-size:1rem;font-weight:800;color:#1e1b4b;display:block;
-  background:rgba(255,255,255,.85);border:1px solid rgba(148,163,184,.28);border-radius:.5rem;
-  padding:.5rem .65rem;line-height:1.5;overflow-x:auto;white-space:pre}
+.twin code{font-family:var(--mono);font-size:.78rem;font-weight:500;display:block;
+  background:#0f172a;color:#e2e8f0;border:none;border-radius:.55rem;
+  padding:.75rem .85rem;line-height:1.75;overflow-x:auto;white-space:pre;tab-size:4}
+@media(min-width:768px){.twin code{font-size:.83rem}}
 .twin .tsay{font-size:.82rem;color:var(--ink-mute);font-weight:600;line-height:1.5;margin-top:auto}
 .twin .teq{display:grid;place-items:center;font-size:1.05rem;font-weight:800;color:#94a3b8}
 @media(max-width:759px){.twin .teq{transform:rotate(90deg);padding:.1rem 0}}
@@ -2150,6 +2152,32 @@ body:not(.codelight) .algolive .st .cm{color:#67e8f9}
 .topbar{transition:transform .26s ease}
 .topbar.tucked{transform:translateY(-100%)}
 @media (prefers-reduced-motion:reduce){.topbar{transition:none}}
+/* ---- a list said inside a sentence -------------------------------------
+   The same shape the drawings use, shrunk onto a line of text. Everything is
+   centred on one axis: vertical-align:middle puts the strip's midline on the
+   text's midline, and each chip and arrow centres its own glyph inside itself,
+   so the numbers, the arrows and the sentence all sit on the same centre line. */
+.ilst{display:inline-flex;flex-wrap:wrap;align-items:center;justify-content:center;
+  gap:.12rem .24rem;vertical-align:middle;margin:0 .12rem}
+.ilv{display:inline-flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:.8em;font-weight:800;color:#1e1b4b;background:#fff;
+  border:1.5px solid #c7d2fe;border-radius:.34rem;padding:.1rem .38rem;line-height:1.15;
+  white-space:nowrap;vertical-align:middle}
+.ilst .ila{display:inline-flex;align-items:center;justify-content:center;
+  color:#818cf8;font-size:.86em;line-height:1;font-weight:700}
+.ilst .iln{display:inline-flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:.62em;font-weight:800;letter-spacing:.06em;
+  color:#7c84a8;border:1.5px dashed #c7d2fe;border-radius:.32rem;padding:.24rem .34rem;line-height:1}
+.ilv.add{border-color:#6ee7b7;background:#ecfdf5;color:#047857}
+.ilv.rem{border-color:#fda4af;background:#fff1f2;color:#9f1239;text-decoration:line-through}
+.ilv.mk{border-color:#a5b4fc;background:#eef2ff;color:#3730a3}
+@media(max-width:520px){.ilv{padding:.08rem .32rem}}
+/* the step message goes dark inside Focus, so the inline lists in it must
+   too — white boxes on that panel read as holes punched in the screen. */
+body:not(.codelight) .fsov .stepmsg .ilv{background:#1b2340;border-color:#3a4670;color:#dbe3ff}
+body:not(.codelight) .fsov .stepmsg .ila{color:#8ea2e8}
+body:not(.codelight) .fsov .stepmsg .iln{border-color:#3a4670;color:#8590b5}
+
 </style>
 </head>
 <body>
@@ -2375,12 +2403,12 @@ body:not(.codelight) .algolive .st .cm{color:#67e8f9}
 
   <div class="twin">
     <div class="twL"><span class="tlab">Section 2 &mdash; dies at the brace</span>
-      <code>Node n;</code>
+      <code><span class="t">Node</span> n;</code>
       <span class="tsay">A whole node, <b>in this frame</b>. Gone the moment the call returns.</span></div>
     <div class="teq">&rarr;</div>
     <div class="twR"><span class="tlab">Section 3 &mdash; outlives the call</span>
-      <code>Node* n;
-n = new Node;</code>
+      <code><span class="t">Node</span>* n;
+n = <span class="k">new</span> <span class="t">Node</span>;</code>
       <span class="tsay">A <b>pointer</b> in this frame, and the node itself <b>in the heap</b>.</span></div>
   </div>
 
@@ -2491,6 +2519,23 @@ n = new Node;</code>
     <p style="margin:0">Nothing else in the program knows where the first node is. If you overwrite <span class="mono">head</span> before you have saved it &mdash; say by writing <span class="mono">head = makeNode(5);</span> when you meant to attach &mdash; the four nodes are still in the heap, still linked, and <b>completely unreachable</b>. You cannot free them and you cannot print them. That is a leak, and Section 8 is about it.</p>
   </div>
 
+  <h3>One more function, and you will use it every day</h3>
+
+  <p>You cannot see a linked list. Write this once, now, and call it after every operation for the rest of the segment &mdash; it is how you will know an insert worked before you trust it.</p>
+
+  <div class="codewrap"><pre class="code"><span class="k">void</span> <span class="f">display</span>(<span class="t">Node</span>* head) {
+    <span class="t">Node</span>* p = head;
+    <span class="k">while</span> (p != <span class="k">nullptr</span>) {
+        cout &lt;&lt; p-&gt;data &lt;&lt; " ";
+        p = p-&gt;next;
+    }
+    cout &lt;&lt; endl;
+}</pre></div>
+
+  <p>It changes nothing and returns nothing. <span class="mono">p</span> is a walker, exactly like <span class="mono">t</span> above: start at head, print, step on, stop at <span class="mono">nullptr</span>. Take <span class="mono">Node* head</span> by value here &mdash; <span class="mono">display</span> has no business moving the caller&rsquo;s head, and the copy makes that a compiler-enforced promise rather than a good intention.</p>
+
+  <p><span class="mono">display(head);</span> after the build above prints <span class="mono">10 20 30 40</span>. Every listing from here on assumes you have it.</p>
+
   <div class="quiz" data-q="q4">
     <div class="qh">Check yourself &mdash; 4 of 6</div>
     <div class="qq">You delete the line <span class="mono">t = t-&gt;next;</span> from the middle of the build. What does the list contain?</div>
@@ -2503,7 +2548,7 @@ n = new Node;</code>
   </div>
 </article>
 <!-- ============ 5 ============ -->
-<article class="card numbered" id="s5" style="--accent:#059669" data-min="12" data-key="<span class=&quot;mono&quot;>Node*&amp; head</span> &mdash; a <b>reference</b>, because insert-first has to change head itself.">
+<article class="card numbered" id="s5" style="--accent:#059669" data-min="12" data-key="<span class=&quot;mono&quot;>Node*&amp; head</span> &mdash; a <b>reference parameter</b>: a second name for the caller&rsquo;s variable, not a copy.">
   <span class="badge">5</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 5</p><h2>Insert &mdash; all three, in code</h2></div>
@@ -2516,15 +2561,15 @@ n = new Node;</code>
 
   <div class="twin">
     <div class="twL"><span class="tlab">Does not work</span>
-      <code>void insertFirst(Node* head, ...)</code>
+      <code><span class="k">void</span> <span class="f">insertFirst</span>(<span class="t">Node</span>* head, ...)</code>
       <span class="tsay"><b>head</b> is a copy. Setting it changes the copy, and the caller&rsquo;s list is untouched.</span></div>
     <div class="teq">&rarr;</div>
     <div class="twR"><span class="tlab">Works</span>
-      <code>void insertFirst(Node*&amp; head, ...)</code>
-      <span class="tsay">The <b>&amp;</b> makes it a reference. Setting it changes the caller&rsquo;s <b>head</b>.</span></div>
+      <code><span class="k">void</span> <span class="f">insertFirst</span>(<span class="t">Node</span>*&amp; head, ...)</code>
+      <span class="tsay">The <b>&amp;</b> makes it a <b>reference parameter</b>. Inside the function <span class="mono">head</span> is not a copy &mdash; it <b>is</b> the caller&rsquo;s variable, under a second name. Setting it sets theirs.</span></div>
   </div>
 
-  <p>That is the third job of <span class="mono">&amp;</span> from Class 2, doing real work at last. Insert-last and insert-at only need it for the empty-list case &mdash; but they take it too, so all three functions look alike.</p>
+  <p>That is the third job of <span class="mono">&amp;</span> from Class 2, doing real work at last. Two names, one variable &mdash; no second pointer is made, which is why <span class="mono">head = nw;</span> reaches all the way back into <span class="mono">main</span>. Insert-last and insert-at only need it for the empty-list case &mdash; but they take it too, so all three functions look alike.</p>
 
   <div class="sim tall" id="k5-sim" data-title="Class 3 &middot; &sect;5 &middot; Insert &mdash; all three, in code">
     <div class="simhd"><span class="simttl">Inserting into the list</span>
@@ -2775,6 +2820,11 @@ n = new Node;</code>
   </div>
 </article>
 
+<nav class="pagenav" aria-label="Course navigation">
+  <a class="pgn pv" href="02-pointers-and-structures.html"><span class="ar">&#8592;</span><span class="tx"><em>Previous</em><b>2 &middot; Pointers, structures and -&gt;</b></span></a>
+  <a class="pgn home" href="../../index.html"><span class="ar">&#9776;</span><b>All classes</b></a>
+  <a class="pgn nx" href="04-search-and-two-pointers.html"><span class="ar">&#8594;</span><span class="tx"><em>Next</em><b>4 &middot; Search &amp; the two-pointer trick</b></span></a>
+</nav>
 </main>
 </section>
 
@@ -4414,9 +4464,9 @@ function UNDER(M,w,n,i,cw){
     ['3','new, delete and the first real list','03-new-delete-and-the-list.html'],
     ['4','Search & the two-pointer trick','04-search-and-two-pointers.html'],
     ['5','Tail, revision & reverse','05-tail-and-reverse.html'],
-    ['6','The OOP wrap',''],
-    ['7','Two-way & header lists',''],
-    ['8','Review, exam notation & test','']
+    ['6','The OOP wrap','06-the-oop-wrap.html'],
+    ['7','Two-way & header lists','07-two-way-and-circular.html'],
+    ['8','Review, exam notation & test','08-review-and-exam-notation.html']
   ];
   var here=(location.pathname.split('/').pop()||'');
   var base = '';
@@ -4432,7 +4482,7 @@ function UNDER(M,w,n,i,cw){
     var h=cards[i].querySelector('h2');
     if(!h)continue;
     var b=cards[i].querySelector('.badge');
-    secs+='<button class="dl dsec" data-jump="'+i+'"><span class="dn2">'+(b?b.textContent:(i+1))+'</span>'+
+    secs+='<button class="dl dsec" data-jump="'+i+'"><span class="dn2">'+(b?b.textContent:'&middot;')+'</span>'+
           h.textContent.trim()+'</button>';
   }
 

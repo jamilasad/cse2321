@@ -368,22 +368,22 @@ ul.tight li,ol.tight li{margin-bottom:.4rem;font-size:.9rem}
 /* ============ PREV / INDEX / NEXT ============ */
 .pagenav{display:grid;gap:.6rem;margin:2.6rem 0 0}
 @media(min-width:700px){.pagenav{grid-template-columns:1fr auto 1fr;align-items:stretch}}
-.pn{display:flex;align-items:center;gap:.75rem;border:1px solid var(--line);border-radius:.75rem;padding:.85rem 1rem;
+.pgn{display:flex;align-items:center;gap:.75rem;border:1px solid var(--line);border-radius:.75rem;padding:.85rem 1rem;
     background:#fff;text-decoration:none;color:inherit;transition:.16s;box-shadow:var(--sh-sm);min-height:64px}
 a.pn:hover{border-color:var(--accent);box-shadow:var(--sh-md);transform:translateY(-2px)}
-.pn.off{opacity:.4;pointer-events:none;border-style:dashed;background:transparent;box-shadow:none}
-.pn .ar{font-size:1.1rem;color:var(--accent);flex:0 0 auto;font-weight:700}
-.pn.off .ar{color:#cbd5e1}
-.pn .tx{min-width:0;flex:1}
-.pn .tx em{font-style:normal;display:block;font-size:.6rem;font-weight:800;letter-spacing:.11em;
+.pgn.off{opacity:.4;pointer-events:none;border-style:dashed;background:transparent;box-shadow:none}
+.pgn .ar{font-size:1.1rem;color:var(--accent);flex:0 0 auto;font-weight:700}
+.pgn.off .ar{color:#cbd5e1}
+.pgn .tx{min-width:0;flex:1}
+.pgn .tx em{font-style:normal;display:block;font-size:.6rem;font-weight:800;letter-spacing:.11em;
            text-transform:uppercase;color:var(--ink-mute)}
-.pn .tx b{display:block;font-size:.86rem;font-weight:700;line-height:1.35;margin-top:.12rem}
-.pn.nx{text-align:right}
-.pn.nx .ar{order:2}
-.pn.nx .tx{order:1}
-.pn.home{justify-content:center;text-align:center;flex-direction:column;gap:.2rem;padding:.85rem 1.4rem;min-width:120px}
-.pn.home .ar{font-size:1.2rem;color:var(--ink-mute)}
-.pn.home b{font-size:.76rem}
+.pgn .tx b{display:block;font-size:.86rem;font-weight:700;line-height:1.35;margin-top:.12rem}
+.pgn.nx{text-align:right}
+.pgn.nx .ar{order:2}
+.pgn.nx .tx{order:1}
+.pgn.home{justify-content:center;text-align:center;flex-direction:column;gap:.2rem;padding:.85rem 1.4rem;min-width:120px}
+.pgn.home .ar{font-size:1.2rem;color:var(--ink-mute)}
+.pgn.home b{font-size:.76rem}
 
 /* ============ RESPONSIVE HARDENING ============ */
 img,svg,video,canvas{max-width:100%;height:auto}
@@ -413,10 +413,10 @@ table{min-width:0}
 @media(min-width:700px){.pagefoot .dept{text-align:right}}
 @media(max-width:699px){
   .pagenav{grid-template-columns:1fr}
-  .pn{justify-content:flex-start}
-  .pn.nx{text-align:left}
-  .pn.nx .ar{order:0}.pn.nx .tx{order:1}
-  .pn.home{flex-direction:row;justify-content:center;gap:.5rem}
+  .pgn{justify-content:flex-start}
+  .pgn.nx{text-align:left}
+  .pgn.nx .ar{order:0}.pgn.nx .tx{order:1}
+  .pgn.home{flex-direction:row;justify-content:center;gap:.5rem}
 }
 
 /* ============ FLOATING JUMP DRAWER ============ */
@@ -1247,6 +1247,11 @@ body.codelight .exactbox .lo{color:#94a3b8}
   </div>
 </article>
 
+<nav class="pagenav" aria-label="Course navigation">
+  <a class="pgn pv" href="../../exam-prep/interview-bank.html"><span class="ar">&#8592;</span><span class="tx"><em>Previous</em><b>Interview Question Bank</b></span></a>
+  <a class="pgn home" href="../../index.html"><span class="ar">&#9776;</span><b>All classes</b></a>
+  <a class="pgn nx" href="02-array-operations.html"><span class="ar">&#8594;</span><span class="tx"><em>Next</em><b>Operations on an array</b></span></a>
+</nav>
 </main>
 </section>
 

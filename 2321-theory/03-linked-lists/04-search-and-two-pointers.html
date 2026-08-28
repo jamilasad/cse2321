@@ -368,22 +368,22 @@ ul.tight li,ol.tight li{margin-bottom:.4rem;font-size:.9rem}
 /* ============ PREV / INDEX / NEXT ============ */
 .pagenav{display:grid;gap:.6rem;margin:2.6rem 0 0}
 @media(min-width:700px){.pagenav{grid-template-columns:1fr auto 1fr;align-items:stretch}}
-.pn{display:flex;align-items:center;gap:.75rem;border:1px solid var(--line);border-radius:.75rem;padding:.85rem 1rem;
+.pgn{display:flex;align-items:center;gap:.75rem;border:1px solid var(--line);border-radius:.75rem;padding:.85rem 1rem;
     background:#fff;text-decoration:none;color:inherit;transition:.16s;box-shadow:var(--sh-sm);min-height:64px}
 a.pn:hover{border-color:var(--accent);box-shadow:var(--sh-md);transform:translateY(-2px)}
-.pn.off{opacity:.4;pointer-events:none;border-style:dashed;background:transparent;box-shadow:none}
-.pn .ar{font-size:1.1rem;color:var(--accent);flex:0 0 auto;font-weight:700}
-.pn.off .ar{color:#cbd5e1}
-.pn .tx{min-width:0;flex:1}
-.pn .tx em{font-style:normal;display:block;font-size:.6rem;font-weight:800;letter-spacing:.11em;
+.pgn.off{opacity:.4;pointer-events:none;border-style:dashed;background:transparent;box-shadow:none}
+.pgn .ar{font-size:1.1rem;color:var(--accent);flex:0 0 auto;font-weight:700}
+.pgn.off .ar{color:#cbd5e1}
+.pgn .tx{min-width:0;flex:1}
+.pgn .tx em{font-style:normal;display:block;font-size:.6rem;font-weight:800;letter-spacing:.11em;
            text-transform:uppercase;color:var(--ink-mute)}
-.pn .tx b{display:block;font-size:.86rem;font-weight:700;line-height:1.35;margin-top:.12rem}
-.pn.nx{text-align:right}
-.pn.nx .ar{order:2}
-.pn.nx .tx{order:1}
-.pn.home{justify-content:center;text-align:center;flex-direction:column;gap:.2rem;padding:.85rem 1.4rem;min-width:120px}
-.pn.home .ar{font-size:1.2rem;color:var(--ink-mute)}
-.pn.home b{font-size:.76rem}
+.pgn .tx b{display:block;font-size:.86rem;font-weight:700;line-height:1.35;margin-top:.12rem}
+.pgn.nx{text-align:right}
+.pgn.nx .ar{order:2}
+.pgn.nx .tx{order:1}
+.pgn.home{justify-content:center;text-align:center;flex-direction:column;gap:.2rem;padding:.85rem 1.4rem;min-width:120px}
+.pgn.home .ar{font-size:1.2rem;color:var(--ink-mute)}
+.pgn.home b{font-size:.76rem}
 
 /* ============ RESPONSIVE HARDENING ============ */
 img,svg,video,canvas{max-width:100%;height:auto}
@@ -413,10 +413,10 @@ table{min-width:0}
 @media(min-width:700px){.pagefoot .dept{text-align:right}}
 @media(max-width:699px){
   .pagenav{grid-template-columns:1fr}
-  .pn{justify-content:flex-start}
-  .pn.nx{text-align:left}
-  .pn.nx .ar{order:0}.pn.nx .tx{order:1}
-  .pn.home{flex-direction:row;justify-content:center;gap:.5rem}
+  .pgn{justify-content:flex-start}
+  .pgn.nx{text-align:left}
+  .pgn.nx .ar{order:0}.pgn.nx .tx{order:1}
+  .pgn.home{flex-direction:row;justify-content:center;gap:.5rem}
 }
 
 /* ============ FLOATING JUMP DRAWER ============ */
@@ -809,17 +809,18 @@ details.prob.lc .plink{background:#d97706}
 
 /* ============ LIGHT CODE THEME (default) + toggle ============ */
 body.codelight pre.code,
+body.codelight .turn .tcode,
 body.codelight .carr-code,
 body.codelight .codepane,
 body.codelight .fboard,
 body.codelight .findbug,
 body.codelight .exactbox{
   background:#f8fafc;color:#334155;border:1px solid #e2e8f0;box-shadow:inset 0 1px 0 #fff}
-body.codelight pre.code .k,body.codelight .carr-code .k,body.codelight .codepane .k{color:#7c3aed}
-body.codelight pre.code .t,body.codelight .carr-code .t,body.codelight .codepane .t{color:#b45309}
-body.codelight pre.code .f,body.codelight .carr-code .f,body.codelight .codepane .f{color:#0369a1}
-body.codelight pre.code .n,body.codelight .carr-code .n,body.codelight .codepane .n{color:#c2410c}
-body.codelight pre.code .c,body.codelight .carr-code .c,body.codelight .codepane .c{color:#94a3b8}
+body.codelight .turn .tcode .k,body.codelight pre.code .k,body.codelight .carr-code .k,body.codelight .codepane .k{color:#7c3aed}
+body.codelight .turn .tcode .t,body.codelight pre.code .t,body.codelight .carr-code .t,body.codelight .codepane .t{color:#b45309}
+body.codelight .turn .tcode .f,body.codelight pre.code .f,body.codelight .carr-code .f,body.codelight .codepane .f{color:#0369a1}
+body.codelight .turn .tcode .n,body.codelight pre.code .n,body.codelight .carr-code .n,body.codelight .codepane .n{color:#c2410c}
+body.codelight .turn .tcode .c,body.codelight pre.code .c,body.codelight .carr-code .c,body.codelight .codepane .c{color:#94a3b8}
 body.codelight pre.code .s{color:#15803d}
 body.codelight .carr-code .cl{color:#334155}
 body.codelight .carr-code .cl.cur{background:rgba(2,132,199,.14);box-shadow:inset 3px 0 0 #0284c7}
@@ -1769,6 +1770,12 @@ body:not(.codelight){
 .cl.on .gut{color:var(--cs-accent);font-weight:700}
 .cl.no{background:rgba(225,29,72,.1);border-left-color:#e11d48;color:#9f1239;font-weight:700}
 .cl.inert{cursor:default}
+
+/* the full listing: long, collapsed by default, copyable in one go */
+.dig.fullsrc summary{background:#f5f3ff;border-color:#ddd6fe}
+.dig.fullsrc .codewrap{margin:.2rem 0 0}
+.dig.fullsrc pre.code{font-size:.74rem;line-height:1.7}
+.refnote{margin:0 0 .7rem;font-size:.88rem;line-height:1.6;color:var(--ink-mute)}
 /* ---- the block the keyboard is driving, and the keys that drive it ---- */
 .kbdhint{display:none;align-items:center;gap:.32rem;margin-left:.8rem;
   font-size:.62rem;font-weight:700;color:#a3abc6;letter-spacing:.02em;white-space:nowrap}
@@ -2176,9 +2183,38 @@ body:not(.codelight) .fsov .acc .ai.no b{color:#fda4af}
 .turn .hintline{font-size:.85rem;color:#7c3aed;font-weight:700;margin-bottom:.5rem}
 /* a line of code quoted inside a question or its answer */
 .turn .tcode,.turn .ta .mono{font-family:var(--mono)}
-.turn .tcode{font-size:.92rem;font-weight:700;color:#312e81;
-  background:#fff;border:1px solid #ddd6fe;border-radius:.45rem;
-  padding:.5rem .7rem;margin:.15rem 0 .6rem;overflow-x:auto;white-space:pre}
+/* a listing inside a Your turn is a listing: same surface, same tokens, and
+   the same light/dark switch as every other block of code on the page. */
+.turn .tcode{font-family:var(--mono);font-size:.78rem;font-weight:500;line-height:1.75;
+  background:#0f172a;color:#e2e8f0;border:none;border-radius:.55rem;
+  padding:.75rem .85rem;margin:.15rem 0 .7rem;overflow-x:auto;white-space:pre;tab-size:4}
+@media(min-width:768px){.turn .tcode{font-size:.83rem}}
+/* ---- a list said inside a sentence -------------------------------------
+   The same shape the drawings use, shrunk onto a line of text. Everything is
+   centred on one axis: vertical-align:middle puts the strip's midline on the
+   text's midline, and each chip and arrow centres its own glyph inside itself,
+   so the numbers, the arrows and the sentence all sit on the same centre line. */
+.ilst{display:inline-flex;flex-wrap:wrap;align-items:center;justify-content:center;
+  gap:.12rem .24rem;vertical-align:middle;margin:0 .12rem}
+.ilv{display:inline-flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:.8em;font-weight:800;color:#1e1b4b;background:#fff;
+  border:1.5px solid #c7d2fe;border-radius:.34rem;padding:.1rem .38rem;line-height:1.15;
+  white-space:nowrap;vertical-align:middle}
+.ilst .ila{display:inline-flex;align-items:center;justify-content:center;
+  color:#818cf8;font-size:.86em;line-height:1;font-weight:700}
+.ilst .iln{display:inline-flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:.62em;font-weight:800;letter-spacing:.06em;
+  color:#7c84a8;border:1.5px dashed #c7d2fe;border-radius:.32rem;padding:.24rem .34rem;line-height:1}
+.ilv.add{border-color:#6ee7b7;background:#ecfdf5;color:#047857}
+.ilv.rem{border-color:#fda4af;background:#fff1f2;color:#9f1239;text-decoration:line-through}
+.ilv.mk{border-color:#a5b4fc;background:#eef2ff;color:#3730a3}
+@media(max-width:520px){.ilv{padding:.08rem .32rem}}
+/* the step message goes dark inside Focus, so the inline lists in it must
+   too — white boxes on that panel read as holes punched in the screen. */
+body:not(.codelight) .fsov .stepmsg .ilv{background:#1b2340;border-color:#3a4670;color:#dbe3ff}
+body:not(.codelight) .fsov .stepmsg .ila{color:#8ea2e8}
+body:not(.codelight) .fsov .stepmsg .iln{border-color:#3a4670;color:#8590b5}
+
 </style>
 </head>
 <body>
@@ -2391,7 +2427,7 @@ body:not(.codelight) .fsov .acc .ai.no b{color:#fda4af}
 
   <div class="quiz" data-q="q2">
     <div class="qh">Check yourself &mdash; 2 of 6</div>
-    <div class="qq">The sorted list is <span class="mono">10 &rarr; 20 &rarr; 30 &rarr; 50 &rarr; 60</span>. You search for <b>45</b>. How many nodes do you <b>compare</b> before you can answer?</div>
+    <div class="qq">The sorted list is <span class="ilst"><span class="ilv">10</span><span class="ila">&rarr;</span><span class="ilv">20</span><span class="ila">&rarr;</span><span class="ilv">30</span><span class="ila">&rarr;</span><span class="ilv">50</span><span class="ila">&rarr;</span><span class="ilv">60</span></span>. You search for <b>45</b>. How many nodes do you <b>compare</b> before you can answer?</div>
     <div class="qopts">
       <button class="qopt" data-a="0">3 &mdash; 10, 20, 30</button>
       <button class="qopt" data-a="1" data-ok="1">4 &mdash; 10, 20, 30 and 50</button>
@@ -2554,7 +2590,7 @@ body:not(.codelight) .fsov .acc .ai.no b{color:#fda4af}
 
   <div class="box bad">
     <p class="bt">&ldquo;Largest even value&rdquo; needs an answer for &ldquo;there isn&rsquo;t one&rdquo;</p>
-    <p style="margin:0">The list <span class="mono">7 &rarr; 3 &rarr; 9</span> has no even value at all. Your procedure must be able to say so, rather than returning a leftover 0. Use a flag, or return a sentinel such as &minus;1, and <b>say in words</b> what it means. Exams give marks for handling that case; most answers forget it.<br><br>Notice also that the largest even value is <b>not</b> the largest value with the odd ones removed afterwards &mdash; in the run above the largest value is 45, which is odd, and the answer is 30.</p>
+    <p style="margin:0">The list <span class="ilst"><span class="ilv">7</span><span class="ila">&rarr;</span><span class="ilv">3</span><span class="ila">&rarr;</span><span class="ilv">9</span></span> has no even value at all. Your procedure must be able to say so, rather than returning a leftover 0. Use a flag, or return a sentinel such as &minus;1, and <b>say in words</b> what it means. Exams give marks for handling that case; most answers forget it.<br><br>Notice also that the largest even value is <b>not</b> the largest value with the odd ones removed afterwards &mdash; in the run above the largest value is 45, which is odd, and the answer is 30.</p>
   </div>
 
   <div class="cxs">
@@ -2595,15 +2631,15 @@ body:not(.codelight) .fsov .acc .ai.no b{color:#fda4af}
 
   <div class="turn">
     <div class="th"><b>Your turn</b></div>
-    <div class="tq"><p>Here is the whole function. It compiles, and it is <b>wrong</b>. What happens when you run it on <span class="mono">10 &rarr; 20 &rarr; 30</span>?</p><p class="tcode">void insertLast(Node*&amp; head, int item) {
-    Node* newNode = new Node;
+    <div class="tq"><p>Here is the whole function. It compiles, and it is <b>wrong</b>. What happens when you run it on <span class="ilst"><span class="ilv">10</span><span class="ila">&rarr;</span><span class="ilv">20</span><span class="ila">&rarr;</span><span class="ilv">30</span></span>?</p><p class="tcode"><span class="k">void</span> <span class="f">insertLast</span>(<span class="t">Node</span>*&amp; head, <span class="k">int</span> item) {
+    <span class="t">Node</span>* newNode = <span class="k">new</span> <span class="t">Node</span>;
     newNode-&gt;data = item;
-    newNode-&gt;next = nullptr;
+    newNode-&gt;next = <span class="k">nullptr</span>;
 
-    if (head == nullptr) { head = newNode; return; }
+    <span class="k">if</span> (head == <span class="k">nullptr</span>) { head = newNode; <span class="k">return</span>; }
 
-    Node* p = head;
-    while (p != nullptr)
+    <span class="t">Node</span>* p = head;
+    <span class="k">while</span> (p != <span class="k">nullptr</span>)
         p = p-&gt;next;
     p-&gt;next = newNode;
 }</p></div>
@@ -2778,7 +2814,7 @@ body:not(.codelight) .fsov .acc .ai.no b{color:#fda4af}
       <button class="qopt" data-a="1" data-ok="1">40 &mdash; the second of the two middles</button>
       <button class="qopt" data-a="2">It crashes, because 6 is even</button>
     </div>
-    <div class="qexp"><b>40.</b> Follow the two walkers turn by turn: slow goes 10 &rarr; 20 &rarr; 30 &rarr; 40, while fast goes 10 &rarr; 30 &rarr; 50 &rarr; off the end.<br><br>On that last turn fast tries to take two steps from 50. One step reaches 60, the second falls off, so fast becomes NULL. The loop condition checks <span class="mono">fast != NULL</span> first, finds it false, and stops &mdash; without ever touching <span class="mono">fast-&gt;next</span>. Nothing crashes, precisely because that check comes first.<br><br>slow has taken three steps and is standing on <b>40</b>, the second of the two middle nodes.</div>
+    <div class="qexp"><b>40.</b> Follow the two walkers turn by turn: slow goes <span class="ilst"><span class="ilv">10</span><span class="ila">&rarr;</span><span class="ilv">20</span><span class="ila">&rarr;</span><span class="ilv">30</span><span class="ila">&rarr;</span><span class="ilv">40</span></span>, while fast goes <span class="ilst"><span class="ilv">10</span><span class="ila">&rarr;</span><span class="ilv">30</span><span class="ila">&rarr;</span><span class="ilv">50</span></span>, then off the end.<br><br>On that last turn fast tries to take two steps from 50. One step reaches 60, the second falls off, so fast becomes NULL. The loop condition checks <span class="mono">fast != NULL</span> first, finds it false, and stops &mdash; without ever touching <span class="mono">fast-&gt;next</span>. Nothing crashes, precisely because that check comes first.<br><br>slow has taken three steps and is standing on <b>40</b>, the second of the two middle nodes.</div>
   </div>
 </article>
 <!-- ============ 7 ============ -->
@@ -2907,6 +2943,192 @@ body:not(.codelight) .fsov .acc .ai.no b{color:#fda4af}
     <div class="app"><div class="ae">&#128260;</div><b>Recognise the pattern</b><p>A fixed gap gives the k-th from the end; different speeds detect a cycle &mdash; that one is your lab.</p></div>
   </div>
 
+  <div class="ivwrap">
+    <p class="ivhead">Reference<span></span></p>
+    <details class="dig fullsrc"><summary><span class="dicon">&#128220;</span>The whole program, in one piece &mdash; ready to compile</summary><div>
+      <p class="refnote">Everything from Classes 1 to 4 assembled: the node, the six operations, the four walks, and the clean-up. <b>Nothing here is new</b> &mdash; every function has been on screen and stepped through. Copy it, compile it, and change one thing at a time.</p>
+      <div class="codewrap"><pre class="code">#include &lt;iostream&gt;
+<span class="k">using</span> <span class="k">namespace</span> std;
+
+<span class="k">struct</span> <span class="t">Node</span> {
+    <span class="k">int</span>   data;
+    <span class="t">Node</span>* next;
+};
+
+<span class="c">// ---------- build ----------</span>
+
+<span class="k">void</span> insertFirst(<span class="t">Node</span>*&amp; head, <span class="k">int</span> item) {
+    <span class="t">Node</span>* nw = <span class="k">new</span> <span class="t">Node</span>;
+    nw-&gt;data = item;
+    nw-&gt;next = head;
+    head     = nw;
+}
+
+<span class="k">void</span> insertLast(<span class="t">Node</span>*&amp; head, <span class="k">int</span> item) {
+    <span class="t">Node</span>* nw = <span class="k">new</span> <span class="t">Node</span>;
+    nw-&gt;data = item;
+    nw-&gt;next = <span class="k">nullptr</span>;
+
+    <span class="k">if</span> (head == <span class="k">nullptr</span>) { head = nw; <span class="k">return</span>; }
+
+    <span class="t">Node</span>* LN = head;
+    <span class="k">while</span> (LN-&gt;next != <span class="k">nullptr</span>)           <span class="c">// stop ON the last node</span>
+        LN = LN-&gt;next;
+
+    LN-&gt;next = nw;
+}
+
+<span class="k">void</span> insertAt(<span class="t">Node</span>*&amp; head, <span class="k">int</span> pos, <span class="k">int</span> item) {
+    <span class="k">if</span> (pos == <span class="n">1</span>) { insertFirst(head, item); <span class="k">return</span>; }
+
+    <span class="t">Node</span>* prev = head;
+    <span class="k">int</span> i = <span class="n">1</span>;
+    <span class="k">while</span> (i &lt; pos - <span class="n">1</span> &amp;&amp; prev != <span class="k">nullptr</span>) {
+        prev = prev-&gt;next;
+        i++;
+    }
+    <span class="k">if</span> (prev == <span class="k">nullptr</span>) <span class="k">return</span>;
+
+    <span class="t">Node</span>* nw = <span class="k">new</span> <span class="t">Node</span>;
+    nw-&gt;data   = item;
+    nw-&gt;next   = prev-&gt;next;              <span class="c">// this line must come first</span>
+    prev-&gt;next = nw;
+}
+
+<span class="c">// ---------- remove ----------</span>
+
+<span class="k">void</span> deleteFirst(<span class="t">Node</span>*&amp; head) {
+    <span class="k">if</span> (head == <span class="k">nullptr</span>) <span class="k">return</span>;
+
+    <span class="t">Node</span>* FN = head;                      <span class="c">// hold it before head moves</span>
+    head = FN-&gt;next;
+    <span class="k">delete</span> FN;
+}
+
+<span class="k">void</span> deleteLast(<span class="t">Node</span>*&amp; head) {
+    <span class="k">if</span> (head == <span class="k">nullptr</span>) <span class="k">return</span>;
+    <span class="k">if</span> (head-&gt;next == <span class="k">nullptr</span>) { <span class="k">delete</span> head; head = <span class="k">nullptr</span>; <span class="k">return</span>; }
+
+    <span class="t">Node</span>* prev = head;
+    <span class="k">while</span> (prev-&gt;next-&gt;next != <span class="k">nullptr</span>)
+        prev = prev-&gt;next;
+
+    <span class="t">Node</span>* last = prev-&gt;next;
+    prev-&gt;next = <span class="k">nullptr</span>;                 <span class="c">// unhook first</span>
+    <span class="k">delete</span> last;                          <span class="c">// free second</span>
+}
+
+<span class="k">void</span> deleteAt(<span class="t">Node</span>*&amp; head, <span class="k">int</span> pos) {
+    <span class="k">if</span> (head == <span class="k">nullptr</span>) <span class="k">return</span>;
+    <span class="k">if</span> (pos == <span class="n">1</span>) { deleteFirst(head); <span class="k">return</span>; }
+
+    <span class="t">Node</span>* prev = head;
+    <span class="k">int</span> i = <span class="n">1</span>;
+    <span class="k">while</span> (i &lt; pos - <span class="n">1</span> &amp;&amp; prev-&gt;next != <span class="k">nullptr</span>) {
+        prev = prev-&gt;next;
+        i++;
+    }
+    <span class="k">if</span> (prev-&gt;next == <span class="k">nullptr</span>) <span class="k">return</span>;
+
+    <span class="t">Node</span>* cur  = prev-&gt;next;
+    prev-&gt;next = cur-&gt;next;
+    <span class="k">delete</span> cur;
+}
+
+<span class="c">// ---------- read ----------</span>
+
+<span class="k">void</span> print(<span class="t">Node</span>* head) {
+    <span class="t">Node</span>* p = head;
+    <span class="k">while</span> (p != <span class="k">nullptr</span>) {
+        cout &lt;&lt; p-&gt;data &lt;&lt; <span class="s">" "</span>;
+        p = p-&gt;next;
+    }
+    cout &lt;&lt; endl;
+}
+
+<span class="t">Node</span>* search(<span class="t">Node</span>* head, <span class="k">int</span> item) {
+    <span class="t">Node</span>* p = head;
+    <span class="k">while</span> (p != <span class="k">nullptr</span>) {
+        <span class="k">if</span> (p-&gt;data == item) <span class="k">return</span> p;
+        p = p-&gt;next;
+    }
+    <span class="k">return</span> <span class="k">nullptr</span>;                       <span class="c">// the failed search is a full walk</span>
+}
+
+<span class="k">int</span> largest(<span class="t">Node</span>* head) {
+    <span class="k">int</span> max = head-&gt;data;                 <span class="c">// start from a real value</span>
+    <span class="t">Node</span>* p = head-&gt;next;
+    <span class="k">while</span> (p != <span class="k">nullptr</span>) {
+        <span class="k">if</span> (p-&gt;data &gt; max)
+            max = p-&gt;data;
+        p = p-&gt;next;
+    }
+    <span class="k">return</span> max;
+}
+
+<span class="t">Node</span>* middle(<span class="t">Node</span>* head) {                <span class="c">// tortoise and hare</span>
+    <span class="t">Node</span>* slow = head;
+    <span class="t">Node</span>* fast = head;
+    <span class="k">while</span> (fast != <span class="k">nullptr</span> &amp;&amp; fast-&gt;next != <span class="k">nullptr</span>) {
+        slow = slow-&gt;next;                <span class="c">// one step</span>
+        fast = fast-&gt;next-&gt;next;          <span class="c">// two steps</span>
+    }
+    <span class="k">return</span> slow;
+}
+
+<span class="t">Node</span>* kthFromEnd(<span class="t">Node</span>* head, <span class="k">int</span> k) {
+    <span class="t">Node</span>* fast = head;
+    <span class="k">int</span> i = <span class="n">0</span>;
+    <span class="k">while</span> (i &lt; k) {
+        fast = fast-&gt;next;
+        i++;
+    }
+
+    <span class="t">Node</span>* slow = head;
+    <span class="k">while</span> (fast != <span class="k">nullptr</span>) {             <span class="c">// the gap never changes</span>
+        slow = slow-&gt;next;
+        fast = fast-&gt;next;
+    }
+    <span class="k">return</span> slow;
+}
+
+<span class="c">// ---------- clean up ----------</span>
+
+<span class="k">void</span> freeList(<span class="t">Node</span>*&amp; head) {
+    <span class="t">Node</span>* cur = head;
+    <span class="k">while</span> (cur != <span class="k">nullptr</span>) {
+        <span class="t">Node</span>* nxt = cur-&gt;next;            <span class="c">// save it before the delete</span>
+        <span class="k">delete</span> cur;
+        cur = nxt;
+    }
+    head = <span class="k">nullptr</span>;
+}
+
+<span class="k">int</span> main() {
+    <span class="t">Node</span>* head = <span class="k">nullptr</span>;
+
+    insertLast(head, <span class="n">10</span>);
+    insertLast(head, <span class="n">20</span>);
+    insertLast(head, <span class="n">30</span>);
+    insertFirst(head, <span class="n">5</span>);
+    insertAt(head, <span class="n">3</span>, <span class="n">15</span>);
+    display(head);                          <span class="c">// 5 10 15 20 30</span>
+
+    cout &lt;&lt; largest(head) &lt;&lt; endl;        <span class="c">// 30</span>
+    cout &lt;&lt; middle(head)-&gt;data &lt;&lt; endl;   <span class="c">// 15</span>
+    cout &lt;&lt; kthFromEnd(head, <span class="n">2</span>)-&gt;data;    <span class="c">// 20</span>
+    cout &lt;&lt; endl;
+
+    deleteLast(head);
+    deleteAt(head, <span class="n">2</span>);
+    display(head);                          <span class="c">// 5 15 20</span>
+
+    freeList(head);                       <span class="c">// every new needs its delete</span>
+    <span class="k">return</span> <span class="n">0</span>;
+}</pre></div>
+    </div></details>
+  </div>
+
   <div class="gform">
     <span class="gi">&#9998;</span>
     <span class="gt"><b>Class check</b><span>Two minutes, three questions. Answer honestly &mdash; it tells me what to re-explain next class.</span></span>
@@ -2930,6 +3152,11 @@ body:not(.codelight) .fsov .acc .ai.no b{color:#fda4af}
   </div>
 </article>
 
+<nav class="pagenav" aria-label="Course navigation">
+  <a class="pgn pv" href="03-new-delete-and-the-list.html"><span class="ar">&#8592;</span><span class="tx"><em>Previous</em><b>3 &middot; new, delete and the first real list</b></span></a>
+  <a class="pgn home" href="../../index.html"><span class="ar">&#9776;</span><b>All classes</b></a>
+  <a class="pgn nx" href="05-tail-and-reverse.html"><span class="ar">&#8594;</span><span class="tx"><em>Next</em><b>5 &middot; Tail, revision &amp; reverse</b></span></a>
+</nav>
 </main>
 </section>
 <section class="panel" id="p-exam" hidden>
@@ -2992,6 +3219,12 @@ body:not(.codelight) .fsov .acc .ai.no b{color:#fda4af}
       <b>Complexity.</b> Time <b>O(n)</b>, extra memory <b>O(1)</b> &mdash; only two pointer variables, regardless of how long the list is.<br><br>
       <b>The odd-length note.</b> Both exams say the list has an odd number of elements, so there is exactly one middle and this returns it. Add one line anyway: <em>&ldquo;if the length were even there would be two middle nodes, and this version returns the second.&rdquo;</em> It costs you a sentence and shows you understand the boundary.<br><br>
       <span class="subtle">For 4 marks: the idea, the algorithm, the one-traversal justification, and the complexity. For the Autumn 2025 1-mark version you only need the idea plus &ldquo;insert at slow when fast reaches the end&rdquo;.</span>
+    </div></details>
+    <details class="dig"><summary><span class="dicon">&#8646;</span>The same question, asked about a <b>two-way</b> list</summary><div>
+      <b>Autumn 2023 Final, Q2(b) [OR], 4 marks.</b> <em>&ldquo;You are given a two-way linked list containing an odd number of elements. You don&rsquo;t know how many numbers there are in that list. Write an algorithm or C/C++ code to find the middle element of this list by iterating only once over the list.&rdquo;</em><br><br>
+      <b>The answer is the algorithm above, unchanged.</b> Write it out, then add the sentence that earns the last mark: <em>&ldquo;the <span class="mono">prev</span> field does not help here.&rdquo;</em><br><br>
+      <b>Why it does not help.</b> The tempting answer is &ldquo;walk in from both ends until the two meet&rdquo; &mdash; and it is wrong, because <b>you do not know where the end is until you have already walked to it</b>. Getting to the last node is the traversal you were told to do only once. Two walkers from the front is still the only method that fits the wording.<br><br>
+      <span class="subtle">Two-way lists are Class 7. The point worth carrying: a second pointer changes what you can do <em>at</em> a node, never how you <em>find</em> one.</span>
     </div></details>
     <details class="dig"><summary><span class="dicon">&#9888;</span>The three ways students lose this</summary><div>
       <b>1. Answering with the two-pass method.</b> Counting the nodes and then walking half way is correct <em>code</em> and a wrong <em>answer</em> &mdash; the question says &ldquo;only one traversal&rdquo; and that phrase is the thing being tested. Expect to lose most of the marks.<br><br>
@@ -3901,7 +4134,7 @@ ChainSim({
     {at:{p:2},ln:9,cls:{3:'newn'},acc:[['new node','40'],['p is on','30']],tone:'move',t:'<span class="mono">p = p-&gt;next</span> &mdash; p is on <b>30</b>.'},
     {at:{p:2},ln:8,cond:{ln:8,ok:false},cls:{2:'take',3:'newn'},acc:[['new node','40'],['p is on','30','win']],tone:'ok',t:'<span class="mono">p-&gt;next != nullptr</span> &mdash; a node after 30? <b>No</b>, its next holds NULL, so the test is <b>false</b> and the loop stops <em>here</em>, with p standing <b>on</b> the last node.'},
     {at:{p:2},ln:10,cls:{2:'take',3:'newn'},acc:[['new node','40'],['p is on','30','win']],tone:'link',t:'<span class="mono">p-&gt;next = newNode</span> &mdash; the last node&rsquo;s next field now holds the new node&rsquo;s address.'},
-    {at:{p:2},ln:11,cls:{3:'newn'},acc:[['list length','4','win'],['cost to find the end','O(n)','cost']],tone:'ok',t:'Return &mdash; the list is <b>10 &rarr; 20 &rarr; 30 &rarr; 40</b>. The attaching was one assignment. All the work was in <em>finding</em> the end.'}
+    {at:{p:2},ln:11,cls:{3:'newn'},acc:[['list length','4','win'],['cost to find the end','O(n)','cost']],tone:'ok',t:'Return &mdash; the list is <span class="ilst"><span class="ilv">10</span><span class="ila">&rarr;</span><span class="ilv">20</span><span class="ila">&rarr;</span><span class="ilv">30</span><span class="ila">&rarr;</span><span class="ilv">40</span></span>. The attaching was one assignment. All the work was in <em>finding</em> the end.'}
    ],
    wrong:[
     {at:{},ln:0,acc:[['item','40','',1]],tone:'mk',t:'The same call, and the same first four lines. <b>One character in the loop is different.</b>'},
@@ -4369,9 +4602,9 @@ document.addEventListener('keydown',function(e){
     ['3','new, delete and the first real list','03-new-delete-and-the-list.html'],
     ['4','Search & the two-pointer trick','04-search-and-two-pointers.html'],
     ['5','Tail, revision & reverse','05-tail-and-reverse.html'],
-    ['6','The OOP wrap',''],
-    ['7','Two-way & header lists',''],
-    ['8','Review, exam notation & test','']
+    ['6','The OOP wrap','06-the-oop-wrap.html'],
+    ['7','Two-way & header lists','07-two-way-and-circular.html'],
+    ['8','Review, exam notation & test','08-review-and-exam-notation.html']
   ];
   var here=(location.pathname.split('/').pop()||'');
   var base = '';
@@ -4387,7 +4620,7 @@ document.addEventListener('keydown',function(e){
     var h=cards[i].querySelector('h2');
     if(!h)continue;
     var b=cards[i].querySelector('.badge');
-    secs+='<button class="dl dsec" data-jump="'+i+'"><span class="dn2">'+(b?b.textContent:(i+1))+'</span>'+
+    secs+='<button class="dl dsec" data-jump="'+i+'"><span class="dn2">'+(b?b.textContent:'&middot;')+'</span>'+
           h.textContent.trim()+'</button>';
   }
 

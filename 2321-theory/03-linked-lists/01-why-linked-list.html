@@ -368,22 +368,22 @@ ul.tight li,ol.tight li{margin-bottom:.4rem;font-size:.9rem}
 /* ============ PREV / INDEX / NEXT ============ */
 .pagenav{display:grid;gap:.6rem;margin:2.6rem 0 0}
 @media(min-width:700px){.pagenav{grid-template-columns:1fr auto 1fr;align-items:stretch}}
-.pn{display:flex;align-items:center;gap:.75rem;border:1px solid var(--line);border-radius:.75rem;padding:.85rem 1rem;
+.pgn{display:flex;align-items:center;gap:.75rem;border:1px solid var(--line);border-radius:.75rem;padding:.85rem 1rem;
     background:#fff;text-decoration:none;color:inherit;transition:.16s;box-shadow:var(--sh-sm);min-height:64px}
 a.pn:hover{border-color:var(--accent);box-shadow:var(--sh-md);transform:translateY(-2px)}
-.pn.off{opacity:.4;pointer-events:none;border-style:dashed;background:transparent;box-shadow:none}
-.pn .ar{font-size:1.1rem;color:var(--accent);flex:0 0 auto;font-weight:700}
-.pn.off .ar{color:#cbd5e1}
-.pn .tx{min-width:0;flex:1}
-.pn .tx em{font-style:normal;display:block;font-size:.6rem;font-weight:800;letter-spacing:.11em;
+.pgn.off{opacity:.4;pointer-events:none;border-style:dashed;background:transparent;box-shadow:none}
+.pgn .ar{font-size:1.1rem;color:var(--accent);flex:0 0 auto;font-weight:700}
+.pgn.off .ar{color:#cbd5e1}
+.pgn .tx{min-width:0;flex:1}
+.pgn .tx em{font-style:normal;display:block;font-size:.6rem;font-weight:800;letter-spacing:.11em;
            text-transform:uppercase;color:var(--ink-mute)}
-.pn .tx b{display:block;font-size:.86rem;font-weight:700;line-height:1.35;margin-top:.12rem}
-.pn.nx{text-align:right}
-.pn.nx .ar{order:2}
-.pn.nx .tx{order:1}
-.pn.home{justify-content:center;text-align:center;flex-direction:column;gap:.2rem;padding:.85rem 1.4rem;min-width:120px}
-.pn.home .ar{font-size:1.2rem;color:var(--ink-mute)}
-.pn.home b{font-size:.76rem}
+.pgn .tx b{display:block;font-size:.86rem;font-weight:700;line-height:1.35;margin-top:.12rem}
+.pgn.nx{text-align:right}
+.pgn.nx .ar{order:2}
+.pgn.nx .tx{order:1}
+.pgn.home{justify-content:center;text-align:center;flex-direction:column;gap:.2rem;padding:.85rem 1.4rem;min-width:120px}
+.pgn.home .ar{font-size:1.2rem;color:var(--ink-mute)}
+.pgn.home b{font-size:.76rem}
 
 /* ============ RESPONSIVE HARDENING ============ */
 img,svg,video,canvas{max-width:100%;height:auto}
@@ -413,10 +413,10 @@ table{min-width:0}
 @media(min-width:700px){.pagefoot .dept{text-align:right}}
 @media(max-width:699px){
   .pagenav{grid-template-columns:1fr}
-  .pn{justify-content:flex-start}
-  .pn.nx{text-align:left}
-  .pn.nx .ar{order:0}.pn.nx .tx{order:1}
-  .pn.home{flex-direction:row;justify-content:center;gap:.5rem}
+  .pgn{justify-content:flex-start}
+  .pgn.nx{text-align:left}
+  .pgn.nx .ar{order:0}.pgn.nx .tx{order:1}
+  .pgn.home{flex-direction:row;justify-content:center;gap:.5rem}
 }
 
 /* ============ FLOATING JUMP DRAWER ============ */
@@ -2003,6 +2003,32 @@ body:not(.codelight) .algolive .st .cm{color:#67e8f9}
 .topbar{transition:transform .26s ease}
 .topbar.tucked{transform:translateY(-100%)}
 @media (prefers-reduced-motion:reduce){.topbar{transition:none}}
+/* ---- a list said inside a sentence -------------------------------------
+   The same shape the drawings use, shrunk onto a line of text. Everything is
+   centred on one axis: vertical-align:middle puts the strip's midline on the
+   text's midline, and each chip and arrow centres its own glyph inside itself,
+   so the numbers, the arrows and the sentence all sit on the same centre line. */
+.ilst{display:inline-flex;flex-wrap:wrap;align-items:center;justify-content:center;
+  gap:.12rem .24rem;vertical-align:middle;margin:0 .12rem}
+.ilv{display:inline-flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:.8em;font-weight:800;color:#1e1b4b;background:#fff;
+  border:1.5px solid #c7d2fe;border-radius:.34rem;padding:.1rem .38rem;line-height:1.15;
+  white-space:nowrap;vertical-align:middle}
+.ilst .ila{display:inline-flex;align-items:center;justify-content:center;
+  color:#818cf8;font-size:.86em;line-height:1;font-weight:700}
+.ilst .iln{display:inline-flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:.62em;font-weight:800;letter-spacing:.06em;
+  color:#7c84a8;border:1.5px dashed #c7d2fe;border-radius:.32rem;padding:.24rem .34rem;line-height:1}
+.ilv.add{border-color:#6ee7b7;background:#ecfdf5;color:#047857}
+.ilv.rem{border-color:#fda4af;background:#fff1f2;color:#9f1239;text-decoration:line-through}
+.ilv.mk{border-color:#a5b4fc;background:#eef2ff;color:#3730a3}
+@media(max-width:520px){.ilv{padding:.08rem .32rem}}
+/* the step message goes dark inside Focus, so the inline lists in it must
+   too — white boxes on that panel read as holes punched in the screen. */
+body:not(.codelight) .fsov .stepmsg .ilv{background:#1b2340;border-color:#3a4670;color:#dbe3ff}
+body:not(.codelight) .fsov .stepmsg .ila{color:#8ea2e8}
+body:not(.codelight) .fsov .stepmsg .iln{border-color:#3a4670;color:#8590b5}
+
 </style>
 </head>
 <body>
@@ -2845,6 +2871,11 @@ body:not(.codelight) .algolive .st .cm{color:#67e8f9}
   </div>
 </article>
 
+<nav class="pagenav" aria-label="Course navigation">
+  <a class="pgn pv" href="../02-arrays-and-strings/04-strings.html"><span class="ar">&#8592;</span><span class="tx"><em>Previous</em><b>Strings &amp; pattern matching</b></span></a>
+  <a class="pgn home" href="../../index.html"><span class="ar">&#9776;</span><b>All classes</b></a>
+  <a class="pgn nx" href="02-pointers-and-structures.html"><span class="ar">&#8594;</span><span class="tx"><em>Next</em><b>2 &middot; Pointers, structures and -&gt;</b></span></a>
+</nav>
 </main>
 </section>
 
@@ -4155,7 +4186,7 @@ function OpSim(cfg){
      {arr:[10,20,30,40,50,60],an:2,adone:1,list:P5(2),headAt:0,stage:{v:40,between:[2,3],lk:3,from:2},ln:0,tone:'link',
       as:'Finished.',
       ls:'<b>prev-&gt;next = newNode</b> &mdash; now <b>30 points down to 40</b>. Both arrows are in place.',
-      msg:'Look at the two green arrows: 30 &rarr; 40 and 40 &rarr; 50. The node is already in the list &mdash; the picture just has not been tidied.'},
+      msg:'Look at the two green arrows: <span class="mono">30 &rarr; 40</span> and <span class="mono">40 &rarr; 50</span>. The node is already in the list &mdash; the picture just has not been tidied.'},
      {arr:[10,20,30,40,50,60],an:2,adone:1,
       list:[nd(10),nd(20),nd(30),nd(40,'new'),nd(50),nd(60)],headAt:0,ln:0,ldone:1,tone:'ok',
       as:'<b>2 elements copied.</b>',ls:'40 rises into the row. <b>0 copied.</b>',
@@ -4609,9 +4640,9 @@ document.addEventListener('keydown',function(e){
     ['3','new, delete and the first real list','03-new-delete-and-the-list.html'],
     ['4','Search & the two-pointer trick','04-search-and-two-pointers.html'],
     ['5','Tail, revision & reverse','05-tail-and-reverse.html'],
-    ['6','The OOP wrap',''],
-    ['7','Two-way & header lists',''],
-    ['8','Review, exam notation & test','']
+    ['6','The OOP wrap','06-the-oop-wrap.html'],
+    ['7','Two-way & header lists','07-two-way-and-circular.html'],
+    ['8','Review, exam notation & test','08-review-and-exam-notation.html']
   ];
   var here=(location.pathname.split('/').pop()||'');
   var base = '';
@@ -4627,7 +4658,7 @@ document.addEventListener('keydown',function(e){
     var h=cards[i].querySelector('h2');
     if(!h)continue;
     var b=cards[i].querySelector('.badge');
-    secs+='<button class="dl dsec" data-jump="'+i+'"><span class="dn2">'+(b?b.textContent:(i+1))+'</span>'+
+    secs+='<button class="dl dsec" data-jump="'+i+'"><span class="dn2">'+(b?b.textContent:'&middot;')+'</span>'+
           h.textContent.trim()+'</button>';
   }
 
