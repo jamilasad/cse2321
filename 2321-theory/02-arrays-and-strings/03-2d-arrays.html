@@ -564,12 +564,14 @@ details.dig[open]{border-color:color-mix(in srgb,var(--accent,#4f46e5) 40%,var(-
                   box-shadow:0 6px 20px -10px color-mix(in srgb,var(--accent,#4f46e5) 60%,transparent)}
 details.dig[open]::before{opacity:1}
 
-details.dig>summary{cursor:pointer;padding:.8rem 2.5rem .8rem 1rem;font-weight:700;font-size:.87rem;
-  list-style:none;display:flex;align-items:center;gap:.65rem;color:var(--ink);position:relative;
+details.dig>summary{cursor:pointer;padding:.8rem 2.5rem .8rem 4.05rem;font-weight:700;font-size:.87rem;
+  list-style:none;display:block;color:var(--ink);position:relative;
   background:linear-gradient(180deg,#fff,#fafbfd);transition:background .18s;line-height:1.45}
 details.dig>summary::-webkit-details-marker{display:none}
 details.dig>summary:hover{background:#f5f8fc}
-details.dig>summary .dicon{width:26px;height:26px;border-radius:8px;flex:0 0 auto;display:grid;place-items:center;
+details.dig>summary::before{position:absolute;left:1rem;top:.78rem;text-align:center;line-height:1.45}
+details.dig>summary .dicon{position:absolute;left:2.15rem;top:.72rem;
+  width:26px;height:26px;border-radius:8px;display:grid;place-items:center;
   font-size:.78rem;font-weight:800;color:#fff;
   background:linear-gradient(135deg,var(--accent,#4f46e5),color-mix(in srgb,var(--accent,#4f46e5) 60%,#000));
   box-shadow:0 2px 6px -1px color-mix(in srgb,var(--accent,#4f46e5) 70%,transparent);transition:transform .25s}
@@ -581,7 +583,12 @@ details.dig[open]>summary::after{transform:translateY(-30%) rotate(225deg)}
 details.dig[open]>summary{border-bottom:1px solid color-mix(in srgb,var(--accent,#4f46e5) 22%,var(--line))}
 details.dig>div{padding:1rem 1.1rem;font-size:.87rem;color:var(--ink-soft);line-height:1.75;
   background:linear-gradient(180deg,color-mix(in srgb,var(--accent,#4f46e5) 4%,#fff),#fff)}
+details.dig>div table{line-height:1.5}
+details.dig>div td,details.dig>div th{padding:.48rem .85rem}
+
 details.dig>div b{color:var(--ink)}
+details.dig>div b.hl-good,details.dig>div .hl-good{color:#15803d}
+details.dig>div b.hl-bad,details.dig>div .hl-bad{color:#be123c}
 
 /* ---- problem cards ---- */
 details.prob{border:1px solid var(--line);border-radius:.7rem;background:#fff;margin:.9rem 0;overflow:hidden;
@@ -620,9 +627,11 @@ details.prob.lc .plink{background:#d97706}
              display:grid;place-items:center;font-size:1rem;flex:0 0 auto}
 .goals .gh b{font-size:.95rem;font-weight:800;color:#9f1239}
 .goals ol{list-style:none;counter-reset:g;margin:0;padding:0;display:grid;gap:.55rem}
-.goals li{counter-increment:g;display:flex;gap:.65rem;align-items:flex-start;font-size:.9rem;line-height:1.6;color:var(--ink-soft)}
-.goals li::before{content:counter(g);width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #fda4af;
-  color:#be123c;font-size:.7rem;font-weight:800;display:grid;place-items:center;flex:0 0 auto;margin-top:.1rem}
+.goals li{counter-increment:g;position:relative;padding-left:1.95rem;font-size:.9rem;
+  line-height:1.6;color:var(--ink-soft)}
+.goals li::before{content:counter(g);position:absolute;left:0;top:.14rem;
+  width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #fda4af;
+  color:#be123c;font-size:.7rem;font-weight:800;display:grid;place-items:center}
 .goals li b{color:var(--ink)}
 
 /* ---- factor pairs, one per line ---- */
@@ -808,7 +817,9 @@ details.prob.lc .plink{background:#d97706}
 .prow.donep{opacity:.6}
 
 /* ============ SEGMENT 2 · CLASS 3 ============ */
-.gridwrap{overflow-x:auto;padding:.2rem}
+/* overflow-x:auto makes a box scroll on BOTH axes, so a cell that lifts on
+   hover or wears a selection ring is clipped unless there is headroom */
+.gridwrap{overflow-x:auto;padding:.55rem .25rem}
 .mgrid{display:grid;gap:3px;margin:0 auto;width:max-content}
 .gc{width:56px;height:44px;border:2px solid #cbd5e1;border-radius:.3rem;background:#fff;display:grid;
     place-items:center;font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--ink);
@@ -831,7 +842,7 @@ details.prob.lc .plink{background:#d97706}
 .linlbl.row{color:#1d4ed8}.linlbl.col{color:#b45309}
 .linlbl span{height:1px;flex:1}
 .linlbl.row span{background:#bfdbfe}.linlbl.col span{background:#fde68a}
-.linstrip{display:flex;gap:2px;overflow-x:auto;padding-bottom:.25rem}
+.linstrip{display:flex;gap:2px;overflow-x:auto;padding:.3rem 0 .25rem}
 .ls2{min-width:32px;flex:1 1 0;text-align:center}
 .ls2 .lb2{height:30px;border:2px solid #e2e8f0;border-radius:.25rem;background:#fff;display:grid;place-items:center;
           font-family:var(--mono);font-size:.62rem;font-weight:700;color:#94a3b8;transition:.2s;white-space:nowrap}
@@ -896,7 +907,295 @@ body.codelight .exactbox .lo{color:#94a3b8}
    never hidden while a menu or an overlay is open. */
 .topbar{transition:transform .26s ease}
 .topbar.tucked{transform:translateY(-100%)}
+.prog{transition:transform .26s ease,top .26s ease,opacity .2s ease}
+body.tucked .prog{transform:translateY(-140%);opacity:0;pointer-events:none}
 @media (prefers-reduced-motion:reduce){.topbar{transition:none}}
+/* ============ REVISION MODE ============
+   One switch that opens every hidden answer on the page at once, for someone
+   going back over the material rather than meeting it for the first time.
+   It is remembered, so a revision session stays open across pages. The
+   individual buttons are dimmed while it is on, because the switch is now in
+   charge of them. */
+body.revealall .ta,
+body.revealall .revealed,
+body.revealall .ova,
+body.revealall .qexp,
+body.revealall .ovs.hid{display:block!important}
+body.revealall .tbtn,
+body.revealall .ovbtn{opacity:.4;pointer-events:none}
+.revtog{appearance:none;border:1px solid #334155;background:transparent;color:#94a3b8;border-radius:.45rem;
+  font-family:inherit;font-size:.68rem;font-weight:700;padding:.3rem .6rem;cursor:pointer;
+  white-space:nowrap;transition:.15s;flex:0 0 auto}
+.revtog:hover{color:#e2e8f0;border-color:#64748b}
+.revtog.on{background:#6d28d9;border-color:#7c3aed;color:#fff}
+.revtog.solo{display:block;margin:0 0 1.2rem;border-color:var(--line);color:var(--ink-soft);background:#fff}
+.revtog.solo:hover{color:var(--ink);border-color:var(--line-strong)}
+.revtog.solo.on{background:#6d28d9;border-color:#7c3aed;color:#fff}
+
+/* ============ ONE COLOUR PER SYMBOL ============
+   The same five colours as Class 1, so a student flipping between the length
+   formula, the 1-D address formula and this one is reading one notation and
+   not three. J and K are both "the index you want", one per dimension. */
+.tk{font-family:var(--mono);font-weight:800;border-radius:.22em;padding:.02em .24em;
+  background:var(--tkbg);color:var(--tkfg);white-space:nowrap;letter-spacing:-.01em}
+.tk-base{--tkbg:#e0f2fe;--tkfg:#075985}
+.tk-w   {--tkbg:#fef3c7;--tkfg:#92400e}
+.tk-k   {--tkbg:#ede9fe;--tkfg:#5b21b6}
+.tk-lb  {--tkbg:#ccfbf1;--tkfg:#115e59}
+.tk-ub  {--tkbg:#ffe4e6;--tkfg:#9f1239}
+.tklegend{display:flex;flex-wrap:wrap;gap:.4rem .8rem;justify-content:center;
+  margin:.6rem 0 1rem;font-size:.74rem;color:var(--ink-mute)}
+.tklegend span{display:inline-flex;align-items:center;gap:.35rem}
+/* ==================================================================
+   ADDED IN THE SEGMENT-2 REWORK
+   ================================================================== */
+
+/* ---- segment tags (used in the prose since day one, never styled here) ---- */
+.sgtag{font-size:.56rem;font-weight:800;letter-spacing:.05em;padding:.22rem .45rem;border-radius:.3rem;
+       background:var(--sc);color:#fff;white-space:nowrap;line-height:1.25;display:inline-block;
+       vertical-align:.08em}
+.sg1{--sc:#0ea5e9}.sg2{--sc:#0284c7}.sg3{--sc:#7c3aed}.sg4{--sc:#c2410c}.sg5{--sc:#0d9488}
+
+/* ---- YOUR TURN — the question first, the answer one button away ---- */
+.turn{border:1.5px solid #c4b5fd;border-radius:.9rem;margin:1.2rem 0;overflow:hidden;
+  background:linear-gradient(180deg,#faf8ff,#f6f3ff)}
+.turn .th{display:flex;align-items:center;gap:.5rem;padding:.7rem .95rem;
+  border-bottom:1.5px solid #ddd6fe;background:rgba(255,255,255,.6)}
+.turn .th b{font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#6d28d9}
+.turn .tq{padding:.85rem .95rem;font-size:.96rem;line-height:1.62;color:var(--ink)}
+.turn .tq p{margin:0 0 .6rem}
+.turn .tq p:last-child{margin:0}
+.turn .tq ul,.turn .tq ol{margin:.1rem 0 .7rem;padding-left:1.15rem}
+.turn .tq li{margin:.3rem 0}
+.turn .tbtn{appearance:none;font-family:inherit;font-size:.78rem;font-weight:800;
+  border:1.5px solid #a78bfa;background:#fff;color:#6d28d9;border-radius:.5rem;
+  padding:.42rem .85rem;cursor:pointer;margin:0 .95rem .95rem;transition:.15s}
+.turn .tbtn:hover{background:#f5f3ff;border-color:#7c3aed}
+.turn .ta{display:none;padding:0 .95rem .95rem;font-size:.94rem;line-height:1.62;color:var(--ink)}
+.turn .ta.on{display:block;animation:drop .3s ease}
+.turn .ta p{margin:0 0 .55rem}
+.turn .ta p:last-child{margin:0}
+.turn .ta .mono{background:#f5f3ff;border:1px solid #ddd6fe;border-radius:.25rem;
+  padding:.02rem .3rem;font-size:.94em;font-weight:600;color:#5b21b6}
+.turn .hint{font-size:.84rem;color:#7c3aed;font-weight:700}
+
+/* ---- THE FORMULA CARD ---------------------------------------------
+   Segment 2 runs on three formulas and nothing else. Each one gets this
+   card, so a student flipping through four classes can find them by shape
+   without reading a word. It has to outrank .box info, which is only a
+   pale blue tint. */
+.fbox{border:2px solid #0284c7;border-radius:.9rem;background:#fff;margin:1.2rem 0;overflow:hidden;
+  box-shadow:0 14px 34px -26px rgba(2,132,199,.75)}
+.fbox .fbh{display:flex;align-items:center;gap:.5rem;padding:.55rem .95rem;background:#f0f9ff;
+  border-bottom:1.5px solid #bae6fd}
+.fbox .fbh b{font-size:.6rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#0369a1}
+.fbox .fbf{font-family:var(--mono);font-weight:800;text-align:center;color:#075985;
+  font-size:clamp(1rem,4.4vw,1.5rem);letter-spacing:-.01em;padding:1.15rem .8rem;
+  background:linear-gradient(180deg,#fff,#f8fcff)}
+.fbox .fbl{display:grid;gap:.5rem;padding:0 .95rem .95rem}
+@media(min-width:640px){.fbox .fbl{grid-template-columns:repeat(3,1fr)}}
+.fbox .fbl div{border:1px solid #e0f2fe;border-radius:.55rem;background:#f8fcff;padding:.55rem .65rem;
+  font-size:.82rem;line-height:1.55;color:var(--ink-soft)}
+.fbox .fbl div>b:first-child{display:block;font-family:var(--mono);font-size:.9rem;color:#0369a1;
+  margin-bottom:.1rem}
+.fbox .fbl div>b:first-child~b{color:var(--ink)}
+.fbox .fbn{margin:0;padding:0 .95rem .95rem;font-size:.86rem;line-height:1.62;color:#0c4a6e}
+
+/* ---- A REAL PAST QUESTION, INSIDE THE LESSON ----------------------
+   The Exam tab is for revision. This is for the moment in the class when
+   the thing just taught IS the question — so it carries the exam's own
+   words, its own marks, and nothing else. */
+.pastq{border:1.5px solid #fecdd3;border-left:4px solid #e11d48;border-radius:.7rem;
+  background:linear-gradient(180deg,#fff7f8,#fff);padding:.9rem 1rem;margin:1.1rem 0}
+.pastq .pqh{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;margin:0 0 .55rem}
+.pastq .pqs{font-size:.58rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  background:#e11d48;color:#fff;border-radius:.3rem;padding:.16rem .45rem}
+.pastq .pqw{font-size:.68rem;font-weight:700;color:#9f1239}
+.pastq .pqm{margin-left:auto;font-family:var(--mono);font-size:.66rem;font-weight:800;color:#be123c;
+  background:#ffe4e6;border-radius:999px;padding:.14rem .55rem;white-space:nowrap}
+.pastq .pqt{margin:0;font-size:.93rem;line-height:1.68;color:#4c0519;font-style:italic}
+.pastq .pqt b{font-style:normal;color:#881337}
+
+/* ---- SIMULATOR SHELL + FOCUS -------------------------------------
+   Jamil teaches from a projector. Every widget on the page can now be
+   thrown full-screen, and it is the same node that moves — never a copy,
+   so nothing can drift out of sync. */
+.simbox{border:1px solid #e6e9f7;border-radius:1rem;margin:1.2rem 0;overflow:hidden;
+  background:linear-gradient(180deg,#fff 0%,#fcfdff 55%,#f7f9ff 100%);
+  box-shadow:0 14px 32px -26px rgba(30,27,75,.4)}
+.simhd{display:flex;align-items:center;gap:.7rem;padding:.55rem .9rem;border-bottom:1px solid #eef0f8}
+.simttl{font-size:.5rem;font-weight:800;letter-spacing:.24em;text-transform:uppercase;color:#b4bcd8}
+.focusb{margin-left:auto;appearance:none;font-family:inherit;font-size:.68rem;font-weight:800;
+  border:1px solid #dfe3f2;background:#fff;color:#6d7392;border-radius:.45rem;
+  padding:.28rem .6rem;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:.35rem}
+.focusb:hover{border-color:var(--accent,#0284c7);color:var(--accent,#0284c7)}
+.simbd{padding:.95rem}
+.simbd>:first-child{margin-top:0}
+.simbd>:last-child{margin-bottom:0}
+
+.fsov{position:fixed;inset:0;z-index:120;background:var(--bg);display:none;flex-direction:column}
+.fsov.on{display:flex}
+body.fsopen{overflow:hidden}
+.fshd{flex:0 0 auto;display:flex;align-items:center;gap:.8rem;padding:.7rem 1.2rem;
+  border-bottom:1px solid var(--line);background:#fff}
+.fshd b{font-size:.9rem;font-weight:800;color:var(--ink);letter-spacing:-.01em}
+.fsx{margin-left:auto;appearance:none;font-family:var(--mono);font-size:.7rem;font-weight:700;
+  color:var(--ink-mute);border:1px solid var(--line-strong);border-radius:.4rem;padding:.22rem .55rem;
+  background:#fff;cursor:pointer}
+.fsx+.fsx{margin-left:0}
+.fsx:hover{color:var(--ink);border-color:var(--ink-mute)}
+.fsbody{flex:1;min-height:0;overflow:auto;padding:clamp(.7rem,2vw,1.6rem)}
+.fsbody{display:flex;flex-direction:column;justify-content:center}
+.fsbody .simbox{max-width:1180px;width:100%;margin:0 auto;border:0;background:transparent;box-shadow:none}
+.fsbody .simhd{display:none}
+.fsbody .simbd{padding:0}
+/* On the wall everything grows. These widgets are DOM, not canvas, so they
+   reflow on their own once the overlay is wider — only the fixed cell sizes
+   and the type have to be told to get bigger. */
+.fsbody .acell2{width:78px}
+.fsbody .acell2 .ab2{height:58px;font-size:1.3rem}
+.fsbody .acell2 .ai2{font-size:.72rem}
+.fsbody .acell2 .aa2{font-size:.66rem}
+.fsbody .mc{width:68px}
+.fsbody .mc .mb{height:56px;font-size:1.15rem}
+.fsbody .mc .mi{font-size:.72rem}
+.fsbody .mc .ma{font-size:.63rem}
+.fsbody .fline{font-size:clamp(.9rem,2vw,1.3rem);line-height:2.35}
+.fsbody .carr-code{font-size:1.02rem;line-height:2.2}
+.fsbody .tw2 .tv2{font-size:1.75rem}
+.fsbody .tw2 .tk2{font-size:.7rem}
+.fsbody .drow span{font-size:.98rem}
+.fsbody .drow{padding:.55rem .9rem}
+.fsbody .opdesc,.fsbody .fclbl{font-size:1rem}
+.fshint{flex:0 0 auto;display:flex;flex-wrap:wrap;gap:.5rem 1.3rem;padding:.55rem 1.2rem;
+  border-top:1px solid var(--line);background:#fff;font-size:.7rem;color:var(--ink-mute)}
+.fshint kbd{font-family:var(--mono);font-size:.66rem;border:1px solid var(--line-strong);
+  border-bottom-width:2px;border-radius:.28rem;padding:.02rem .3rem;background:#f8fafc;color:var(--ink-soft)}
+
+/* ---- THE TAKEAWAY RAIL -------------------------------------------
+   One sentence per section, added as the section is reached — forward
+   only, so it records what has been said rather than previewing it. */
+.keyrail{position:fixed;right:1rem;top:5.6rem;bottom:9.6rem;width:280px;z-index:40;
+  display:none;flex-direction:column;pointer-events:none}
+@media(min-width:1240px){.keyrail{display:flex}}
+.keyrail.hid .kbody{display:none}
+.krhd{pointer-events:auto;display:flex;align-items:center;gap:.55rem;align-self:flex-end;
+  background:linear-gradient(180deg,#fff,#fbfcff);border:1px solid #dfe3f2;border-radius:.7rem;
+  padding:.42rem .7rem;box-shadow:0 10px 26px -18px rgba(30,27,75,.55);cursor:pointer;transition:.15s}
+.krhd:hover{border-color:#7dd3fc;box-shadow:0 12px 30px -18px rgba(2,132,199,.6)}
+.krhd .kt{font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#7b8199}
+.krhd .kn{font-family:var(--mono);font-size:.66rem;font-weight:800;color:#fff;
+  background:linear-gradient(135deg,#0284c7,#38bdf8);border-radius:.35rem;padding:.06rem .38rem}
+.krhd .kv{color:#b4bcd8;font-size:.66rem;transition:transform .22s}
+.keyrail.hid .krhd .kv{transform:rotate(-90deg)}
+.kbody{pointer-events:auto;margin-top:.5rem;overflow-y:auto;display:flex;flex-direction:column;gap:.45rem;
+  padding:.2rem .2rem .5rem;scrollbar-width:thin;mask-image:linear-gradient(180deg,transparent 0,#000 12px)}
+.kitem{position:relative;background:#fff;border:1px solid #e6e9f7;border-radius:.6rem;
+  padding:.6rem .75rem .6rem 2.5rem;font-size:.82rem;line-height:1.5;color:#4c5480;
+  box-shadow:0 10px 24px -20px rgba(30,27,75,.6);
+  animation:kin .38s cubic-bezier(.32,1.1,.4,1) both}
+.kitem b{color:#0f172a;font-weight:700}
+.kitem .kx{position:absolute;left:.6rem;top:.62rem;width:1.45rem;height:1.45rem;border-radius:.35rem;
+  display:grid;place-items:center;font-family:var(--mono);font-size:.62rem;font-weight:800;
+  background:#e0f2fe;color:#0369a1;letter-spacing:0}
+.kitem.new{border-color:#7dd3fc;box-shadow:0 12px 28px -18px rgba(2,132,199,.6)}
+.kitem.new .kx{background:linear-gradient(135deg,#0284c7,#38bdf8);color:#fff}
+.kitem .mono{background:#f0f9ff;border:1px solid #e0f2fe;border-radius:.25rem;
+  padding:.02rem .26rem;font-size:.94em;font-weight:600;color:#075985}
+@keyframes kin{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.kitem{animation:none}}
+body.fsopen .keyrail{display:none}          /* never over a projected screen */
+body.onexam .keyrail{display:none}          /* nor over the exam tab, which has no keys */
+
+/* ---- the input/output examples inside a problem block ---- */
+.iogrid{display:grid;gap:.55rem;margin:.8rem 0 0}
+@media(min-width:640px){.iogrid{grid-template-columns:1fr 1fr}}
+.io{display:grid;grid-template-columns:auto 1fr;gap:.3rem .6rem;align-items:baseline;
+  border:1px solid var(--line);border-radius:.55rem;background:#f8fafc;padding:.6rem .7rem}
+.io .iok{font-size:.55rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute)}
+.io .mono{font-size:.78rem;font-weight:700;overflow-wrap:anywhere}
+.io em{grid-column:1/-1;font-style:normal;font-size:.76rem;line-height:1.55;color:var(--ink-mute);
+  margin-top:.3rem;padding-top:.35rem;border-top:1px dashed var(--line)}
+
+/* The traversal strip carries twenty years, which never fits on one line at
+   any width worth having. Rather than let it wrap wherever it happens to
+   run out — which strands three or four years alone on a second row — it is
+   capped to exactly ten cells, so it always reads as two decades:
+   2000-2009 above, 2010-2019 below. The sizes live here, not inline, or
+   Focus mode cannot grow them. */
+#tstrip .acell2{width:52px}
+#tstrip .acell2 .ab2{font-size:.82rem}
+.fsbody #tstrip .acell2{width:52px}
+
+/* ---- quiz progress: the ribbon, the chip in the tabs, and the reset ------
+   The answers are remembered, so a student who comes back to revise sees
+   which checks they have already done rather than a blank page. */
+.prog{position:sticky;top:calc(var(--barh,52px) + .5rem);z-index:40;display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;
+      border:1px solid #e8ebfa;border-radius:.7rem;background:rgba(255,255,255,.94);backdrop-filter:blur(6px);
+      padding:.55rem .8rem;margin:0 0 1.6rem;box-shadow:0 8px 22px -18px rgba(30,27,75,.5)}
+.prog .pk{font-size:.55rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#b4bcd8}
+.prog .pbar{flex:1;min-width:120px;height:8px;border-radius:99px;background:#e0f2fe;overflow:hidden}
+.prog .pbar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#38bdf8,#0284c7);
+              transition:width .5s cubic-bezier(.32,1.1,.4,1)}
+.prog .pn{font-family:var(--mono);font-size:.78rem;font-weight:800;color:#0369a1}
+.prog button{appearance:none;font-family:inherit;font-size:.68rem;font-weight:700;padding:.28rem .6rem;
+             border-radius:.4rem;border:1px solid var(--line);background:#fff;color:var(--ink-mute);cursor:pointer}
+.prog button:hover{border-color:#0284c7;color:#0369a1}
+@media(max-width:700px){.prog{position:static;backdrop-filter:none;background:#fff}}
+.qchip{display:inline-flex;align-items:center;gap:.34rem;border:1px solid #334155;background:transparent;
+   color:#94a3b8;border-radius:.45rem;font-family:inherit;font-size:.68rem;font-weight:700;
+   padding:.3rem .6rem;white-space:nowrap;flex:0 0 auto}
+.qchip i{width:7px;height:7px;border-radius:50%;background:#0284c7;display:block;flex:0 0 auto}
+.qchip b{font-family:var(--mono);color:#e2e8f0}
+
+/* ---- n / r drive the simulator you are looking at -----------------------
+   A lecture is run from the keyboard: the mouse is for pointing at the wall,
+   not for hunting a Next button. The block being driven says so in its own
+   button row, so which one the keys belong to is never a guess. */
+.kbdhint{margin-left:auto;align-self:center;font-size:.62rem;color:#b4bcd8;white-space:nowrap;
+  display:none;gap:.3rem;align-items:center}
+.simbox.kbdon .kbdhint{display:inline-flex}
+.kbdhint kbd{font-family:var(--mono);font-size:.6rem;border:1px solid var(--line);border-bottom-width:2px;
+  border-radius:.25rem;padding:0 .28rem;background:#f8fafc;color:var(--ink-soft)}
+.simbox.kbdon{box-shadow:0 0 0 2px rgba(2,132,199,.28),0 14px 32px -26px rgba(30,27,75,.4)}
+body.fsopen .simbox.kbdon{box-shadow:none}
+
+
+/* every simulator's controls sit under the middle of what they drive */
+.simbox .btnrow{position:relative;justify-content:center;margin-bottom:0;padding-top:.2rem}
+@media(max-width:860px){.simbox .kbdhint{display:none!important}}
+/* the narration is sized for its tallest sentence, so the buttons never move */
+/* ---- the step narration, as on every other page in the segment ---- */
+.stepmsg{display:flex;align-items:center;gap:.75rem;padding:.7rem .9rem;
+  border:1px solid var(--line);border-left:5px solid #7c3aed;border-radius:0 .65rem .65rem 0;
+  background:#f8fafc;transition:background .3s,border-color .3s}
+.stepmsg .smic{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
+  font-size:.95rem;font-weight:800;color:#fff;background:#94a3b8;transition:background .3s}
+.stepmsg .smtx{margin:0;flex:1 1 auto;min-width:0;font-size:clamp(.85rem,3.2vw,1rem);
+  line-height:1.55;color:var(--ink)}
+.stepmsg .smn{flex:0 0 auto;white-space:nowrap;font-family:var(--mono);font-size:.66rem;
+  font-weight:800;letter-spacing:.05em;color:var(--ink-mute);background:#fff;
+  border:1px solid var(--line);border-radius:999px;padding:.2rem .55rem}
+.stepmsg.tt{border-left-color:#16a34a;background:#f2fdf5}
+.stepmsg.tt .smic{background:#16a34a}
+.simbox .opdesc,.simbox .stepmsg{min-height:5.2rem;display:flex;align-items:center;
+  justify-content:center;text-align:center;margin:.55rem .9rem 0}
+@media(min-width:700px){.simbox .opdesc,.simbox .stepmsg{min-height:4.2rem}}
+@media(min-width:1000px){.simbox .opdesc,.simbox .stepmsg{min-height:3.7rem}}
+.simbox .stepmsg{text-align:left;justify-content:flex-start}
+
+
+/* a cell that has already been taken out of the table, and a place in the
+   line that is still waiting for one */
+.gc.spent{opacity:.42;border-style:dashed;cursor:pointer}
+.ls2.hole .lb2{border-style:dashed;border-color:#e2e8f0;background:#fbfcfe;color:transparent}
+.ls2.set .lb2{color:#475569;border-color:#cbd5e1;animation:landin .34s cubic-bezier(.3,1.2,.4,1) both}
+@keyframes landin{from{opacity:0;transform:translateY(-9px) scale(.9)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.ls2.set .lb2{animation:none}}
+.lincnt{font-family:var(--mono);font-size:.62rem;font-weight:800;color:var(--ink-mute);
+  background:#fff;border:1px solid var(--line);border-radius:999px;padding:.05rem .45rem;
+  letter-spacing:0;flex:0 0 auto}
+.simbox .gridwrap{margin:.2rem 0 .6rem}
 </style>
 </head>
 <body>
@@ -1012,29 +1311,47 @@ body.codelight .exactbox .lo{color:#94a3b8}
     </div>
   </div>
 
-  <h3>Watch it flatten</h3>
-  <p><b>Click any cell in the grid</b> — or press Play to watch the whole rectangle unroll into a line, both ways at once.</p>
+  <h3>Watch it flatten, block by block</h3>
+  <p>The grid is read in one order and written into memory in that order. <b>Press Next and watch a single cell leave the table and take its place in the line</b> — in <b>both</b> layouts at once.</p>
 
-  <div class="ctrls" style="grid-template-columns:1fr 1fr">
-    <div class="ctrl"><label>m — rows</label><input id="g-m" type="number" value="3" min="1" max="6"></div>
-    <div class="ctrl"><label>n — columns</label><input id="g-n" type="number" value="4" min="1" max="6"></div>
-  </div>
+  <div class="simbox" id="map-sim" data-title="Flattening a rectangle into a line">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <button class="focusb" type="button" data-focus="map-sim">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+      <div class="ctrls" style="grid-template-columns:1fr 1fr 1.6fr;margin-top:0">
+        <div class="ctrl"><label>m — rows</label><input id="g-m" type="number" value="3" min="1" max="6"></div>
+        <div class="ctrl"><label>n — columns</label><input id="g-n" type="number" value="4" min="1" max="6"></div>
+        <div class="ctrl"><label>reading order</label>
+          <div class="btnrow" style="margin:0;padding:0;gap:.35rem">
+            <button class="btn sm" id="map-ord-r" style="background:#1d4ed8">row by row</button>
+            <button class="btn sm ghost" id="map-ord-c">column by column</button>
+          </div>
+        </div>
+      </div>
 
-  <div class="gridwrap"><div class="mgrid" id="mapgrid"></div></div>
+      <div class="gridwrap"><div class="mgrid" id="mapgrid"></div></div>
 
-  <div class="lin">
-    <p class="linlbl row">Row-major — row by row<span></span></p>
-    <div class="linstrip row" id="rowstrip"></div>
-  </div>
-  <div class="lin">
-    <p class="linlbl col">Column-major — column by column<span></span></p>
-    <div class="linstrip col" id="colstrip"></div>
-  </div>
+      <div class="lin">
+        <p class="linlbl row">Row-major — row by row<span></span><b class="lincnt" id="rowcnt">0 / 12</b></p>
+        <div class="linstrip row" id="rowstrip"></div>
+      </div>
+      <div class="lin">
+        <p class="linlbl col">Column-major — column by column<span></span><b class="lincnt" id="colcnt">0 / 12</b></p>
+        <div class="linstrip col" id="colstrip"></div>
+      </div>
 
-  <p class="opdesc" id="mapmsg" style="text-align:center">Click a cell above.</p>
-  <div class="btnrow" style="justify-content:center">
-    <button class="btn" id="map-play" style="background:#7c3aed">▶ Unroll it</button>
-    <button class="btn ghost sm" id="map-reset">Reset</button>
+      <div class="stepmsg" id="map-msgbox"><span class="smic" id="map-msgic">&#9656;</span>
+        <p class="smtx" id="mapmsg">Press <b>Next</b> to take the first cell out of the table.</p>
+        <span class="smn" id="map-msgn">0 / 12</span></div>
+      <div class="btnrow">
+        <button class="btn ghost sm" id="map-back" data-k="back">&#9666; Back</button>
+        <button class="btn" id="map-next" data-k="next" style="background:#7c3aed">Next cell &#9656;</button>
+        <button class="btn ghost sm" id="map-play">&#9654; Play</button>
+        <button class="btn ghost sm" id="map-reset" data-k="reset">Reset</button>
+      </div>
+    </div>
   </div>
 
   <div class="box good">
@@ -1056,6 +1373,13 @@ body.codelight .exactbox .lo{color:#94a3b8}
   <p class="mono" style="text-align:center;font-size:1.05rem;font-weight:800;color:#0369a1">LOC(LA[K]) = BASE + w (K &minus; LB)</p>
   <p>The 2D version is the <b>same idea</b>. The only new question is: <b>how many elements do I skip to reach A[J, K]?</b></p>
 
+  <p class="tklegend">
+    <span><span class="tk tk-base">Base(A)</span> base address</span><span><span class="tk tk-w">w</span> bytes each</span>
+    <span><span class="tk tk-k">J</span> <span class="tk tk-k">K</span> the indices you want</span>
+    <span><span class="tk tk-lb">LB</span> lower bound</span><span><span class="tk tk-ub">UB</span> upper bound</span>
+  </p>
+  <p class="subtle" style="text-align:center;margin:-.6rem 0 1.1rem">Same five colours as Class 1 &mdash; same five symbols.</p>
+
   <div class="box info">
     <p class="bt">Row-major — count the skipping</p>
     <p style="margin:0">To reach row J, you must skip <b>all the complete rows before it</b>. There are <b>(J &minus; 1)</b> of them, and each holds <b>N</b> elements (N = number of columns).<br><br>
@@ -1064,7 +1388,7 @@ body.codelight .exactbox .lo{color:#94a3b8}
   </div>
 
   <p class="mono" style="text-align:center;font-size:clamp(.85rem,3.6vw,1.1rem);font-weight:800;color:#1d4ed8;background:#eff6ff;border:2px solid #bfdbfe;border-radius:.6rem;padding:.8rem">
-    Row-major: &nbsp; LOC(A[J,K]) = Base(A) + w [ N(J &minus; 1) + (K &minus; 1) ]</p>
+    Row-major: &nbsp; LOC(A[<span class="tk tk-k">J</span>,<span class="tk tk-k">K</span>]) = <span class="tk tk-base">Base(A)</span> + <span class="tk tk-w">w</span> [ N(<span class="tk tk-k">J</span> &minus; 1) + (<span class="tk tk-k">K</span> &minus; 1) ]</p>
 
   <div class="box warn">
     <p class="bt">Column-major — mirror everything</p>
@@ -1073,7 +1397,7 @@ body.codelight .exactbox .lo{color:#94a3b8}
   </div>
 
   <p class="mono" style="text-align:center;font-size:clamp(.85rem,3.6vw,1.1rem);font-weight:800;color:#b45309;background:#fffbeb;border:2px solid #fde68a;border-radius:.6rem;padding:.8rem">
-    Column-major: &nbsp; LOC(A[J,K]) = Base(A) + w [ M(K &minus; 1) + (J &minus; 1) ]</p>
+    Column-major: &nbsp; LOC(A[<span class="tk tk-k">J</span>,<span class="tk tk-k">K</span>]) = <span class="tk tk-base">Base(A)</span> + <span class="tk tk-w">w</span> [ M(<span class="tk tk-k">K</span> &minus; 1) + (<span class="tk tk-k">J</span> &minus; 1) ]</p>
 
   <div class="box good">
     <p class="bt">The one-line way to remember which is which</p>
@@ -1118,14 +1442,14 @@ body.codelight .exactbox .lo{color:#94a3b8}
   <p><b>Set up any exam question here.</b> It works the whole thing out, step by step, exactly as you should write it.</p>
 
   <div class="ctrls">
-    <div class="ctrl"><label>LB₁ (rows from)</label><input id="e-lb1" type="number" value="4"></div>
-    <div class="ctrl"><label>UB₁ (rows to)</label><input id="e-ub1" type="number" value="12"></div>
-    <div class="ctrl"><label>LB₂ (cols from)</label><input id="e-lb2" type="number" value="7"></div>
-    <div class="ctrl"><label>UB₂ (cols to)</label><input id="e-ub2" type="number" value="14"></div>
-    <div class="ctrl"><label>Base(A)</label><input id="e-base" type="number" value="300"></div>
-    <div class="ctrl"><label>w — bytes</label><input id="e-w" type="number" value="8"></div>
-    <div class="ctrl"><label>J — which row</label><input id="e-j" type="number" value="6"></div>
-    <div class="ctrl"><label>K — which column</label><input id="e-k" type="number" value="10"></div>
+    <div class="ctrl"><label><span class="tk tk-lb">LB&#8321;</span> (rows from)</label><input id="e-lb1" type="number" value="4"></div>
+    <div class="ctrl"><label><span class="tk tk-ub">UB&#8321;</span> (rows to)</label><input id="e-ub1" type="number" value="12"></div>
+    <div class="ctrl"><label><span class="tk tk-lb">LB&#8322;</span> (cols from)</label><input id="e-lb2" type="number" value="7"></div>
+    <div class="ctrl"><label><span class="tk tk-ub">UB&#8322;</span> (cols to)</label><input id="e-ub2" type="number" value="14"></div>
+    <div class="ctrl"><label><span class="tk tk-base">Base(A)</span></label><input id="e-base" type="number" value="300"></div>
+    <div class="ctrl"><label><span class="tk tk-w">w</span> — bytes</label><input id="e-w" type="number" value="8"></div>
+    <div class="ctrl"><label><span class="tk tk-k">J</span> — which row</label><input id="e-j" type="number" value="6"></div>
+    <div class="ctrl"><label><span class="tk tk-k">K</span> — which column</label><input id="e-k" type="number" value="10"></div>
   </div>
 
   <div class="btnrow">
@@ -1444,12 +1768,6 @@ body.codelight .exactbox .lo{color:#94a3b8}
 </main>
 </section>
 
-<nav class="pagenav wrap" style="padding-bottom:0">
-  <a class="pn pv" href="02-array-operations.html"><span class="ar">&larr;</span><span class="tx"><em>Previous</em><b>Operations on an array</b></span></a>
-  <a class="pn home" href="../../index.html"><span class="ar">&#9783;</span><b>All classes</b></a>
-  <a class="pn nx" href="04-strings.html"><span class="ar">&rarr;</span><span class="tx"><em>Next</em><b>Strings &amp; pattern matching</b></span></a>
-</nav>
-
 <footer class="pagefoot">
   <div class="wrap fin">
     <div class="fw">
@@ -1469,6 +1787,7 @@ body.codelight .exactbox .lo{color:#94a3b8}
 "use strict";
 var $=function(s,r){return (r||document).querySelector(s);};
 var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+var el=function(t,c,h){var n=document.createElement(t);if(c)n.className=c;if(h!==undefined)n.innerHTML=h;return n;};
 
 /* TABS */
 $$('.tab').forEach(function(t){t.addEventListener('click',function(){
@@ -1513,57 +1832,109 @@ function jump(d){
   g.innerHTML=html;
 })();
 
-/* ---------- 2 · FLATTEN MAPPER ---------- */
+/* ---------- 2 · FLATTENING, BLOCK BY BLOCK ----------
+   The strips start empty. Each press lifts one cell out of the table and drops
+   it into its place in BOTH layouts at once — so the row-major line fills left
+   to right while the column-major line fills with gaps, which is the whole
+   point of the section. Reading order is switchable, and the two views swap
+   roles when you switch it. */
 (function(){
-  var M=3,N=4,sel=null,tmr=null,order=[];
+  var M=3, N=4, rowRead=true, at=-1, tmr=null, seq=[];
   function build(){
     M=Math.max(1,Math.min(6,+$('#g-m').value||3));
     N=Math.max(1,Math.min(6,+$('#g-n').value||4));
-    sel=null; draw();
+    seq=[];
+    if(rowRead){ for(var j=1;j<=M;j++) for(var k=1;k<=N;k++) seq.push({j:j,k:k}); }
+    else       { for(var k2=1;k2<=N;k2++) for(var j2=1;j2<=M;j2++) seq.push({j:j2,k:k2}); }
+    at=-1; draw();
   }
-  function label(j,k){ return j+','+k; }
+  function rOff(c){ return (c.j-1)*N + (c.k-1); }   /* row-major offset    */
+  function cOff(c){ return (c.k-1)*M + (c.j-1); }   /* column-major offset */
+  function placedBy(off, which){
+    for(var i=0;i<=at;i++) if((which==='r'?rOff(seq[i]):cOff(seq[i]))===off) return seq[i];
+    return null;
+  }
   function draw(){
-    var g=$('#mapgrid'); g.style.gridTemplateColumns='34px repeat('+N+',56px)';
-    var html='<div class="gside"></div>';
-    for(var k=1;k<=N;k++) html+='<div class="ghdr">col '+k+'</div>';
-    for(var j=1;j<=M;j++){
+    var cur = at>=0 ? seq[at] : null;
+    /* ---- the table: placed cells are spent, the current one is lit ---- */
+    var g=$('#mapgrid');
+    g.style.gridTemplateColumns='34px repeat('+N+',56px)';
+    var html='<div class="gside"></div>', k, j;
+    for(k=1;k<=N;k++) html+='<div class="ghdr">col '+k+'</div>';
+    for(j=1;j<=M;j++){
       html+='<div class="gside">row '+j+'</div>';
       for(k=1;k<=N;k++){
-        var cls='gc'+(sel&&sel.j===j&&sel.k===k?' sel2':'');
-        html+='<div class="'+cls+'" data-j="'+j+'" data-k="'+k+'"><span class="gidx">'+label(j,k)+'</span>'+((j-1)*N+k)*10+'</div>';
+        var idx=-1;
+        for(var q=0;q<=at;q++) if(seq[q].j===j&&seq[q].k===k){ idx=q; break; }
+        var cls='gc';
+        if(cur && cur.j===j && cur.k===k) cls+=' sel2';
+        else if(idx>=0) cls+=' spent';
+        html+='<div class="'+cls+'" data-j="'+j+'" data-k="'+k+'">'+
+              '<span class="gidx">'+j+','+k+'</span>'+((j-1)*N+k)*10+'</div>';
       }
     }
     g.innerHTML=html;
-    $$('#mapgrid .gc').forEach(function(el){
-      el.addEventListener('click',function(){ sel={j:+el.dataset.j,k:+el.dataset.k}; draw(); });
+    $$('#mapgrid .gc').forEach(function(elc){
+      elc.addEventListener('click',function(){
+        var jj=+elc.dataset.j, kk=+elc.dataset.k;
+        for(var i=0;i<seq.length;i++) if(seq[i].j===jj&&seq[i].k===kk){ stop(); at=i; draw(); return; }
+      });
     });
-    // row-major strip
-    var r='',c='';
-    for(j=1;j<=M;j++) for(k=1;k<=N;k++){
-      var on = sel&&sel.j===j&&sel.k===k;
-      r+='<div class="ls2'+(on?' on':'')+'"><div class="lb2">'+label(j,k)+'</div><span class="la2">'+((j-1)*N+(k-1))+'</span></div>';
+    /* ---- the two lines, filling one block at a time ---- */
+    function strip(which){
+      var out='', total=M*N;
+      for(var o=0;o<total;o++){
+        var c=placedBy(o,which);
+        var live = c && cur && c.j===cur.j && c.k===cur.k;
+        if(!c) out+='<div class="ls2 hole"><div class="lb2"></div><span class="la2">'+o+'</span></div>';
+        else out+='<div class="ls2 set'+(live?' on':'')+'"><div class="lb2">'+c.j+','+c.k+'</div>'+
+                  '<span class="la2">'+o+'</span></div>';
+      }
+      return out;
     }
-    for(k=1;k<=N;k++) for(j=1;j<=M;j++){
-      var on2 = sel&&sel.j===j&&sel.k===k;
-      c+='<div class="ls2'+(on2?' on':'')+'"><div class="lb2">'+label(j,k)+'</div><span class="la2">'+((k-1)*M+(j-1))+'</span></div>';
+    $('#rowstrip').innerHTML=strip('r');
+    $('#colstrip').innerHTML=strip('c');
+    var done=at+1, tot=M*N;
+    $('#rowcnt').textContent=done+' / '+tot;
+    $('#colcnt').textContent=done+' / '+tot;
+
+    var m;
+    if(!cur) m='The table is full and both lines are empty. Press <b>Next</b> to take the first cell out.';
+    else {
+      var ro=rOff(cur), co=cOff(cur);
+      m='<b>['+cur.j+','+cur.k+']</b> leaves the table and lands at '+
+        '<b style="color:#1d4ed8">offset '+ro+'</b> in row-major, but at '+
+        '<b style="color:#b45309">offset '+co+'</b> in column-major.'+
+        (ro===co ? ' <b>The same place, this once.</b>'
+                 : ' <b>Same cell, two different addresses.</b>');
+      if(done===tot) m='<b>All '+tot+' cells placed.</b> The table is empty and both lines are full — with the <b>same values in a different order</b>. Row-major and column-major are not two data structures; they are two ways of writing down one.';
     }
-    $('#rowstrip').innerHTML=r; $('#colstrip').innerHTML=c;
-    $('#mapmsg').innerHTML = sel
-      ? 'Cell <b>['+sel.j+','+sel.k+']</b> sits at offset <b style="color:#1d4ed8">'+((sel.j-1)*N+(sel.k-1))+'</b> in row-major, but at offset <b style="color:#b45309">'+((sel.k-1)*M+(sel.j-1))+'</b> in column-major. <b>Same cell, different place in memory.</b>'
-      : 'Click a cell above.';
+    $('#mapmsg').innerHTML=m;
+    $('#map-msgn').textContent=done+' / '+tot;
+    $('#map-msgic').innerHTML = done===tot ? '&#10003;' : '&#9656;';
+    $('#map-msgbox').classList.toggle('tt', done===tot);
+    $('#map-next').disabled = at>=seq.length-1;
+    $('#map-back').disabled = at<0;
   }
+  function stop(){ if(tmr){clearInterval(tmr);tmr=null;} $('#map-play').textContent='▶ Play'; }
+  function order(r){
+    rowRead=r;
+    $('#map-ord-r').classList.toggle('ghost',!r); $('#map-ord-r').style.background=r?'#1d4ed8':'';
+    $('#map-ord-c').classList.toggle('ghost',r);  $('#map-ord-c').style.background=r?'':'#b45309';
+    stop(); build();
+  }
+  $('#map-next').onclick=function(){ stop(); if(at<seq.length-1){at++;draw();} };
+  $('#map-back').onclick=function(){ stop(); if(at>-1){at--;draw();} };
+  $('#map-reset').onclick=function(){ stop(); at=-1; draw(); };
   $('#map-play').onclick=function(){
-    if(tmr){clearInterval(tmr);tmr=null;this.textContent='▶ Unroll it';return;}
-    var seq=[],j,k;
-    for(j=1;j<=M;j++) for(k=1;k<=N;k++) seq.push({j:j,k:k});
-    var i=0; this.textContent='⏸ Pause';
-    var btn=this;
-    tmr=setInterval(function(){
-      if(i>=seq.length){clearInterval(tmr);tmr=null;btn.textContent='▶ Unroll it';return;}
-      sel=seq[i++]; draw();
-    },420);
+    var b=this;
+    if(tmr){ stop(); return; }
+    if(at>=seq.length-1) at=-1;
+    b.textContent='⏸ Pause';
+    tmr=setInterval(function(){ if(at<seq.length-1){at++;draw();} else stop(); },460);
   };
-  $('#map-reset').onclick=function(){ clearInterval(tmr); tmr=null; $('#map-play').textContent='▶ Unroll it'; sel=null; draw(); };
+  $('#map-ord-r').onclick=function(){ order(true); };
+  $('#map-ord-c').onclick=function(){ order(false); };
   $('#g-m').addEventListener('change',build);
   $('#g-n').addEventListener('change',build);
   build();
@@ -1686,14 +2057,245 @@ function jump(d){
   build();
 })();
 
-/* ---------- QUIZZES ---------- */
-$$('.quiz').forEach(function(q){
-  var o=$$('.qopt',q),e=$('.qexp',q);
-  o.forEach(function(b){b.addEventListener('click',function(){
-    o.forEach(function(x){x.disabled=true;if(x.dataset.ok)x.classList.add('ok');});
-    if(!b.dataset.ok)b.classList.add('no'); e.classList.add('show');
-  });});
-});
+/* ---------- YOUR TURN: ask before showing ----------
+   The question comes first and the answer is one button away. It is never
+   hidden from someone revising at home — the reveal is a prompt, not a gate. */
+(function(){
+  $$('.turn').forEach(function(t){
+    var btn=t.querySelector('.tbtn'), ans=t.querySelector('.ta');
+    if(!btn||!ans) return;
+    btn.addEventListener('click',function(){
+      var on=ans.classList.toggle('on');
+      btn.textContent = on ? 'Hide it again' : (btn.dataset.label||'Show me');
+    });
+  });
+})();
+
+/* ================= FOCUS MODE =================
+   For the projector. The widget is not duplicated — the whole .simbox is
+   physically moved into a full-screen overlay and moved back into its own
+   slot on close, so there is exactly one copy of every cell and every
+   handler, and nothing can drift out of sync. Everything on this page is
+   DOM rather than canvas, so it reflows on its own once the overlay is
+   wider; only the fixed cell sizes and the type are told to grow (see the
+   .fsbody rules in the stylesheet). */
+(function(){
+  var boxes=$$('.simbox'); if(!boxes.length) return;
+  var ov=el('div','fsov');
+  ov.id='fsov';
+  ov.setAttribute('role','dialog');
+  ov.setAttribute('aria-modal','true');
+  ov.innerHTML=
+    '<div class="fshd"><b id="fs-ttl"></b>'+
+      '<button class="fsx" id="fs-theme" type="button"></button>'+
+      '<button class="fsx" id="fs-x" type="button">Esc &#10005;</button></div>'+
+    '<div class="fsbody" id="fs-body"></div>'+
+    '<div class="fshint">'+
+      '<span><kbd>Esc</kbd> close</span>'+
+      '<span>the buttons work exactly as they do on the page</span>'+
+    '</div>';
+  document.body.appendChild(ov);
+
+  var body=$('#fs-body'), home=null, slot=null, node=null;
+
+  function open(id){
+    var box=$('#'+id); if(!box||node) return;
+    node=box; home=box.parentNode; slot=box.nextSibling;
+    $('#fs-ttl').textContent=box.dataset.title||'Simulator';
+    body.appendChild(box);
+    ov.classList.add('on'); document.body.classList.add('fsopen');
+    syncTheme();
+    $('#fs-x').focus();
+  }
+  function close(){
+    if(!node) return;
+    home.insertBefore(node,slot);          /* back into its own slot, not the end */
+    ov.classList.remove('on'); document.body.classList.remove('fsopen');
+    node=null; home=null; slot=null;
+  }
+  window.__fsClose=close;
+
+  /* one switch for the whole page: code panels and Focus mode together */
+  function syncTheme(){
+    var lightNow=document.body.classList.contains('codelight');
+    var b=$('#fs-theme'); if(b) b.textContent = lightNow ? '🌙 Dark code' : '☀ Light code';
+  }
+  window.__syncFsTheme=syncTheme;
+
+  $$('[data-focus]').forEach(function(b){
+    b.addEventListener('click',function(){ open(b.dataset.focus); });
+  });
+  $('#fs-x').addEventListener('click',close);
+  $('#fs-theme').addEventListener('click',function(){
+    document.body.classList.toggle('codelight');
+    try{ localStorage.setItem('dsa-code-theme',
+      document.body.classList.contains('codelight')?'light':'dark'); }catch(e){}
+    syncTheme();
+    if(window.__syncCodeTog) window.__syncCodeTog();
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape' && node) close();
+  });
+})();
+
+/* ================= THE TAKEAWAY RAIL =================
+   Each lesson card carries one sentence in data-key. As you reach a card the
+   sentence is added to a rail on the right — forward only, so going back to
+   re-explain something never removes it. By the end it is the revision list. */
+(function(){
+  var cards=$$('#p-lesson .card[data-key]');
+  if(!cards.length) return;
+  var KEY='cse2321-s2c3-keys';
+  var rail=el('div','keyrail');
+  rail.innerHTML='<div class="krhd" role="button" tabindex="0" aria-expanded="true">'+
+      '<span class="kt">So far</span><span class="kn" id="kr-n">0</span>'+
+      '<span class="kv">&#9662;</span></div>'+
+    '<div class="kbody" id="kr-body"></div>';
+  document.body.appendChild(rail);
+  var kbody=$('#kr-body'), num=$('#kr-n'), hd=$('.krhd',rail);
+
+  var shown=0;
+  try{ if(localStorage.getItem(KEY)==='hid') rail.classList.add('hid'); }catch(e){}
+
+  function add(upto){
+    if(upto<=shown) return;
+    for(var i=shown;i<upto;i++){
+      var c=cards[i];
+      var b=(c.querySelector('.badge')||{}).textContent||String(i+1);
+      kbody.appendChild(el('div','kitem new','<span class="kx">'+b+'</span>'+c.getAttribute('data-key')));
+    }
+    shown=upto;
+    num.textContent=shown;
+    $$('.kitem',kbody).forEach(function(k,i){ k.classList.toggle('new',i===shown-1); });
+    kbody.scrollTop=kbody.scrollHeight;
+  }
+  hd.addEventListener('click',function(){
+    rail.classList.toggle('hid');
+    hd.setAttribute('aria-expanded', rail.classList.contains('hid')?'false':'true');
+    try{ localStorage.setItem(KEY, rail.classList.contains('hid')?'hid':'open'); }catch(e){}
+  });
+  hd.addEventListener('keydown',function(e){
+    if(e.key==='Enter'||e.key===' '){ e.preventDefault(); hd.click(); }
+  });
+
+  /* A card's takeaway IS its answer. Where a card carries a "Your turn", hold
+     the takeaway back until the reader has scrolled past the question —
+     otherwise the rail answers it before anyone has had a chance to think. */
+  function trigger(c){
+    var t=c.querySelector('.turn'), r=(t||c).getBoundingClientRect();
+    return t ? r.bottom : r.top;
+  }
+  var tick=null;
+  function scan(){
+    var y=window.innerHeight*0.55, n=0;
+    for(var i=0;i<cards.length;i++) if(trigger(cards[i])<=y) n=i+1;
+    add(n);
+  }
+  window.addEventListener('scroll',function(){
+    if(tick) return;
+    tick=setTimeout(function(){ tick=null; scan(); },180);
+  },{passive:true});
+  scan();
+})();
+
+/* ---------- QUIZZES, WITH PROGRESS ----------
+   Which checks have been answered is remembered, so someone coming back to
+   revise sees where they got to rather than a blank page. The count shows in
+   the ribbon under the hero and again as a chip in the tab bar. */
+(function(){
+  var KEY='cse2321-s2c3-quiz';
+  var done={}; try{done=JSON.parse(localStorage.getItem(KEY)||'{}');}catch(e){done={};}
+  var QS=$$('.quiz'), total=QS.length;
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(done));}catch(e){}}
+
+  var qc=null, tabs=document.querySelector('.tabs');
+  if(tabs){ qc=el('span','qchip','<i></i>Quiz <b>0/'+total+'</b>'); tabs.appendChild(qc); }
+
+  function show(){
+    var n=Object.keys(done).length;
+    var bar=$('#pbar'), num=$('#pnum');
+    if(bar) bar.style.width=(total?Math.round(n/total*100):0)+'%';
+    if(num) num.textContent=n+' / '+total;
+    if(qc) qc.innerHTML='<i></i>Quiz <b>'+n+'/'+total+'</b>';
+  }
+  QS.forEach(function(q){
+    var id=q.dataset.q, o=$$('.qopt',q), e=$('.qexp',q);
+    function lock(picked){
+      o.forEach(function(x){x.disabled=true; if(x.dataset.ok)x.classList.add('ok');});
+      if(picked!==null && picked>=0 && o[picked] && !o[picked].dataset.ok) o[picked].classList.add('no');
+      e.classList.add('show');
+    }
+    if(done[id]) lock(done[id].p===undefined?-1:done[id].p);
+    o.forEach(function(b,i){b.addEventListener('click',function(){
+      done[id]={ok:!!b.dataset.ok,p:i}; save(); show(); lock(i);
+    });});
+  });
+  var rb=$('#preset');
+  if(rb) rb.onclick=function(){
+    done={}; save(); show();
+    QS.forEach(function(q){
+      $$('.qopt',q).forEach(function(x){x.disabled=false;x.classList.remove('ok','no');});
+      $('.qexp',q).classList.remove('show');
+    });
+  };
+  show();
+})();
+
+/* ---------- n / b / r drive the simulator you are looking at ----------
+   Every widget here has its own buttons, so the keys are wired to the block
+   nearest the middle of the view — or the one in Focus — and that block says
+   so in its own button row. */
+(function(){
+  var BLOCKS=$$('.simbox').filter(function(s){ return $('[data-k="next"]',s); });
+  if(!BLOCKS.length) return;
+  BLOCKS.forEach(function(sim){
+    var rows=$$('.btnrow',sim);
+    var row=null;
+    for(var i=rows.length-1;i>=0;i--) if(rows[i].querySelector('[data-k]')) { row=rows[i]; break; }
+    if(!row) row=rows[rows.length-1];
+    if(!row) return;
+    var h=el('span','kbdhint','<kbd>n</kbd> next');
+    if($('[data-k="back"]',sim)) h.innerHTML+=' <kbd>b</kbd> back';
+    h.innerHTML+=' <kbd>r</kbd> reset';
+    row.appendChild(h);
+  });
+  var cur=null, tick=null;
+  function pick(){
+    var ov=document.querySelector('.fsov .simbox');
+    if(ov) return $('[data-k="next"]',ov)?ov:null;
+    var best=null, bd=1e9, mid=window.innerHeight/2;
+    BLOCKS.forEach(function(s){
+      var r=s.getBoundingClientRect();
+      if(r.bottom<70 || r.top>window.innerHeight-50) return;
+      var d=Math.abs((r.top+r.bottom)/2-mid);
+      if(d<bd){ bd=d; best=s; }
+    });
+    return best;
+  }
+  function mark(){
+    var s=pick();
+    if(s===cur) return;
+    if(cur) cur.classList.remove('kbdon');
+    cur=s; if(cur) cur.classList.add('kbdon');
+  }
+  window.addEventListener('scroll',function(){
+    if(tick) return;
+    tick=setTimeout(function(){ tick=null; mark(); },120);
+  },{passive:true});
+  window.addEventListener('resize',mark);
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey) return;
+    var fe=document.activeElement, t=(e.target&&e.target.tagName)||'';
+    var ft=(fe&&fe.tagName)||'';
+    if(/^(INPUT|SELECT|TEXTAREA)$/.test(t)||/^(INPUT|SELECT|TEXTAREA)$/.test(ft)) return;
+    var k=e.key.toLowerCase();
+    if(k!=='n'&&k!=='b'&&k!=='r') return;
+    mark(); var s=pick(); if(!s) return;
+    var btn=$('[data-k="'+(k==='n'?'next':k==='b'?'back':'reset')+'"]',s);
+    if(btn && !btn.disabled){ e.preventDefault(); btn.click(); }
+  });
+  mark();
+})();
 document.addEventListener('keydown',function(e){
   if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
   if(e.key==='j'||e.key==='ArrowDown'){e.preventDefault();jump(1);}
@@ -1779,18 +2381,53 @@ document.addEventListener('keydown',function(e){
   b.className='codetog'; b.type='button';
   function label(){ b.textContent = document.body.classList.contains('codelight') ? '🌙 Dark code' : '☀ Light code'; }
   label();
+  window.__syncCodeTog=label;
   b.addEventListener('click',function(){
     document.body.classList.toggle('codelight');
     try{localStorage.setItem(KEY, document.body.classList.contains('codelight')?'light':'dark');}catch(e){}
     label();
+    if(window.__syncFsTheme) window.__syncFsTheme();
   });
   tabs.appendChild(b);
+})();
+
+/* ---------- REVISION MODE ----------
+   Every "Show the answer" on the page, opened at once and remembered. The
+   details blocks holding model answers are opened too, but never re-closed:
+   turning the switch off should not shut something the reader opened. */
+(function(){
+  var KEY='dsa-reveal-all';
+  var host=document.querySelector('.tabs')||document.querySelector('.topbar-in')||document.querySelector('.topbar');
+  var solo=false;
+  if(!host){ host=document.querySelector('main.wrap'); solo=true; }
+  if(!host) return;
+  var b=document.createElement('button');
+  b.className='revtog'+(solo?' solo':''); b.type='button';
+  b.title='Open every hidden answer on this page';
+  function paint(){
+    var on=document.body.classList.contains('revealall');
+    b.classList.toggle('on',on);
+    b.setAttribute('aria-pressed',on?'true':'false');
+    b.textContent = on ? '\uD83D\uDC41 Answers shown' : '\uD83D\uDC41 Show all answers';
+    if(on) Array.prototype.forEach.call(document.querySelectorAll('details.dig'),function(d){d.open=true;});
+  }
+  var saved=null; try{saved=localStorage.getItem(KEY);}catch(e){}
+  if(saved==='on') document.body.classList.add('revealall');
+  paint();
+  b.addEventListener('click',function(){
+    var on=document.body.classList.toggle('revealall');
+    try{localStorage.setItem(KEY,on?'on':'off');}catch(e){}
+    paint();
+  });
+  if(solo) host.insertBefore(b, host.firstChild); else host.appendChild(b);
 })();
 
 
 /* ---------- HIDE THE BAR ON THE WAY DOWN ---------- */
 (function(){
   var bar=document.querySelector('.topbar'); if(!bar) return;
+  function measure(){ document.documentElement.style.setProperty('--barh', bar.offsetHeight+'px'); }
+  measure(); window.addEventListener('resize',measure);
   var last=window.scrollY, tick=null;
   function upd(){
     tick=null;
@@ -1802,7 +2439,9 @@ document.addEventListener('keydown',function(e){
                 document.body.classList.contains('noscroll')||
                 document.querySelector('.drawer.on');
     if(blocked){ bar.classList.remove('tucked'); return; }
-    bar.classList.toggle('tucked', dy>0 && y>bar.offsetHeight+40);
+    var away = dy>0 && y>bar.offsetHeight+40;
+    bar.classList.toggle('tucked', away);
+    document.body.classList.toggle('tucked', away);
   }
   window.addEventListener('scroll',function(){
     if(!tick) tick=requestAnimationFrame(upd);

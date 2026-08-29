@@ -112,7 +112,8 @@ main{padding:2.6rem 0 4rem}
 .box.info{background:#eff6ff;border-color:#bfdbfe}
 .box .bt{font-weight:800;font-size:.8rem;letter-spacing:.02em;margin-bottom:.35rem;display:flex;align-items:center;gap:.4rem}
 .box.warn .bt{color:#b45309}.box.bad .bt{color:#be123c}.box.good .bt{color:#15803d}.box.info .bt{color:#1d4ed8}
-.box p{font-size:.9rem;margin-bottom:.5rem}
+.box p{font-size:.9rem;margin-bottom:.7rem;line-height:1.62}
+.box p:last-child{margin-bottom:0}
 .grid2{display:grid;gap:1rem}
 @media(min-width:720px){.grid2{grid-template-columns:1fr 1fr}}
 .grid3{display:grid;gap:.8rem}
@@ -389,6 +390,8 @@ a.pn:hover{border-color:var(--accent);box-shadow:var(--sh-md);transform:translat
 img,svg,video,canvas{max-width:100%;height:auto}
 pre,code,.mono{overflow-wrap:break-word}
 pre.code{white-space:pre;word-break:normal}
+pre.code .chg{background:rgba(252,211,77,.2);border-radius:.25rem;padding:.06rem .22rem;
+  box-shadow:0 0 0 1px rgba(252,211,77,.5)}
 table{min-width:0}
 .tw table{min-width:480px}
 @media(max-width:420px){
@@ -512,13 +515,8 @@ figure.shp figcaption span{display:block;font-size:.68rem;color:var(--ink-mute);
 .pairs{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin:1rem 0}
 .pr2{border:2px solid var(--line);border-radius:.5rem;background:#fff;padding:.45rem .7rem;font-family:var(--mono);
      font-size:.9rem;font-weight:700;color:var(--ink-soft);transition:.2s}
-.pr2.turn{border-color:#ea580c;background:#fff7ed;color:#c2410c;transform:scale(1.06)}
+.pr2.tpt{border-color:#ea580c;background:#fff7ed;color:#c2410c;transform:scale(1.06)}
 .pr2.dup{opacity:.45;text-decoration:line-through}
-
-/* ---- folding ---- */
-.fold{display:flex;align-items:flex-end;gap:.35rem;flex-wrap:wrap;margin:1rem 0;min-height:60px}
-.fd{background:linear-gradient(180deg,#22d3ee,#0891b2);border-radius:.3rem;min-width:26px;display:grid;place-items:center;
-    color:#fff;font-family:var(--mono);font-size:.68rem;font-weight:700;transition:.35s;padding:.3rem .2rem;animation:drop .25s}
 
 /* ---- calculator ---- */
 .calcgrid{display:grid;gap:.9rem;margin:1rem 0}
@@ -564,12 +562,14 @@ details.dig[open]{border-color:color-mix(in srgb,var(--accent,#4f46e5) 40%,var(-
                   box-shadow:0 6px 20px -10px color-mix(in srgb,var(--accent,#4f46e5) 60%,transparent)}
 details.dig[open]::before{opacity:1}
 
-details.dig>summary{cursor:pointer;padding:.8rem 2.5rem .8rem 1rem;font-weight:700;font-size:.87rem;
-  list-style:none;display:flex;align-items:center;gap:.65rem;color:var(--ink);position:relative;
+details.dig>summary{cursor:pointer;padding:.8rem 2.5rem .8rem 4.05rem;font-weight:700;font-size:.87rem;
+  list-style:none;display:block;color:var(--ink);position:relative;
   background:linear-gradient(180deg,#fff,#fafbfd);transition:background .18s;line-height:1.45}
 details.dig>summary::-webkit-details-marker{display:none}
 details.dig>summary:hover{background:#f5f8fc}
-details.dig>summary .dicon{width:26px;height:26px;border-radius:8px;flex:0 0 auto;display:grid;place-items:center;
+details.dig>summary::before{position:absolute;left:1rem;top:.78rem;text-align:center;line-height:1.45}
+details.dig>summary .dicon{position:absolute;left:2.15rem;top:.72rem;
+  width:26px;height:26px;border-radius:8px;display:grid;place-items:center;
   font-size:.78rem;font-weight:800;color:#fff;
   background:linear-gradient(135deg,var(--accent,#4f46e5),color-mix(in srgb,var(--accent,#4f46e5) 60%,#000));
   box-shadow:0 2px 6px -1px color-mix(in srgb,var(--accent,#4f46e5) 70%,transparent);transition:transform .25s}
@@ -581,7 +581,12 @@ details.dig[open]>summary::after{transform:translateY(-30%) rotate(225deg)}
 details.dig[open]>summary{border-bottom:1px solid color-mix(in srgb,var(--accent,#4f46e5) 22%,var(--line))}
 details.dig>div{padding:1rem 1.1rem;font-size:.87rem;color:var(--ink-soft);line-height:1.75;
   background:linear-gradient(180deg,color-mix(in srgb,var(--accent,#4f46e5) 4%,#fff),#fff)}
+details.dig>div table{line-height:1.5}
+details.dig>div td,details.dig>div th{padding:.48rem .85rem}
+
 details.dig>div b{color:var(--ink)}
+details.dig>div b.hl-good,details.dig>div .hl-good{color:#15803d}
+details.dig>div b.hl-bad,details.dig>div .hl-bad{color:#be123c}
 
 /* ---- problem cards ---- */
 details.prob{border:1px solid var(--line);border-radius:.7rem;background:#fff;margin:.9rem 0;overflow:hidden;
@@ -592,6 +597,7 @@ details.prob.lc[open]{border-color:#fcd34d}
 details.prob>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:.7rem;
                      padding:.7rem .9rem;font-size:.87rem;font-weight:700;color:var(--ink);
                      background:linear-gradient(180deg,#fff,#fafbfd);position:relative}
+details.prob>summary b{overflow-wrap:anywhere}
 details.prob>summary::-webkit-details-marker{display:none}
 details.prob>summary::after{content:"";position:absolute;right:.95rem;width:8px;height:8px;
   border-right:2.2px solid #94a3b8;border-bottom:2.2px solid #94a3b8;transform:rotate(45deg) translateY(-2px);transition:transform .25s}
@@ -614,15 +620,17 @@ details.prob.lc .plink{background:#d97706}
 
 /* ---- goals box ---- */
 .goals{border:2px solid #fecdd3;border-radius:.9rem;background:linear-gradient(180deg,#fff5f6,#fff);
-       padding:1.1rem 1.2rem;margin-bottom:2.2rem}
+       padding:1.1rem 1.2rem;margin:2.2rem 0}
 .goals .gh{display:flex;align-items:center;gap:.6rem;margin:0 0 .9rem}
 .goals .gh i{font-style:normal;width:32px;height:32px;border-radius:9px;background:#e11d48;color:#fff;
              display:grid;place-items:center;font-size:1rem;flex:0 0 auto}
 .goals .gh b{font-size:.95rem;font-weight:800;color:#9f1239}
 .goals ol{list-style:none;counter-reset:g;margin:0;padding:0;display:grid;gap:.55rem}
-.goals li{counter-increment:g;display:flex;gap:.65rem;align-items:flex-start;font-size:.9rem;line-height:1.6;color:var(--ink-soft)}
-.goals li::before{content:counter(g);width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #fda4af;
-  color:#be123c;font-size:.7rem;font-weight:800;display:grid;place-items:center;flex:0 0 auto;margin-top:.1rem}
+.goals li{counter-increment:g;position:relative;padding-left:1.95rem;font-size:.9rem;
+  line-height:1.6;color:var(--ink-soft)}
+.goals li::before{content:counter(g);position:absolute;left:0;top:.14rem;
+  width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #fda4af;
+  color:#be123c;font-size:.7rem;font-weight:800;display:grid;place-items:center;box-sizing:border-box}
 .goals li b{color:var(--ink)}
 
 /* ---- factor pairs, one per line ---- */
@@ -632,8 +640,8 @@ details.prob.lc .plink{background:#d97706}
 .pl .plx{flex:1}
 .pl .pln{font-size:.62rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:.15rem .45rem;
          border-radius:999px;white-space:nowrap}
-.pl.turn{border-color:#ea580c;background:#fff7ed;color:#c2410c;border-width:2px}
-.pl.turn .pln{background:#ea580c;color:#fff}
+.pl.tpt{border-color:#ea580c;background:#fff7ed;color:#c2410c;border-width:2px}
+.pl.tpt .pln{background:#ea580c;color:#fff}
 .pl.dup{opacity:.5}
 .pl.dup .pln{background:#f1f5f9;color:#94a3b8}
 .pl.pre .pln{background:#dcfce7;color:#15803d}
@@ -652,9 +660,6 @@ details.prob.lc .plink{background:#d97706}
 }
 
 /* ---- reveal-the-optimisation ---- */
-.thinkbox{border:2px dashed #cbd5e1;border-radius:.7rem;background:#f8fafc;padding:1rem;text-align:center;margin:.9rem 0}
-.thinkbox p{font-size:.88rem;color:var(--ink-soft);margin:0 0 .7rem}
-.thinkbox p b{color:var(--ink)}
 .revealed{display:none}
 .revealed.on{display:block;animation:pop .35s ease}
 
@@ -707,6 +712,508 @@ body.codelight .exactbox .lo{color:#94a3b8}
 .topbar{transition:transform .26s ease}
 .topbar.tucked{transform:translateY(-100%)}
 @media (prefers-reduced-motion:reduce){.topbar{transition:none}}
+
+/* ============ ASK BEFORE SHOWING ============
+   The site-wide Your turn: the question first, the answer one button away,
+   and never locked away from someone revising at home. */
+.turn{border:1.5px solid #c4b5fd;border-radius:.9rem;margin:1.2rem 0;overflow:hidden;
+  background:linear-gradient(180deg,#faf8ff,#f6f3ff)}
+.turn .th{display:flex;align-items:center;gap:.5rem;padding:.7rem .95rem;
+  border-bottom:1.5px solid #ddd6fe;background:rgba(255,255,255,.6)}
+.turn .th b{font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#6d28d9}
+.turn .tq{padding:.85rem .95rem;font-size:.96rem;line-height:1.62;color:var(--ink)}
+.turn .tq p{margin:0 0 .6rem}
+.turn .tq p:last-child{margin:0}
+.turn .tq ul{margin:.1rem 0 .7rem;padding-left:1.15rem}
+.turn .tq li{margin:.3rem 0}
+.turn .tbtn{appearance:none;font-family:inherit;font-size:.78rem;font-weight:800;
+  border:1.5px solid #a78bfa;background:#fff;color:#6d28d9;border-radius:.5rem;
+  padding:.42rem .85rem;cursor:pointer;margin:0 .95rem .95rem;transition:.15s}
+.turn .tbtn:hover{background:#f5f3ff;border-color:#7c3aed}
+.turn .ta{display:none;padding:0 .95rem .95rem;font-size:.94rem;line-height:1.62;color:var(--ink)}
+.turn .ta.on{display:block;animation:drop .3s ease}
+.turn .ta p{margin:0 0 .55rem}
+.turn .ta p:last-child{margin:0}
+.turn .hint{font-size:.84rem;color:#7c3aed;font-weight:700}
+
+/* ============ THE ARITHMETIC THAT DECIDES IT ============
+   One constant, one division, one verdict. It is the only sum in the class
+   a student has to be able to do from memory, so it gets its own card. */
+.opsbox{border:2px solid #fbbf24;border-radius:.85rem;
+  background:linear-gradient(180deg,#fffbeb,#fef3c7);padding:1rem 1.05rem;margin:1.1rem 0}
+.opsbox .obt{font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  color:#b45309;margin:0 0 .7rem}
+.opsf{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.45rem .6rem;
+  font-family:var(--mono);font-weight:800;margin:.1rem 0}
+.opsf .num{background:#fff;border:2px solid #fcd34d;border-radius:.5rem;padding:.34rem .65rem;
+  font-size:1rem;color:#92400e;font-variant-numeric:tabular-nums}
+.opsf .op{font-size:1.1rem;color:#b45309}
+.opsf .res{background:#92400e;color:#fff;border:2px solid #92400e;border-radius:.5rem;
+  padding:.34rem .8rem;font-size:1rem;font-variant-numeric:tabular-nums}
+.opsf .res.ok{background:#15803d;border-color:#15803d}
+.opsnote{font-size:.86rem;color:#78350f;margin:.75rem 0 0;text-align:center;line-height:1.6}
+.opsbox hr{border:none;border-top:1.5px dashed #fcd34d;margin:1rem 0 .85rem}
+.opslbl{display:block;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;
+  color:#b45309;font-weight:800;margin-bottom:.15rem;text-align:center}
+
+/* ============ THREE ATTEMPTS, ONE AT A TIME ============
+   The first two compile and print the wrong answer, so each one is a question
+   before it is an example. The next attempt only appears once this one has
+   been answered. */
+.ovc{margin:1.1rem 0}
+.ovs{border:1.5px solid var(--line);border-radius:.85rem;background:#fff;overflow:hidden;margin:.85rem 0}
+.ovs.hid{display:none}
+.ovs.lit{animation:drop .35s ease}
+.ovs.good{border-color:#86efac}
+.ovh{display:flex;align-items:center;gap:.6rem;padding:.6rem .9rem;background:#f8fafc;
+  border-bottom:1px solid var(--line);font-size:.86rem;font-weight:700;color:var(--ink-soft)}
+.ovs.good .ovh{background:#f0fdf4;border-bottom-color:#bbf7d0;color:#15803d}
+.ovn{font-family:var(--mono);font-size:.6rem;font-weight:800;letter-spacing:.08em;flex:0 0 auto;
+  text-transform:uppercase;background:#e2e8f0;color:#475569;border-radius:.35rem;padding:.22rem .5rem}
+.ovs.good .ovn{background:#15803d;color:#fff}
+.ovb{padding:0 .9rem .9rem}
+.ovb pre.code{margin:.85rem 0 .75rem}
+.ovq{font-size:.94rem;line-height:1.6;margin:0 0 .7rem}
+.ovbtn{appearance:none;font-family:inherit;font-size:.76rem;font-weight:800;cursor:pointer;
+  border:1.5px solid #a78bfa;background:#fff;color:#6d28d9;border-radius:.5rem;padding:.4rem .8rem;transition:.15s}
+.ovbtn:hover{background:#f5f3ff;border-color:#7c3aed}
+.ova{display:none;margin-top:.85rem}
+.ova.on{display:block;animation:drop .3s ease}
+.ova p{font-size:.92rem;line-height:1.62;margin:0 0 .55rem}
+.ova p:last-child{margin:0}
+.ovo{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.95rem;font-weight:800;
+  border-radius:.55rem;padding:.55rem .8rem;margin:0 0 .7rem;display:flex;flex-wrap:wrap;
+  gap:.2rem .6rem;align-items:baseline}
+.ovo .lbl{font-family:var(--sans);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;
+  font-weight:800;opacity:.8}
+.ovo.bad{background:#fff1f2;border:1.5px solid #fda4af;color:#be123c}
+.ovo.ok{background:#f0fdf4;border:1.5px solid #86efac;color:#15803d}
+
+/* ---- the three things to leave with ---- */
+.takes{display:grid;gap:.75rem;margin:1rem 0 1.6rem}
+@media(min-width:820px){.takes{grid-template-columns:repeat(3,1fr)}}
+.take{position:relative;border:1.5px solid var(--line);border-radius:.85rem;background:#fff;
+  padding:1rem .95rem .95rem 1rem;display:flex;flex-direction:column;gap:.3rem}
+.take .tn{position:absolute;top:-.7rem;left:.9rem;width:1.7rem;height:1.7rem;border-radius:.5rem;
+  display:grid;place-items:center;font-family:var(--mono);font-size:.78rem;font-weight:800;
+  background:#0f172a;color:#fff}
+.take b{font-size:.92rem;font-weight:800;color:var(--ink);margin-top:.5rem}
+.take p{margin:0;font-size:.86rem;line-height:1.62;color:var(--ink-soft)}
+
+/* ---- the assignment, one card per task ---- */
+.tasks{display:grid;gap:.9rem;margin:.9rem 0 1.4rem}
+@media(min-width:860px){.tasks{grid-template-columns:1fr 1fr}}
+.task{border:1.5px solid #bfdbfe;border-radius:.9rem;background:linear-gradient(180deg,#f5faff,#fff);
+  padding:1.05rem 1.05rem .95rem}
+.task .th2{display:flex;align-items:center;gap:.55rem;margin:0 0 .6rem;font-size:.95rem;font-weight:800;color:var(--ink)}
+.task .tk{font-family:var(--mono);font-size:.58rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  background:#1d4ed8;color:#fff;border-radius:.35rem;padding:.2rem .5rem;flex:0 0 auto}
+.task>p{margin:0 0 .55rem;font-size:.88rem;line-height:1.62;color:var(--ink-soft)}
+.task .iogrid{margin:.2rem 0 .7rem}
+ol.steps{margin:.2rem 0 .7rem;padding:0;list-style:none;counter-reset:sp;display:grid;gap:.45rem}
+ol.steps li{counter-increment:sp;position:relative;padding-left:1.7rem;font-size:.86rem;
+  line-height:1.6;color:var(--ink-soft)}
+ol.steps li b{color:var(--ink)}
+ol.steps li::before{content:counter(sp);position:absolute;left:0;top:.08rem;width:1.15rem;height:1.15rem;
+  border-radius:50%;display:grid;place-items:center;font-family:var(--mono);font-size:.6rem;font-weight:800;
+  background:#dbeafe;color:#1d4ed8}
+blockquote.ask{margin:.2rem 0 .7rem;padding:.6rem .8rem;border-left:3px solid #93c5fd;background:#fff;
+  border-radius:0 .5rem .5rem 0;font-size:.86rem;line-height:1.6;color:#1e3a8a;font-style:italic}
+.task .tlogo{width:22px;height:22px;flex:0 0 auto;display:grid;place-items:center;
+  background:#fff;border:1px solid var(--line);border-radius:.4rem;padding:2px}
+.task .tlogo svg{width:100%;height:100%;display:block}
+.task .plink{display:inline-flex;align-items:center;margin-top:.55rem;font-size:.74rem;
+  background:#d97706}
+.task .plink:hover{background:#b45309}
+.task p.src2{font-size:.74rem;font-weight:700;color:var(--ink-mute);margin:.7rem 0 0;
+  padding-top:.55rem;border-top:1px dashed #bfdbfe;line-height:1.55}
+.task p.src2 b{color:var(--ink-soft)}
+
+/* ---- the divisors of 36, as chips ---- */
+.divs{display:flex;flex-wrap:wrap;gap:.35rem;margin:.55rem 0 .75rem}
+.divs span{font-family:var(--mono);font-size:.92rem;font-weight:800;color:#c2410c;background:#fff;
+  border:1.5px solid #fed7aa;border-radius:.42rem;padding:.24rem .55rem;min-width:2.3rem;text-align:center}
+
+/* ---- the lines that decide a complexity, marked inside the listing ---- */
+pre.code .olit{background:rgba(34,197,94,.20);border-radius:2px;
+  box-shadow:-7px 0 0 rgba(34,197,94,.20),7px 0 0 rgba(34,197,94,.20)}
+body.codelight pre.code .olit{background:rgba(22,163,74,.14);
+  box-shadow:-7px 0 0 rgba(22,163,74,.14),7px 0 0 rgba(22,163,74,.14)}
+.hicap{position:relative;font-size:.88rem;line-height:1.62;color:var(--ink-soft);
+  margin:.15rem 0 1.1rem;padding:.75rem .9rem .75rem 2.3rem;border:1.5px solid #bbf7d0;
+  background:#f0fdf4;border-radius:.65rem}
+.hicap b{color:var(--ink)}
+.hidot{position:absolute;left:.9rem;top:1.05rem;width:13px;height:13px;border-radius:3px;
+  background:rgba(34,197,94,.3);box-shadow:inset 0 0 0 2px #16a34a}
+
+/* the four rounds, one line each */
+.rounds{display:grid;gap:.35rem;margin:.75rem 0 0}
+.rd{display:grid;grid-template-columns:5.4rem 1fr auto;gap:.4rem .8rem;align-items:baseline;
+  background:rgba(255,255,255,.62);border-radius:.45rem;padding:.38rem .65rem;font-size:.86rem}
+.rd .ri{font-family:var(--mono);font-weight:800;color:#b45309}
+.rd .rs{color:var(--ink-soft)}
+.rd .rc{font-family:var(--mono);font-size:.79rem;color:#be123c;white-space:nowrap}
+.rd .rs b{color:var(--ink)}
+.rd .rc b{color:#be123c}
+@media(max-width:600px){.rd{grid-template-columns:5.4rem 1fr}.rd .rc{grid-column:1/-1}}
+
+/* a widget standing in running prose needs its own frame, or it reads as prose */
+.simbox{border:1.5px solid var(--line);border-radius:.9rem;background:#fff;padding:1rem;margin:1.1rem 0}
+.sbt{font-size:.62rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);
+  margin:0 0 .85rem;padding-bottom:.6rem;border-bottom:1px solid var(--line)}
+.sbt .mono{font-size:.74rem;letter-spacing:0;text-transform:none;color:var(--ink-soft)}
+.sbmsg{border:1.5px solid var(--line);border-left:4px solid #7c3aed;border-radius:0 .6rem .6rem 0;
+  background:#f8fafc;padding:.65rem .85rem;margin:.85rem 0 0;min-height:3.2rem;display:flex;align-items:center}
+
+/* the array, drawn the way every other array on the site is drawn, with its
+   name on the left the way it is written in the code */
+.arrline{display:flex;align-items:flex-start;gap:.6rem}
+.arrname{font-family:var(--mono);font-size:.76rem;font-weight:800;color:var(--ink-soft);
+  background:#f1f5f9;border:1.5px solid var(--line);border-radius:.42rem;
+  padding:.3rem .5rem;flex:0 0 auto;margin-top:.1rem}
+.arrline>.arr,.arrline>.mvrow{flex:1 1 auto;min-width:0}
+.arr{display:flex;gap:.3rem;flex-wrap:wrap;margin:0}
+.acell{flex:1 1 0;min-width:0;border:2px solid var(--line);border-radius:.4rem;background:#fff;
+  text-align:center;padding:.35rem .2rem;transition:.2s}
+.acell .ai{display:block;font-family:var(--mono);font-size:.55rem;color:#94a3b8;font-weight:700}
+.acell .av{display:block;font-family:var(--mono);font-size:1rem;font-weight:700;color:var(--ink)}
+.acell.look{border-color:#d97706;background:#fffbeb;transform:translateY(-3px)}
+.acell.look .av{color:#b45309}
+.acell.done{background:#f8fafc}
+.acell.done .av{color:var(--ink-mute)}
+/* the seen vector: separate boxes, each holding true or false */
+.mvrow>span b{font-family:var(--mono);font-size:.6rem;font-weight:800;letter-spacing:.02em}
+.mvrow>span b i{font-style:normal}
+.smw2{display:none}
+@media(max-width:430px){.lgw2{display:none}.smw2{display:inline;font-size:.78rem}}
+/* nine boxes each holding the word "false" cannot fit one phone line, so the
+   row wraps into two rather than pushing the page sideways */
+@media(max-width:620px){
+  .mvrow{flex-wrap:wrap;row-gap:1.6rem}
+  .mvrow>span{flex:0 0 calc(20% - .28rem)}
+  .mvrow>span b{font-size:.54rem}
+  .acell .av{font-size:.9rem}
+}
+@media(max-width:400px){.mvrow>span b{font-size:.48rem}
+  .mvrow>span{flex:0 0 calc(25% - .26rem)}}
+.mvrow>span.past{opacity:.45}
+.mvrow>span.look{border-color:#16a34a;background:#dcfce7;box-shadow:0 0 0 3px rgba(22,163,74,.16)}
+/* ---- what O(N) space actually looks like ---- */
+.mvz{border:1.5px solid var(--line);border-radius:.9rem;background:#fff;padding:1.15rem 1.05rem;margin:1.1rem 0}
+.mvk{font-size:.74rem;font-weight:700;color:var(--ink-mute);margin:0 0 .5rem;
+  letter-spacing:.01em;text-transform:none}
+.mvk:not(:first-child){margin-top:1.35rem}
+.mvk .mono{color:var(--ink-soft)}
+.mvk b{color:var(--ink)}
+.mvrow{display:flex;gap:.3rem;flex-wrap:wrap}
+.mvrow{gap:.34rem}
+.mvrow>span{flex:1 1 0;min-width:0;display:grid;place-items:center;height:42px;border-radius:.45rem;
+  border:2px solid var(--line);background:#f8fafc;font-family:var(--mono);font-size:.86rem;
+  font-weight:800;color:var(--ink-soft);transition:.3s;position:relative}
+.mvrow>span.now{border-color:#16a34a;background:#dcfce7;color:#15803d;transform:translateY(-3px)}
+.mvrow>span.done{opacity:.5}
+.mvrow>span.tick{border-color:#16a34a;background:#dcfce7;color:#15803d}
+.mvrow>span.gap{border-color:#e11d48;background:#fff1f2;color:#be123c;
+  box-shadow:0 0 0 3px rgba(225,29,72,.16)}
+.mvrow.ix>span::after{content:attr(data-i);position:absolute;bottom:-1.1rem;font-family:var(--mono);
+  font-size:.58rem;font-weight:700;color:var(--ink-mute)}
+.mvrow.ix{margin-bottom:1.3rem}
+.mvmeta{display:grid;gap:.5rem;margin:1.1rem 0 0}
+.mvc{display:flex;flex-direction:column;align-items:center;gap:.15rem;border:1.5px solid var(--line);
+  border-radius:.6rem;background:#f8fafc;padding:.6rem}
+.mvc span{font-size:.58rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-mute)}
+.mvc b{font-family:var(--mono);font-size:.92rem;font-weight:800;color:var(--ink)}
+.mvc.bad{border-color:#fda4af;background:#fff1f2}.mvc.bad b{color:#be123c}
+.mvc.win{border-color:#86efac;background:#f0fdf4}.mvc.win b{color:#15803d}
+.mvmsg{display:flex;align-items:center;gap:.7rem;border:1.5px solid var(--line);border-left:4px solid #16a34a;
+  border-radius:0 .6rem .6rem 0;background:#f8fafc;padding:.7rem .9rem;margin:.9rem 0 0;
+  font-size:.9rem;line-height:1.6;color:var(--ink-soft);min-height:3.4rem}
+.mvmsg b{color:var(--ink)}
+.mvn{font-family:var(--mono);font-size:.62rem;font-weight:800;color:var(--ink-mute);flex:0 0 auto;
+  border:1.5px solid var(--line);border-radius:.35rem;padding:.15rem .4rem;background:#fff}
+
+/* ---- worked input / output pairs inside a problem statement ---- */
+.iogrid{display:grid;gap:.55rem;margin:.8rem 0 0}
+@media(min-width:640px){.iogrid{grid-template-columns:1fr 1fr}}
+.io{display:grid;grid-template-columns:auto 1fr;gap:.3rem .6rem;align-items:baseline;
+  border:1px solid var(--line);border-radius:.55rem;background:#f8fafc;padding:.6rem .7rem}
+.io .iok{font-size:.55rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute)}
+.io .mono{font-size:.78rem;font-weight:700;overflow-wrap:anywhere}
+.io em{grid-column:1/-1;font-style:normal;font-size:.76rem;line-height:1.55;color:var(--ink-mute);
+  margin-top:.3rem;padding-top:.35rem;border-top:1px dashed var(--line)}
+
+/* ---- the definition of a logarithm, laid out as one ---- */
+.defbox{border:1.5px solid #bae6fd;border-radius:.9rem;background:linear-gradient(180deg,#f0f9ff,#fff);
+  padding:1.05rem 1.1rem;margin:1rem 0}
+.dbk{font-size:.6rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#0369a1;margin:0 0 .8rem}
+.dbeq{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.5rem .8rem;margin:0 0 .9rem}
+.deq{font-family:var(--mono);font-size:1.1rem;font-weight:800;color:#0c4a6e;background:#fff;
+  border:2px solid #7dd3fc;border-radius:.5rem;padding:.35rem .8rem}
+.dsame{font-size:.76rem;font-weight:700;color:#0369a1;text-align:center}
+.dbt{font-size:.94rem;line-height:1.62;color:var(--ink-soft);margin:0 0 .85rem}
+.dbt b{color:var(--ink)}
+.dbex{display:grid;gap:.4rem;margin:0 0 .9rem}
+@media(min-width:640px){.dbex{grid-template-columns:repeat(3,1fr)}}
+.dbex>div{display:flex;align-items:center;justify-content:center;gap:.5rem;background:#fff;
+  border:1px solid #bae6fd;border-radius:.5rem;padding:.5rem .4rem;flex-wrap:wrap}
+.dxa,.dxb{font-family:var(--mono);font-size:.78rem;font-weight:800;white-space:nowrap}
+.dxa{color:var(--ink-soft)}
+.dxb{color:#0369a1}
+.dxa::after{content:"\2192";margin-left:.5rem;color:#7dd3fc}
+.dbn{font-size:.86rem;line-height:1.62;color:var(--ink-soft);margin:0;padding-top:.8rem;
+  border-top:1px dashed #bae6fd}
+.dbn b{color:var(--ink)}
+
+/* ---- log2 of the five constraints that actually turn up ---- */
+.logstrip{display:grid;gap:.5rem;margin:1rem 0 .5rem}
+@media(min-width:640px){.logstrip{grid-template-columns:repeat(5,1fr)}}
+.logstrip>div{display:flex;align-items:center;justify-content:center;gap:.6rem;
+  border:1.5px solid #bae6fd;border-radius:.7rem;background:#fff;padding:.7rem .5rem}
+.lsn{font-family:var(--mono);font-size:.92rem;font-weight:800;color:var(--ink-soft)}
+.lsn::after{content:"\2192";margin-left:.55rem;color:#7dd3fc;font-weight:800}
+.lsv{font-family:var(--mono);font-size:1.25rem;font-weight:800;color:#0891b2}
+.lscap{font-size:.88rem;line-height:1.62;color:var(--ink-soft);margin:.2rem 0 1rem}
+.lscap b{color:var(--ink)}
+
+/* ---- constraint -> the slowest shape that still fits ---- */
+.cmap{display:grid;gap:.45rem;margin:1rem 0 1.2rem}
+.cm{display:grid;grid-template-columns:auto auto 1fr;gap:.55rem .8rem;align-items:center;
+  border:1.5px solid var(--line);border-radius:.6rem;background:#fff;padding:.6rem .8rem}
+.cmn{font-family:var(--mono);font-size:.86rem;font-weight:800;color:var(--ink);white-space:nowrap}
+.cmc{font-family:var(--mono);font-size:.76rem;font-weight:800;border-radius:.4rem;
+  padding:.22rem .55rem;white-space:nowrap}
+.c-log{background:#dcfce7;color:#15803d}
+.c-sq{background:#ecfccb;color:#4d7c0f}
+.c-n{background:#fef9c3;color:#a16207}
+.c-nl{background:#ffedd5;color:#c2410c}
+.c-n2{background:#ffe4e6;color:#be123c}
+.cmw{font-size:.82rem;color:var(--ink-mute);min-width:0}
+@media(max-width:560px){.cm{grid-template-columns:auto 1fr}.cmw{grid-column:1/-1}}
+
+/* ============ DIVIDE DOWN, DOUBLE UP ============
+   One track, two readings. In divide mode it is N cells and the right half
+   goes grey each press; in double mode it is blocks whose widths double, the
+   way merge sort's rounds do. */
+.lgw{border:1.5px solid var(--line);border-radius:.9rem;background:#fff;padding:1rem .9rem;margin:1.1rem 0}
+.lgtrack{display:flex;gap:2px;height:54px;margin:1rem 0 .2rem;align-items:stretch}
+.lgc{flex:1;min-width:0;border-radius:.2rem;background:#0891b2;transition:background .35s,opacity .35s}
+.lgc.gone{background:#e2e8f0}
+.lgmsg{display:flex;align-items:center;gap:.7rem;border:1.5px solid var(--line);border-left:4px solid #0891b2;
+  border-radius:0 .6rem .6rem 0;background:#f8fafc;padding:.7rem .9rem;margin:.6rem 0 0;
+  font-size:.9rem;line-height:1.6;color:var(--ink-soft);min-height:3.6rem}
+.lgmsg b{color:var(--ink)}
+.lgn{font-family:var(--mono);font-size:.62rem;font-weight:800;color:var(--ink-mute);flex:0 0 auto;
+  border:1.5px solid var(--line);border-radius:.35rem;padding:.15rem .4rem;background:#fff}
+@media(max-width:520px){.lgtrack{height:42px;gap:1px}.lgb i{font-size:.56rem}}
+@media(prefers-reduced-motion:reduce){.lgc,.lgb{transition:none}}
+.hl-warn{color:#b45309;font-weight:800}
+.hl-bad{color:#be123c;font-weight:800}
+
+/* ---- the nested-loop tally, and the three fates of the exact count ---- */
+.tally{display:grid;gap:.3rem;margin:.9rem 0 .2rem;font-family:var(--mono);font-size:.82rem}
+.tally .tl{display:grid;grid-template-columns:6.5rem 1fr;gap:.6rem;align-items:baseline;
+  padding:.28rem .55rem;border-radius:.4rem;background:rgba(255,255,255,.55)}
+.tally .tl .ti{font-weight:800;color:#b45309}
+.tally .tl .tj{color:var(--ink-soft)}
+.tally .tl .tj b{color:var(--ink)}
+.tally .tl.dots{background:none;color:var(--ink-mute);padding:.5rem .55rem}
+.tally .tl.dots .ti{color:#b45309;font-size:1.05rem;line-height:.82;text-align:center;letter-spacing:0}
+.tally .tl.dots .tj{color:var(--ink-mute);font-style:italic;align-self:center}
+.tsum{font-family:var(--mono);font-size:.86rem;margin:.8rem 0 0;padding:.6rem .7rem;
+  border-radius:.5rem;background:#fff;border:1.5px solid #fde68a;overflow-x:auto;white-space:nowrap}
+.bigeq{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.4rem;
+  font-size:1rem;margin:1rem 0 1.1rem}
+.eqp{font-family:var(--mono);font-weight:800;border-radius:.45rem;padding:.28rem .6rem;font-size:1.05rem}
+.eqp.keep{background:#fff1f2;border:2px solid #fda4af;color:#be123c}
+.eqp.drop{background:#f1f5f9;border:2px solid var(--line);color:var(--ink-mute)}
+.eqop{font-family:var(--mono);font-weight:800;color:var(--ink-mute);font-size:.9rem}
+.fates{display:grid;gap:.8rem;margin:.2rem 0 1rem}
+@media(min-width:760px){.fates{grid-template-columns:repeat(3,1fr)}}
+.fate{border:1.5px solid var(--line);border-radius:.8rem;background:#fff;padding:.9rem;
+  display:flex;flex-direction:column;gap:.35rem}
+.fate.keep{border-color:#fda4af;background:#fff8f8}
+.fate .fk{font-family:var(--mono);font-size:1.15rem;font-weight:800;color:var(--ink-mute)}
+.fate.keep .fk{color:#be123c}
+.fate>b{font-size:.62rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute)}
+.fate.keep>b{color:#be123c}
+.fate p{margin:0;font-size:.86rem;line-height:1.6;color:var(--ink-soft)}
+
+/* ============ WHERE THE DIGITS ACTUALLY GO ============
+   The one thing a student cannot picture is that the multiplication has a
+   width of its own, decided before the answer goes anywhere. So the two
+   operands, the product and the destination are all drawn on the SAME
+   64-column grid: a 32-bit value simply occupies the right-hand half, which
+   makes "the int is the low half of the product" something you can see
+   rather than something you are told.
+   All the bit strings are constants, computed once and checked against a
+   compiler run — nothing here is generated by arithmetic in the browser,
+   because 1,000,000,001,000,000,000 is past what a JS number holds exactly. */
+.bitsim{border:1.5px solid var(--line);border-radius:.9rem;background:#fff;
+  padding:1rem;margin:1.2rem 0;overflow:hidden}
+.bithd{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin:0 0 .9rem;
+  padding-bottom:.7rem;border-bottom:1px solid var(--line)}
+.bithd .bt2{font-size:.62rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-mute)}
+.bitmode{display:flex;gap:.35rem;margin-left:auto;flex-wrap:wrap}
+.bitmode button{appearance:none;font-family:inherit;font-size:.7rem;font-weight:800;cursor:pointer;
+  border:1.5px solid var(--line);background:#fff;color:var(--ink-mute);
+  border-radius:.5rem;padding:.32rem .7rem;transition:.15s;
+  display:inline-flex;align-items:center;gap:.4rem}
+.bitmode button:hover{border-color:var(--line-strong);color:var(--ink-soft)}
+.bitmode button.on[data-m="bad"]{background:#fff1f2;border-color:#fda4af;color:#be123c}
+.bitmode button.on[data-m="ok"]{background:#f0fdf4;border-color:#86efac;color:#15803d}
+
+.bitrow{margin:0 0 .55rem;transition:opacity .3s}
+.bitrow.off{display:none}
+.bithead{display:flex;align-items:baseline;gap:.6rem;margin:0 0 .25rem}
+.bitname{font-family:var(--mono);font-size:.78rem;font-weight:800;color:var(--ink-soft);
+  white-space:nowrap;flex:0 0 auto}
+.bitwhat{font-size:.68rem;color:var(--ink-mute);font-weight:600;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bitdec{margin-left:auto;font-family:var(--mono);font-variant-numeric:tabular-nums;
+  font-size:clamp(.7rem,2.3vw,.92rem);font-weight:800;color:var(--ink);white-space:nowrap;flex:0 0 auto}
+.bitdec.bad{color:#be123c}
+.bitdec.ok{color:#15803d}
+
+.bitgrid{display:grid;grid-template-columns:repeat(64,1fr);gap:1px;height:26px}
+.bitc{background:#eef2f7;border-radius:1px;display:grid;place-items:center;
+  font-family:var(--mono);font-size:8px;font-weight:700;color:#a9b4c6;line-height:1;
+  transition:background .35s,color .35s,opacity .45s,transform .45s,box-shadow .25s}
+.bitc.on{background:#4f46e5;color:#fff}
+.bitc.pad{background:transparent;color:transparent}
+.bitc.cut{background:#fecdd3;color:#9f1239}
+.bitc.cut.on{background:#f43f5e;color:#fff}
+.bitc.gone{opacity:0;transform:translateY(-14px)}
+.bitc.sign{box-shadow:0 0 0 2px #f59e0b;z-index:2;position:relative}
+.bitc.fresh{animation:bitpop .5s ease}
+@keyframes bitpop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.25)}100%{transform:none;opacity:1}}
+@media(prefers-reduced-motion:reduce){.bitc,.bitc.fresh{transition:none;animation:none}}
+
+/* the bracket under a row that says which columns actually exist */
+.bitmark{display:grid;grid-template-columns:repeat(64,1fr);gap:1px;height:15px;margin-top:3px}
+.bitmark span{display:grid;place-items:center;border-radius:3px;font-size:.55rem;font-weight:800;
+  letter-spacing:.05em;white-space:nowrap;overflow:hidden;padding:0 .3rem}
+.bitmark i{font-style:normal}
+.bitmark .mkcut{background:#ffe4e6;color:#be123c}
+.bitmark .mkkeep{background:#e0e7ff;color:#3730a3;box-shadow:inset 0 0 0 1.5px #6366f1}
+.bitmark .mkall{background:#dcfce7;color:#15803d;box-shadow:inset 0 0 0 1.5px #22c55e}
+
+.bitsep{display:flex;align-items:center;gap:.7rem;margin:.1rem 0 .55rem}
+.bitsep i{flex:1;height:0;border-top:1.5px dashed var(--line)}
+.bitsep b{font-family:var(--mono);font-size:.8rem;font-weight:800;color:var(--ink-mute)}
+
+.bitmsg{border:1.5px solid var(--line);border-left:4px solid #7c3aed;border-radius:0 .6rem .6rem 0;
+  background:#f8fafc;padding:.7rem .9rem;margin:.9rem 0 0;min-height:3.4rem;
+  display:flex;align-items:center;gap:.9rem;font-size:.9rem;line-height:1.6;color:var(--ink-soft)}
+.bitmsg>span:first-child{flex:1;min-width:0}
+.bitmsg b{color:var(--ink)}
+.bitsim.ok .bitmsg{border-left-color:#16a34a}
+.bitstep{flex:0 0 auto;font-family:var(--mono);font-size:.66rem;font-weight:800;color:var(--ink-mute);
+  white-space:nowrap;border:1px solid var(--line);border-radius:999px;padding:.12rem .5rem;background:#fff}
+
+/* the line being executed, with the part that matters ringed */
+.bitcode{background:#0f172a;border-radius:.6rem;padding:.8rem .9rem;margin:.85rem 0 0;
+  font-family:var(--mono);font-size:clamp(.74rem,2.4vw,.86rem);line-height:2.05;
+  color:#e2e8f0;overflow-x:auto}
+.bitln{display:block;white-space:pre;border-radius:3px;padding:0 .45rem;margin:0 -.45rem;
+  transition:background .25s}
+.bitln.cur{background:rgba(124,58,237,.26);box-shadow:inset 3px 0 0 #a78bfa}
+.bitcode .hot{background:#fbbf24;color:#451a03;border-radius:3px;padding:.05rem .2rem;
+  font-weight:800;box-shadow:0 0 0 1px #f59e0b}
+body.codelight .bitcode{background:#f8fafc;color:#334155;border:1px solid #e2e8f0;
+  box-shadow:inset 0 1px 0 #fff}
+body.codelight .bitcode .k{color:#7c3aed}
+body.codelight .bitcode .t{color:#b45309}
+body.codelight .bitcode .n{color:#c2410c}
+body.codelight .bitln.cur{background:rgba(124,58,237,.13);box-shadow:inset 3px 0 0 #7c3aed}
+
+@media(max-width:700px){
+  .bitc{font-size:0}                    /* the pattern still reads; the digits cannot */
+  .bitgrid{height:20px}
+  .bitmark span{font-size:.5rem}
+  .bitmark i{display:none}              /* the step message carries the rest */
+}
+@media(max-width:560px){
+  .bitwhat{display:none}                /* it only ever ellipsed down to "the …" */
+}
+
+
+/* ============ THREE REASONS THE CLOCK LIES ============ */
+.whys{display:grid;gap:.8rem;margin:.9rem 0 1.2rem}
+@media(min-width:720px){.whys{grid-template-columns:repeat(3,1fr)}}
+.why{position:relative;border:1.5px solid var(--line);border-radius:.85rem;background:#fff;
+  padding:1rem .95rem .95rem;overflow:hidden;transition:box-shadow .2s,transform .2s,border-color .2s}
+.why::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--wh)}
+.why:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--wh) 40%,var(--line));
+  box-shadow:0 10px 22px -14px color-mix(in srgb,var(--wh) 65%,transparent)}
+.wic{width:34px;height:34px;border-radius:.6rem;display:grid;place-items:center;margin-bottom:.6rem;
+  background:color-mix(in srgb,var(--wh) 12%,#fff)}
+.wic svg{width:19px;height:19px;fill:none;stroke:var(--wh);stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round}
+.why b{display:block;font-size:.92rem;font-weight:800;color:var(--ink);margin-bottom:.3rem}
+.why p{margin:0;font-size:.86rem;line-height:1.6;color:var(--ink-soft)}
+.why p b{display:inline;font-size:inherit;margin:0}
+@media(prefers-reduced-motion:reduce){.why:hover{transform:none}}
+
+/* ============ THE SLIDER ============
+   Every number sits in a slot wide enough for its longest value, so dragging
+   the handle changes the digits and moves nothing else on the page. */
+.slidebox{border:1.5px solid var(--line);border-radius:.9rem;background:#fff;padding:1rem;margin:1.1rem 0}
+.sldhead{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem .7rem;margin-bottom:.15rem}
+.sldhead .sll{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute)}
+.sldn{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:1.02rem;font-weight:800;
+  color:var(--ink);background:#f8fafc;border:1.5px solid var(--line);border-radius:.5rem;
+  padding:.26rem .6rem;min-width:13ch;text-align:right;margin-left:auto}
+.sldp{font-family:var(--mono);font-size:.72rem;font-weight:800;color:#475569;
+  background:#f1f5f9;border:1.5px solid var(--line);border-radius:.4rem;padding:.2rem .45rem;min-width:6.5ch;text-align:center}
+input[type=range].sld{-webkit-appearance:none;appearance:none;width:100%;height:26px;
+  background:transparent;cursor:pointer;margin:.35rem 0 0;display:block}
+input[type=range].sld::-webkit-slider-runnable-track{height:8px;border-radius:99px;
+  background:linear-gradient(90deg,#bbf7d0 0%,#fde68a 55%,#fecdd3 100%)}
+input[type=range].sld::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+  width:22px;height:22px;margin-top:-7px;border-radius:50%;background:#fff;
+  border:3px solid #e11d48;box-shadow:0 2px 7px rgba(15,23,42,.28)}
+input[type=range].sld::-moz-range-track{height:8px;border-radius:99px;
+  background:linear-gradient(90deg,#bbf7d0 0%,#fde68a 55%,#fecdd3 100%)}
+input[type=range].sld::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;
+  border:3px solid #e11d48;box-shadow:0 2px 7px rgba(15,23,42,.28)}
+input[type=range].sld:focus-visible{outline:2px solid #6d28d9;outline-offset:3px}
+.sldticks{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.58rem;
+  font-weight:700;color:var(--ink-mute);margin-top:.1rem;padding:0 2px}
+/* the verdict cards keep a fixed height: three lines are always reserved,
+   so nothing below the slider jumps while the handle is being dragged */
+.vcard .vv{font-variant-numeric:tabular-nums;word-break:normal;min-height:1.55rem}
+.vcard .vd{min-height:1.05rem}
+.vcard .vf{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.72rem;
+  font-weight:700;color:var(--ink-mute);margin:.35rem 0 0;min-height:1rem}
+.vcard{min-height:7.1rem;display:flex;flex-direction:column;justify-content:center}
+
+@media(max-width:520px){
+  .sldticks span:nth-child(even){visibility:hidden}
+  .sldn{font-size:.9rem;min-width:12ch}
+}
+
+/* ============ REVISION MODE ============
+   One switch that opens every hidden answer on the page at once, for someone
+   going back over the material rather than meeting it for the first time.
+   It is remembered, so a revision session stays open across pages. The
+   individual buttons are dimmed while it is on, because the switch is now in
+   charge of them. */
+body.revealall .ta,
+body.revealall .revealed,
+body.revealall .ova,
+body.revealall .qexp,
+body.revealall .ovs.hid{display:block!important}
+body.revealall .tbtn,
+body.revealall .ovbtn{opacity:.4;pointer-events:none}
+.revtog{appearance:none;border:1px solid #334155;background:transparent;color:#94a3b8;border-radius:.45rem;
+  font-family:inherit;font-size:.68rem;font-weight:700;padding:.3rem .6rem;cursor:pointer;
+  white-space:nowrap;transition:.15s;flex:0 0 auto}
+.revtog:hover{color:#e2e8f0;border-color:#64748b}
+.revtog.on{background:#6d28d9;border-color:#7c3aed;color:#fff}
+.revtog.solo{display:block;margin:0 0 1.2rem;border-color:var(--line);color:var(--ink-soft);background:#fff}
+.revtog.solo:hover{color:var(--ink);border-color:var(--line-strong)}
+.revtog.solo.on{background:#6d28d9;border-color:#7c3aed;color:#fff}
 </style>
 </head>
 <body>
@@ -769,17 +1276,42 @@ body.codelight .exactbox .lo{color:#94a3b8}
     <span class="timechip">⏱ 6 min</span>
   </div>
 
-  <div class="box info">
-    <p class="bt">The core question</p>
-    <p style="margin:0"><b>How fast does your algorithm grow when the input grows?</b><br><br>
-    Time complexity is <b>not</b> how many seconds your code runs on your laptop. It is how the <b>number of operations</b> increases as the input gets bigger.</p>
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>Two students solve the same problem and time their own program, each on their own laptop.</p>
+      <ul>
+        <li>The first writes a <b>loop</b>. It finishes in <b>0.9 seconds</b>.</li>
+        <li>The second writes a <b>formula</b>. It finishes in <b>1.4 seconds</b>.</li>
+      </ul>
+      <p><b>Which of the two wrote the better algorithm?</b></p>
+      <p class="hint">Before you answer &mdash; what would you need to know that these two numbers do not tell you?</p>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p><b>Those two numbers cannot decide it.</b> They were measured on two different laptops, with two different compilers, with two different sets of programs running in the background &mdash; and on whatever input each student happened to try.</p>
+      <p>Put both programs on <em>one</em> machine and give them a large enough input, and the gap stops being half a second. It becomes seconds against microseconds. The 0.9 against 1.4 was measuring the two <b>machines</b>, not the two ideas.</p>
+      <p>So we never time the clock. We <b>count operations</b>, and we watch how that count grows as the input grows. That count belongs to the algorithm, and it is the same on every machine on earth.</p>
+    </div>
   </div>
 
-  <p>Seconds are unreliable for three reasons:</p>
-  <div class="grid3">
-    <div class="box" style="margin:0"><p class="bt">Different machines</p><p style="margin:0">Your laptop and the judge's server are not the same speed.</p></div>
-    <div class="box" style="margin:0"><p class="bt">Different languages</p><p style="margin:0">The same idea in C++ and in Python runs at very different speeds.</p></div>
-    <div class="box" style="margin:0"><p class="bt">Background processes</p><p style="margin:0">A browser open in the background changes your timing.</p></div>
+  <p>The clock is unreliable for three reasons:</p>
+  <div class="whys">
+    <div class="why" style="--wh:#4f46e5">
+      <span class="wic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="4.5" width="19" height="12" rx="2"/><path d="M8 20h8M12 16.5V20"/></svg></span>
+      <b>Different machines</b>
+      <p>Your laptop and the judge&rsquo;s server are not the same speed &mdash; and you never get to run your code on theirs.</p>
+    </div>
+    <div class="why" style="--wh:#b45309">
+      <span class="wic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 7.5 5 12l4.5 4.5M14.5 7.5 19 12l-4.5 4.5"/></svg></span>
+      <b>Different languages</b>
+      <p>The same idea written in C++ and in Python can differ by <b>fifty times</b> without either one being a better algorithm.</p>
+    </div>
+    <div class="why" style="--wh:#0e7490">
+      <span class="wic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="13" height="10" rx="1.6"/><path d="M8 10h13v10H8z" fill="#fff"/><rect x="8" y="10" width="13" height="10" rx="1.6"/></svg></span>
+      <b>Whatever else is running</b>
+      <p>A browser open behind your editor moves the number. Run the same program twice and you get two answers.</p>
+    </div>
   </div>
 
   <div class="bridge" style="--accent:#e11d48">
@@ -789,8 +1321,7 @@ body.codelight .exactbox .lo{color:#94a3b8}
 
   <div class="box warn">
     <p class="bt">📌 The one number to carry all semester</p>
-    <p style="margin:0">A typical judge machine handles about <b>10<sup>8</sup> operations per second</b>. Time limits are usually <b>1 to 2 seconds</b>.<br><br>
-    That single fact turns every constraint into a verdict — before you write a line of code.</p>
+    <p>A typical judge machine handles about <b>10<sup>8</sup> operations per second</b>. Time limits are usually <b>1 to 2 seconds</b>.</p><p style="margin:0">That single fact is what turns a constraint into a verdict. &sect;2 does the arithmetic.</p>
   </div>
 </article>
 
@@ -798,63 +1329,227 @@ body.codelight .exactbox .lo{color:#94a3b8}
 <article class="card numbered" id="s2" style="--accent:#e11d48">
   <span class="badge">2</span>
   <div class="hdr-row">
-    <div><p class="kicker">Case study 1</p><h2>Sum of 1 to N — O(N) versus O(1)</h2></div>
-    <span class="timechip">⏱ 10 min</span>
+    <div><p class="kicker">Case study 1</p><h2>Sum of 1 to N &mdash; O(N) versus O(1)</h2></div>
+    <span class="timechip">&#9201; 11 min</span>
   </div>
 
   <details class="prob cf">
     <summary><span class="plogo"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="1" y="9"  width="5.5" height="13" rx="1.6" fill="#f0932b"/><rect x="9.2" y="3" width="5.5" height="19" rx="1.6" fill="#1e88e5"/><rect x="17.4" y="12" width="5.5" height="10" rx="1.6" fill="#e53935"/></svg></span><b style="flex:1;min-width:0">Sum of 1 to N</b><span class="psrc">Codeforces</span></summary>
     <div>
-      <p style="margin:0"><b>Problem.</b> Given a number N, find the sum of all the numbers from 1 to N.</p>
-      <p style="margin:.6rem 0 0"><b>Constraint:</b> <span class="pconstraint">1 &le; N &le; 10<sup>9</sup></span></p><p style="margin:.6rem 0 0">That constraint is the whole question. 10<sup>9</sup> is far past what a loop can do inside a time limit.</p>
+      <p style="margin:0"><b>Problem.</b> You are given a single integer N. Print the sum of every whole number from 1 to N.</p>
+      <div class="iogrid">
+        <div class="io"><span class="iok">Input</span><span class="mono">5</span><span class="iok">Output</span><span class="mono">15</span>
+          <em>1 + 2 + 3 + 4 + 5 = 15.</em></div>
+        <div class="io"><span class="iok">Input</span><span class="mono">1000000000</span><span class="iok">Output</span><span class="mono">500000000500000000</span>
+          <em>The worst case the constraint allows &mdash; and look at the size of that answer, which turns out to be this section&rsquo;s second lesson.</em></div>
+      </div>
+      <p style="margin:.7rem 0 0"><b>Constraint.</b> <span class="pconstraint">1 &le; N &le; 10<sup>9</sup></span> &mdash; and that line is the whole question. 10<sup>9</sup> is far past what a loop can do inside a time limit.</p>
       <a class="plink" href="https://codeforces.com/group/MWSDmqGsZm/contest/219158/problem/G" target="_blank" rel="noopener">Open on Codeforces &nbsp;&rarr;</a>
     </div>
   </details>
 
-  <div class="grid2">
-    <div>
-      <p style="font-size:.8rem;font-weight:800;color:#be123c;margin-bottom:.3rem">APPROACH A — the loop</p>
-<pre class="code"><span class="t">long long</span> sum = <span class="n">0</span>;
-<span class="k">for</span> (<span class="t">int</span> i = <span class="n">1</span>; i &lt;= n; i++) {
-    sum += i;
-}
-cout &lt;&lt; sum;</pre>
-      <p class="subtle" style="margin-top:.4rem">Loop runs <b>N</b> times → <b>O(N)</b></p>
-    </div>
-<div class="thinkbox"><p><b>Before you scroll — think.</b> The loop needs N steps. Is there a way to get the same answer in a <b>fixed</b> number of steps, no matter how big N is?<br><span class="subtle">Hint: you met this formula in school.</span></p><button class="btn" id="rv1" style="background:#15803d">Show the better approach</button></div><div class="revealed" id="rv1-w">    <div>
-      <p style="font-size:.8rem;font-weight:800;color:#15803d;margin-bottom:.3rem">APPROACH B — the formula</p>
-<pre class="code"><span class="c">// sum = n(n+1)/2</span>
-<span class="t">long long</span> sum = ((<span class="t">long long</span>)n * (n+<span class="n">1</span>)) / <span class="n">2</span>;
-cout &lt;&lt; sum;</pre>
-      <p class="subtle" style="margin-top:.4rem">Always <b>3</b> operations → <b>O(1)</b></p>
-    </div>
-</div>  </div>
+  <h3>Approach A &middot; the loop</h3>
 
-  <p>Move the slider and watch what each approach actually costs.</p>
+  <p>The obvious program, and the one almost everybody writes first. It is correct for every N.</p>
 
-  <div class="trade" style="background:#fff">
-    <label for="nslider" style="font-size:.82rem;font-weight:700;color:var(--ink-soft)">N = <b id="nval" class="mono">1,000,000,000</b></label>
-    <input type="range" id="nslider" min="1" max="9" step="1" value="9">
-    <div class="verdictgrid">
-      <div class="vcard" id="vA"><p class="vk">Approach A · O(N)</p><p class="vv">—</p><p class="vd">—</p></div>
-      <div class="vcard" id="vB"><p class="vk">Approach B · O(1)</p><p class="vv">—</p><p class="vd">—</p></div>
+<pre class="code">#include &lt;iostream&gt;
+<span class="k">using namespace</span> std;
+
+<span class="t">int</span> <span class="f">main</span>() {
+    <span class="t">int</span> n;
+    cin &gt;&gt; n;
+
+    <span class="t">long long</span> sum = <span class="n">0</span>;
+    <span class="k">for</span> (<span class="t">int</span> i = <span class="n">1</span>; i &lt;= n; i++) {
+        sum += i;
+    }
+
+    cout &lt;&lt; sum &lt;&lt; endl;
+    <span class="k">return</span> <span class="n">0</span>;
+}</pre>
+
+  <p><b>Count the operations.</b> The loop body runs once for every value from 1 to N. Everything else in the program is a handful of lines that run once. So the whole cost is the loop: <b>N operations</b>, which is <b>O(N)</b>. At the worst the constraint allows, that is <b>1,000,000,000</b> additions.</p>
+
+  <div class="opsbox">
+    <p class="obt">The one sum to do before you write any code</p>
+    <div class="opsf">
+      <span class="num">worst-case operations</span>
+      <span class="op">&divide;</span>
+      <span class="num">10<sup>8</sup></span>
+      <span class="op">=</span>
+      <span class="res">seconds</span>
+    </div>
+    <p class="opsnote">A judge machine gets through roughly <b>10<sup>8</sup> operations every second</b>. Dividing by it turns a count of operations into a time you can compare with the limit.</p>
+    <hr>
+    <span class="opslbl">this problem, worst case</span>
+    <div class="opsf">
+      <span class="num">1,000,000,000</span>
+      <span class="op">&divide;</span>
+      <span class="num">10<sup>8</sup></span>
+      <span class="op">=</span>
+      <span class="res">10 seconds</span>
+    </div>
+    <p class="opsnote">The limit is <b>1 to 2 seconds</b>. Approach A is five to ten times too slow &mdash; and no amount of tidying the loop body will change that. <b>The verdict was decided by the constraint, not by the code.</b></p>
+  </div>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>Approach A needs one step for every number between 1 and N. Ten seconds of them.</p>
+      <p><b>Can the same answer be produced in a fixed number of steps &mdash; the same number of steps whether N is 10 or 1,000,000,000?</b></p>
+
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p><b>sum = N &times; (N + 1) / 2.</b> One addition, one multiplication, one division and one assignment &mdash; <b>four operations</b>, whatever N is.</p>
+      <p>Put four into the sum above: <span class="mono">4 &divide; 10<sup>8</sup></span> is <b>40 nanoseconds</b>, and it stays 40 nanoseconds when N is a billion. That is what <b>O(1)</b> means &mdash; not &ldquo;fast&rdquo;, but <b>does not grow</b>.</p>
     </div>
   </div>
 
-  <div class="box bad">
-    <p class="bt">⚠ The trap that catches almost everybody</p>
-<pre class="code" style="margin:.5rem 0"><span class="t">int</span> N = <span class="n">1000000000</span>;
-<span class="t">long long</span> sum = (N * (N + <span class="n">1</span>)) / <span class="n">2</span>;   <span class="c">// WRONG</span></pre>
-    <p style="margin:0">Even though <span class="mono">sum</span> is a <span class="mono">long long</span>, the calculation <span class="mono">N * (N + 1)</span> happens between two <span class="mono">int</span> values <b>first</b>. It overflows <b>before</b> the answer is ever assigned.</p>
-    <div class="box" style="background:#fff;margin:.8rem 0 0">
-      <p class="bt" style="margin:0 0 .3rem">Real-life analogy</p>
-      <p style="margin:0">Multiplying two <span class="mono">int</span>s is like pouring water into a <b>small bucket</b>. Once it spills, moving the bucket into a bigger tank will not bring the water back.</p>
+  <h3>Approach B &middot; the formula</h3>
+
+  <p>Three attempts at writing that one line. <b>All three compile without a warning</b>, and two of them print the wrong answer. Work through them in order &mdash; the second one is the mistake people make while fixing the first.</p>
+
+  <div class="ovc" id="ovc1">
+
+    <div class="ovs" data-i="1">
+      <div class="ovh"><span class="ovn">Attempt 1</span> the formula, written the obvious way</div>
+      <div class="ovb">
+<pre class="code">#include &lt;iostream&gt;
+<span class="k">using namespace</span> std;
+
+<span class="t">int</span> <span class="f">main</span>() {
+    <span class="t">int</span> n;
+    cin &gt;&gt; n;
+
+    <span class="t">long long</span> sum = <span class="chg">n * (n + <span class="n">1</span>)</span> / <span class="n">2</span>;
+
+    cout &lt;&lt; sum &lt;&lt; endl;
+    <span class="k">return</span> <span class="n">0</span>;
+}</pre>
+        <p class="ovq"><b>It compiles, it runs, and for <span class="mono">n = 1000000000</span> it prints the wrong answer.</b> What does it print, and which part of that line is responsible?</p>
+        <button class="ovbtn" type="button">Show what it prints</button>
+        <div class="ova">
+          <div class="ovo bad"><span class="lbl">prints</span>&minus;243309312 &nbsp;<span class="lbl">should be</span>500000000500000000</div>
+          <p><b>Look at the type of the multiplication, not the type of <span class="mono">sum</span>.</b> <span class="mono">n</span> is an <span class="mono">int</span> and <span class="mono">n + 1</span> is an <span class="mono">int</span>, so C++ works out <span class="mono">n * (n + 1)</span> <b>as an int</b> &mdash; a 32-bit box whose largest value is <b>2,147,483,647</b>.</p>
+          <p>The true product is <b>1,000,000,001,000,000,000</b>. It does not fit, so it wraps round. The division then happens on the wrapped value, and only <em>after</em> all of that is the result copied into <span class="mono">sum</span>. Declaring <span class="mono">sum</span> a <span class="mono">long long</span> came one step too late.</p>
+          <p>Notice the tell: <b>adding up positive numbers produced a negative one</b>. That is almost always overflow.</p>
+        </div>
+      </div>
     </div>
-    <p style="margin:.8rem 0 0"><b>The fix — cast one side first:</b> <span class="mono">long long sum = ((long long)n * (n+1)) / 2;</span></p>
+
+    <div class="ovs hid" data-i="2">
+      <div class="ovh"><span class="ovn">Attempt 2</span> the fix most people write next</div>
+      <div class="ovb">
+<pre class="code">#include &lt;iostream&gt;
+<span class="k">using namespace</span> std;
+
+<span class="t">int</span> <span class="f">main</span>() {
+    <span class="t">int</span> n;
+    cin &gt;&gt; n;
+
+    <span class="t">long long</span> sum = <span class="chg">(<span class="t">long long</span>)( n * (n + <span class="n">1</span>) )</span> / <span class="n">2</span>;
+
+    cout &lt;&lt; sum &lt;&lt; endl;
+    <span class="k">return</span> <span class="n">0</span>;
+}</pre>
+        <p class="ovq">The product is now cast to <span class="mono">long long</span>. <b>Does that fix it?</b></p>
+        <button class="ovbtn" type="button">Show what it prints</button>
+        <div class="ova">
+          <div class="ovo bad"><span class="lbl">prints</span>&minus;243309312 &nbsp;<span class="lbl">should be</span>500000000500000000</div>
+          <p><b>No. The same wrong answer.</b> The brackets are worked out first, so the overflow has already happened before the cast is reached.</p>
+          <p><b>A cast converts a value that has already been calculated.</b> It cannot go back and redo the calculation in a bigger type.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ovs hid good" data-i="3">
+      <div class="ovh"><span class="ovn">Attempt 3</span> the one that works</div>
+      <div class="ovb">
+<pre class="code">#include &lt;iostream&gt;
+<span class="k">using namespace</span> std;
+
+<span class="t">int</span> <span class="f">main</span>() {
+    <span class="t">int</span> n;
+    cin &gt;&gt; n;
+
+    <span class="t">long long</span> sum = <span class="chg">(<span class="t">long long</span>)n</span> * (n + <span class="n">1</span>) / <span class="n">2</span>;
+
+    cout &lt;&lt; sum &lt;&lt; endl;
+    <span class="k">return</span> <span class="n">0</span>;
+}</pre>
+        <p class="ovq">One pair of brackets moved. <b>Why is this one different?</b></p>
+        <button class="ovbtn" type="button">Show what it prints</button>
+        <div class="ova">
+          <div class="ovo ok"><span class="lbl">prints</span>500000000500000000 &nbsp;<span class="lbl">correct</span>&#10003;</div>
+          <p><span class="mono">(long long)n</span> makes the <b>left operand</b> 64-bit <em>before</em> the multiplication. C++ then promotes <span class="mono">n + 1</span> to match it, and the whole expression is worked out in 64 bits &mdash; where 1,000,000,001,000,000,000 fits with room to spare.</p>
+          <p><b>Two other ways of writing the same fix,</b> both common: put <span class="mono">1LL *</span> in front of the expression, or simply declare <span class="mono">long long n;</span> in the first place, so that every calculation <span class="mono">n</span> takes part in is 64-bit from the start.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bridge" style="--accent:#e11d48">
+    <p class="say">In C++ the type of a calculation is decided by <b>its operands</b> &mdash; never by where the answer is going to be stored.</p>
+    <p style="margin-top:.8rem">That one sentence explains all three attempts, and it is why the cast has to be on the left of the <span class="mono">*</span>.</p>
+  </div>
+
+  <h3>Why the answer came out negative</h3>
+
+  <p>An <span class="mono">int</span> is not a smaller version of a big number. It is a row of <b>32 binary digits</b>, and nothing else. The product needs sixty.</p>
+
+  <p>Step through it. The two operands, the product and <span class="mono">sum</span> are all drawn on the <b>same 64 columns</b>, so a 32-bit value simply takes the right-hand half &mdash; which is where the whole problem lives.</p>
+
+  <div class="bitsim" id="bitsim">
+    <div class="bithd">
+      <span class="bt2">Where the digits actually go</span>
+      <div class="bitmode">
+        <button type="button" data-m="bad">&#10007; <span class="mono">n * (n + 1)</span></button>
+        <button type="button" data-m="ok">&#10003; <span class="mono">(long long)n * (n + 1)</span></button>
+      </div>
+    </div>
+
+    <div id="bitstage"></div>
+
+    <div class="bitmsg"><span id="bitmsg"></span><span class="bitstep" id="bitstep"></span></div>
+
+    <div class="bitcode" id="bitcode"></div>
+
+    <div class="btnrow" style="justify-content:center;margin-bottom:0">
+      <button class="btn" id="bit-next" style="background:#7c3aed">Next &#9656;</button>
+      <button class="btn ghost sm" id="bit-back">&#9666; Back</button>
+      <button class="btn ghost sm" id="bit-reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="box warn">
+    <p class="bt">The analogy, in one breath</p>
+    <p>Multiplying two <span class="mono">int</span>s is like pouring water into a small bucket. Once it goes over the brim the water is gone &mdash; and tipping what is left into a larger tank will not bring it back.</p>
+    <p style="margin:0"><span class="mono">long long sum</span> is the tank. <b>It was never the bucket.</b></p>
+  </div>
+
+  <h3>What each approach actually costs</h3>
+
+  <p>Both programs are correct now. Drag the handle and watch the only thing that separates them: <b>how the work grows</b>.</p>
+
+  <div class="slidebox">
+    <div class="sldhead">
+      <span class="sll">Input size N</span>
+      <span class="sldp" id="npow">10<sup>9</sup></span>
+      <span class="sldn" id="nval">1,000,000,000</span>
+    </div>
+    <input type="range" class="sld" id="nslider" min="1" max="9" step="1" value="9" aria-label="Input size N, as a power of ten">
+    <div class="sldticks"><span>10</span><span>10&sup2;</span><span>10&sup3;</span><span>10&#8308;</span><span>10&#8309;</span><span>10&#8310;</span><span>10&#8311;</span><span>10&#8312;</span><span>10&#8313;</span></div>
+    <div class="verdictgrid">
+      <div class="vcard" id="vA"><p class="vk">Approach A &middot; O(N)</p><p class="vv">&mdash;</p><p class="vd">&mdash;</p><p class="vf">&mdash;</p></div>
+      <div class="vcard" id="vB"><p class="vk">Approach B &middot; O(1)</p><p class="vv">&mdash;</p><p class="vd">&mdash;</p><p class="vf">&mdash;</p></div>
+    </div>
   </div>
 
   <div class="bridge" style="--accent:#e11d48">
     <p class="say"><b>O(1)</b> is the gold standard. The time does not grow with the input at all.</p>
+    <p style="margin-top:.8rem">Approach A crosses the one-second line somewhere around N = 10<sup>8</sup>. Approach B never crosses it, because it never moves.</p>
   </div>
 </article>
 
@@ -862,36 +1557,83 @@ cout &lt;&lt; sum;</pre>
 <article class="card numbered" id="s3" style="--accent:#ea580c">
   <span class="badge">3</span>
   <div class="hdr-row">
-    <div><p class="kicker">Case study 2</p><h2>Prime checking — and the &radic;N idea</h2></div>
-    <span class="timechip">⏱ 9 min</span>
+    <div><p class="kicker">Case study 2</p><h2>Prime checking &mdash; and the &radic;N idea</h2></div>
+    <span class="timechip">&#9201; 9 min</span>
   </div>
 
   <details class="prob cf">
     <summary><span class="plogo"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="1" y="9"  width="5.5" height="13" rx="1.6" fill="#f0932b"/><rect x="9.2" y="3" width="5.5" height="19" rx="1.6" fill="#1e88e5"/><rect x="17.4" y="12" width="5.5" height="10" rx="1.6" fill="#e53935"/></svg></span><b style="flex:1;min-width:0">Prime checking</b><span class="psrc">Codeforces</span></summary>
     <div>
-      <p style="margin:0"><b>Problem.</b> Check whether a given number N is prime.</p>
-      <p style="margin:.6rem 0 0"><b>Constraint:</b> <span class="pconstraint">N can be as large as 10<sup>12</sup></span></p><p style="margin:.6rem 0 0">A loop to N would take hours. The fix is one character: <span class="mono">i * i &lt;= n</span>.</p>
+      <p style="margin:0"><b>Problem.</b> You are given a single integer N. Print <span class="mono">YES</span> if it is prime and <span class="mono">NO</span> if it is not.</p>
+      <div class="iogrid">
+        <div class="io"><span class="iok">Input</span><span class="mono">97</span><span class="iok">Output</span><span class="mono">YES</span>
+          <em>Nothing from 2 to 9 divides it, and 10 &times; 10 is already past 97.</em></div>
+        <div class="io"><span class="iok">Input</span><span class="mono">1000000007</span><span class="iok">Output</span><span class="mono">YES</span>
+          <em><b>The worst case.</b> A large prime has no divisor to find, so the loop never returns early &mdash; it runs all the way to the end.</em></div>
+      </div>
+      <p style="margin:.7rem 0 0"><b>Constraint.</b> <span class="pconstraint">N can be as large as 10<sup>12</sup></span> &mdash; so the worst case is a prime near a million million, and a loop that walks all the way to N would take hours.</p>
       <a class="plink" href="https://codeforces.com/group/MWSDmqGsZm/contest/223338/problem/B" target="_blank" rel="noopener">Open on Codeforces &nbsp;&rarr;</a>
     </div>
   </details>
 
-  <div class="grid2">
-    <div>
-      <p style="font-size:.8rem;font-weight:800;color:#be123c;margin-bottom:.3rem">APPROACH A — check everything</p>
-<pre class="code"><span class="k">for</span> (<span class="t">long long</span> i = <span class="n">2</span>; i &lt; n; i++)
-    <span class="k">if</span> (n % i == <span class="n">0</span>) <span class="k">return</span> <span class="k">false</span>;</pre>
-      <p class="subtle" style="margin-top:.4rem"><b>O(N)</b> — for a large prime this runs for <b>hours</b>.</p>
-    </div>
-<div class="thinkbox"><p><b>Your turn.</b> Checking every number up to N is far too slow. <b>How early can you stop and still be certain?</b><br><span class="subtle">Hint: write out the factor pairs of 36 and look for the turning point.</span></p><button class="btn" id="rv2" style="background:#15803d">Show the better approach</button></div><div class="revealed" id="rv2-w">    <div>
-      <p style="font-size:.8rem;font-weight:800;color:#15803d;margin-bottom:.3rem">APPROACH B — stop at &radic;N</p>
-<pre class="code"><span class="k">for</span> (<span class="t">long long</span> i = <span class="n">2</span>; i * i &lt;= n; i++)
-    <span class="k">if</span> (n % i == <span class="n">0</span>) <span class="k">return</span> <span class="k">false</span>;</pre>
-      <p class="subtle" style="margin-top:.4rem"><b>O(&radic;N)</b> — a massive improvement.</p>
-    </div>
-</div>  </div>
+  <h3>Approach A &middot; test every number</h3>
 
-  <h3>Why stopping at &radic;N is safe</h3>
-  <p><b>Factors come in pairs.</b> Write them all out and the turning point shows itself.</p>
+  <p>The definition of a prime, written out exactly as it reads: try every divisor from 2 upwards.</p>
+
+<pre class="code">#include &lt;iostream&gt;
+<span class="k">using namespace</span> std;
+
+<span class="t">bool</span> <span class="f">isPrime</span>(<span class="t">long long</span> n) {
+    <span class="k">if</span> (n &lt; <span class="n">2</span>) <span class="k">return false</span>;
+
+    <span class="k">for</span> (<span class="t">long long</span> i = <span class="n">2</span>; i &lt; n; i++)
+        <span class="k">if</span> (n % i == <span class="n">0</span>) <span class="k">return false</span>;
+
+    <span class="k">return true</span>;
+}
+
+<span class="t">int</span> <span class="f">main</span>() {
+    <span class="t">long long</span> n;
+    cin &gt;&gt; n;
+
+    cout &lt;&lt; (<span class="f">isPrime</span>(n) ? <span class="s">"YES"</span> : <span class="s">"NO"</span>) &lt;&lt; endl;
+    <span class="k">return</span> <span class="n">0</span>;
+}</pre>
+
+  <p><b>Count the operations.</b> The worst case is a number that <em>is</em> prime, because then the loop never returns early &mdash; it runs all the way, about <b>N</b> times. And the constraint allows N to be 10<sup>12</sup>.</p>
+
+  <div class="opsbox">
+    <span class="opslbl">approach A, worst case</span>
+    <div class="opsf">
+      <span class="num">1,000,000,000,000</span>
+      <span class="op">&divide;</span>
+      <span class="num">10<sup>8</sup></span>
+      <span class="op">=</span>
+      <span class="res">10,000 seconds</span>
+    </div>
+    <p class="opsnote">Just under <b>three hours</b> &mdash; to answer <em>one</em> question about <em>one</em> number. The same arithmetic as &sect;2, and the same verdict: this cannot be the intended solution.</p>
+  </div>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>Take <b>N = 36</b>. Here is every divisor it has:</p>
+      <p class="divs"><span>1</span><span>2</span><span>3</span><span>4</span><span>6</span><span>9</span><span>12</span><span>18</span><span>36</span></p>
+      <p>Nine of them &mdash; and the loop above still tests every number from 2 to 35 before it will commit to an answer.</p>
+      <p><b>How far do you really have to test before you can be certain there is no divisor at all?</b> Give the number for 36 first, then the rule for any N.</p>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p>For 36 you can stop at <b>6</b>. In general you can stop at <b>&radic;N</b>.</p>
+      <p><b>Here is the whole argument.</b> Divisors come in pairs: if <span class="mono">N = a &times; b</span> then finding <span class="mono">a</span> hands you <span class="mono">b</span> for free. And <span class="mono">a</span> and <span class="mono">b</span> cannot <em>both</em> be larger than &radic;N &mdash; if they were, their product would be larger than N. So <b>every pair has at least one member at or below &radic;N</b>.</p>
+      <p>Test up to &radic;N and you have already met one member of every pair there could be. Finding nothing there means there is nothing above it either.</p>
+    </div>
+  </div>
+
+  <h3>See it for yourself</h3>
+
+  <p>Every divisor pair of N, written out. The pairs approach each other from both ends and meet at &radic;N &mdash; and everything to the right of the meeting point is a repeat of something on the left.</p>
+
   <div class="btnrow" id="fnbtns">
     <span class="subtle" style="font-weight:700;align-self:center">N =</span>
     <button class="btn sm" data-fn="36" style="background:#ea580c">36</button>
@@ -903,66 +1645,132 @@ cout &lt;&lt; sum;</pre>
   <div class="pairlist" id="pairs"></div>
   <p class="opdesc" id="pairmsg" style="text-align:center"></p>
 
-  <div class="box good">
-    <p class="bt">The rule</p>
-    <p style="margin:0">If no factor has been found by <b>&radic;N</b>, there will never be one after it. Every factor above &radic;N is already paired with one below it.</p>
+  <h3>Approach B &middot; stop at &radic;N</h3>
+
+  <div class="box warn">
+    <p class="bt">The mathematics says &radic;N. The code should not.</p>
+    <p>The obvious translation is <span class="mono">i &lt;= sqrt(n)</span>, and it is the one to <b>un</b>learn. <span class="mono">sqrt</span> returns a <span class="mono">double</span>, and a double carries about 15 accurate digits &mdash; so for an N near 10<sup>12</sup> the value can land a hair below the true root and the loop stops <b>one test too early</b>, which is a wrong answer rather than a slow one.</p><p style="margin:0"><b>Write <span class="mono">i * i &lt;= n</span> instead.</b> It is exact integer arithmetic, it needs no library, and it says the same thing: <em>keep going while i is still at or below the square root</em>. Keep <span class="mono">i</span> a <span class="mono">long long</span> so that <span class="mono">i * i</span> itself cannot overflow &mdash; &sect;2 explains why that matters.</p>
   </div>
 
-  <div class="box info">
-    <p class="bt">What that saves, in numbers</p>
-    <p style="margin:0">For N = 1,000,000 (10<sup>6</sup>):<br>
-    <b>O(N)</b> → 1,000,000 steps &nbsp;·&nbsp; <b>O(&radic;N)</b> → <b>1,000</b> steps.<br><br>
-    <span class="subtle">Use <span class="mono">i * i &lt;= n</span> rather than <span class="mono">i &lt;= sqrt(n)</span> — <span class="mono">sqrt</span> returns a floating point number and can be off by one at the boundary.</span></p>
+<pre class="code">#include &lt;iostream&gt;
+<span class="k">using namespace</span> std;
+
+<span class="t">bool</span> <span class="f">isPrime</span>(<span class="t">long long</span> n) {
+    <span class="k">if</span> (n &lt; <span class="n">2</span>) <span class="k">return false</span>;
+
+    <span class="k">for</span> (<span class="t">long long</span> i = <span class="n">2</span>; <span class="chg">i * i &lt;= n</span>; i++)
+        <span class="k">if</span> (n % i == <span class="n">0</span>) <span class="k">return false</span>;
+
+    <span class="k">return true</span>;
+}
+
+<span class="t">int</span> <span class="f">main</span>() {
+    <span class="t">long long</span> n;
+    cin &gt;&gt; n;
+
+    cout &lt;&lt; (<span class="f">isPrime</span>(n) ? <span class="s">"YES"</span> : <span class="s">"NO"</span>) &lt;&lt; endl;
+    <span class="k">return</span> <span class="n">0</span>;
+}</pre>
+
+  <div class="opsbox">
+    <span class="opslbl">approach B, worst case</span>
+    <div class="opsf">
+      <span class="num">1,000,000</span>
+      <span class="op">&divide;</span>
+      <span class="num">10<sup>8</sup></span>
+      <span class="op">=</span>
+      <span class="res ok">0.01 seconds</span>
+    </div>
+    <p class="opsnote">&radic;(10<sup>12</sup>) is 10<sup>6</sup>, so the loop runs a million times instead of a million million.</p>
+    <hr>
+    <div class="opsf">
+      <span class="num">10,000 s</span>
+      <span class="op">&rarr;</span>
+      <span class="res ok">0.01 s</span>
+    </div>
+    <p class="opsnote"><b>Just under three hours becomes a hundredth of a second &mdash; one million times faster, for one changed character.</b> Nothing about the machine changed. Only the number of operations did.</p>
   </div>
 </article>
 <!-- ============ 4 · LOG N ============ -->
 <article class="card numbered" id="s4" style="--accent:#0891b2">
   <span class="badge">4</span>
   <div class="hdr-row">
-    <div><p class="kicker">Section 4</p><h2>Logarithmic time — O(log N)</h2></div>
-    <span class="timechip">⏱ 10 min</span>
+    <div><p class="kicker">Section 4</p><h2>Logarithmic time &mdash; O(log N)</h2></div>
+    <span class="timechip">&#9201; 10 min</span>
   </div>
 
-  <div class="box info">
-    <p class="bt">The idea</p>
-    <p style="margin:0">If an algorithm <b>divides the input by a fraction — usually half — at every step</b>, it is logarithmic.</p>
+  <h3>The definition, once</h3>
+
+  <div class="defbox">
+    <p class="dbk">Definition &mdash; any base</p>
+    <p class="dbeq"><span class="deq">b<sup>k</sup> = N</span><span class="dsame">means the same thing as</span><span class="deq">log<sub>b</sub> N = k</span></p>
+    <p class="dbt"><b>The logarithm is the power.</b> <span class="mono">log<sub>b</sub> N</span> is the number you have to raise <span class="mono">b</span> to in order to reach <span class="mono">N</span>, and <span class="mono">b</span> is called the <b>base</b>.</p>
+    <div class="dbex">
+      <div><span class="dxa">2<sup>5</sup> = 32</span><span class="dxb">log<sub>2</sub> 32 = 5</span></div>
+      <div><span class="dxa">2<sup>10</sup> = 1024</span><span class="dxb">log<sub>2</sub> 1024 = 10</span></div>
+      <div><span class="dxa">10<sup>3</sup> = 1000</span><span class="dxb">log<sub>10</sub> 1000 = 3</span></div>
+    </div>
+    <p class="dbn">In computing the base is nearly always <b>2</b>, because the thing that keeps happening is <b>halving</b>. When you see <span class="mono">O(log N)</span> written with no base at all, read it as base 2 &mdash; and note that the base would not change the answer anyway, because switching base only multiplies the whole thing by a constant, and Big-O throws constants away.</p>
   </div>
 
-  <h3>The paper folding picture</h3>
-  <p>A sheet of size <b>16</b>. How many times can you fold it in half until it reaches size 1?</p>
+  <p><b>That is the last time you will need it.</b> You will never compute a logarithm in this course, and there is no calculator in the exam hall. Put the definition away and keep one of the two pictures below instead &mdash; they say the same thing, and both are things you can count on your fingers.</p>
 
-  <div class="fold" id="fold"></div>
-  <div class="btnrow">
-    <button class="btn" id="fold-go" style="background:#0891b2">Fold it in half</button>
-    <button class="btn ghost sm" id="fold-reset">Reset</button>
-    <select class="btn ghost sm" id="fold-n" style="font-family:var(--mono)">
-      <option value="16">start at 16</option>
-      <option value="32">start at 32</option>
-      <option value="1024">start at 1024</option>
-      <option value="1000000000000">start at 10¹²</option>
-    </select>
+  <h3>The two pictures</h3>
+
+  <p>Same array, same answer, opposite directions. Press <b>Next</b> and count the presses.</p>
+
+  <div class="lgw" id="lg1">
+    <div class="btnrow" style="justify-content:center;margin-top:0" id="lgmodes">
+      <button class="btn sm" type="button" data-lg="div" style="background:#0891b2">Halve N until it reaches 1</button>
+      <button class="btn sm ghost" type="button" data-lg="mul">Double 1 until it reaches N</button>
+    </div>
+    <div class="lgtrack" id="lg-track"></div>
+    <div class="lgmsg"><span class="lgn" id="lg-step">0 / 5</span><p id="lg-msg" style="margin:0">&nbsp;</p></div>
+    <div class="btnrow" style="justify-content:center;margin-bottom:0">
+      <button class="btn ghost sm" type="button" id="lg-back">&#9666; Back</button>
+      <button class="btn" type="button" id="lg-next" style="background:#0891b2">Next &#9656;</button>
+      <button class="btn ghost sm" type="button" id="lg-reset">Reset</button>
+      <select class="btn ghost sm" id="lg-n" style="font-family:var(--mono)" aria-label="array size">
+        <option value="16">N = 16</option>
+        <option value="32" selected>N = 32</option>
+        <option value="64">N = 64</option>
+      </select>
+    </div>
   </div>
-  <p class="opdesc" id="fold-msg">16 → 8 → 4 → 2 → 1 takes <b>4</b> folds, and 2<sup>4</sup> = 16, so log₂(16) = 4.</p>
 
-  <h3>Two ways to read the same thing</h3>
   <div class="grid2">
     <div class="box" style="margin:0">
-      <p class="bt">Method 1 — divide down to 1</p>
-      <p style="margin:0">How many times must you halve N to reach 1?</p>
-      <p class="mono" style="margin:.5rem 0 0;font-size:.84rem">32 → 16 → 8 → 4 → 2 → 1<br><b>5 steps → log₂(32) = 5</b></p>
+      <p class="bt">Halving &mdash; how you will meet it</p>
+      <p><span class="mono">32 &rarr; 16 &rarr; 8 &rarr; 4 &rarr; 2 &rarr; 1</span> &mdash; five steps.</p><p style="margin:0">Throw away half of what is left, every time, until one thing remains. <b>Binary search is exactly this.</b> A thousand items take ten steps; a million take twenty.</p>
     </div>
     <div class="box" style="margin:0">
-      <p class="bt">Method 2 — multiply up to N</p>
-      <p style="margin:0">How many times must you double 1 to reach N?</p>
-      <p class="mono" style="margin:.5rem 0 0;font-size:.84rem">1 → 2 → 4 → 8 → 16 → 32<br><b>5 steps → log₂(32) = 5</b></p>
+      <p class="bt">Doubling &mdash; how you will count it</p>
+      <p><span class="mono">1 &rarr; 2 &rarr; 4 &rarr; 8 &rarr; 16 &rarr; 32</span> &mdash; five steps.</p><p style="margin:0">Start at 1 and double until you pass N. <b>This is the one to count with</b>, because doubling in your head is easy and halving a big number is not.</p>
     </div>
   </div>
-  <p class="subtle" style="margin-top:.8rem">💡 Method 2 is the one that explains <b>merge sort</b> later — how many times you merge until the whole N-sized array is sorted.</p>
+
+  <h3>The log column, which is the whole point</h3>
+
+  <p>Double 1 until you pass the constraint, and count. These are the only five you will meet:</p>
+
+  <div class="logstrip">
+    <div><span class="lsn">10<sup>3</sup></span><span class="lsv">10</span></div>
+    <div><span class="lsn">10<sup>6</sup></span><span class="lsv">20</span></div>
+    <div><span class="lsn">10<sup>9</sup></span><span class="lsv">30</span></div>
+    <div><span class="lsn">10<sup>12</sup></span><span class="lsv">40</span></div>
+    <div><span class="lsn">10<sup>18</sup></span><span class="lsv">60</span></div>
+  </div>
+  <p class="lscap">N on the left, <b>log<sub>2</sub> N</b> on the right &mdash; and the pattern is worth more than the numbers: <b>every thousand-fold jump in N adds ten steps</b>. Not ten times more work. Ten more steps.</p>
+
+  <div class="box good">
+    <p class="bt">What that buys you</p>
+    <p>A billion items, searched in <b>30</b> steps. A million million, in <b>40</b>. At 10<sup>8</sup> operations a second, forty operations is <b>0.0000004 seconds</b> &mdash; and it would still be forty if the input were a thousand times larger.</p><p style="margin:0">This is why <span class="mono">O(log N)</span> is treated as <em>free</em> in practice, and why the first question about any large constraint is <b>&ldquo;can I halve something?&rdquo;</b></p>
+  </div>
 
   <div class="bridge" style="--accent:#0891b2">
     <p class="lbl">Why it matters</p>
-    <p class="say">Even for N = one trillion, O(N) needs a trillion steps. <b>O(log N) needs about 40.</b></p>
-    <p style="margin-top:.8rem">For any practical input, logarithmic is almost as good as constant.</p>
+    <p class="say">For N = one trillion, O(N) needs a trillion steps. <b>O(log N) needs 40.</b></p>
+    <p style="margin-top:.8rem">That is the whole reason binary search, balanced trees and heaps are worth the trouble of learning. For any input you will ever be given, logarithmic is as good as constant.</p>
   </div>
 </article>
 
@@ -976,16 +1784,26 @@ cout &lt;&lt; sum;</pre>
 
   <div class="box bad">
     <p class="bt">Read the constraint. It is telling you the answer.</p>
-    <p style="margin:0">Almost every problem gives you a line like <span class="mono">N &le; 100,000</span>. That single line already decides which solutions are allowed:<br><br>
-    <b>O(N)</b> → 100,000 operations → <span class="hl-good">✅ very fast</span><br>
-    <b>O(N²)</b> → (10<sup>5</sup>)² = <b>10<sup>10</sup></b> operations → <span class="hl-bad">❌ impossible</span><br><br>
-    At 10<sup>8</sup> operations per second, 10<sup>10</sup> ÷ 10<sup>8</sup> = <b>100 seconds</b>. The limit is 1–2 seconds.</p>
+    <p>Almost every problem gives you a line like <span class="mono">N &le; 100,000</span>. That single line already decides which solutions are allowed:</p><p><b>O(N)</b> → 100,000 operations → <span class="hl-good">✅ very fast</span><br>
+    <b>O(N²)</b> → (10<sup>5</sup>)² = <b>10<sup>10</sup></b> operations → <span class="hl-bad">❌ impossible</span></p><p style="margin:0">At 10<sup>8</sup> operations per second, 10<sup>10</sup> ÷ 10<sup>8</sup> = <b>100 seconds</b>. The limit is 1–2 seconds.</p>
+  </div>
+
+  <h3>The constraint, read backwards</h3>
+
+  <p>Turn it around and the constraint stops being a limit and becomes a hint. For each size, this is <b>the slowest shape that still finishes in about a second</b> &mdash; anything faster is fine, anything slower is not.</p>
+
+  <div class="cmap">
+    <div class="cm"><span class="cmn">N &le; 10<sup>18</sup></span><span class="cmc c-log">O(log N)</span><span class="cmw">about 60 steps</span></div>
+    <div class="cm"><span class="cmn">N &le; 10<sup>12</sup></span><span class="cmc c-sq">O(&radic;N)</span><span class="cmw">10<sup>6</sup> steps &mdash; &sect;3&rsquo;s problem</span></div>
+    <div class="cm"><span class="cmn">N &le; 10<sup>8</sup></span><span class="cmc c-n">O(N)</span><span class="cmw">one pass, and no more</span></div>
+    <div class="cm"><span class="cmn">N &le; 10<sup>6</sup></span><span class="cmc c-nl">O(N log N)</span><span class="cmw">2 &times; 10<sup>7</sup> &mdash; sorting fits here</span></div>
+    <div class="cm"><span class="cmn">N &le; 10<sup>4</sup></span><span class="cmc c-n2">O(N&sup2;)</span><span class="cmw">10<sup>8</sup> &mdash; the last size a nested loop survives</span></div>
   </div>
 
   <div class="note13">
-    <span class="ic">📌</span>
-    <div><p><b>The interview reflex to build today.</b></p>
-    <p style="margin-top:.5rem">The moment you see <b>N &ge; 10<sup>5</sup></b>, immediately think: <em>"I must avoid O(N²)."</em></p></div>
+    <span class="ic">&#128204;</span>
+    <div><p><b>The reflex to build today.</b></p>
+    <p style="margin-top:.5rem">The moment you see <b>N &ge; 10<sup>5</sup></b>, think: <em>&ldquo;a nested loop is already out.&rdquo;</em> Read the constraint <b>before</b> you start designing, not after your submission times out.</p></div>
   </div>
 
   <h3>Try it yourself — will this pass?</h3>
@@ -1019,8 +1837,15 @@ cout &lt;&lt; sum;</pre>
   <details class="prob lc">
     <summary><span class="plogo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.6 2.3a1.4 1.4 0 0 1 2 2l-4.1 4.2 5.3 5.4a1.4 1.4 0 1 1-2 2l-6.3-6.4a1.4 1.4 0 0 1 0-2z" fill="#ffa116"/><path d="M9.5 7.5 4.9 12.2a5.6 5.6 0 0 0 0 7.9 5.6 5.6 0 0 0 7.9 0l2-2a1.4 1.4 0 0 0-2-2l-2 2a2.8 2.8 0 0 1-4-4l4.6-4.6z" fill="#3e3e3e"/><path d="M12.4 17.2h8.2a1.35 1.35 0 1 0 0-2.7h-8.2a1.35 1.35 0 1 0 0 2.7z" fill="#b3b3b3"/></svg></span><b style="flex:1;min-width:0">1 · Two Sum</b><span class="psrc">LeetCode</span></summary>
     <div>
-      <p style="margin:0"><b>Problem.</b> Given an array of integers and a target, return the indices of the two numbers that add up to the target.</p>
-      <p style="margin:.6rem 0 0">Called the “Hello World” of interviews — it is really a lesson in counting operations.</p>
+      <p style="margin:0"><b>Problem.</b> Given an array <span class="mono">nums</span> and an integer <span class="mono">target</span>, return the <b>indices</b> of the two numbers that add up to <span class="mono">target</span>. Exactly one pair works, and you may not use the same element twice.</p>
+      <div class="iogrid">
+        <div class="io"><span class="iok">Input</span><span class="mono">nums = [2, 7, 11, 15], target = 9</span><span class="iok">Output</span><span class="mono">[0, 1]</span>
+          <em><span class="mono">nums[0] + nums[1] = 2 + 7 = 9</span>. The answer is the pair of <b>positions</b>, not the values.</em></div>
+        <div class="io"><span class="iok">Input</span><span class="mono">nums = [3, 2, 4], target = 6</span><span class="iok">Output</span><span class="mono">[1, 2]</span>
+          <em>Not <span class="mono">[0, 0]</span> &mdash; 3 + 3 would mean using the same element twice.</em></div>
+      </div>
+      <p style="margin:.7rem 0 0"><b>Constraint.</b> <span class="pconstraint">2 &le; nums.length &le; 10<sup>4</sup></span>. Be honest about what that allows: 10<sup>4</sup> squared is 10<sup>8</sup>, so the brute force <em>just</em> survives on LeetCode. Raise the cap to 10<sup>5</sup>, as a Codeforces problem would, and the identical code times out &mdash; which is exactly why the counting below is worth doing.</p>
+      <p style="margin:.6rem 0 0">Called the &ldquo;Hello World&rdquo; of interviews. It is really a lesson in counting operations.</p>
       <a class="plink" href="https://leetcode.com/problems/two-sum/" target="_blank" rel="noopener">Open on LeetCode &nbsp;&rarr;</a>
     </div>
   </details>
@@ -1046,22 +1871,42 @@ cout &lt;&lt; sum;</pre>
 
   <div class="box warn">
     <p class="bt">Many students think the second one is O(N). It is not. Count it.</p>
-    <p style="margin:0" class="mono" style="font-size:.85rem">
-    i = 0 → j runs N&minus;1 times<br>
-    i = 1 → j runs N&minus;2 times<br>
-    i = 2 → j runs N&minus;3 times<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&hellip;<br>
-    i = N&minus;2 → j runs 1 time</p>
-    <p style="margin:.7rem 0 0">Total = (N&minus;1) + (N&minus;2) + &hellip; + 2 + 1 = <b>N(N&minus;1)/2</b></p>
+    <div class="tally">
+      <div class="tl"><span class="ti">i = 0</span><span class="tj">j runs <b>N&minus;1</b> times</span></div>
+      <div class="tl"><span class="ti">i = 1</span><span class="tj">j runs <b>N&minus;2</b> times</span></div>
+      <div class="tl"><span class="ti">i = 2</span><span class="tj">j runs <b>N&minus;3</b> times</span></div>
+      <div class="tl"><span class="ti">i = 3</span><span class="tj">j runs <b>N&minus;4</b> times</span></div>
+      <div class="tl dots"><span class="ti">&bull;<br>&bull;<br>&bull;</span><span class="tj">and so on, one fewer every time</span></div>
+      <div class="tl"><span class="ti">i = N&minus;3</span><span class="tj">j runs <b>2</b> times</span></div>
+      <div class="tl"><span class="ti">i = N&minus;2</span><span class="tj">j runs <b>1</b> time</span></div>
+      <div class="tl"><span class="ti">i = N&minus;1</span><span class="tj">j runs <b>0</b> times &mdash; the loop never starts</span></div>
+    </div>
+    <p class="tsum">Total &nbsp;=&nbsp; (N&minus;1) + (N&minus;2) + (N&minus;3) + &hellip; + 2 + 1 + 0 &nbsp;=&nbsp; <b>N(N&minus;1)/2</b></p>
+    <p style="margin:.7rem 0 0">Half of N&sup2; is still N&sup2;. Cutting the work in two does not change the <em>shape</em> of the growth, and the shape is the only thing Big-O reports.</p>
   </div>
 
-  <h3>Why "/2" and "&minus;N" disappear</h3>
-  <p>Expand it: <span class="mono">N(N&minus;1)/2 = (N² &minus; N) / 2</span>. Three parts, three fates:</p>
+  <h3>Why &ldquo;/2&rdquo; and &ldquo;&minus;N&rdquo; disappear</h3>
 
-  <div class="grid3">
-    <div class="box bad" style="margin:0"><p class="bt">N²</p><p style="margin:0">Grows very fast. <b>This one survives.</b></p></div>
-    <div class="box" style="margin:0"><p class="bt">&minus;N</p><p style="margin:0">Grows too — but far slower than N². Dropped.</p></div>
-    <div class="box" style="margin:0"><p class="bt">÷ 2</p><p style="margin:0">Just a constant scale. Makes it smaller, not slower. Dropped.</p></div>
+  <p>Multiply the brackets out and the exact count has three parts:</p>
+
+  <p class="bigeq"><span class="mono">N(N&minus;1)/2</span><span class="eqop">=</span><span class="eqop">(</span><span class="eqp keep">N&sup2;</span><span class="eqop">&minus;</span><span class="eqp drop">N</span><span class="eqop">)</span><span class="eqop">&divide;</span><span class="eqp drop">2</span></p>
+
+  <div class="fates">
+    <div class="fate keep">
+      <span class="fk">N&sup2;</span>
+      <b>survives</b>
+      <p>The fastest-growing part. Double N and this quadruples &mdash; that is the behaviour the answer is describing.</p>
+    </div>
+    <div class="fate">
+      <span class="fk">&minus; N</span>
+      <b>dropped</b>
+      <p>It grows, but far more slowly. At N = 1,000 it removes one part in a thousand, and the bigger N gets the less it matters.</p>
+    </div>
+    <div class="fate">
+      <span class="fk">&divide; 2</span>
+      <b>dropped</b>
+      <p>A constant scale. It makes the work <em>smaller</em>, never <em>slower</em> &mdash; halving 10<sup>10</sup> still leaves 5 &times; 10<sup>9</sup>.</p>
+    </div>
   </div>
 
   <p style="margin-top:1rem">Here is the same sum written out for real values of N. Watch the last column.</p>
@@ -1094,7 +1939,21 @@ cout &lt;&lt; sum;</pre>
     <span class="timechip">⏱ 9 min</span>
   </div>
 
-  <p><b>Problem.</b> Given N (10 &le; N &le; 10<sup>5</sup>), build the string <span class="mono">"12345678910111213…N"</span>.</p>
+  <details class="prob lc">
+    <summary><span class="plogo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.6 2.3a1.4 1.4 0 0 1 2 2l-4.1 4.2 5.3 5.4a1.4 1.4 0 1 1-2 2l-6.3-6.4a1.4 1.4 0 0 1 0-2z" fill="#ffa116"/><path d="M9.5 7.5 4.9 12.2a5.6 5.6 0 0 0 0 7.9 5.6 5.6 0 0 0 7.9 0l2-2a1.4 1.4 0 0 0-2-2l-2 2a2.8 2.8 0 0 1-4-4l4.6-4.6z" fill="#3e3e3e"/><path d="M12.4 17.2h8.2a1.35 1.35 0 1 0 0-2.7h-8.2a1.35 1.35 0 1 0 0 2.7z" fill="#b3b3b3"/></svg></span><b style="flex:1;min-width:0">400 &middot; Nth Digit</b><span class="psrc">LeetCode</span></summary>
+    <div>
+      <p style="margin:0"><b>Our version.</b> Given N, build the string <span class="mono">"12345678910111213&hellip;N"</span> &mdash; every number from 1 to N written out end to end.</p>
+      <div class="iogrid">
+        <div class="io"><span class="iok">Input</span><span class="mono">12</span><span class="iok">Output</span><span class="mono">"123456789101112"</span>
+          <em>Nine single digits, then 10, 11 and 12 add two each &mdash; 15 characters in all.</em></div>
+        <div class="io"><span class="iok">Input</span><span class="mono">100000</span><span class="iok">Output</span><span class="mono">488,890 characters</span>
+          <em>Nearly half a megabyte of text &mdash; and <em>building</em> it is where the whole lesson lives.</em></div>
+      </div>
+      <p style="margin:.7rem 0 0"><b>Constraint.</b> <span class="pconstraint">10 &le; N &le; 10<sup>5</sup></span></p>
+      <p style="margin:.6rem 0 0"><b>The same string on LeetCode.</b> Problem 400, <em>Nth Digit</em>, asks for the n-th character of exactly this sequence. Do it straight after this section: it is the same string seen from the other end, and it cannot be solved by building the thing at all.</p>
+      <a class="plink" href="https://leetcode.com/problems/nth-digit/" target="_blank" rel="noopener">Open on LeetCode &nbsp;&rarr;</a>
+    </div>
+  </details>
 
   <div class="box bad">
     <p class="bt">❌ The trap</p>
@@ -1105,53 +1964,65 @@ cout &lt;&lt; sum;</pre>
     <p style="margin:0">There is no visible nested loop. It still runs in <b>O(N²)</b>.</p>
   </div>
 
-  <div class="digwrap" style="--accent:#7c3aed">
-    <p class="dighead">Why this is quadratic<span></span></p>
-    <details class="dig"><summary><span class="dicon">?</span>Open it up — what <span class="mono">s = s + x</span> really does, step by step</summary><div>
-<p><span class="mono">s = s + "x"</span> does not simply append. It <b>allocates a brand new string</b>, <b>copies every existing character across</b>, adds the new ones, and destroys the old one.</p>
+  <h3>Why this is quadratic</h3>
 
-  <p>Watch what that costs. Press step and see how much gets copied each round.</p>
-
-  <div class="copybar">
-    <div class="cprow"><span class="cpl">i</span><span class="cpv mono" id="cp-i">1</span></div>
-    <div class="cprow"><span class="cpl">string so far</span><span class="cpv mono" id="cp-s" style="font-size:.72rem">""</span></div>
-    <div class="cprow"><span class="cpl">characters copied this round</span><span class="cpv mono" id="cp-c" style="color:#be123c">0</span></div>
-    <div class="cprow"><span class="cpl">total copied so far</span><span class="cpv mono" id="cp-t" style="color:#be123c">0</span></div>
-  </div>
-  <div class="meter"><i id="cp-bar"></i></div>
-  <div class="btnrow">
-    <button class="btn" id="cp-next" style="background:#7c3aed">Next i ▸</button>
-    <button class="btn ghost sm" id="cp-jump">Jump to i = 500</button>
-    <button class="btn ghost sm" id="cp-reset">Reset</button>
-  </div>
-  <p class="opdesc" id="cp-msg">Each round copies the <b>whole</b> string again, just to add two or three characters.</p>
+  <p><b><span class="mono">s = s + x</span> does not add to the end of <span class="mono">s</span>.</b> It builds a whole new string: reserve memory, copy every character already there, add the new ones, throw the old string away. Every round.</p>
 
   <div class="box warn">
-    <p class="bt">A concrete moment — N = 500, and we are at i = 497</p>
-    <p style="margin:0">At this point <span class="mono">s</span> is already <span class="mono">"123456789101112…495496"</span>.<br><br>
-    Now <span class="mono">s = s + "497";</span> runs. Internally: a brand new string is allocated · the entire old string is copied character by character · <span class="mono">"497"</span> is copied on the end · the old string is destroyed.<br><br>
-    <b>You added 3 characters and copied nearly 1,900.</b></p>
+    <p class="bt">The last four rounds of a run with N = 500</p>
+    <div class="rounds">
+      <div class="rd"><span class="ri">i = 497</span><span class="rs"><span class="mono">s</span> is <b>1,380</b> characters long</span><span class="rc">copy <b>1,380</b>, add <b>3</b></span></div>
+      <div class="rd"><span class="ri">i = 498</span><span class="rs"><span class="mono">s</span> is <b>1,383</b> characters long</span><span class="rc">copy <b>1,383</b>, add <b>3</b></span></div>
+      <div class="rd"><span class="ri">i = 499</span><span class="rs"><span class="mono">s</span> is <b>1,386</b> characters long</span><span class="rc">copy <b>1,386</b>, add <b>3</b></span></div>
+      <div class="rd"><span class="ri">i = 500</span><span class="rs"><span class="mono">s</span> is <b>1,389</b> characters long</span><span class="rc">copy <b>1,389</b>, add <b>3</b></span></div>
+    </div>
+    <p style="margin:.75rem 0 0">Four rounds: <b>12 characters added and 5,538 copied</b> &mdash; and each round is worse than the one before it, because the string it has to copy has just grown.</p>
   </div>
 
-  <details class="dig"><summary><span class="dicon">?</span>How big does the string actually get?</summary><div>
+  <p>The copying is the cost, and it grows every round. Run it and watch the <b>total</b>, not the string.</p>
+
+  <div class="simbox">
+    <p class="sbt">One round of <span class="mono">s = s + to_string(i)</span></p>
+    <div class="copybar">
+      <div class="cprow"><span class="cpl">i</span><span class="cpv mono" id="cp-i">1</span></div>
+      <div class="cprow"><span class="cpl">string so far</span><span class="cpv mono" id="cp-s" style="font-size:.72rem">""</span></div>
+      <div class="cprow"><span class="cpl">characters copied this round</span><span class="cpv mono" id="cp-c" style="color:#be123c">0</span></div>
+      <div class="cprow"><span class="cpl">total copied so far</span><span class="cpv mono" id="cp-t" style="color:#be123c">0</span></div>
+      <div class="cprow" style="border-color:#c7d2fe;background:#f5f7ff"><span class="cpl" style="color:#4338ca">i &times; i &nbsp;&mdash;&nbsp; for comparison</span><span class="cpv mono" id="cp-q" style="color:#4338ca">0</span></div>
+    </div>
+    <p class="subtle" style="margin:.1rem 0 0;text-align:center">Watch the <b>bottom two rows together</b>. The total copied does not follow <span class="mono">i</span> &mdash; it follows <span class="mono">i &times; i</span>.</p>
+    <div class="meter" style="margin-top:.75rem"><i id="cp-bar"></i></div>
+    <p class="subtle" style="margin:.25rem 0 0;text-align:center">the copying done so far, out of the <b>325,245</b> characters a full run to <span class="mono">i = 500</span> costs &mdash; <b>at i = 250 it is only 22% full</b></p>
+    <div class="sbmsg"><p class="opdesc" id="cp-msg" style="margin:0">Each round copies the <b>whole</b> string again, just to add two or three characters.</p></div>
+    <div class="btnrow" style="justify-content:center;margin-bottom:0">
+      <button class="btn" id="cp-next" style="background:#7c3aed;touch-action:none" title="Hold to run — it speeds up">Next i &#9656;</button>
+      <button class="btn ghost sm" id="cp-jump">Jump to i = 500</button>
+      <button class="btn ghost sm" id="cp-reset">Reset</button>
+    </div>
+    <p class="subtle" style="text-align:center;margin:.5rem 0 0"><b>Hold</b> <span class="mono">Next i</span> and it accelerates &mdash; about eight seconds from i = 1 to i = 500. Watch the bar, not the string.</p>
+  </div>
+
+  <p>Round 1 copies almost nothing, round 2 copies a little more, and round N copies everything. If each number adds about <b>c</b> characters, the copying across the whole loop adds up to</p>
+
+  <p class="bigeq"><span class="eqp drop">c</span><span class="eqop">&times;</span><span class="eqp keep">(1 + 2 + 3 + &hellip; + N)</span><span class="eqop">=</span><span class="eqp drop">c</span><span class="eqop">&times;</span><span class="eqp keep">N(N+1)/2</span></p>
+
+  <p>The <b>c</b> is a constant, so Big-O drops it exactly as &sect;5 dropped the <span class="mono">/2</span>. What is left is <span class="mono">1 + 2 + 3 + &hellip; + N</span> &mdash; the same sum as &sect;2, and the same shape as the nested loop in &sect;5. <b>O(N&sup2;), with no nested loop in sight.</b></p>
+
+  <details class="dig"><summary><span class="dicon">?</span>What is <span class="mono">c</span>, really &mdash; how long does the string get?</summary><div>
     <div class="tw" style="margin:0">
     <table>
       <thead><tr><th>Range</th><th>Count</th><th>Digits each</th><th>Total digits</th></tr></thead>
       <tbody>
-        <tr><td class="num">1–9</td><td class="num">9</td><td class="num">1</td><td class="num">9</td></tr>
-        <tr><td class="num">10–99</td><td class="num">90</td><td class="num">2</td><td class="num">180</td></tr>
-        <tr><td class="num">100–999</td><td class="num">900</td><td class="num">3</td><td class="num">2,700</td></tr>
-        <tr><td class="num">1000–9999</td><td class="num">9,000</td><td class="num">4</td><td class="num">36,000</td></tr>
-        <tr><td class="num">10000–99999</td><td class="num">90,000</td><td class="num">5</td><td class="num">450,000</td></tr>
+        <tr><td class="num">1&ndash;9</td><td class="num">9</td><td class="num">1</td><td class="num">9</td></tr>
+        <tr><td class="num">10&ndash;99</td><td class="num">90</td><td class="num">2</td><td class="num">180</td></tr>
+        <tr><td class="num">100&ndash;999</td><td class="num">900</td><td class="num">3</td><td class="num">2,700</td></tr>
+        <tr><td class="num">1000&ndash;9999</td><td class="num">9,000</td><td class="num">4</td><td class="num">36,000</td></tr>
+        <tr><td class="num">10000&ndash;99999</td><td class="num">90,000</td><td class="num">5</td><td class="num">450,000</td></tr>
       </tbody>
     </table>
     </div>
-    <p style="margin:.7rem 0 0">For large N most numbers have about <b>5 digits</b>, so each round adds roughly 5 characters. The copying then looks like<br>
-    <span class="mono">5×1 + 5×2 + 5×3 + … + 5×N</span><br><br>
-    The 5 is a constant, so we drop it and are left with <span class="mono">1 + 2 + 3 + … + N</span>, which is <b>O(N²)</b>.</p>
+    <p style="margin:.7rem 0 0">When N is 10<sup>5</sup>, nine numbers in ten have <b>5 digits</b>, so <span class="mono">c</span> is about 5. It is a constant, and a constant never changes the shape &mdash; the answer is O(N&sup2;) whether the numbers are one digit long or six.</p>
   </div></details>
-    </div></details>
-  </div>
 
   <div class="box good">
     <p class="bt">✅ The fix — O(N)</p>
@@ -1160,8 +2031,8 @@ s.<span class="f">reserve</span>(N * <span class="n">6</span>);          <span c
 <span class="k">for</span> (<span class="t">int</span> i = <span class="n">1</span>; i &lt;= N; i++) {
     s += <span class="f">to_string</span>(i);        <span class="c">// '+=' appends in place</span>
 }</pre>
-    <p style="margin:0"><b>Memory is allocated once</b> · <b>nothing is copied repeatedly</b> · appends are O(1) amortised.<br><br>
-    <span class="mono">s = s + x</span> and <span class="mono">s += x</span> look almost identical. One is O(N²) and one is O(N).</p>
+    <p style="margin:0"><b>Memory is allocated once</b> · <b>nothing is copied repeatedly</b> · appends are O(1) amortised.</p>
+    <p style="margin:0"><span class="mono">s = s + x</span> and <span class="mono">s += x</span> look almost identical. One is O(N&sup2;) and one is O(N).</p>
   </div>
 </article>
 
@@ -1179,38 +2050,93 @@ s.<span class="f">reserve</span>(N * <span class="n">6</span>);          <span c
   </div>
 
   <h3>Case study: find the missing number</h3>
+
   <details class="prob lc">
-    <summary><span class="plogo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.6 2.3a1.4 1.4 0 0 1 2 2l-4.1 4.2 5.3 5.4a1.4 1.4 0 1 1-2 2l-6.3-6.4a1.4 1.4 0 0 1 0-2z" fill="#ffa116"/><path d="M9.5 7.5 4.9 12.2a5.6 5.6 0 0 0 0 7.9 5.6 5.6 0 0 0 7.9 0l2-2a1.4 1.4 0 0 0-2-2l-2 2a2.8 2.8 0 0 1-4-4l4.6-4.6z" fill="#3e3e3e"/><path d="M12.4 17.2h8.2a1.35 1.35 0 1 0 0-2.7h-8.2a1.35 1.35 0 1 0 0 2.7z" fill="#b3b3b3"/></svg></span><b style="flex:1;min-width:0">268 · Missing Number</b><span class="psrc">LeetCode</span></summary>
+    <summary><span class="plogo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.6 2.3a1.4 1.4 0 0 1 2 2l-4.1 4.2 5.3 5.4a1.4 1.4 0 1 1-2 2l-6.3-6.4a1.4 1.4 0 0 1 0-2z" fill="#ffa116"/><path d="M9.5 7.5 5 12l4.5 4.5" stroke="#b3b3b3" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M11 21h9" stroke="#ffa116" stroke-width="2.6" stroke-linecap="round"/></svg></span><b style="flex:1;min-width:0">268 &middot; Missing Number</b><span class="psrc">LeetCode</span></summary>
     <div>
-      <p style="margin:0"><b>Problem.</b> Given an array containing N distinct numbers taken from 0 to N, find the one that is missing.</p>
-      <p style="margin:.6rem 0 0">Two solutions, both O(N) time. Only one of them survives when N is huge — the difference is <b>space</b>.</p>
+      <p style="margin:0"><b>Problem.</b> You are given an array <span class="mono">nums</span> holding <span class="mono">n</span> <b>distinct</b> numbers taken from the range <span class="mono">0, 1, &hellip;, n</span>. Exactly one number from that range is missing. Return it.</p>
+      <div class="iogrid">
+        <div class="io"><span class="iok">Input</span><span class="mono">nums = [3, 0, 1]</span><span class="iok">Output</span><span class="mono">2</span>
+          <em>n = 3, so the range is 0&hellip;3. The array holds 0, 1 and 3, so 2 is missing.</em></div>
+        <div class="io"><span class="iok">Input</span><span class="mono">nums = [9,6,4,2,3,5,7,0,1]</span><span class="iok">Output</span><span class="mono">8</span>
+          <em>n = 9, the range is 0&hellip;9, and 8 is the only one absent.</em></div>
+      </div>
+      <p style="margin:.7rem 0 0"><b>Constraints.</b> <span class="pconstraint">1 &le; n &le; 10<sup>4</sup></span> on LeetCode &mdash; but the same question is asked with <span class="mono">n</span> up to 10<sup>9</sup>, and that is where the two solutions part company. Both are O(N) in <b>time</b>; only one survives on <b>space</b>.</p>
       <a class="plink" href="https://leetcode.com/problems/missing-number/" target="_blank" rel="noopener">Open on LeetCode &nbsp;&rarr;</a>
     </div>
   </details>
 
-  <div class="grid2">
-    <div>
-      <p style="font-size:.8rem;font-weight:800;color:#be123c;margin-bottom:.3rem">APPROACH A — a boolean array</p>
-<pre class="code"><span class="t">vector</span>&lt;<span class="t">bool</span>&gt; seen(n+<span class="n">1</span>, <span class="k">false</span>);
-<span class="k">for</span> (<span class="t">int</span> x : nums) seen[x] = <span class="k">true</span>;
-<span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt;= n; i++)
-    <span class="k">if</span> (!seen[i]) <span class="k">return</span> i;</pre>
-      <p class="subtle" style="margin-top:.4rem">Time <b>O(N)</b> · Space <b class="hl-bad">O(N)</b></p>
+  <h3>Approach A &middot; tick off what you have seen</h3>
+
+  <p>The first idea almost everyone has, and it is a good one: keep a box for every possible value, tick the ones that turn up, then look for the box nobody ticked.</p>
+
+<pre class="code"><span class="t">int</span> <span class="f">missingNumber</span>(<span class="t">vector</span>&lt;<span class="t">int</span>&gt;&amp; nums) {
+    <span class="t">int</span> n = nums.<span class="f">size</span>();
+    <span class="t">vector</span>&lt;<span class="t">bool</span>&gt; seen(n + <span class="n">1</span>, <span class="k">false</span>);
+
+    <span class="k">for</span> (<span class="t">int</span> x : nums) seen[x] = <span class="k">true</span>;
+
+    <span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt;= n; i++)
+        <span class="k">if</span> (!seen[i]) <span class="k">return</span> i;
+
+    <span class="k">return</span> -<span class="n">1</span>;
+}</pre>
+
+  <p>Time <b>O(N)</b> &mdash; two passes, both linear. Space <b class="hl-bad">O(N)</b> &mdash; and that is the half nobody counts. Step through it with a small case and watch the second row, not the first.</p>
+
+  <div class="mvz" id="mv1">
+    <p class="mvk">the array you were given, read one element at a time</p>
+    <div class="arrline"><span class="arrname">nums</span><div class="arr" id="mv-in"></div></div>
+    <p class="mvk"><b>one box for every value from 0 to n</b>, all <span class="mono">false</span> before a single number has been read</p>
+    <div class="arrline"><span class="arrname">seen</span><div class="mvrow ix" id="mv-seen"></div></div>
+    <div class="mvmeta">
+      <div class="mvc bad"><span>memory held, whatever the input</span><b id="mv-ma">9 boxes &mdash; one per possible value</b></div>
     </div>
-<div class="thinkbox"><p><b>Think first.</b> The boolean array works, but it allocates memory that grows with N. <b>Can you find the missing number using only a couple of variables?</b><br><span class="subtle">Hint: you already know the sum of 0 to N.</span></p><button class="btn" id="rv3" style="background:#15803d">Show the better approach</button></div><div class="revealed" id="rv3-w">    <div>
-      <p style="font-size:.8rem;font-weight:800;color:#15803d;margin-bottom:.3rem">APPROACH B — the sum formula</p>
-<pre class="code"><span class="t">long long</span> expected = (<span class="t">long long</span>)n*(n+<span class="n">1</span>)/<span class="n">2</span>;
-<span class="t">long long</span> actual = <span class="n">0</span>;
-<span class="k">for</span> (<span class="t">int</span> x : nums) actual += x;
-<span class="k">return</span> expected - actual;</pre>
-      <p class="subtle" style="margin-top:.4rem">Time <b>O(N)</b> · Space <b class="hl-good">O(1)</b></p>
+    <div class="mvmsg"><span class="mvn" id="mv-n">&mdash;</span><p id="mv-msg" style="margin:0">Nine boxes exist before the loop starts. Press <b>Next</b>.</p></div>
+    <div class="btnrow" style="justify-content:center;margin-bottom:0">
+      <button class="btn ghost sm" type="button" id="mv-back">&#9666; Back</button>
+      <button class="btn" type="button" id="mv-next" style="background:#16a34a">Next &#9656;</button>
+      <button class="btn ghost sm" type="button" id="mv-reset">Reset</button>
     </div>
-</div>  </div>
+  </div>
 
   <div class="box bad">
-    <p class="bt">Why Approach A breaks</p>
-    <p style="margin:0">If N = 10<sup>9</sup>, allocating N+1 boolean values is simply impossible → <b>Memory Limit Exceeded (MLE)</b>.<br><br>
-    Both approaches take O(N) <b>time</b>. Only one of them survives the memory limit.</p>
+    <p class="bt">Now scale the picture up</p>
+    <p>Nine boxes for <span class="mono">n = 8</span>. The same code with <span class="mono">n = 1,000,000,000</span> asks for <b>a billion boxes</b> before it reads anything &mdash; and a <span class="mono">vector&lt;bool&gt;</span> packs eight of them to a byte, so that is still <b>125 MB</b>. A typical memory limit is 256 MB, and the array is not the only thing in the program.</p><p style="margin:0">The time is fine. <b>The memory is what kills it</b> &mdash; and the verdict has its own name: <b>MLE</b>, Memory Limit Exceeded.</p>
+  </div>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>Approach A allocates memory that grows with N. The numbers themselves are the ordinary ones, <span class="mono">0</span> to <span class="mono">n</span>, with exactly one gone.</p>
+      <p><b>Can you find the missing one using only a couple of variables &mdash; the same two variables whether n is 8 or a billion?</b></p>
+    </div>
+    <button class="tbtn" type="button" id="rv3">Show the better approach</button>
+  </div>
+
+  <div class="revealed" id="rv3-w">
+    <h3>Approach B &middot; add them all up</h3>
+
+    <p>Add up the numbers you <em>should</em> have. Add up the numbers you <em>do</em> have. The difference is the one that is gone.</p>
+
+<pre class="code"><span class="t">int</span> <span class="f">missingNumber</span>(<span class="t">vector</span>&lt;<span class="t">int</span>&gt;&amp; nums) {
+    <span class="t">int</span> n = nums.<span class="f">size</span>();
+
+<span class="olit">    <span class="t">long long</span> expected = (<span class="t">long long</span>)n * (n + <span class="n">1</span>) / <span class="n">2</span>;
+    <span class="t">long long</span> actual = <span class="n">0</span>;</span>
+
+    <span class="k">for</span> (<span class="t">int</span> x : nums) actual += x;
+
+    <span class="k">return</span> (<span class="t">int</span>)(expected - actual);
+}</pre>
+    <p class="hicap"><span class="hidot"></span><b>These two lines are the whole memory footprint.</b> Two <span class="mono">long long</span>s &mdash; sixteen bytes &mdash; and the loop below them adds nothing: <span class="mono">x</span> is one <span class="mono">int</span> reused every round. Whether <span class="mono">n</span> is 8 or a billion, the program holds the same two numbers. <b>That is O(1) space.</b></p>
+
+    <p>Time <b>O(N)</b> &mdash; one pass. Space <b class="hl-good">O(1)</b> &mdash; two <span class="mono">long long</span>s, and that is the entire memory footprint whatever <span class="mono">n</span> is.</p>
+
+    <div class="box info">
+      <p class="bt">Two things worth noticing</p>
+      <p><b>1.</b> <span class="mono">expected</span> is &sect;2&rsquo;s formula, doing real work &mdash; and it carries &sect;2&rsquo;s cast for exactly &sect;2&rsquo;s reason. With <span class="mono">n = 10<sup>9</sup></span> the sum is about 5 &times; 10<sup>17</sup>, which is nowhere near fitting in an <span class="mono">int</span>.</p><p style="margin:0"><b>2.</b> Nothing was traded away. Approach B is not slower, not longer and not harder to read &mdash; it simply asks the question differently. <b>The best space savings usually come from a better idea, not from a sacrifice.</b></p>
+    </div>
   </div>
 
   <div class="bridge" style="--accent:#16a34a">
@@ -1266,7 +2192,7 @@ s.<span class="f">reserve</span>(N * <span class="n">6</span>);          <span c
       <button class="qopt" data-a="1">O(N/2)</button>
       <button class="qopt" data-a="2" data-ok="1">O(log N)</button>
     </div>
-    <div class="qexp"><b>O(log N).</b> The input is cut in <b>half</b> every step. That is the signature of a logarithm — the paper-folding picture from Section 4. For N = 10<sup>12</sup> this is about 40 steps.</div>
+    <div class="qexp"><b>O(log N).</b> The input is cut in <b>half</b> every step. That is the signature of a logarithm — the halving picture from Section 4. For N = 10<sup>12</sup> this is about 40 steps.</div>
   </div>
 
   <div class="quiz" data-q="pq4">
@@ -1291,19 +2217,46 @@ s.<span class="f">reserve</span>(N * <span class="n">6</span>);          <span c
     <span class="timechip">⏱ 2 min</span>
   </div>
 
-  <div class="grid3">
-    <div class="box bad" style="margin:0"><p class="bt">1 · Read the constraint first</p><p style="margin:0">N &ge; 10<sup>5</sup> means <b>O(N²) is dead</b>. Decide this before you write code.</p></div>
-    <div class="box warn" style="margin:0"><p class="bt">2 · Drop constants and small terms</p><p style="margin:0">O(2N), O(100N), O(N(N&minus;1)/2) → <b>O(N), O(N), O(N²)</b>.</p></div>
-    <div class="box good" style="margin:0"><p class="bt">3 · Watch the invisible loops</p><p style="margin:0"><span class="mono">s = s + x</span> has no nested loop and is still <b>O(N²)</b>.</p></div>
+  <div class="takes">
+    <div class="take"><span class="tn">1</span>
+      <b>Read the constraint first</b>
+      <p><span class="mono">N &ge; 10<sup>5</sup></span> means <b>O(N&sup2;) is already dead</b>. Decide that before you write a line, not after the submission times out.</p></div>
+    <div class="take"><span class="tn">2</span>
+      <b>Drop constants and smaller terms</b>
+      <p><span class="mono">O(2N)</span> and <span class="mono">O(100N)</span> are <b>O(N)</b>. <span class="mono">O(N(N&minus;1)/2)</span> is <b>O(N&sup2;)</b>. Only the fastest-growing part survives.</p></div>
+    <div class="take"><span class="tn">3</span>
+      <b>Watch for the invisible loop</b>
+      <p><span class="mono">s = s + x</span> has no nested loop anywhere and is still <b>O(N&sup2;)</b>. Ask what a library call does before you trust it.</p></div>
   </div>
 
-  <div class="box info" style="margin-top:1.2rem">
-    <p class="bt">📝 Assignment</p>
-    <p style="margin:0"><b>Task 1 — Maximum Subarray Sum.</b> Find the contiguous subarray with the largest sum.<br>
-    Input <span class="mono">[-2, 1, -3, 4, -1, 2, 1, -5, 4]</span> → Output <span class="mono">6</span> (from <span class="mono">[4, -1, 2, 1]</span>).<br>
-    <b>Step 1:</b> solve it by brute force, any complexity. <b>Step 2:</b> research <b>Kadane's algorithm</b> and solve it in O(N). Submit both.<br>
-    <span class="subtle">LeetCode 53 — Maximum Subarray.</span><br><br>
-    <b>Task 2 — the "ChatGPT vs. You" challenge.</b> Ask ChatGPT: <em>"Give me 10 tricky algorithm problems and ask me to identify their time complexity. Make them confusing."</em> Solve them, then share the chat link in the group for review.</p>
+  <h3>Assignment</h3>
+
+  <div class="tasks">
+    <div class="task">
+      <p class="th2"><span class="tlogo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.6 2.3a1.4 1.4 0 0 1 2 2l-4.1 4.2 5.3 5.4a1.4 1.4 0 1 1-2 2l-6.3-6.4a1.4 1.4 0 0 1 0-2z" fill="#ffa116"/><path d="M9.5 7.5 4.9 12.2a5.6 5.6 0 0 0 0 7.9 5.6 5.6 0 0 0 7.9 0l2-2a1.4 1.4 0 0 0-2-2l-2 2a2.8 2.8 0 0 1-4-4l4.6-4.6z" fill="#3e3e3e"/><path d="M12.4 17.2h8.2a1.35 1.35 0 1 0 0-2.7h-8.2a1.35 1.35 0 1 0 0 2.7z" fill="#b3b3b3"/></svg></span><span class="tk">Task 1</span>Maximum Subarray Sum</p>
+      <p>Find the contiguous subarray with the largest sum.</p>
+      <div class="iogrid" style="grid-template-columns:1fr">
+        <div class="io"><span class="iok">Input</span><span class="mono">[-2, 1, -3, 4, -1, 2, 1, -5, 4]</span><span class="iok">Output</span><span class="mono">6</span>
+          <em>The best run is <span class="mono">[4, -1, 2, 1]</span>, which adds to 6.</em></div>
+      </div>
+      <ol class="steps">
+        <li>Solve it by <b>brute force</b> first, at any complexity. Work out what that complexity is.</li>
+        <li>Then read up on <b>Kadane&rsquo;s algorithm</b> and solve it in <b>O(N)</b>.</li>
+        <li>Submit <b>both</b>, with the complexity of each written at the top.</li>
+      </ol>
+      <a class="plink" href="https://leetcode.com/problems/maximum-subarray/description/" target="_blank" rel="noopener">LeetCode 53 &middot; Maximum Subarray &nbsp;&rarr;</a>
+    </div>
+
+    <div class="task">
+      <p class="th2"><span class="tlogo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16a1.5 1.5 0 0 1 1.5 1.5v8a1.5 1.5 0 0 1-1.5 1.5H10l-5 4v-4H4A1.5 1.5 0 0 1 2.5 15V7A1.5 1.5 0 0 1 4 5.5z" fill="#10a37f"/><circle cx="8.5" cy="11" r="1.15" fill="#fff"/><circle cx="12" cy="11" r="1.15" fill="#fff"/><circle cx="15.5" cy="11" r="1.15" fill="#fff"/></svg></span><span class="tk">Task 2</span>The &ldquo;ChatGPT vs. you&rdquo; challenge</p>
+      <p>Ask ChatGPT, word for word:</p>
+      <blockquote class="ask">Give me 10 tricky algorithm problems and ask me to identify their time complexity. Make them confusing.</blockquote>
+      <ol class="steps">
+        <li>Answer all ten <b>before</b> looking at its explanations.</li>
+        <li>Share the chat link in the group so the answers can be checked.</li>
+      </ol>
+      <p class="src2">No link for this one &mdash; the questions are generated fresh for you. <b>The confusing ones are the point</b>: that is where the marks go.</p>
+    </div>
   </div>
 
   <div class="bridge" style="--accent:#e11d48">
@@ -1316,7 +2269,7 @@ s.<span class="f">reserve</span>(N * <span class="n">6</span>);          <span c
 <nav class="pagenav" aria-label="Course navigation">
   <a class="pgn pv" href="04-algorithms-and-notation.html"><span class="ar">&#8592;</span><span class="tx"><em>Previous</em><b>Algorithms &mdash; and how we write them</b></span></a>
   <a class="pgn home" href="../../index.html"><span class="ar">&#9776;</span><b>All classes</b></a>
-  <a class="pgn nx" href="../../exam-prep/interview-bank.html"><span class="ar">&#8594;</span><span class="tx"><em>Next</em><b>Interview Question Bank</b></span></a>
+  <a class="pgn nx" href="../02-arrays-and-strings/01-linear-arrays.html"><span class="ar">&#8594;</span><span class="tx"><em>Next</em><b>Linear arrays &amp; memory</b></span></a>
 </nav>
 </main>
 </section>
@@ -1354,7 +2307,7 @@ s.<span class="f">reserve</span>(N * <span class="n">6</span>);          <span c
     <span class="k">while</span>(i &gt; <span class="n">0</span>){ i = i / <span class="n">2</span>; cnt++; }
     <span class="k">return</span> cnt;
 }</pre>
-    <b>O(log n).</b> The variable <span class="mono">i</span> is <b>halved</b> every round, so the loop runs about log₂n times — the paper-folding pattern from Section 4.<br><br>
+    <p><b>O(log n).</b> The variable <span class="mono">i</span> is <b>halved</b> every round, so the loop runs about log₂n times — the halving pattern from Section 4.</p>
     <pre class="code" style="margin:.5rem 0"><span class="c">// (ii)</span>
 <span class="t">int</span> <span class="f">solve2</span>(<span class="t">int</span> n){
     <span class="t">int</span> cnt = <span class="n">0</span>;
@@ -1362,8 +2315,8 @@ s.<span class="f">reserve</span>(N * <span class="n">6</span>);          <span c
         <span class="k">for</span>(<span class="t">int</span> j=<span class="n">1</span>; j&lt;n; j*=<span class="n">2</span>) cnt++;
     <span class="k">return</span> cnt;
 }</pre>
-    <b>O(n log n).</b> The outer loop runs n times. The inner loop <b>multiplies j by 2</b> each round rather than adding 1, so it runs about log₂n times — not n times. n × log n.<br><br>
-    <b>⚠ The trap:</b> a nested loop is <b>not</b> automatically O(n²). Always look at how the counter <em>changes</em>.
+    <p><b>O(n log n).</b> The outer loop runs n times. The inner loop <b>multiplies j by 2</b> each round rather than adding 1, so it runs about log₂n times — not n times. n &times; log n.</p>
+    <p style="margin:0"><b>&#9888; The trap:</b> a nested loop is <b>not</b> automatically O(n&sup2;). Always look at how the counter <em>changes</em>.</p>
   </div></details>
 
   <details class="dig"><summary><span class="dicon">?</span><b>Space complexity of a swap</b> — Spring 2024 &amp; Spring 2023, Q1(c) <span class="subtle">[2 marks]</span></summary><div>
@@ -1378,9 +2331,9 @@ s.<span class="f">reserve</span>(N * <span class="n">6</span>);          <span c
     <span class="k">for</span>(i = <span class="n">0</span>; i &lt; n; i += <span class="n">2</span>) sum += a[i];
     <span class="k">return</span> sum;
 }</pre>
-    <b>Space complexity</b> is the total memory an algorithm needs, measured as a function of the input size.<br><br>
-    <b>swap:</b> three integer variables, and that never changes when the input changes → <b>O(1)</b>.<br>
-    <b>sum:</b> only <span class="mono">i</span> and <span class="mono">sum</span> are created — the array was already given, so it is not <em>extra</em> space → <b>O(1)</b> auxiliary space. Its <b>time</b> is O(n) even with <span class="mono">i += 2</span>, because n/2 still grows linearly.
+    <p><b>Space complexity</b> is the total memory an algorithm needs, measured as a function of the input size.</p>
+    <p><b>swap:</b> three integer variables, and that never changes when the input changes &rarr; <b>O(1)</b>.</p>
+    <p style="margin:0"><b>sum:</b> only <span class="mono">i</span> and <span class="mono">sum</span> are created &mdash; the array was already given, so it is not <em>extra</em> space &rarr; <b>O(1)</b> auxiliary space. Its <b>time</b> is O(n) even with <span class="mono">i += 2</span>, because n/2 still grows linearly.</p>
   </div></details>
 
   <details class="dig"><summary><span class="dicon">?</span><b>Worst and average case of the standard algorithms</b> — Spring 2025 &amp; Spring 2024, Q2(d) <span class="subtle">[1.5 marks]</span></summary><div>
@@ -1453,12 +2406,6 @@ s.<span class="f">reserve</span>(N * <span class="n">6</span>);          <span c
 </main>
 </section>
 
-<nav class="pagenav wrap" style="padding-bottom:0">
-  <a class="pn pv" href="04-algorithms-and-notation.html"><span class="ar">&larr;</span><span class="tx"><em>Previous</em><b>Algorithms — and how we write them</b></span></a>
-  <a class="pn home" href="../../index.html"><span class="ar">&#9783;</span><b>All classes</b></a>
-  <a class="pn nx" href="../02-arrays-and-strings/01-linear-arrays.html"><span class="ar">&rarr;</span><span class="tx"><em>Next</em><b>Linear arrays &amp; memory</b></span></a>
-</nav>
-
 <footer class="pagefoot">
   <div class="wrap fin">
     <div class="fw">
@@ -1515,88 +2462,142 @@ function fmtT(s){
   if(s<86400)return (s/60).toFixed(1)+' min';
   return (s/86400).toFixed(1)+' days';
 }
+function setCard(id,ops,t){
+  var c=$(id), ok=t<=1;
+  c.className='vcard '+(ok?'pass':'fail');
+  c.querySelector('.vv').textContent=fmtT(t);
+  c.querySelector('.vd').textContent=(ok?'\u2713 fits in 1 s':'\u2715 too slow')+' \u00b7 '+fmtOps(ops)+' ops';
+  /* the arithmetic from the box above, done live */
+  c.querySelector('.vf').innerHTML=fmtOps(ops)+' \u00f7 10<sup>8</sup>';
+}
 function paintSum(){
   var e=+$('#nslider').value, N=Math.pow(10,e);
   $('#nval').textContent=N.toLocaleString('en-US');
-  var tA=N/OPS, tB=3/OPS;
-  function set(id,ops,t){
-    var c=$(id), ok=t<=1;
-    c.className='vcard '+(ok?'pass':'fail');
-    c.querySelector('.vv').textContent=fmtT(t);
-    c.querySelector('.vd').textContent=(ok?'✅ passes':'❌ TLE')+' · '+fmtOps(ops)+' operations';
-  }
-  set('#vA',N,tA); set('#vB',3,tB);
+  $('#npow').innerHTML='10<sup>'+e+'</sup>';
+  setCard('#vA',N,N/OPS);
+  setCard('#vB',4,4/OPS);
 }
 $('#nslider').addEventListener('input',paintSum); paintSum();
+
+/* ---------- ASK BEFORE SHOWING ----------
+   The question is on screen, the answer is one button away, and pressing the
+   button again puts it back. Nothing is ever locked. */
+$$('.turn').forEach(function(t){
+  var btn=t.querySelector('.tbtn'), ans=t.querySelector('.ta');
+  if(!btn||!ans) return;
+  btn.addEventListener('click',function(){
+    var on=ans.classList.toggle('on');
+    btn.textContent = on ? 'Hide it again' : (btn.dataset.label||'Show me');
+  });
+});
+
+/* ---------- THREE ATTEMPTS, ONE AT A TIME ----------
+   Answering an attempt is what makes the next one appear, so the second
+   mistake is met as a question rather than read as a footnote. */
+$$('.ovc').forEach(function(box){
+  var steps=$$('.ovs',box);
+  steps.forEach(function(st,i){
+    var btn=st.querySelector('.ovbtn'), ans=st.querySelector('.ova');
+    if(!btn||!ans) return;
+    btn.addEventListener('click',function(){
+      var on=ans.classList.toggle('on');
+      btn.textContent = on ? 'Hide it again' : 'Show what it prints';
+      var nxt=steps[i+1];
+      if(on && nxt && nxt.classList.contains('hid')){
+        nxt.classList.remove('hid'); nxt.classList.add('lit');
+      }
+    });
+  });
+});
+
 
 /* ---------- 3 · FACTOR PAIRS ---------- */
 var FN=36;
 function paintPairs(){
-  var N=FN, rows='', root=Math.sqrt(N), found=0;
+  var N=FN, rows='', root=Math.sqrt(N);
   for(var i=1;i<=N;i++){
     if(N%i) continue;
     var j=N/i;
     var cls='pl', tag='';
-    if(i===j){ cls+=' turn'; tag='<span class="pln">turning point = √'+N+'</span>'; }
+    /* .tpt, not .turn: on this page .turn is the Your turn component */
+    if(i===j){ cls+=' tpt'; tag='<span class="pln">turning point = \u221a'+N+'</span>'; }
     else if(i>j){ cls+=' dup'; tag='<span class="pln">already seen</span>'; }
-    else { cls+=' pre'; tag='<span class="pln">below √'+N+'</span>'; found++; }
-    rows+='<div class="'+cls+'"><span class="plx">'+i+' × '+j+'</span>'+tag+'</div>';
+    else { cls+=' pre'; tag='<span class="pln">below \u221a'+N+'</span>'; }
+    rows+='<div class="'+cls+'"><span class="plx">'+i+' \u00d7 '+j+'</span>'+tag+'</div>';
   }
   $('#pairs').innerHTML=rows;
   var isPrime = (function(){ if(N<2)return false; for(var k=2;k*k<=N;k++) if(N%k===0) return false; return true; })();
   $('#pairmsg').innerHTML = isPrime
-    ? '<b>'+N+' is prime</b> — the only pair is 1 × '+N+'. We still only had to test up to <b>√'+N+' ≈ '+root.toFixed(1)+'</b> before being certain.'
-    : 'Everything below <b>√'+N+' ≈ '+root.toFixed(1)+'</b> is a genuinely new pair. Everything above it is a pair we already wrote, just flipped. <b>So we can stop at √'+N+'.</b>';
+    ? '<b>'+N+' is prime</b> \u2014 the only pair is 1 \u00d7 '+N+'. We still only had to test up to <b>\u221a'+N+' \u2248 '+root.toFixed(1)+'</b> before being certain.'
+    : 'Everything below <b>\u221a'+N+' \u2248 '+root.toFixed(1)+'</b> is a genuinely new pair. Everything above it is a pair we already wrote, just flipped. <b>So we can stop at \u221a'+N+'.</b>';
 }
 $$('#fnbtns .btn').forEach(function(b){
   b.addEventListener('click',function(){
-    $$('#fnbtns .btn').forEach(function(x){x.classList.add('ghost');});
-    b.classList.remove('ghost'); FN=+b.dataset.fn; paintPairs();
+    $$('#fnbtns .btn').forEach(function(x){x.classList.add('ghost');x.style.background='';});
+    b.classList.remove('ghost'); b.style.background='#ea580c';
+    FN=+b.dataset.fn; paintPairs();
   });
 });
 paintPairs();
 
-/* ---------- REVEAL THE OPTIMISATION ---------- */
-['rv1','rv2','rv3'].forEach(function(id){
-  var b=$('#'+id), w=$('#'+id+'-w');
-  if(b&&w) b.addEventListener('click',function(){
-    w.classList.add('on');
-    b.parentNode.style.display='none';
-    w.scrollIntoView({behavior:'smooth',block:'nearest'});
+/* ---------- REVEAL THE OPTIMISATION ----------
+   The answer sits outside the card it belongs to, so it toggles from here
+   rather than through the .turn handler. Same behaviour either way: the
+   question stays on screen and the reveal can be put back. */
+['rv3'].forEach(function(id){
+  var b=$('#'+id), w=$('#'+id+'-w'); if(!b||!w) return;
+  var lbl=b.textContent;
+  b.addEventListener('click',function(){
+    var on=w.classList.toggle('on');
+    b.textContent = on ? 'Hide it again' : lbl;
+    if(on) w.scrollIntoView({behavior:'smooth',block:'nearest'});
   });
 });
 
-/* ---------- 4 · PAPER FOLDING ---------- */
-var F0=16, Fcur=16, Fsteps=0;
-function paintFold(){
-  var out='', v=F0, guard=0;
-  while(guard++<60){
-    var shown = v>=1e6 ? (v/1e6).toFixed(0)+'M' : v.toLocaleString('en-US');
-    var w = Math.max(26, Math.round(150*Math.pow(v/F0,0.32)));
-    out+='<div class="fd" style="width:'+w+'px;height:'+Math.max(20,Math.round(52*Math.pow(v/F0,0.18)))+'px">'+shown+'</div>';
-    if(v<=1 || guard>Fsteps) break;
-    v=Math.ceil(v/2);
+/* ---------- 4 · DIVIDE DOWN, DOUBLE UP ----------
+   The same array and the same answer, read in both directions: halve it until
+   one cell is left, or merge pairs until one block covers everything. Both
+   take log2(N) presses, which is the whole point of showing them together. */
+(function(){
+  var W=document.getElementById('lg1'); if(!W) return;
+  var N=32, mode='div', k=0;
+  function maxK(){ return Math.round(Math.log2(N)); }
+  function draw(){
+    var t=$('#lg-track'), h='', msg;
+    if(mode==='div'){
+      var live=N/Math.pow(2,k);
+      for(var i=0;i<N;i++) h+='<span class="lgc'+(i<live?' live':' gone')+'"></span>';
+      msg = k===0
+        ? 'The whole array &mdash; <b>'+N+'</b> cells. Press <b>Next</b> to throw away the right-hand half.'
+        : 'Halved <b>'+k+'</b> time'+(k>1?'s':'')+'. <b>'+live+'</b> cell'+(live>1?'s':'')+' left.'+
+          (live===1 ? ' You cannot halve it again &mdash; and it took <b>'+k+'</b> presses. That is log<sub>2</sub>('+N+') = <b>'+k+'</b>.' : '');
+    } else {
+      var have=Math.pow(2,k);
+      for(var i2=0;i2<N;i2++) h+='<span class="lgc'+(i2<have?' live':' gone')+'"></span>';
+      msg = k===0
+        ? 'Start at <b>1</b>. Press <b>Next</b> to double it.'
+        : '1 doubled <b>'+k+'</b> time'+(k>1?'s':'')+' is <b>'+have+'</b>.'+
+          (have===N ? ' It has reached <b>'+N+'</b>, in <b>'+k+'</b> presses &mdash; the same number the halving took. log<sub>2</sub>('+N+') = <b>'+k+'</b>.' : '');
+    }
+    t.className='lgtrack '+mode;
+    t.innerHTML=h;
+    $('#lg-msg').innerHTML=msg;
+    $('#lg-step').textContent=k+' / '+maxK();
+    $('#lg-next').disabled = k>=maxK();
+    $('#lg-back').disabled = k<=0;
   }
-  // rebuild strictly from the number of folds taken
-  out=''; v=F0;
-  for(var k=0;k<=Fsteps;k++){
-    var shown = v>=1e6 ? (v/1e6>=1e6 ? (v/1e9).toFixed(0)+'B' : (v/1e6).toFixed(0)+'M') : v.toLocaleString('en-US');
-    var w=Math.max(28, Math.round(140*Math.pow(k?1/(k+1):1,0.55)));
-    out+='<div class="fd" style="width:'+w+'px">'+shown+'</div>';
-    v=Math.ceil(v/2);
-  }
-  $('#fold').innerHTML=out;
-  Fcur=v;
-  var need=Math.ceil(Math.log2(F0));
-  if(Fcur<=1||Fsteps>=need)
-    $('#fold-msg').innerHTML='Reached <b>1</b> after <b>'+Fsteps+'</b> folds. And 2<sup>'+Fsteps+'</sup> ≈ '+F0.toLocaleString('en-US')+', so <b>log₂('+F0.toLocaleString('en-US')+') = '+Fsteps+'</b>.';
-  else
-    $('#fold-msg').innerHTML='<b>'+Fsteps+'</b> fold'+(Fsteps===1?'':'s')+' so far. Size is now <b>'+Fcur.toLocaleString('en-US')+'</b>.';
-}
-$('#fold-go').onclick=function(){ var need=Math.ceil(Math.log2(F0)); if(Fsteps<need){Fsteps++;paintFold();} };
-$('#fold-reset').onclick=function(){ Fsteps=0; paintFold(); };
-$('#fold-n').addEventListener('change',function(){ F0=+this.value; Fsteps=0; paintFold(); });
-paintFold();
+  $('#lg-next').onclick=function(){ if(k<maxK()){k++;draw();} };
+  $('#lg-back').onclick=function(){ if(k>0){k--;draw();} };
+  $('#lg-reset').onclick=function(){ k=0; draw(); };
+  $('#lg-n').addEventListener('change',function(){ N=+this.value; k=0; draw(); });
+  $$('#lgmodes .btn').forEach(function(b){ b.addEventListener('click',function(){
+    if(b.dataset.lg===mode) return;
+    $$('#lgmodes .btn').forEach(function(x){x.classList.add('ghost');x.style.background='';});
+    b.classList.remove('ghost'); b.style.background='#0891b2';
+    mode=b.dataset.lg; k=0; draw();
+  });});
+  draw();
+})();
 
 /* ---------- 5 · WILL IT PASS ---------- */
 var selN=null, selC=null;
@@ -1653,28 +2654,275 @@ $$('#cbtns .btn').forEach(function(b){b.addEventListener('click',function(){
   }).join('');
 })();
 
+/* ---------- 2b · WHERE THE DIGITS ACTUALLY GO ----------
+   Two operands, a product and a destination, all drawn on one 64-column grid,
+   so that "the int is the low half of the product" is something you can see.
+
+   The six bit strings are CONSTANTS. They were computed once and checked
+   against the compiler run quoted in this section; they are not derived here,
+   because 1,000,000,001,000,000,000 is past the largest integer a JavaScript
+   number holds exactly, and a wrong picture that still validates is the worst
+   kind of bug this page can have. */
+(function(){
+  var host=$('#bitsim'); if(!host) return;
+
+  var N    = '0000000000000000000000000000000000111011100110101100101000000000', /* 1000000000        */
+      N1   = '0000000000000000000000000000000000111011100110101100101000000001', /* 1000000001        */
+      P    = '0000110111100000101101101011001111100010111111101100101000000000', /* 1000000001000000000, 60 bits */
+      KEPT = '0000000000000000000000000000000011100010111111101100101000000000', /* its low 32 = -486618624 */
+      HBAD = '1111111111111111111111111111111111110001011111110110010100000000', /* -243309312        */
+      HOK  = '0000011011110000010110110101100111110001011111110110010100000000'; /* 500000000500000000 */
+
+  /* nm name · wt what it is · dc the decimal · dk a colour for it
+     bits 64 characters · from the first column that is really there
+     mk   the bracket drawn underneath, if any                            */
+  var ROWS={
+    bad:[
+      {k:'n',    nm:'n',                 wt:'int &middot; 32 binary digits',        dc:'1,000,000,000',                 bits:N,    from:32},
+      {k:'n1',   nm:'n + 1',             wt:'int &middot; 32 binary digits',        dc:'1,000,000,001',                 bits:N1,   from:32},
+      {k:'prod', nm:'n * (n + 1)',       wt:'the true product &middot; 60 binary digits', dc:'1,000,000,001,000,000,000', bits:P, from:0, mk:'split'},
+      {k:'kept', nm:'what the int keeps',wt:'the 32 columns that exist',            dc:'&minus;486,618,624',            dk:'bad', bits:KEPT, from:32},
+      {k:'half', nm:'&hellip; / 2',      wt:'the division runs on that',            dc:'&minus;243,309,312',            dk:'bad', bits:HBAD, from:0},
+      {k:'sum',  nm:'sum',               wt:'long long &middot; 64 binary digits, all along', dc:'&minus;243,309,312',  dk:'bad', bits:HBAD, from:0}
+    ],
+    ok:[
+      {k:'n',    nm:'(long long)n',      wt:'cast first &middot; now 64 binary digits', dc:'1,000,000,000',              bits:N,    from:0},
+      {k:'n1',   nm:'n + 1',             wt:'promoted to match &middot; 64 binary digits', dc:'1,000,000,001',           bits:N1,   from:0},
+      {k:'prod', nm:'n * (n + 1)',       wt:'the true product &middot; 60 binary digits', dc:'1,000,000,001,000,000,000', bits:P, from:0, mk:'all'},
+      {k:'half', nm:'&hellip; / 2',      wt:'the division runs on the right number', dc:'500,000,000,500,000,000',       dk:'ok', bits:HOK,  from:0},
+      {k:'sum',  nm:'sum',               wt:'long long &middot; 64 binary digits, all along', dc:'500,000,000,500,000,000', dk:'ok', bits:HOK, from:0}
+    ]
+  };
+
+  /* ln = the line the program is on · hot = the parts of it that matter now
+     show = the rows on screen · st = per-row state for this step            */
+  var STEPS={
+    bad:[
+      {ln:0, hot:['dst'], show:['n'],
+       msg:'<b>n</b> is an <b>int</b> &mdash; a row of <b>32 binary digits</b>, and nothing else. 1,000,000,000 needs 30 of them, so the two columns on the left are 0.'},
+      {ln:1, hot:['l','r'], show:['n','n1'], st:{n1:{fresh:63}},
+       msg:'<b>n + 1</b> is an int as well. <b>Both operands are int</b> &mdash; and that, not the type of <span class="mono">sum</span>, is what decides how wide the multiplication is.'},
+      {ln:1, hot:['star'], show:['n','n1','prod'], st:{prod:{fresh:-1}},
+       msg:'The true product is 1,000,000,001,000,000,000. It needs <b>60 binary digits</b>.'},
+      {ln:1, hot:['star'], show:['n','n1','prod'], st:{prod:{cut:1,mark:1}},
+       msg:'But the multiplication is happening <b>in an int</b>, and an int is only the right-hand 32 columns. The <b>28 digits on the left have nowhere to go</b>.'},
+      {ln:1, hot:['star'], show:['n','n1','prod'], st:{prod:{cut:1,gone:1,mark:1}},
+       msg:'They are <b>not rounded and not capped &mdash; they are simply never stored</b>.'},
+      {ln:1, hot:['star'], show:['n','n1','prod','kept'], st:{prod:{cut:1,gone:1,mark:1}, kept:{sign:32}},
+       msg:'The digit that lands in the <b>leftmost surviving slot</b> is the one C++ reads as the <b>sign</b>. It is a 1 &mdash; so multiplying two positive numbers has produced <b>&minus;486,618,624</b>.'},
+      {ln:1, hot:['div'], show:['n','n1','prod','kept','half'], st:{prod:{cut:1,gone:1,mark:1}, kept:{sign:32}, half:{sign:0}},
+       msg:'The <span class="mono">/ 2</span> then runs on a number that is <b>already wrong</b>, and halves it: <b>&minus;243,309,312</b>. <span class="subtle">The long run of 1s on the left is not data &mdash; it is what a negative number looks like in binary, the sign repeated all the way across.</span>'},
+      {ln:1, hot:['dst'], show:['n','n1','prod','kept','half','sum'], st:{prod:{cut:1,gone:1,mark:1}, kept:{sign:32}, half:{sign:0}, sum:{sign:0}},
+       msg:'<b>Only now</b> is the result copied into <span class="mono">sum</span>. Look at how wide <span class="mono">sum</span> is &mdash; 64 columns, and it was 64 columns the whole time. <b>Not one of them helped.</b>'}
+    ],
+    ok:[
+      {ln:1, hot:['l'], show:['n'], st:{n:{fresh:-1}},
+       msg:'The cast is on the <b>left operand</b>, and it takes effect <b>before</b> the multiplication. <span class="mono">n</span> is now 64 columns wide.'},
+      {ln:1, hot:['r'], show:['n','n1'],
+       msg:'C++ promotes the other operand to match it. <b>Both operands are now long long</b> &mdash; which is the only thing that was ever going to work.'},
+      {ln:1, hot:['star'], show:['n','n1','prod'], st:{prod:{fresh:-1,mark:1}},
+       msg:'The multiplication happens in <b>64 bits</b>. Sixty digits into sixty-four columns &mdash; it fits, with four to spare.'},
+      {ln:1, hot:['star'], show:['n','n1','prod'], st:{prod:{mark:1,sign:0}},
+       msg:'<b>Nothing is cut, so nothing is lost.</b> The leftmost column is a 0, so the value is positive &mdash; exactly as a product of two positive numbers should be.'},
+      {ln:1, hot:['div'], show:['n','n1','prod','half'], st:{prod:{mark:1}},
+       msg:'The <span class="mono">/ 2</span> runs on the right number and gives <b>500,000,000,500,000,000</b>.'},
+      {ln:1, hot:['dst'], show:['n','n1','prod','half','sum'], st:{prod:{mark:1}},
+       msg:'<span class="mono">sum</span> receives the correct answer. <b>It was 64 columns wide in both runs.</b> The only thing that changed is where the cast went &mdash; and it went <b>before</b> the multiplication instead of after it.'}
+    ]
+  };
+
+  var CODE={
+    bad:'<span class="bitln" data-l="0"><span class="t">int</span> n = <span class="n">1000000000</span>;</span>'+
+        '<span class="bitln" data-l="1"><span class="t">long long</span> <span data-p="dst">sum =</span> <span data-p="l">n</span> <span data-p="star">*</span> <span data-p="r">(n + <span class="n">1</span>)</span> <span data-p="div">/ <span class="n">2</span></span>;</span>'+
+        '<span class="bitln" data-l="2">cout &lt;&lt; sum;</span>',
+    ok: '<span class="bitln" data-l="0"><span class="t">int</span> n = <span class="n">1000000000</span>;</span>'+
+        '<span class="bitln" data-l="1"><span class="t">long long</span> <span data-p="dst">sum =</span> <span data-p="l">(<span class="t">long long</span>)n</span> <span data-p="star">*</span> <span data-p="r">(n + <span class="n">1</span>)</span> <span data-p="div">/ <span class="n">2</span></span>;</span>'+
+        '<span class="bitln" data-l="2">cout &lt;&lt; sum;</span>'
+  };
+
+  var mode='bad', at=0, cells={};
+
+  function build(){
+    var html='';
+    ROWS[mode].forEach(function(r){
+      var g='';
+      for(var i=0;i<64;i++){
+        var real = i>=r.from;
+        g+='<span class="bitc'+(real?'':' pad')+'" data-c="'+i+'">'+(real?r.bits.charAt(i):'')+'</span>';
+      }
+      var mk='';
+      if(r.mk==='split') mk='<div class="bitmark" data-mk="1" hidden><span class="mkcut" style="grid-column:1/33">28 digits lost<i> &mdash; an int has no columns here</i></span><span class="mkkeep" style="grid-column:33/65">what an int has room for</span></div>';
+      if(r.mk==='all')   mk='<div class="bitmark" data-mk="1" hidden><span class="mkall" style="grid-column:1/65">what a long long has room for</span></div>';
+      html+='<div class="bitrow off" data-r="'+r.k+'">'+
+              '<div class="bithead"><span class="bitname">'+r.nm+'</span>'+
+                '<span class="bitwhat">'+r.wt+'</span>'+
+                '<span class="bitdec'+(r.dk?' '+r.dk:'')+'">'+r.dc+'</span></div>'+
+              '<div class="bitgrid">'+g+'</div>'+mk+
+            '</div>';
+      if(r.k==='n1') html+='<div class="bitsep"><i></i><b>&times;</b><i></i></div>';
+    });
+    $('#bitstage').innerHTML=html;
+    $('#bitcode').innerHTML=CODE[mode];
+    cells={};
+    $$('#bitstage .bitrow').forEach(function(el){ cells[el.dataset.r]=el; });
+    host.classList.toggle('ok', mode==='ok');
+    $$('.bitmode button').forEach(function(b){ b.classList.toggle('on', b.dataset.m===mode); });
+  }
+
+  function paint(){
+    var S=STEPS[mode], s=S[at];
+    var sep=$('#bitstage .bitsep');
+    ROWS[mode].forEach(function(r){
+      var el=cells[r.k], on=s.show.indexOf(r.k)>=0;
+      el.classList.toggle('off', !on);
+      var st=(s.st&&s.st[r.k])||{};
+      $$('.bitc',el).forEach(function(c,i){
+        c.classList.toggle('cut',  !!st.cut  && i<32);
+        c.classList.toggle('gone', !!st.gone && i<32);
+        c.classList.toggle('sign', st.sign!==undefined && i===st.sign);
+        c.classList.toggle('fresh', st.fresh!==undefined && (st.fresh===-1 || st.fresh===i));
+        c.classList.toggle('on', i>=r.from && r.bits.charAt(i)==='1');
+      });
+      var mk=$('.bitmark',el); if(mk) mk.hidden = !st.mark;
+    });
+    if(sep) sep.style.visibility = s.show.indexOf('n1')>=0 ? 'visible' : 'hidden';
+
+    $$('#bitcode .bitln').forEach(function(l){ l.classList.toggle('cur', +l.dataset.l===s.ln); });
+    $$('#bitcode [data-p]').forEach(function(p){ p.classList.toggle('hot', s.hot.indexOf(p.dataset.p)>=0); });
+
+    $('#bitmsg').innerHTML=s.msg;
+    $('#bitstep').textContent=(at+1)+' / '+S.length;
+    $('#bit-next').disabled = at>=S.length-1;
+    $('#bit-back').disabled = at<=0;
+    $('#bit-next').textContent = at>=S.length-1 ? 'Done ✓' : 'Next ▸';
+  }
+
+  function go(m){ mode=m; at=0; build(); paint(); }
+  $$('.bitmode button').forEach(function(b){ b.addEventListener('click',function(){ go(b.dataset.m); }); });
+  $('#bit-next').onclick=function(){ if(at<STEPS[mode].length-1){ at++; paint(); } };
+  $('#bit-back').onclick=function(){ if(at>0){ at--; paint(); } };
+  $('#bit-reset').onclick=function(){ at=0; paint(); };
+  go('bad');
+})();
+
 /* ---------- 6 · STRING COPY COST ---------- */
 var ci=0, ctot=0, clen=0;
 function paintCopy(){
   var s='';
-  if(ci===0){ $('#cp-i').textContent='1'; $('#cp-s').textContent='""'; $('#cp-c').textContent='0'; $('#cp-t').textContent='0';
+  if(ci===0){ $('#cp-i').textContent='1'; $('#cp-s').textContent='""'; $('#cp-c').textContent='0'; $('#cp-t').textContent='0'; $('#cp-q').textContent='0';
     $('#cp-bar').style.width='0'; $('#cp-msg').innerHTML='Each round copies the <b>whole</b> string again, just to add two or three characters.'; return; }
-  var shown = clen>46 ? '"1234…'+String(ci-1).slice(-4)+'" ('+clen+' chars)' : '"'+Array.from({length:ci-1},function(_,k){return k+1;}).join('')+'"';
+  var add=String(ci).length, before=clen-add;      /* what this round had to copy */
+  var shown = before>46 ? '"1234…'+String(ci-1).slice(-4)+'" ('+before+' chars)' : '"'+Array.from({length:ci-1},function(_,k){return k+1;}).join('')+'"';
   $('#cp-i').textContent=ci;
   $('#cp-s').textContent=shown;
-  $('#cp-c').textContent=clen.toLocaleString('en-US');
+  $('#cp-c').textContent=before.toLocaleString('en-US');
   $('#cp-t').textContent=ctot.toLocaleString('en-US');
-  $('#cp-bar').style.width=Math.min(100, ctot/1200*100)+'%';
-  var add=String(ci).length;
-  $('#cp-msg').innerHTML='Adding <b>"'+ci+'"</b> is only <b>'+add+' character'+(add>1?'s':'')+'</b> — but the whole <b>'+clen.toLocaleString('en-US')+'</b> characters already there had to be copied first.';
+  $('#cp-q').textContent=(ci*ci).toLocaleString('en-US');
+  $('#cp-bar').style.width=Math.min(100, ctot/325245*100)+'%';   /* 325,245 = the whole run to i = 500 */
+  $('#cp-msg').innerHTML='Adding <b>"'+ci+'"</b> is only <b>'+add+' character'+(add>1?'s':'')+'</b> — but the whole <b>'+before.toLocaleString('en-US')+'</b> characters already there had to be copied first.';
 }
 function stepCopy(){ ci++; ctot+=clen; clen+=String(ci).length; }
-$('#cp-next').onclick=function(){ stepCopy(); paintCopy(); };
-$('#cp-jump').onclick=function(){ while(ci<500) stepCopy(); paintCopy();
-  $('#cp-msg').innerHTML='At <b>i = 500</b> the program has copied <b>'+ctot.toLocaleString('en-US')+' characters</b> in total — to build a string only '+clen.toLocaleString('en-US')+' characters long. <b>That gap is the O(N²).</b>'; };
+/* Click steps one round. HOLD and it accelerates: the number of rounds run is
+   (500/64)·t², so it crawls for the first second and arrives at i = 500 after
+   about eight — which is exactly the shape the lesson is about. Nothing is
+   skipped; every round still runs, so the totals stay honest. */
+(function(){
+  var held=false, raf=null, t0=0, i0=0;
+  var K=500/64;                                  /* 500 rounds in 8 seconds */
+  function tick(){
+    var el=(performance.now()-t0)/1000;
+    var want=Math.min(500, i0+Math.round(K*el*el));
+    if(want>ci){ held=true; while(ci<want) stepCopy(); paintCopy(); }
+    if(ci>=500){ stop(); jumpMsg(); return; }
+    raf=requestAnimationFrame(tick);
+  }
+  function start(e){
+    if(e.button) return;
+    t0=performance.now(); i0=ci; held=false;
+    cancelAnimationFrame(raf); raf=requestAnimationFrame(tick);
+  }
+  function stop(){ if(raf){ cancelAnimationFrame(raf); raf=null; } }
+  var b=$('#cp-next');
+  b.addEventListener('pointerdown',start);
+  ['pointerup','pointerleave','pointercancel'].forEach(function(ev){
+    b.addEventListener(ev,stop);
+  });
+  b.addEventListener('click',function(){
+    if(held){ held=false; return; }              /* the hold already moved it */
+    stepCopy(); paintCopy();
+  });
+})();
+function jumpMsg(){
+  $('#cp-msg').innerHTML='At <b>i = 500</b> the program has copied <b>'+ctot.toLocaleString('en-US')+' characters</b> in total — to build a string only '+clen.toLocaleString('en-US')+' characters long. Next to it, <b>i × i = 250,000</b>. <b>The total is not 500-ish. It is 500²-ish, and that is the O(N²).</b>';
+}
+$('#cp-jump').onclick=function(){ while(ci<500) stepCopy(); paintCopy(); jumpMsg(); };
 $('#cp-reset').onclick=function(){ ci=0; ctot=0; clen=0; paintCopy(); };
 paintCopy();
 
+
+
+/* ---------- 7 · WHAT O(N) SPACE LOOKS LIKE ----------
+   Eight numbers read one at a time, then a left-to-right scan for the first
+   box nobody ticked. The point of the picture is the second row: it exists at
+   full size before anything is read, and it is the row that grows with N. */
+(function(){
+  var W=document.getElementById('mv1'); if(!W) return;
+  var NUMS=[3,0,1,4,6,2,7,8], N=8, MISS=5;
+  var MARK=NUMS.length;            /* steps 0..7 read the array           */
+  var LAST=MARK;                   /* step 8 is the scan, and it runs itself */
+  var cur=-1, scanAt=-1, timer=null;
+  function stopScan(){ if(timer){clearInterval(timer);timer=null;} }
+  function draw(){
+    var reading = cur>=0 && cur<MARK;
+    var scanning = cur>=MARK;
+    var marked={};
+    for(var k=0;k<Math.min(cur+1,MARK);k++) marked[NUMS[k]]=true;
+
+    var ih='';
+    NUMS.forEach(function(v,i){
+      var c = (reading && i===cur) ? 'look' : ((cur>=0 && i<Math.min(cur,MARK)) || scanning ? 'done' : '');
+      ih+='<span class="acell '+c+'"><span class="ai">'+i+'</span><span class="av">'+v+'</span></span>';
+    });
+    document.getElementById('mv-in').innerHTML=ih;
+
+    var sh='';
+    for(var i=0;i<=N;i++){
+      var on=!!marked[i], c=on?'tick':'';
+      if(scanning && i<scanAt) c+=' past';
+      if(scanning && i===scanAt) c+=on?' look':' gap';
+      sh+='<span class="'+c.trim()+'" data-i="'+i+'"><b><i class="lgw2">'+(on?'true':'false')+
+          '</i><i class="smw2">'+(on?'T':'F')+'</i></b></span>';
+    }
+    document.getElementById('mv-seen').innerHTML=sh;
+
+    var m;
+    if(cur<0) m='All nine boxes exist <b>before the loop starts</b> &mdash; <span class="mono">vector&lt;bool&gt; seen(n + 1, false)</span> asks for every one of them at once. Press <b>Next</b>.';
+    else if(reading) m='Read <span class="mono">nums['+cur+']</span>, which is <b>'+NUMS[cur]+'</b>, and set <span class="mono">seen['+NUMS[cur]+'] = true</span>. One box flips; the row does not change size, because it never does.';
+    else if(scanAt<MISS) m='Scanning left to right &mdash; <span class="mono">seen['+Math.max(scanAt,0)+']</span> is <b>true</b>, so that value turned up. Keep going.';
+    else m='<span class="mono">seen['+MISS+']</span> is <b>false</b>. Nothing ever set it, so <b>'+MISS+' is the missing number</b>. One pass to fill the row, one pass to scan it &mdash; and <b>nine boxes of memory</b> the whole time.';
+    document.getElementById('mv-msg').innerHTML=m;
+    document.getElementById('mv-n').textContent = cur<0 ? '\u2014' : (cur+1)+' / '+(LAST+1);
+    document.getElementById('mv-back').disabled = cur<0;
+    document.getElementById('mv-next').disabled = cur>=LAST;
+  }
+  /* the scan is one press: the highlight walks itself from 0 to the gap */
+  function runScan(){
+    stopScan(); scanAt=0; draw();
+    timer=setInterval(function(){
+      if(scanAt>=MISS){ stopScan(); return; }
+      scanAt++; draw();
+    }, 480);
+  }
+  document.getElementById('mv-next').onclick=function(){
+    if(cur>=LAST) return;
+    cur++;
+    if(cur===MARK) runScan(); else { stopScan(); scanAt=-1; draw(); }
+  };
+  document.getElementById('mv-back').onclick=function(){
+    if(cur<0) return; stopScan(); scanAt=-1; cur--; draw(); };
+  document.getElementById('mv-reset').onclick=function(){ stopScan(); scanAt=-1; cur=-1; draw(); };
+  draw();
+})();
 
 /* ---------- QUIZZES ---------- */
 $$('.quiz').forEach(function(q){
@@ -1775,6 +3023,37 @@ document.addEventListener('keydown',function(e){
     label();
   });
   tabs.appendChild(b);
+})();
+
+/* ---------- REVISION MODE ----------
+   Every "Show the answer" on the page, opened at once and remembered. The
+   details blocks holding model answers are opened too, but never re-closed:
+   turning the switch off should not shut something the reader opened. */
+(function(){
+  var KEY='dsa-reveal-all';
+  var host=document.querySelector('.tabs')||document.querySelector('.topbar-in')||document.querySelector('.topbar');
+  var solo=false;
+  if(!host){ host=document.querySelector('main.wrap'); solo=true; }
+  if(!host) return;
+  var b=document.createElement('button');
+  b.className='revtog'+(solo?' solo':''); b.type='button';
+  b.title='Open every hidden answer on this page';
+  function paint(){
+    var on=document.body.classList.contains('revealall');
+    b.classList.toggle('on',on);
+    b.setAttribute('aria-pressed',on?'true':'false');
+    b.textContent = on ? '\uD83D\uDC41 Answers shown' : '\uD83D\uDC41 Show all answers';
+    if(on) Array.prototype.forEach.call(document.querySelectorAll('details.dig'),function(d){d.open=true;});
+  }
+  var saved=null; try{saved=localStorage.getItem(KEY);}catch(e){}
+  if(saved==='on') document.body.classList.add('revealall');
+  paint();
+  b.addEventListener('click',function(){
+    var on=document.body.classList.toggle('revealall');
+    try{localStorage.setItem(KEY,on?'on':'off');}catch(e){}
+    paint();
+  });
+  if(solo) host.insertBefore(b, host.firstChild); else host.appendChild(b);
 })();
 
 

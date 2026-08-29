@@ -64,7 +64,7 @@
         .code-kw { color: #c678dd; } .code-type { color: #e5c07b; } .code-fn { color: #61afef; }
         .code-num { color: #d19a66; } .code-comment { color: #7f848e; font-style: italic; }
 
-        .cells-scroll { display: flex; overflow-x: auto; justify-content: safe center; }
+        .cells-scroll { display: flex; overflow-x: auto; overflow-y: visible; justify-content: safe center; padding: 6px 0; }
         .cells-scroll > .cellrow { flex: 0 0 auto; }
         .cellrow { display: inline-grid; grid-auto-flow: column; gap: 8px; padding: 2px; }
         .cellcol { display: grid; grid-template-rows: 26px 18px 60px 30px; justify-items: center; align-items: center; }
@@ -203,7 +203,7 @@
            left edge reachable when the content is wider than the track. */
         /* overflow-x:auto makes this a scroll container in BOTH axes, so a couple of stray pixels
            (bar + gap + caption) used to raise a vertical scrollbar — the bottom padding absorbs them */
-        .sim-bars { display: flex; gap: 14px; align-items: flex-end; justify-content: safe center; min-height: 150px; padding: 0 6px 6px; overflow-x: auto; overflow-y: hidden; }
+        .sim-bars { display: flex; gap: 14px; align-items: flex-end; justify-content: safe center; min-height: 150px; padding: 6px 6px 8px; overflow-x: auto; overflow-y: hidden; }
         .sim-barcol { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 0 0 auto; }
         .sim-bar { width: 46px; flex: 0 0 auto; border-radius: 6px 6px 3px 3px; display: flex; flex-direction: column-reverse; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
         .sim-seg { border-top: 2px solid rgba(255,255,255,.85); }

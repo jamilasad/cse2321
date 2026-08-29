@@ -564,12 +564,14 @@ details.dig[open]{border-color:color-mix(in srgb,var(--accent,#4f46e5) 40%,var(-
                   box-shadow:0 6px 20px -10px color-mix(in srgb,var(--accent,#4f46e5) 60%,transparent)}
 details.dig[open]::before{opacity:1}
 
-details.dig>summary{cursor:pointer;padding:.8rem 2.5rem .8rem 1rem;font-weight:700;font-size:.87rem;
-  list-style:none;display:flex;align-items:center;gap:.65rem;color:var(--ink);position:relative;
+details.dig>summary{cursor:pointer;padding:.8rem 2.5rem .8rem 4.05rem;font-weight:700;font-size:.87rem;
+  list-style:none;display:block;color:var(--ink);position:relative;
   background:linear-gradient(180deg,#fff,#fafbfd);transition:background .18s;line-height:1.45}
 details.dig>summary::-webkit-details-marker{display:none}
 details.dig>summary:hover{background:#f5f8fc}
-details.dig>summary .dicon{width:26px;height:26px;border-radius:8px;flex:0 0 auto;display:grid;place-items:center;
+details.dig>summary::before{position:absolute;left:1rem;top:.78rem;text-align:center;line-height:1.45}
+details.dig>summary .dicon{position:absolute;left:2.15rem;top:.72rem;
+  width:26px;height:26px;border-radius:8px;display:grid;place-items:center;
   font-size:.78rem;font-weight:800;color:#fff;
   background:linear-gradient(135deg,var(--accent,#4f46e5),color-mix(in srgb,var(--accent,#4f46e5) 60%,#000));
   box-shadow:0 2px 6px -1px color-mix(in srgb,var(--accent,#4f46e5) 70%,transparent);transition:transform .25s}
@@ -581,7 +583,12 @@ details.dig[open]>summary::after{transform:translateY(-30%) rotate(225deg)}
 details.dig[open]>summary{border-bottom:1px solid color-mix(in srgb,var(--accent,#4f46e5) 22%,var(--line))}
 details.dig>div{padding:1rem 1.1rem;font-size:.87rem;color:var(--ink-soft);line-height:1.75;
   background:linear-gradient(180deg,color-mix(in srgb,var(--accent,#4f46e5) 4%,#fff),#fff)}
+details.dig>div table{line-height:1.5}
+details.dig>div td,details.dig>div th{padding:.48rem .85rem}
+
 details.dig>div b{color:var(--ink)}
+details.dig>div b.hl-good,details.dig>div .hl-good{color:#15803d}
+details.dig>div b.hl-bad,details.dig>div .hl-bad{color:#be123c}
 
 /* ---- problem cards ---- */
 details.prob{border:1px solid var(--line);border-radius:.7rem;background:#fff;margin:.9rem 0;overflow:hidden;
@@ -620,9 +627,11 @@ details.prob.lc .plink{background:#d97706}
              display:grid;place-items:center;font-size:1rem;flex:0 0 auto}
 .goals .gh b{font-size:.95rem;font-weight:800;color:#9f1239}
 .goals ol{list-style:none;counter-reset:g;margin:0;padding:0;display:grid;gap:.55rem}
-.goals li{counter-increment:g;display:flex;gap:.65rem;align-items:flex-start;font-size:.9rem;line-height:1.6;color:var(--ink-soft)}
-.goals li::before{content:counter(g);width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #fda4af;
-  color:#be123c;font-size:.7rem;font-weight:800;display:grid;place-items:center;flex:0 0 auto;margin-top:.1rem}
+.goals li{counter-increment:g;position:relative;padding-left:1.95rem;font-size:.9rem;
+  line-height:1.6;color:var(--ink-soft)}
+.goals li::before{content:counter(g);position:absolute;left:0;top:.14rem;
+  width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #fda4af;
+  color:#be123c;font-size:.7rem;font-weight:800;display:grid;place-items:center}
 .goals li b{color:var(--ink)}
 
 /* ---- factor pairs, one per line ---- */
@@ -685,7 +694,7 @@ details.prob.lc .plink{background:#d97706}
                  box-shadow:0 6px 16px -6px rgba(2,132,199,.6)}
 .acell2.sel .ai2,.acell2.sel .aa2{color:#0284c7;font-weight:800}
 .acell2.lbub .ab2{border-color:#f59e0b;background:#fffbeb}
-.acell2.walk .ab2{border-color:#16a34a;background:#dcfce7}
+.acell2.walk .ab2{border-color:#d97706;background:#fef3c7}
 .acell2.done2 .ab2{opacity:.45}
 .acell2.hitc .ab2{border-color:#16a34a;background:#bbf7d0;color:#14532d}
 
@@ -812,7 +821,344 @@ body.codelight .exactbox .lo{color:#94a3b8}
    never hidden while a menu or an overlay is open. */
 .topbar{transition:transform .26s ease}
 .topbar.tucked{transform:translateY(-100%)}
+.prog{transition:transform .26s ease,top .26s ease,opacity .2s ease}
+body.tucked .prog{transform:translateY(-140%);opacity:0;pointer-events:none}
 @media (prefers-reduced-motion:reduce){.topbar{transition:none}}
+/* ============ REVISION MODE ============
+   One switch that opens every hidden answer on the page at once, for someone
+   going back over the material rather than meeting it for the first time.
+   It is remembered, so a revision session stays open across pages. The
+   individual buttons are dimmed while it is on, because the switch is now in
+   charge of them. */
+body.revealall .ta,
+body.revealall .revealed,
+body.revealall .ova,
+body.revealall .qexp,
+body.revealall .ovs.hid{display:block!important}
+body.revealall .tbtn,
+body.revealall .ovbtn{opacity:.4;pointer-events:none}
+.revtog{appearance:none;border:1px solid #334155;background:transparent;color:#94a3b8;border-radius:.45rem;
+  font-family:inherit;font-size:.68rem;font-weight:700;padding:.3rem .6rem;cursor:pointer;
+  white-space:nowrap;transition:.15s;flex:0 0 auto}
+.revtog:hover{color:#e2e8f0;border-color:#64748b}
+.revtog.on{background:#6d28d9;border-color:#7c3aed;color:#fff}
+.revtog.solo{display:block;margin:0 0 1.2rem;border-color:var(--line);color:var(--ink-soft);background:#fff}
+.revtog.solo:hover{color:var(--ink);border-color:var(--line-strong)}
+.revtog.solo.on{background:#6d28d9;border-color:#7c3aed;color:#fff}
+
+/* ==================================================================
+   ADDED IN THE SEGMENT-2 REWORK
+   ================================================================== */
+
+/* ---- segment tags (used in the prose since day one, never styled here) ---- */
+.sgtag{font-size:.56rem;font-weight:800;letter-spacing:.05em;padding:.22rem .45rem;border-radius:.3rem;
+       background:var(--sc);color:#fff;white-space:nowrap;line-height:1.25;display:inline-block;
+       vertical-align:.08em}
+.sg1{--sc:#0ea5e9}.sg2{--sc:#0284c7}.sg3{--sc:#7c3aed}.sg4{--sc:#c2410c}.sg5{--sc:#0d9488}
+
+/* ---- YOUR TURN — the question first, the answer one button away ---- */
+.turn{border:1.5px solid #c4b5fd;border-radius:.9rem;margin:1.2rem 0;overflow:hidden;
+  background:linear-gradient(180deg,#faf8ff,#f6f3ff)}
+.turn .th{display:flex;align-items:center;gap:.5rem;padding:.7rem .95rem;
+  border-bottom:1.5px solid #ddd6fe;background:rgba(255,255,255,.6)}
+.turn .th b{font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#6d28d9}
+.turn .tq{padding:.85rem .95rem;font-size:.96rem;line-height:1.62;color:var(--ink)}
+.turn .tq p{margin:0 0 .6rem}
+.turn .tq p:last-child{margin:0}
+.turn .tq ul,.turn .tq ol{margin:.1rem 0 .7rem;padding-left:1.15rem}
+.turn .tq li{margin:.3rem 0}
+.turn .tbtn{appearance:none;font-family:inherit;font-size:.78rem;font-weight:800;
+  border:1.5px solid #a78bfa;background:#fff;color:#6d28d9;border-radius:.5rem;
+  padding:.42rem .85rem;cursor:pointer;margin:0 .95rem .95rem;transition:.15s}
+.turn .tbtn:hover{background:#f5f3ff;border-color:#7c3aed}
+.turn .ta{display:none;padding:0 .95rem .95rem;font-size:.94rem;line-height:1.62;color:var(--ink)}
+.turn .ta.on{display:block;animation:drop .3s ease}
+.turn .ta p{margin:0 0 .55rem}
+.turn .ta p:last-child{margin:0}
+.turn .ta .mono{background:#f5f3ff;border:1px solid #ddd6fe;border-radius:.25rem;
+  padding:.02rem .3rem;font-size:.94em;font-weight:600;color:#5b21b6}
+.turn .hint{font-size:.84rem;color:#7c3aed;font-weight:700}
+
+/* ---- THE FORMULA CARD ---------------------------------------------
+   Segment 2 runs on three formulas and nothing else. Each one gets this
+   card, so a student flipping through four classes can find them by shape
+   without reading a word. It has to outrank .box info, which is only a
+   pale blue tint. */
+.fbox{border:2px solid #0284c7;border-radius:.9rem;background:#fff;margin:1.2rem 0;overflow:hidden;
+  box-shadow:0 14px 34px -26px rgba(2,132,199,.75)}
+.fbox .fbh{display:flex;align-items:center;gap:.5rem;padding:.55rem .95rem;background:#f0f9ff;
+  border-bottom:1.5px solid #bae6fd}
+.fbox .fbh b{font-size:.6rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#0369a1}
+.fbox .fbf{font-family:var(--mono);font-weight:800;text-align:center;color:#075985;
+  font-size:clamp(1rem,4.4vw,1.5rem);letter-spacing:-.01em;padding:1.15rem .8rem;
+  background:linear-gradient(180deg,#fff,#f8fcff)}
+.fbox .fbl{display:grid;gap:.5rem;padding:0 .95rem .95rem}
+@media(min-width:640px){.fbox .fbl{grid-template-columns:repeat(3,1fr)}}
+.fbox .fbl div{border:1px solid #e0f2fe;border-radius:.55rem;background:#f8fcff;padding:.55rem .65rem;
+  font-size:.82rem;line-height:1.55;color:var(--ink-soft)}
+.fbox .fbl div>b:first-child{display:block;font-family:var(--mono);font-size:.9rem;color:#0369a1;
+  margin-bottom:.1rem}
+.fbox .fbl div>b:first-child~b{color:var(--ink)}
+.fbox .fbn{margin:0;padding:0 .95rem .95rem;font-size:.86rem;line-height:1.62;color:#0c4a6e}
+
+/* ---- A REAL PAST QUESTION, INSIDE THE LESSON ----------------------
+   The Exam tab is for revision. This is for the moment in the class when
+   the thing just taught IS the question — so it carries the exam's own
+   words, its own marks, and nothing else. */
+.pastq{border:1.5px solid #fecdd3;border-left:4px solid #e11d48;border-radius:.7rem;
+  background:linear-gradient(180deg,#fff7f8,#fff);padding:.9rem 1rem;margin:1.1rem 0}
+.pastq .pqh{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;margin:0 0 .55rem}
+.pastq .pqs{font-size:.58rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  background:#e11d48;color:#fff;border-radius:.3rem;padding:.16rem .45rem}
+.pastq .pqw{font-size:.68rem;font-weight:700;color:#9f1239}
+.pastq .pqm{margin-left:auto;font-family:var(--mono);font-size:.66rem;font-weight:800;color:#be123c;
+  background:#ffe4e6;border-radius:999px;padding:.14rem .55rem;white-space:nowrap}
+.pastq .pqt{margin:0;font-size:.93rem;line-height:1.68;color:#4c0519;font-style:italic}
+.pastq .pqt b{font-style:normal;color:#881337}
+
+/* ---- SIMULATOR SHELL + FOCUS -------------------------------------
+   Jamil teaches from a projector. Every widget on the page can now be
+   thrown full-screen, and it is the same node that moves — never a copy,
+   so nothing can drift out of sync. */
+.simbox{border:1px solid #e6e9f7;border-radius:1rem;margin:1.2rem 0;overflow:hidden;
+  background:linear-gradient(180deg,#fff 0%,#fcfdff 55%,#f7f9ff 100%);
+  box-shadow:0 14px 32px -26px rgba(30,27,75,.4)}
+.simhd{display:flex;align-items:center;gap:.7rem;padding:.55rem .9rem;border-bottom:1px solid #eef0f8}
+.simttl{font-size:.5rem;font-weight:800;letter-spacing:.24em;text-transform:uppercase;color:#b4bcd8}
+.focusb{margin-left:auto;appearance:none;font-family:inherit;font-size:.68rem;font-weight:800;
+  border:1px solid #dfe3f2;background:#fff;color:#6d7392;border-radius:.45rem;
+  padding:.28rem .6rem;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:.35rem}
+.focusb:hover{border-color:var(--accent,#0284c7);color:var(--accent,#0284c7)}
+.simbd{padding:.95rem}
+.simbd>:first-child{margin-top:0}
+.simbd>:last-child{margin-bottom:0}
+
+.fsov{position:fixed;inset:0;z-index:120;background:var(--bg);display:none;flex-direction:column}
+.fsov.on{display:flex}
+body.fsopen{overflow:hidden}
+.fshd{flex:0 0 auto;display:flex;align-items:center;gap:.8rem;padding:.7rem 1.2rem;
+  border-bottom:1px solid var(--line);background:#fff}
+.fshd b{font-size:.9rem;font-weight:800;color:var(--ink);letter-spacing:-.01em}
+.fsx{margin-left:auto;appearance:none;font-family:var(--mono);font-size:.7rem;font-weight:700;
+  color:var(--ink-mute);border:1px solid var(--line-strong);border-radius:.4rem;padding:.22rem .55rem;
+  background:#fff;cursor:pointer}
+.fsx+.fsx{margin-left:0}
+.fsx:hover{color:var(--ink);border-color:var(--ink-mute)}
+.fsbody{flex:1;min-height:0;overflow:auto;padding:clamp(.7rem,2vw,1.6rem)}
+.fsbody{display:flex;flex-direction:column;justify-content:center;justify-content:safe center}
+.fsbody .simbox{max-width:1180px;width:100%;margin:0 auto;border:0;background:transparent;box-shadow:none}
+.fsbody .simhd{display:none}
+.fsbody .simbd{padding:0}
+/* On the wall everything grows. These widgets are DOM, not canvas, so they
+   reflow on their own once the overlay is wider — only the fixed cell sizes
+   and the type have to be told to get bigger. */
+.fsbody .acell2{width:78px}
+.fsbody .acell2 .ab2{height:58px;font-size:1.3rem}
+.fsbody .acell2 .ai2{font-size:.72rem}
+.fsbody .acell2 .aa2{font-size:.66rem}
+.fsbody .mc{width:68px}
+.fsbody .mc .mb{height:56px;font-size:1.15rem}
+.fsbody .mc .mi{font-size:.72rem}
+.fsbody .mc .ma{font-size:.63rem}
+.fsbody .fline{font-size:clamp(.9rem,2vw,1.3rem);line-height:2.35}
+.fsbody .carr-code{font-size:1.02rem;line-height:2.2}
+.fsbody .tw2 .tv2{font-size:1.75rem}
+.fsbody .tw2 .tk2{font-size:.7rem}
+.fsbody .drow span{font-size:.98rem}
+.fsbody .drow{padding:.55rem .9rem}
+.fsbody .opdesc,.fsbody .fclbl{font-size:1rem}
+.fshint{flex:0 0 auto;display:flex;flex-wrap:wrap;gap:.5rem 1.3rem;padding:.55rem 1.2rem;
+  border-top:1px solid var(--line);background:#fff;font-size:.7rem;color:var(--ink-mute)}
+.fshint kbd{font-family:var(--mono);font-size:.66rem;border:1px solid var(--line-strong);
+  border-bottom-width:2px;border-radius:.28rem;padding:.02rem .3rem;background:#f8fafc;color:var(--ink-soft)}
+
+/* ---- THE TAKEAWAY RAIL -------------------------------------------
+   One sentence per section, added as the section is reached — forward
+   only, so it records what has been said rather than previewing it. */
+.keyrail{position:fixed;right:1rem;top:5.6rem;bottom:9.6rem;width:280px;z-index:40;
+  display:none;flex-direction:column;pointer-events:none}
+@media(min-width:1240px){.keyrail{display:flex}}
+.keyrail.hid .kbody{display:none}
+.krhd{pointer-events:auto;display:flex;align-items:center;gap:.55rem;align-self:flex-end;
+  background:linear-gradient(180deg,#fff,#fbfcff);border:1px solid #dfe3f2;border-radius:.7rem;
+  padding:.42rem .7rem;box-shadow:0 10px 26px -18px rgba(30,27,75,.55);cursor:pointer;transition:.15s}
+.krhd:hover{border-color:#7dd3fc;box-shadow:0 12px 30px -18px rgba(2,132,199,.6)}
+.krhd .kt{font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#7b8199}
+.krhd .kn{font-family:var(--mono);font-size:.66rem;font-weight:800;color:#fff;
+  background:linear-gradient(135deg,#0284c7,#38bdf8);border-radius:.35rem;padding:.06rem .38rem}
+.krhd .kv{color:#b4bcd8;font-size:.66rem;transition:transform .22s}
+.keyrail.hid .krhd .kv{transform:rotate(-90deg)}
+.kbody{pointer-events:auto;margin-top:.5rem;overflow-y:auto;display:flex;flex-direction:column;gap:.45rem;
+  padding:.2rem .2rem .5rem;scrollbar-width:thin;mask-image:linear-gradient(180deg,transparent 0,#000 12px)}
+.kitem{position:relative;background:#fff;border:1px solid #e6e9f7;border-radius:.6rem;
+  padding:.6rem .75rem .6rem 2.5rem;font-size:.82rem;line-height:1.5;color:#4c5480;
+  box-shadow:0 10px 24px -20px rgba(30,27,75,.6);
+  animation:kin .38s cubic-bezier(.32,1.1,.4,1) both}
+.kitem b{color:#0f172a;font-weight:700}
+.kitem .kx{position:absolute;left:.6rem;top:.62rem;width:1.45rem;height:1.45rem;border-radius:.35rem;
+  display:grid;place-items:center;font-family:var(--mono);font-size:.62rem;font-weight:800;
+  background:#e0f2fe;color:#0369a1;letter-spacing:0}
+.kitem.new{border-color:#7dd3fc;box-shadow:0 12px 28px -18px rgba(2,132,199,.6)}
+.kitem.new .kx{background:linear-gradient(135deg,#0284c7,#38bdf8);color:#fff}
+.kitem .mono{background:#f0f9ff;border:1px solid #e0f2fe;border-radius:.25rem;
+  padding:.02rem .26rem;font-size:.94em;font-weight:600;color:#075985}
+@keyframes kin{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.kitem{animation:none}}
+body.fsopen .keyrail{display:none}          /* never over a projected screen */
+body.onexam .keyrail{display:none}          /* nor over the exam tab, which has no keys */
+
+/* ---- the input/output examples inside a problem block ---- */
+.iogrid{display:grid;gap:.55rem;margin:.8rem 0 0}
+@media(min-width:640px){.iogrid{grid-template-columns:1fr 1fr}}
+.io{display:grid;grid-template-columns:auto 1fr;gap:.3rem .6rem;align-items:baseline;
+  border:1px solid var(--line);border-radius:.55rem;background:#f8fafc;padding:.6rem .7rem}
+.io .iok{font-size:.55rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute)}
+.io .mono{font-size:.78rem;font-weight:700;overflow-wrap:anywhere}
+.io em{grid-column:1/-1;font-style:normal;font-size:.76rem;line-height:1.55;color:var(--ink-mute);
+  margin-top:.3rem;padding-top:.35rem;border-top:1px dashed var(--line)}
+
+/* The traversal strip carries twenty years, which never fits on one line at
+   any width worth having. Rather than let it wrap wherever it happens to
+   run out — which strands three or four years alone on a second row — it is
+   capped to exactly ten cells, so it always reads as two decades:
+   2000-2009 above, 2010-2019 below. The sizes live here, not inline, or
+   Focus mode cannot grow them. */
+#tstrip .acell2{width:52px}
+#tstrip .acell2 .ab2{font-size:.82rem}
+.fsbody #tstrip .acell2{width:52px}
+
+/* ============ ONE COLOUR PER SYMBOL ============
+   Segment 2 runs on three formulas and they share five symbols. Each symbol
+   keeps the same colour in the length formula, in the 1-D address formula and
+   in the 2-D one next class, so a student who has learned to read one of them
+   can read all three. The .fb-* half is the same palette lightened for the
+   dark formula board, which is a code surface and does not take page colours. */
+.tk{font-family:var(--mono);font-weight:800;border-radius:.22em;padding:.02em .24em;
+  background:var(--tkbg);color:var(--tkfg);white-space:nowrap;letter-spacing:-.01em}
+.tk-base{--tkbg:#e0f2fe;--tkfg:#075985}
+.tk-w   {--tkbg:#fef3c7;--tkfg:#92400e}
+.tk-k   {--tkbg:#ede9fe;--tkfg:#5b21b6}
+.tk-lb  {--tkbg:#ccfbf1;--tkfg:#115e59}
+.tk-ub  {--tkbg:#ffe4e6;--tkfg:#9f1239}
+
+/* the key, printed once under each formula card */
+.tklegend{display:flex;flex-wrap:wrap;gap:.4rem .8rem;justify-content:center;
+  margin:.1rem 0 0;font-size:.74rem;color:var(--ink-mute)}
+.tklegend span{display:inline-flex;align-items:center;gap:.35rem}
+
+.fboard .fb-base{color:#38bdf8;font-weight:700}
+.fboard .fb-w   {color:#fbbf24;font-weight:700}
+.fboard .fb-k   {color:#c4b5fd;font-weight:700}
+.fboard .fb-lb  {color:#5eead4;font-weight:700}
+.fboard .fb-ub  {color:#fda4af;font-weight:700}
+body.codelight .fboard .fb-base{color:#0369a1}
+body.codelight .fboard .fb-w   {color:#b45309}
+body.codelight .fboard .fb-k   {color:#6d28d9}
+body.codelight .fboard .fb-lb  {color:#0f766e}
+body.codelight .fboard .fb-ub  {color:#be123c}
+
+/* the input a symbol belongs to wears its colour on the label */
+.ctrl label .tk{font-size:.86em}
+
+/* ---- the traversal simulator: stage beside the module it is running -------
+   The module IS the answer the exam wants written, so it is not a listing
+   beside the picture — it is the thing being executed, with the line that is
+   running marked and the If tinted by the answer on every single pass. */
+.simgrid2{display:grid;gap:.9rem;padding:.95rem}
+@media(min-width:900px){.simgrid2{grid-template-columns:minmax(0,332px) minmax(0,1fr);align-items:stretch}}
+.simcol{min-width:0;display:flex;flex-direction:column;gap:.75rem}
+.simcol>.algo.live{flex:1;display:flex;flex-direction:column;justify-content:center}
+.simgrid2 .astrip{margin:0}
+.simgrid2 .twatch{margin:0;grid-template-columns:repeat(3,1fr)}
+.simgrid2 .tw2 .tk2{font-size:.55rem}
+.simgrid2 .tw2 .tv2{font-size:1.1rem}
+.algo.live{border-color:#d9e2ec}
+.algo.live .st{cursor:default;position:relative}
+.algo.live .st.cur{background:#fef3c7;box-shadow:inset 3px 0 0 #d97706;font-weight:700;color:#78350f}
+.algo.live .st.tt{background:#dcfce7;box-shadow:inset 3px 0 0 #16a34a;color:#14532d}
+.algo.live .st.ff{background:#fee2e2;box-shadow:inset 3px 0 0 #dc2626;color:#7f1d1d}
+.verd{display:none;margin-left:.55rem;font-size:.62rem;font-weight:800;letter-spacing:.08em;
+  border-radius:.3rem;padding:.05rem .35rem;vertical-align:1px}
+.st.tt .verd,.st.ff .verd{display:inline-block}
+.st.tt .verd{background:#16a34a;color:#fff}
+.st.ff .verd{background:#dc2626;color:#fff}
+.tstep{margin-left:auto;align-self:center;font-size:.68rem;font-weight:800;color:var(--ink-mute);
+  border:1px solid var(--line);border-radius:999px;padding:.14rem .55rem;background:#fff;white-space:nowrap}
+/* four cells to a row on the page so the strip fits beside the module;
+   Focus gives it the whole width back as two decades */
+#tstrip{max-width:274px;margin-left:auto;margin-right:auto}
+.fsbody .simgrid2{grid-template-columns:minmax(0,560px) minmax(0,1fr);gap:1.4rem}
+.fsbody #tstrip{max-width:560px}
+.fsbody .algo.live{font-size:1rem}
+
+/* ---- quiz progress: the ribbon, the chip in the tabs, and the reset ------
+   The answers are remembered, so a student who comes back to revise sees
+   which checks they have already done rather than a blank page. */
+.prog{position:sticky;top:calc(var(--barh,52px) + .5rem);z-index:40;display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;
+      border:1px solid #e8ebfa;border-radius:.7rem;background:rgba(255,255,255,.94);backdrop-filter:blur(6px);
+      padding:.55rem .8rem;margin:0 0 1.6rem;box-shadow:0 8px 22px -18px rgba(30,27,75,.5)}
+.prog .pk{font-size:.55rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#b4bcd8}
+.prog .pbar{flex:1;min-width:120px;height:8px;border-radius:99px;background:#e0f2fe;overflow:hidden}
+.prog .pbar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#38bdf8,#0284c7);
+              transition:width .5s cubic-bezier(.32,1.1,.4,1)}
+.prog .pn{font-family:var(--mono);font-size:.78rem;font-weight:800;color:#0369a1}
+.prog button{appearance:none;font-family:inherit;font-size:.68rem;font-weight:700;padding:.28rem .6rem;
+             border-radius:.4rem;border:1px solid var(--line);background:#fff;color:var(--ink-mute);cursor:pointer}
+.prog button:hover{border-color:#0284c7;color:#0369a1}
+@media(max-width:700px){.prog{position:static;backdrop-filter:none;background:#fff}}
+.qchip{display:inline-flex;align-items:center;gap:.34rem;border:1px solid #334155;background:transparent;
+   color:#94a3b8;border-radius:.45rem;font-family:inherit;font-size:.68rem;font-weight:700;
+   padding:.3rem .6rem;white-space:nowrap;flex:0 0 auto}
+.qchip i{width:7px;height:7px;border-radius:50%;background:#0284c7;display:block;flex:0 0 auto}
+.qchip b{font-family:var(--mono);color:#e2e8f0}
+
+/* ---- n / r drive the simulator you are looking at -----------------------
+   A lecture is run from the keyboard: the mouse is for pointing at the wall,
+   not for hunting a Next button. The block being driven says so in its own
+   button row, so which one the keys belong to is never a guess. */
+.kbdhint{position:absolute;right:.9rem;top:50%;transform:translateY(-50%);
+  font-size:.62rem;color:#b4bcd8;white-space:nowrap;display:none;gap:.3rem;align-items:center}
+.simbox.kbdon .kbdhint{display:inline-flex}
+.kbdhint kbd{font-family:var(--mono);font-size:.6rem;border:1px solid var(--line);border-bottom-width:2px;
+  border-radius:.25rem;padding:0 .28rem;background:#f8fafc;color:var(--ink-soft)}
+.simbox.kbdon{box-shadow:0 0 0 2px rgba(2,132,199,.28),0 14px 32px -26px rgba(30,27,75,.4)}
+body.fsopen .simbox.kbdon{box-shadow:none}
+
+/* ---- what the exams actually asked, as a compact table ---- */
+.freqt{display:grid;gap:.4rem;margin:1rem 0}
+.freqr{display:grid;grid-template-columns:1fr auto;gap:.4rem .8rem;align-items:center;
+  border:1px solid var(--line);border-radius:.55rem;background:#fff;padding:.55rem .75rem}
+.freqr.top{border-color:#fda4af;background:#fff7f8}
+.freqr .fqn{font-size:.87rem;font-weight:700;color:var(--ink);line-height:1.45}
+.freqr .fqc{font-family:var(--mono);font-size:.7rem;font-weight:800;white-space:nowrap;
+  background:#f1f5f9;color:#475569;border-radius:999px;padding:.16rem .55rem}
+.freqr.top .fqc{background:#ffe4e6;color:#be123c}
+.freqr .fqw{grid-column:1/-1;font-size:.74rem;color:var(--ink-mute);line-height:1.5;
+  border-top:1px dashed var(--line);padding-top:.35rem}
+
+
+
+/* every simulator's controls sit under the middle of what they drive */
+.simbox .btnrow{position:relative;justify-content:center}
+@media(max-width:860px){.simbox .kbdhint{display:none!important}}
+/* the narration is sized for its tallest sentence, so the buttons never move */
+.simbox .opdesc{min-height:5.2rem;display:flex;align-items:center;
+  justify-content:center;text-align:center;margin:.55rem .9rem 0}
+@media(min-width:700px){.simbox .opdesc{min-height:4.2rem}}
+@media(min-width:1000px){.simbox .opdesc{min-height:3.7rem}}
+
+/* In Focus the binary-search block is a stage AND a listing, and stacked they
+   do not fit on one screen — which is the one thing a projector cannot forgive.
+   Side by side above 1100px, with the listing given its own scroll so a long
+   program never pushes the buttons off the bottom. */
+@media(min-width:1100px){
+  .fsbody #bin-sim .simbd{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+    gap:1.3rem;align-items:start}
+  .fsbody #bin-sim .simbd>*{grid-column:1;min-width:0}
+  .fsbody #bin-sim #bin-codewrap{grid-column:2;grid-row:1/span 40;align-self:start;
+    max-height:calc(100vh - 200px);overflow:auto;padding-right:.3rem}
+  .fsbody #bin-sim #bin-codewrap>p:first-child{margin-top:0}
+}
 </style>
 </head>
 <body>
@@ -841,12 +1187,12 @@ body.codelight .exactbox .lo{color:#94a3b8}
     <h1>Linear arrays <em>and memory</em></h1>
     <p class="hero-lede">You have used <span class="mono">a[i]</span> a thousand times. Today you find out what the machine actually does when it sees it — and why it takes the same time whether you ask for element 1 or element 1,000,000.</p>
     <div class="arc">
-      <span>What an array is</span><span>In real code</span><span>Length</span><span>Base address</span><span>Deriving LOC</span><span>Traversal</span>
+      <span>What an array is</span><span>Length</span><span>Base address</span><span>Deriving LOC</span><span>Traversal</span>
     </div>
     <div class="hero-meta">
       <div><b>1 formula</b>that runs the whole segment</div>
       <div><b>O(1)</b>no matter which element</div>
-      <div><b>55 min</b>7 sections</div>
+      <div><b>54 min</b>6 sections</div>
     </div>
     <div class="byline">
       <span class="av">JA</span>
@@ -857,24 +1203,43 @@ body.codelight .exactbox .lo{color:#94a3b8}
 
 <main class="wrap">
 
-<div class="box info" style="margin-bottom:2.2rem">
+<div class="prog" id="prog">
+  <span class="pk">Your progress</span>
+  <span class="pbar"><i id="pbar"></i></span>
+  <span class="pn" id="pnum">0 / 2</span>
+  <button id="preset" type="button">Clear</button>
+</div>
+
+<div class="box info" style="margin-bottom:1.5rem">
   <p class="bt">↩ Where we were</p>
-  <p style="margin:0">Segment 1 ended with complexity. You learned that <b>reading one variable from RAM takes about 10 nanoseconds</b>, and that the machine goes straight to the right box without searching.<br><br>
-  <b>Today: how does it know which box?</b> The answer is one formula, and it is the foundation of the next three classes.</p>
+  <p>Segment 1 ended with complexity. You learned that <b>reading one variable from RAM takes about 10 nanoseconds</b>, and that the machine goes straight to the right box without searching.</p>
+  <p style="margin:0"><b>Today: how does it know which box?</b> The answer is one formula, and it is the foundation of the next three classes.</p>
+</div>
+
+<div class="goals">
+  <p class="gh"><i>🎯</i><b>By the end of this class you will be able to</b></p>
+  <ol>
+    <li>Say what a <b>linear array</b> is in the exam's own words, and name the <b>three conditions</b> a collection has to meet to be one</li>
+    <li>Find the <b>length</b> of an array from any index set &mdash; including one that starts below zero</li>
+    <li><b>Derive</b> <span class="mono">LOC(LA[K]) = BASE(LA) + w (K &minus; LB)</span> rather than recall it, and use it on the numbers a real question hands you</li>
+    <li>Say in one sentence <b>why</b> reading <span class="mono">LA[1]</span> and <span class="mono">LA[1000000]</span> cost the same</li>
+    <li>Write a <b>module</b> that traverses an array whose index set is a range of years or ID numbers</li>
+  </ol>
 </div>
 
 <!-- ============ 1 · WHAT IS A LINEAR ARRAY ============ -->
-<article class="card numbered" id="s1" style="--accent:#0284c7">
+<article class="card numbered" id="s1" style="--accent:#0284c7" data-min="10"
+  data-key="Three conditions make an array: same type, consecutive indices, successive locations. <b>int arr[6]</b> is six ordinary variables with one name and a number.">
   <span class="badge">1</span>
   <div class="hdr-row">
-    <div><p class="kicker">Section 1</p><h2>What a linear array actually is</h2></div>
-    <span class="timechip">⏱ 7 min</span>
+    <div><p class="kicker">Section 1</p><h2>What a linear array is &mdash; in the book, and in your code</h2></div>
+    <span class="timechip">⏱ 10 min</span>
   </div>
 
   <div class="box info">
     <p class="bt">Definition — learn this word for word</p>
-    <p style="margin:0">A <b>linear array</b> is a list of a finite number <b>n</b> of <b>homogeneous</b> data elements (that is, elements of the same type) such that:<br><br>
-    <b>(a)</b> the elements are referenced respectively by an <b>index set</b> consisting of <b>n consecutive numbers</b>;<br>
+    <p>A <b>linear array</b> is a list of a finite number <b>n</b> of <b>homogeneous</b> data elements (that is, elements of the same type) such that:</p>
+    <p style="margin:0"><b>(a)</b> the elements are referenced respectively by an <b>index set</b> consisting of <b>n consecutive numbers</b>;<br>
     <b>(b)</b> the elements are stored respectively in <b>successive memory locations</b>.</p>
   </div>
 
@@ -883,43 +1248,62 @@ body.codelight .exactbox .lo{color:#94a3b8}
   <div class="grid3">
     <div class="box" style="margin:0"><p class="bt">Homogeneous</p><p style="margin:0">Every element is the <b>same type</b>, so every element takes the <b>same number of bytes</b>. This is what makes the formula in Section 4 possible.</p></div>
     <div class="box" style="margin:0"><p class="bt">Consecutive index set</p><p style="margin:0">The indices run 1, 2, 3, … with <b>no gaps</b>. Not any set of labels — a run of consecutive numbers.</p></div>
-    <div class="box" style="margin:0"><p class="bt">Successive locations</p><p style="margin:0">Element 2 sits <b>immediately after</b> element 1 in memory. No gaps, no scattering. Contrast with the linked list in Segment 3.</p></div>
+    <div class="box" style="margin:0"><p class="bt">Successive locations</p><p style="margin:0">Element 2 sits <b>immediately after</b> element 1 in memory. No gaps, no scattering. Contrast with the linked list in <span class="sgtag sg3">Segment 3</span>.</p></div>
+  </div>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>Three collections. <b>Which of them are linear arrays?</b> Test each one against all three words above — one failure is enough to disqualify it.</p>
+      <ul>
+        <li><b>A.</b> <span class="mono">char name[20];</span> — a word stored one letter per cell.</li>
+        <li><b>B.</b> Three neighbouring cells holding <span class="mono">21</span>, then <span class="mono">"Rahim"</span>, then <span class="mono">3.71</span>.</li>
+        <li><b>C.</b> <span class="mono">AUTO(2000:2019)</span> — car sales, one whole number per year.</li>
+      </ul>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p><b>A and C are linear arrays. B is not.</b></p>
+      <p><b>B</b> fails <b>homogeneous</b> — an <span class="mono">int</span>, a string and a <span class="mono">double</span> are three different widths, so there is no single <b>w</b> to multiply by, and Section 4's formula has nothing to work with.</p>
+      <p><b>C</b> is the one that catches people. The indices start at <b>2000</b>, not 1 — but 2000, 2001, 2002 … are still <b>consecutive numbers</b>, which is all the definition asks for. <b>An index set does not have to start at 1.</b> Section 2 is about nothing else.</p>
+    </div>
   </div>
 
   <div class="box">
     <p class="bt">The words the exam uses</p>
-    <p style="margin:0">The number <b>n</b> of elements is called the <b>length</b> or <b>size</b> of the array.<br>
-    In <span class="mono">A[K]</span>, the number <b>K</b> is called a <b>subscript</b> or an <b>index</b>, and <span class="mono">A[K]</span> is called a <b>subscripted variable</b>.<br><br>
-    <span class="subtle">If nothing is stated, assume the index set is 1, 2, …, N. Note that C and C++ start at 0 — the textbook and the exam usually start at 1. <b>Always read the given index set before you calculate anything.</b></span></p>
+    <p>The number <b>n</b> of elements is called the <b>length</b> or <b>size</b> of the array.</p>
+    <p>In <span class="mono">A[K]</span>, the number <b>K</b> is called a <b>subscript</b> or an <b>index</b>, and <span class="mono">A[K]</span> is called a <b>subscripted variable</b>.</p>
+    <p style="margin:0"><span class="subtle">If nothing is stated, assume the index set is 1, 2, …, N. Note that C and C++ start at 0 — the textbook and the exam usually start at 1. <b>Always read the given index set before you calculate anything.</b></span></p>
   </div>
-</article>
 
-
-<!-- ============ 1b · SEE IT IN CODE ============ -->
-<article class="card numbered" id="s2" style="--accent:#0284c7">
-  <span class="badge">2</span>
-  <div class="hdr-row">
-    <div><p class="kicker">Section 2</p><h2>See it in the code you already write</h2></div>
-    <span class="timechip">⏱ 6 min</span>
-  </div>
+  <h3>The same thing, in the code you already write</h3>
 
   <div class="box info">
     <p class="bt">The idea in one sentence</p>
-    <p style="margin:0"><span class="mono">int arr[6];</span> creates <b>six ordinary int variables</b> — nothing exotic. They are just <b>specially named</b>: instead of six different names you get <b>one name and a number</b>, <span class="mono">arr[0]</span> through <span class="mono">arr[5]</span>.<br><br>
-    And because they are <b>laid side by side</b>, that number can be turned into an address by arithmetic. That is the entire trick.</p>
+    <p><span class="mono">int arr[6];</span> creates <b>six ordinary int variables</b> — nothing exotic. They are just <b>specially named</b>: instead of six different names you get <b>one name and a number</b>, <span class="mono">arr[0]</span> through <span class="mono">arr[5]</span>.</p>
+    <p style="margin:0">And because they are <b>laid side by side</b>, that number can be turned into an address by arithmetic. That is the entire trick.</p>
   </div>
 
   <p>Three lines of C++ you have written many times. <b>Run them one at a time</b> and watch the memory on the right.</p>
 
-  <div class="codearr">
-    <div class="carr-code" id="cacode"></div>
-    <div>
-      <p class="fclbl" style="text-align:center">Memory — 6 successive cells</p>
-      <div class="memcells" id="cacells"></div>
-      <p class="opdesc" id="camsg" style="text-align:center;margin-top:.7rem">Press <b>Run next line</b>.</p>
-      <div class="btnrow" style="justify-content:center;margin-bottom:0">
-        <button class="btn" id="ca-next" style="background:#0284c7">Run next line ▸</button>
-        <button class="btn ghost sm" id="ca-reset">Reset</button>
+  <div class="simbox" id="ca-sim" data-title="int arr[6] — three lines, six cells">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <button class="focusb" type="button" data-focus="ca-sim">⛶ Focus</button>
+    </div>
+    <div class="simbd">
+      <div class="codearr" style="margin:0">
+        <div class="carr-code" id="cacode"></div>
+        <div>
+          <p class="fclbl" style="text-align:center">Memory — 6 successive cells</p>
+          <div class="memcells" id="cacells"></div>
+        </div>
+      </div>
+      <p class="opdesc" id="camsg">Press <b>Run next line</b>.</p>
+      <div class="btnrow">
+        <button class="btn ghost sm" id="ca-back" data-k="back">&#9666; Back</button>
+        <button class="btn" id="ca-next" data-k="next" style="background:#0284c7">Run next line ▸</button>
+        <button class="btn ghost sm" id="ca-reset" data-k="reset">Reset</button>
       </div>
     </div>
   </div>
@@ -927,60 +1311,98 @@ body.codelight .exactbox .lo{color:#94a3b8}
   <div class="grid3">
     <div class="box warn" style="margin:0"><p class="bt">Indices start at 0</p><p style="margin:0"><span class="mono">int arr[6]</span> gives you <span class="mono">arr[0]</span> to <span class="mono">arr[5]</span>. There is <b>no</b> <span class="mono">arr[6]</span>. In C++ the lower bound is always <b>0</b>.</p></div>
     <div class="box bad" style="margin:0"><p class="bt">Nothing is cleared for you</p><p style="margin:0">Before you assign anything, the cells hold <b>whatever was already there</b> — leftover bytes from some earlier program. Reading them gives you garbage, not zero.</p></div>
-    <div class="box good" style="margin:0"><p class="bt">The cells are neighbours</p><p style="margin:0">All six sit <b>side by side</b>. That is the "successive memory locations" from the definition — and it is what makes Section 5's formula possible.</p></div>
+    <div class="box good" style="margin:0"><p class="bt">The cells are neighbours</p><p style="margin:0">All six sit <b>side by side</b>. That is the "successive memory locations" from the definition — and it is what makes Section 4's formula possible.</p></div>
   </div>
 
   <div class="bridge" style="--accent:#0284c7">
     <p class="lbl">The question to hold on to</p>
-    <p class="say">When you wrote <span class="mono">arr[9] = 100;</span> the machine jumped straight to the last cell. <b>It did not walk past the other five.</b></p>
-    <p style="margin-top:.9rem">How did it know where that cell was? That is Section 5.</p>
+    <p class="say">When you wrote <span class="mono">arr[5] = 100;</span> the machine jumped straight to the last cell. <b>It did not walk past the other four.</b></p>
+    <p style="margin-top:.9rem">How did it know where that cell was? That is Section 4.</p>
   </div>
 </article>
 
 <!-- ============ 2 · LENGTH ============ -->
-<article class="card numbered" id="s3" style="--accent:#0284c7">
-  <span class="badge">3</span>
+<article class="card numbered" id="s2" style="--accent:#0284c7" data-min="8"
+  data-key="Length = UB &minus; LB + 1. Both ends are counted, and the lower bound may be negative — then subtracting it <b>adds</b>.">
+  <span class="badge">2</span>
   <div class="hdr-row">
-    <div><p class="kicker">Section 3</p><h2>Length — and why the lower bound matters</h2></div>
+    <div><p class="kicker">Section 2</p><h2>Length — and why the lower bound matters</h2></div>
     <span class="timechip">⏱ 8 min</span>
   </div>
 
-  <p>An array's index set <b>does not have to start at 1</b>. Real ones often do not:</p>
+  <p>An array's index set <b>does not have to start at 1</b>, and in most languages it does not. <span class="mono">C</span>, <span class="mono">C++</span>, <span class="mono">Java</span> and <span class="mono">Python</span> all start at <b>0</b>; <span class="mono">Fortran</span>, <span class="mono">MATLAB</span> and <span class="mono">Julia</span> start at <b>1</b>.</p>
+
+  <p>And two languages let you <b>choose the bounds yourself</b>, which is exactly what the exam's notation means:</p>
+
+<pre class="code" style="margin:.7rem 0"><span class="c">// Pascal</span>
+<span class="k">var</span> AUTO : <span class="k">array</span>[<span class="n">2000</span>..<span class="n">2019</span>] <span class="k">of</span> <span class="t">integer</span>;
+
+<span class="c">// Ada</span>
+AUTO : <span class="k">array</span> (<span class="n">2000</span>..<span class="n">2019</span>) <span class="k">of</span> <span class="t">Integer</span>;</pre>
+
+  <p>That declaration <b>is</b> <span class="mono">AUTO(2000:2019)</span>. Two examples of the same idea:</p>
   <div class="grid2" style="margin:.9rem 0">
     <div class="box info" style="margin:0"><p class="bt">AUTO(2000:2019)</p><p style="margin:0">Car sales per year. The index <b>is the year</b> — so it starts at <b>2000</b>.</p></div>
     <div class="box info" style="margin:0"><p class="bt">STUCGPA(23001:23099)</p><p style="margin:0">CGPA per student. The index <b>is the student ID</b> — so it starts at <b>23001</b>.</p></div>
   </div>
-  <p>So the length is <b>not</b> just "the biggest index".</p>
 
-  <div class="box info">
-    <p class="bt">The formula</p>
-    <p class="mono" style="margin:0;font-size:1.15rem;font-weight:800;text-align:center;color:#0369a1">Length = UB &minus; LB + 1</p>
-    <p style="margin:.6rem 0 0"><b>UB</b> is the largest index, called the <b>upper bound</b>.<br><b>LB</b> is the smallest index, called the <b>lower bound</b>.</p>
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>Work these out on paper before you read on. Two arrays, one question each: <b>how many elements?</b></p>
+      <ol>
+        <li><span class="mono">AUTO(2000:2019)</span> — one cell for every year.</li>
+        <li><span class="mono">A(&minus;3:17)</span> — this one is a real Class Test question, and it is the one people get wrong.</li>
+      </ol>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p><b>1. Twenty.</b> Not 19. 2019 &minus; 2000 = 19 is the <b>gap</b> between the first year and the last; the first year still has to be counted.</p>
+      <p><b>2. Twenty-one.</b> 17 &minus; (&minus;3) + 1 = 17 + 3 + 1 = <b>21</b>. Subtracting a negative lower bound <b>adds</b> — and every mark in that question depends on it.</p>
+      <p>Both answers used the same rule, and it is the one below.</p>
+    </div>
+  </div>
+
+  <div class="fbox">
+    <div class="fbh"><b>Formula 1 of 3 · memorise</b></div>
+    <p class="fbf">Length = <span class="tk tk-ub">UB</span> &minus; <span class="tk tk-lb">LB</span> + 1</p>
+    <div class="fbl">
+      <div><b><span class="tk tk-ub">UB</span></b>the largest index — the <b>upper bound</b></div>
+      <div><b><span class="tk tk-lb">LB</span></b>the smallest index — the <b>lower bound</b></div>
+      <div><b>+ 1</b>because <b>both ends</b> are counted, not just the gap between them</div>
+    </div>
+    <p class="tklegend" style="padding:0 .95rem .3rem">
+      <span><span class="tk tk-ub">UB</span> upper bound</span><span><span class="tk tk-lb">LB</span> lower bound</span>
+      <span><span class="tk tk-base">BASE(LA)</span> base address</span><span><span class="tk tk-w">w</span> bytes per element</span><span><span class="tk tk-k">K</span> the index you want</span>
+    </p>
+    <p class="fbn" style="padding-top:.3rem">Those five colours do not change for the rest of the segment. The 1-D address formula in Section 4 and the 2-D one next class are built from the same five symbols.</p>
+    <p class="fbn">The other two formulas in this segment are the 1-D address in Section 4 and the 2-D address next class. Every one of them is a length calculation underneath.</p>
   </div>
 
   <p>Change the bounds and watch it. <b>The "+ 1" is the part people forget.</b></p>
 
-  <div class="ctrls" style="grid-template-columns:1fr 1fr">
-    <div class="ctrl"><label>LB — lower bound</label><input id="lb" type="number" value="1"></div>
-    <div class="ctrl"><label>UB — upper bound</label><input id="ub" type="number" value="8"></div>
-  </div>
-  <div class="fboard">
-    <span class="fline">Length = UB <span class="fc">&minus;</span> LB <span class="fc">+</span> 1</span>
-    <span class="fline">       = <span class="fv" id="l-ub">8</span> <span class="fc">&minus;</span> <span class="fv" id="l-lb">1</span> <span class="fc">+</span> 1</span>
-    <span class="fline">       = <span class="fr" id="l-res">8</span> elements</span>
-  </div>
-
-  <div class="btnrow">
-    <button class="btn sm ghost" data-lbub="1,8">A(1:8)</button>
-    <button class="btn sm ghost" data-lbub="2000,2019">AUTO(2000:2019)</button>
-    <button class="btn sm ghost" data-lbub="23001,23099">STUCGPA(23001:23099)</button>
-    <button class="btn sm ghost" data-lbub="-5,5">B(&minus;5:5)</button>
-  </div>
-
-  <div class="box warn">
-    <p class="bt">⚠ Why "+ 1"</p>
-    <p style="margin:0">Count the years from 2000 to 2019 on your fingers. It is <b>20</b>, not 19 — because <b>both ends are included</b>.<br><br>
-    2019 &minus; 2000 = 19 is the <b>gap</b> between the first and last. Add 1 to count the first one as well.</p>
+  <div class="simbox" id="len-sim" data-title="Length = UB − LB + 1">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <button class="focusb" type="button" data-focus="len-sim">⛶ Focus</button>
+    </div>
+    <div class="simbd">
+      <div class="ctrls" style="grid-template-columns:1fr 1fr;margin-top:0">
+        <div class="ctrl"><label><span class="tk tk-lb">LB</span> — lower bound</label><input id="lb" type="number" value="1"></div>
+        <div class="ctrl"><label><span class="tk tk-ub">UB</span> — upper bound</label><input id="ub" type="number" value="8"></div>
+      </div>
+      <div class="fboard">
+        <span class="fline">Length = <span class="fb-ub">UB</span> <span class="fc">&minus;</span> <span class="fb-lb">LB</span> <span class="fc">+</span> 1</span>
+        <span class="fline">       = <span class="fb-ub" id="l-ub">8</span> <span class="fc">&minus;</span> <span class="fb-lb" id="l-lb">1</span> <span class="fc">+</span> 1</span>
+        <span class="fline">       = <span class="fr" id="l-res">8</span> elements</span>
+      </div>
+      <div class="btnrow" style="margin-bottom:0">
+        <button class="btn sm ghost" data-lbub="1,8">A(1:8)</button>
+        <button class="btn sm ghost" data-lbub="2000,2019">AUTO(2000:2019)</button>
+        <button class="btn sm ghost" data-lbub="23001,23099">STUCGPA(23001:23099)</button>
+        <button class="btn sm ghost" data-lbub="-3,17">A(&minus;3:17)</button>
+      </div>
+    </div>
   </div>
 
   <div class="quiz" data-q="q1">
@@ -991,32 +1413,47 @@ body.codelight .exactbox .lo{color:#94a3b8}
       <button class="qopt" data-a="1" data-ok="1">99</button>
       <button class="qopt" data-a="2">100</button>
     </div>
-    <div class="qexp"><b>99.</b> 23099 &minus; 23001 + 1 = 99. This exact array appeared on the <b>Spring 2023</b> Mid Term paper — and the whole question depends on getting this right first.</div>
+    <div class="qexp"><b>99.</b> 23099 &minus; 23001 + 1 = 99. This exact array appeared on the <b>Spring 2023</b> Mid Term, and again as <span class="mono">STUCGPA(22001:22099)</span> in <b>Spring 2022</b> — and the whole question depends on getting this right first.</div>
   </div>
 </article>
 
 <!-- ============ 3 · IN MEMORY ============ -->
-<article class="card numbered" id="s4" style="--accent:#0284c7">
-  <span class="badge">4</span>
+<article class="card numbered" id="s3" style="--accent:#0284c7" data-min="6"
+  data-key="The computer remembers <b>one</b> address per array — the base. Everything else is calculated on demand from BASE, w and LB.">
+  <span class="badge">3</span>
   <div class="hdr-row">
-    <div><p class="kicker">Section 4</p><h2>What the computer actually remembers</h2></div>
-    <span class="timechip">⏱ 7 min</span>
+    <div><p class="kicker">Section 3</p><h2>What the computer actually remembers</h2></div>
+    <span class="timechip">⏱ 6 min</span>
   </div>
 
-  <p>Memory is a sequence of addressed locations — you saw that strip in Segment 1. An array's elements sit in <b>successive</b> cells of it.</p>
+  <p>Memory is a sequence of addressed locations — you saw that strip in <span class="sgtag sg1">Segment 1</span>. An array's elements sit in <b>successive</b> cells of it.</p>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>A program declares <span class="mono">int big[1000000];</span> and the million cells are now sitting in RAM.</p>
+      <p>For the machine to hand you <b>any</b> element you ask for — <span class="mono">big[0]</span>, <span class="mono">big[7]</span>, <span class="mono">big[999999]</span> — <b>how many addresses does it have to keep a record of?</b></p>
+      <p class="hint">Answer with a number, then say what else it would need to know.</p>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p><b>One.</b> The address of the first element, and nothing more.</p>
+      <p>It gets away with that because of the two words from Section 1: the elements are the <b>same size</b> and they sit in <b>successive</b> cells. So the address of every other element is a sum it can do, not a fact it has to store.</p>
+      <p>What else it needs to know: <b>w</b>, how many bytes one element takes, and <b>LB</b>, where the index set starts. Both are known at compile time. That is the whole inventory.</p>
+    </div>
+  </div>
 
   <div class="box info">
-    <p class="bt">The surprising part</p>
-    <p style="margin:0">The computer does <b>not</b> keep track of the address of every element.<br><br>
-    It keeps <b>only one</b>: the address of the first element, written <b>BASE(LA)</b> and called the <b>base address</b> of LA.</p>
+    <p class="bt">The name for it</p>
+    <p style="margin:0">That one address is written <b>BASE(LA)</b> and is called the <b>base address</b> of LA. Use those words in an answer — the exam does.</p>
   </div>
 
-  <p>That is all it stores. One address, plus two numbers it already knows:</p>
+  <p>So the whole inventory for an array of any size is one address and two numbers:</p>
 
   <div class="grid3">
-    <div class="box" style="margin:0"><p class="bt">BASE(LA)</p><p style="margin:0">Where the <b>first</b> element sits.</p></div>
-    <div class="box" style="margin:0"><p class="bt">w</p><p style="margin:0">The number of <b>words (bytes) per memory cell</b> for this array — 4 for an <span class="mono">int</span>, 8 for a <span class="mono">double</span>, 1 for a <span class="mono">char</span>.</p></div>
-    <div class="box" style="margin:0"><p class="bt">LB</p><p style="margin:0">Where the index set <b>starts</b>.</p></div>
+    <div class="box" style="margin:0"><p class="bt"><span class="tk tk-base">BASE(LA)</span></p><p style="margin:0">Where the <b>first</b> element sits.</p></div>
+    <div class="box" style="margin:0"><p class="bt"><span class="tk tk-w">w</span></p><p style="margin:0">The number of <b>words (bytes) per memory cell</b> for this array — 4 for an <span class="mono">int</span>, 8 for a <span class="mono">double</span>, 1 for a <span class="mono">char</span>.</p></div>
+    <div class="box" style="margin:0"><p class="bt"><span class="tk tk-lb">LB</span></p><p style="margin:0">Where the index set <b>starts</b>.</p></div>
   </div>
 
   <div class="bridge" style="--accent:#0284c7">
@@ -1027,75 +1464,98 @@ body.codelight .exactbox .lo{color:#94a3b8}
 </article>
 
 <!-- ============ 4 · THE FORMULA ============ -->
-<article class="card numbered" id="s5" style="--accent:#0284c7">
-  <span class="badge">5</span>
+<article class="card numbered" id="s4" style="--accent:#0284c7" data-min="16"
+  data-key="LOC(LA[K]) = BASE(LA) + w (K &minus; LB). It is <b>K &minus; LB</b>, never K — that is how many elements you skipped.">
+  <span class="badge">4</span>
   <div class="hdr-row">
-    <div><p class="kicker">Section 5 · the heart of the segment</p><h2>The address formula</h2></div>
-    <span class="timechip">⏱ 14 min</span>
+    <div><p class="kicker">Section 4 · the heart of the segment</p><h2>The address formula</h2></div>
+    <span class="timechip">⏱ 16 min</span>
   </div>
-
-  <div class="box info">
-    <p class="bt">Learn this. Everything in Segment 2 is built on it.</p>
-    <p class="mono" style="margin:0;font-size:clamp(.95rem,4vw,1.25rem);font-weight:800;text-align:center;color:#0369a1">
-      LOC(LA[K]) = BASE(LA) + w (K &minus; LB)</p>
-  </div>
-
-  <p>Read it in plain words: <b>start at the beginning, then jump forward by however many elements you have skipped, each one w bytes wide.</b></p>
 
   <h3>Do not memorise it — build it</h3>
-  <p>Take an array with base address <b>200</b>, <b>4</b> bytes per element, lower bound <b>1</b>. Where does each element sit? Work down the list.</p>
+  <p>Take an array with base address <b>200</b>, <b>4</b> bytes per element, lower bound <b>1</b>. Where does each element sit? <b>Work down the list</b>, and watch the third column.</p>
 
-  <div class="dhead"><span>Element</span><span>Index K</span><span>Skipped</span><span>Address</span></div>
-  <div class="deriv" id="deriv">
-    <div class="drow"><span class="dlbl">1st</span><span>K = 1</span><span class="dskip">0 elements</span><span class="daddr">200 &nbsp;=&nbsp; BASE</span></div>
-    <div class="drow"><span class="dlbl">2nd</span><span>K = 2</span><span class="dskip">1 element</span><span class="daddr">204 &nbsp;=&nbsp; BASE + 4&times;1</span></div>
-    <div class="drow"><span class="dlbl">3rd</span><span>K = 3</span><span class="dskip">2 elements</span><span class="daddr">208 &nbsp;=&nbsp; BASE + 4&times;2</span></div>
-    <div class="drow"><span class="dlbl">4th</span><span>K = 4</span><span class="dskip">3 elements</span><span class="daddr">212 &nbsp;=&nbsp; BASE + 4&times;3</span></div>
-    <div class="drow"><span class="dlbl">&hellip;</span><span>&hellip;</span><span class="dskip">&hellip;</span><span class="daddr">&hellip;</span></div>
-    <div class="drow final"><span class="dlbl">Kth</span><span>K</span><span class="dskip">K &minus; LB</span><span class="daddr">BASE + w (K &minus; LB)</span></div>
-  </div>
-  <div class="btnrow">
-    <button class="btn" id="der-go" style="background:#0284c7">Next row ▸</button>
-    <button class="btn ghost sm" id="der-all">Show all</button>
-    <button class="btn ghost sm" id="der-reset">Reset</button>
+  <div class="simbox" id="der-sim" data-title="Building the address formula, one row at a time">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <button class="focusb" type="button" data-focus="der-sim">⛶ Focus</button>
+    </div>
+    <div class="simbd">
+      <div class="dhead"><span>Element</span><span>Index K</span><span>Skipped</span><span>Address</span></div>
+      <div class="deriv" id="deriv" style="margin-top:0">
+        <div class="drow"><span class="dlbl">1st</span><span>K = 1</span><span class="dskip">0 elements</span><span class="daddr">200 &nbsp;=&nbsp; BASE</span></div>
+        <div class="drow"><span class="dlbl">2nd</span><span>K = 2</span><span class="dskip">1 element</span><span class="daddr">204 &nbsp;=&nbsp; BASE + 4&times;1</span></div>
+        <div class="drow"><span class="dlbl">3rd</span><span>K = 3</span><span class="dskip">2 elements</span><span class="daddr">208 &nbsp;=&nbsp; BASE + 4&times;2</span></div>
+        <div class="drow"><span class="dlbl">4th</span><span>K = 4</span><span class="dskip">3 elements</span><span class="daddr">212 &nbsp;=&nbsp; BASE + 4&times;3</span></div>
+        <div class="drow"><span class="dlbl">&hellip;</span><span>&hellip;</span><span class="dskip">&hellip;</span><span class="daddr">&hellip;</span></div>
+        <div class="drow final"><span class="dlbl">Kth</span><span>K</span><span class="dskip"><span class="tk tk-k">K</span> &minus; <span class="tk tk-lb">LB</span></span><span class="daddr"><span class="tk tk-base">BASE(LA)</span> + <span class="tk tk-w">w</span> (<span class="tk tk-k">K</span> &minus; <span class="tk tk-lb">LB</span>)</span></div>
+      </div>
+      <div class="btnrow" style="margin-bottom:0">
+        <button class="btn ghost sm" id="der-back" data-k="back">&#9666; Back</button>
+        <button class="btn" id="der-go" data-k="next" style="background:#0284c7">Next row ▸</button>
+        <button class="btn ghost sm" id="der-all">Show all</button>
+        <button class="btn ghost sm" id="der-reset" data-k="reset">Reset</button>
+      </div>
+    </div>
   </div>
 
   <div class="box good">
     <p class="bt">There is the whole derivation</p>
-    <p style="margin:0">Look at the <b>Skipped</b> column: 0, 1, 2, 3 … while the index runs 1, 2, 3, 4. The skipped count is always <b>one less</b> than the index — because the first element skips nothing.<br><br>
-    In general that is <b>K &minus; LB</b>. Each skipped element costs <b>w</b> bytes. So you jump <b>w (K &minus; LB)</b> bytes past the base:</p>
-    <p class="mono" style="margin:.7rem 0 0;font-size:1.05rem;font-weight:800;text-align:center;color:#075985">
-      LOC(LA[K]) = BASE(LA) + w (K &minus; LB)</p>
+    <p>Look at the <b>Skipped</b> column: 0, 1, 2, 3 … while the index runs 1, 2, 3, 4. The skipped count is always <b>one less</b> than the index — because the first element skips nothing.</p>
+    <p style="margin:0">In general that is <span class="tk tk-k">K</span> &minus; <span class="tk tk-lb">LB</span>. Each skipped element costs <span class="tk tk-w">w</span> bytes. So you jump <span class="tk tk-w">w</span> (<span class="tk tk-k">K</span> &minus; <span class="tk tk-lb">LB</span>) bytes past the base.</p>
+  </div>
+
+  <div class="fbox">
+    <div class="fbh"><b>Formula 2 of 3 · memorise</b></div>
+    <p class="fbf">LOC(LA[<span class="tk tk-k">K</span>]) = <span class="tk tk-base">BASE(LA)</span> + <span class="tk tk-w">w</span> (<span class="tk tk-k">K</span> &minus; <span class="tk tk-lb">LB</span>)</p>
+    <div class="fbl">
+      <div><b><span class="tk tk-base">BASE(LA)</span></b>the address of the <b>first</b> element — the only one stored</div>
+      <div><b><span class="tk tk-w">w</span></b>bytes per element: 1 for <span class="mono">char</span>, 4 for <span class="mono">int</span>, 8 for <span class="mono">double</span></div>
+      <div><b><span class="tk tk-k">K</span> &minus; <span class="tk tk-lb">LB</span></b>how many elements you <b>skip</b> to reach the K<sup>th</sup> — <b>not</b> K</div>
+    </div>
+    <p class="tklegend" style="padding:0 .95rem .3rem">
+      <span><span class="tk tk-base">BASE(LA)</span> base address</span><span><span class="tk tk-w">w</span> bytes each</span>
+      <span><span class="tk tk-k">K</span> the index you want</span><span><span class="tk tk-lb">LB</span> lower bound</span>
+    </p>
+    <p class="fbn">In plain words: <b>start at the beginning, then jump forward by however many elements you have skipped, each one w bytes wide.</b></p>
   </div>
 
   <div class="box warn">
     <p class="bt">Check it against the first row</p>
-    <p style="margin:0">Put K = LB into the formula: <span class="mono">BASE + w(LB &minus; LB) = BASE + 0 = BASE</span>.<br><br>
-    The first element sits exactly at the base address, which is what we said in Section 4. <b>A formula that survives its own first case is one you can trust.</b></p>
+    <p>Put K = LB into the formula: <span class="mono">BASE + w(LB &minus; LB) = BASE + 0 = BASE</span>.</p>
+    <p style="margin:0">The first element sits exactly at the base address, which is what we said in Section 3. <b>A formula that survives its own first case is one you can trust.</b></p>
   </div>
 
   <h3>Now use it</h3>
 
   <p><b>Set the numbers, then click any cell.</b> Watch the formula fill in.</p>
 
-  <div class="ctrls">
-    <div class="ctrl"><label>BASE(LA)</label><input id="f-base" type="number" value="200"></div>
-    <div class="ctrl"><label>w — bytes each</label><input id="f-w" type="number" value="4"></div>
-    <div class="ctrl"><label>LB — lower bound</label><input id="f-lb" type="number" value="1"></div>
-    <div class="ctrl"><label>N — how many</label><input id="f-n" type="number" value="8"></div>
+  <div class="simbox" id="loc-sim" data-title="LOC(LA[K]) — click any cell">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <button class="focusb" type="button" data-focus="loc-sim">⛶ Focus</button>
+    </div>
+    <div class="simbd">
+      <div class="ctrls" style="margin-top:0">
+        <div class="ctrl"><label><span class="tk tk-base">BASE(LA)</span></label><input id="f-base" type="number" value="200"></div>
+        <div class="ctrl"><label><span class="tk tk-w">w</span> — bytes each</label><input id="f-w" type="number" value="4"></div>
+        <div class="ctrl"><label><span class="tk tk-lb">LB</span> — lower bound</label><input id="f-lb" type="number" value="1"></div>
+        <div class="ctrl"><label>N — how many</label><input id="f-n" type="number" value="8"></div>
+      </div>
+
+      <div class="btnrow">
+        <button class="btn sm ghost" data-preset2="200,4,1,8">int LA(1:8) · base 200</button>
+        <button class="btn sm ghost" data-preset2="300,8,1,8">double · w = 8</button>
+        <button class="btn sm ghost" data-preset2="1000,4,23001,8">STUCGPA(23001:…)</button>
+        <button class="btn sm ghost" data-preset2="300,4,-3,10">A(&minus;3:17) · the Class Test</button>
+      </div>
+
+      <div class="astrip" id="astrip"></div>
+      <p class="subtle" style="text-align:center;margin-top:-.4rem">index on top &nbsp;·&nbsp; value in the box &nbsp;·&nbsp; <b>address underneath</b></p>
+
+      <div class="fboard" id="fboard" style="margin-bottom:0"></div>
+    </div>
   </div>
-
-  <div class="btnrow">
-    <button class="btn sm ghost" data-preset2="200,4,1,8">int LA(1:8) · base 200</button>
-    <button class="btn sm ghost" data-preset2="300,8,1,8">double · w = 8</button>
-    <button class="btn sm ghost" data-preset2="1000,4,23001,8">STUCGPA(23001:…)</button>
-    <button class="btn sm ghost" data-preset2="500,1,0,8">char · w = 1, LB = 0</button>
-  </div>
-
-  <div class="astrip" id="astrip"></div>
-  <p class="subtle" style="text-align:center;margin-top:-.4rem">index on top &nbsp;·&nbsp; value in the box &nbsp;·&nbsp; <b>address underneath</b></p>
-
-  <div class="fboard" id="fboard"></div>
 
   <div class="box good">
     <p class="bt">Notice what the formula does NOT contain</p>
@@ -1126,18 +1586,48 @@ body.codelight .exactbox .lo{color:#94a3b8}
     <p style="margin-top:.9rem">That is what <b>random access</b> means, and it is the array's one superpower. <span class="sgtag sg3">Segment 3</span> shows you a structure that gives it up — and what it buys in return.</p>
   </div>
 
+  <h3>Now the exam's own numbers</h3>
+  <p>Section 2 already answered part (i) of this question. You now have everything you need for part (ii).</p>
+
+  <div class="pastq">
+    <div class="pqh"><span class="pqs">Past exam</span><span class="pqw">Class Test I (Set A) · Q5</span><span class="pqm">1 + 3 marks</span></div>
+    <p class="pqt">"Consider a 1D array <b>A (&minus;3 : 17)</b>.<br>
+    i) Find the length of the array A.<br>
+    ii) Suppose <b>Base(A) = 300</b> and <b>w = 4</b> words per memory cell for A. Find the address of the element <b>A[5]</b>."</p>
+  </div>
+
+  <div class="quiz" data-q="q2">
+    <div class="qh">Quick check &middot; part (ii) of the exam question above</div>
+    <div class="qq">Work it out first, then pick. What is <span class="mono">LOC(A[5])</span>?</div>
+    <div class="qopts">
+      <button class="qopt" data-a="0">308</button>
+      <button class="qopt" data-a="1" data-ok="1">332</button>
+      <button class="qopt" data-a="2">320</button>
+    </div>
+    <div class="qexp">
+      <b>332.</b> Section 2 already gave part (i): Length = 17 &minus; (&minus;3) + 1 = <b>21</b> elements. Part (ii) is the formula, substituted:
+      <p class="mono" style="margin:.6rem 0;font-size:.9rem;line-height:1.9;background:#f8fafc;border:1px solid var(--line);border-radius:.5rem;padding:.7rem .85rem">
+      LOC(A[K]) = BASE(A) + w (K &minus; LB)<br>
+      LOC(A[5]) = 300 + 4 &times; (5 &minus; (&minus;3))<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 300 + 4 &times; 8<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 300 + 32 = <b>332</b></p>
+      <b>308 is where the marks go.</b> It comes from writing <span class="mono">5 &minus; 3 = 2</span>. The lower bound is <b>&minus;3</b>, so subtracting it <b>adds</b>: <span class="mono">5 &minus; (&minus;3) = 8</span>. Count the indices — &minus;3, &minus;2, &minus;1, 0, 1, 2, 3, 4, 5 — and <span class="mono">A[5]</span> is the <b>ninth</b> element, with eight in front of it.<br><br>
+      <b>320</b> is the other classic: multiplying by <b>K</b> instead of <b>K &minus; LB</b>.<br><br>
+      Set the last preset on the simulator above and click the cell marked <span class="mono">[5]</span>. It reads 332. And in the exam, <b>show the substitution line</b> — both marks for part (ii) are in the working, not the number.
+    </div>
+  </div>
   <div class="digwrap" style="--accent:#0284c7">
     <p class="dighead">Dig deeper<span></span></p>
     <details class="dig"><summary><span class="dicon">?</span>Why does C and C++ start at 0?</summary><div>
       Because it makes the formula simpler. With <b>LB = 0</b> the <span class="mono">(K &minus; LB)</span> term becomes just <span class="mono">K</span>:<br><br>
       <span class="mono">LOC(a[K]) = BASE + w × K</span><br><br>
       One subtraction saved on every single array access, in every program ever written. That is why the language designers chose it.<br><br>
-      <b>But the exam usually gives you LB = 1 or something like 23001</b> — so never assume. Read the index set first.
+      <b>But the exam usually gives you LB = 1 or something like 23001 or &minus;3</b> — so never assume. Read the index set first.
     </div></details>
     <details class="dig"><summary><span class="dicon">?</span>What exactly is "w"?</summary><div>
       <b>w is the number of bytes one element occupies</b> — sometimes called "words per memory cell" in the textbook.<br><br>
       From Segment 1: <span class="mono">char</span> = 1, <span class="mono">int</span> = 4, <span class="mono">float</span> = 4, <span class="mono">double</span> = 8.<br><br>
-      Exam questions state it directly — <em>"w = 4 bytes per memory cell"</em> — so you never have to guess. Just substitute it.
+      Exam questions state it directly — <em>"w = 4 words per memory cell"</em> — so you never have to guess. Just substitute it.
     </div></details>
     <details class="dig"><summary><span class="dicon">?</span>What happens if I ask for LA[K] outside the bounds?</summary><div>
       <b>The formula still works — and that is the danger.</b> Ask for <span class="mono">LA[100]</span> in an 8-element array and it happily computes <span class="mono">BASE + w × 99</span> and reads whatever is sitting there.<br><br>
@@ -1146,27 +1636,18 @@ body.codelight .exactbox .lo{color:#94a3b8}
     </div></details>
   </div>
 
-  <div class="quiz" data-q="q2">
-    <div class="qh">Quick check</div>
-    <div class="qq">An array of <span class="mono">double</span> has BASE = 500, w = 8, LB = 1. What is the address of element 6?</div>
-    <div class="qopts">
-      <button class="qopt" data-a="0">548</button>
-      <button class="qopt" data-a="1" data-ok="1">540</button>
-      <button class="qopt" data-a="2">500 + 6 × 8 = 548</button>
-    </div>
-    <div class="qexp"><b>540.</b> LOC = 500 + 8 × (6 &minus; 1) = 500 + 8 × 5 = 500 + 40 = <b>540</b>.<br><br>Option 3 is the classic mistake: multiplying by <b>K</b> instead of <b>K &minus; LB</b>. You have skipped <b>5</b> elements to reach the 6th, not 6.</div>
-  </div>
 </article>
 
 <!-- ============ 5 · TRAVERSAL ============ -->
-<article class="card numbered" id="s6" style="--accent:#16a34a">
-  <span class="badge">6</span>
+<article class="card numbered" id="s5" style="--accent:#16a34a" data-min="12"
+  data-key="Every traversal module is the same four lines: initialise, loop the <b>real</b> index range, test, update. Touching every element is O(n).">
+  <span class="badge">5</span>
   <div class="hdr-row">
-    <div><p class="kicker">Section 6</p><h2>Traversal — visiting every element</h2></div>
-    <span class="timechip">⏱ 10 min</span>
+    <div><p class="kicker">Section 5</p><h2>Traversal — visiting every element</h2></div>
+    <span class="timechip">⏱ 12 min</span>
   </div>
 
-  <p>Traversal is the first of the seven operations from Segment 1: <b>access each element exactly once so it can be processed</b>.</p>
+  <p>Traversal is the first of the seven operations from <span class="sgtag sg1">Segment 1</span>: <b>access each element exactly once so it can be processed</b>.</p>
 
   <div class="algo">
     <div class="ahead"><b>Algorithm (Traversing a Linear Array).</b> Here LA is a linear array with lower bound LB and upper bound UB. This algorithm applies an operation PROCESS to each element of LA.</div>
@@ -1182,37 +1663,111 @@ body.codelight .exactbox .lo{color:#94a3b8}
 
   <div class="box warn">
     <p class="bt">⚠ Caution, straight from the textbook</p>
-    <p style="margin:0">The operation PROCESS may use variables that must be <b>initialized before</b> it is applied to any element. Your algorithm may need an extra initialising step.<br><br>
-    In plain words: <b>if you are counting, set the counter to 0 first.</b> Forgetting Step 1 is the most common way to lose marks on this question.</p>
+    <p>The operation PROCESS may use variables that must be <b>initialized before</b> it is applied to any element. Your algorithm may need an extra initialising step.</p>
+    <p style="margin:0">In plain words: <b>if you are counting, set the counter to 0 first.</b> Forgetting Step 1 is the most common way to lose marks on this question.</p>
   </div>
 
   <h3>The worked example</h3>
   <p>The array <span class="mono">AUTO(2000:2019)</span> records how many cars were sold each year. <b>Find NUM — the number of years in which more than 300 were sold.</b></p>
 
-  <div class="algo">
-    <div class="body">
-<span class="st">1. <span class="kw">Set</span> <span class="vr">NUM</span> <span class="op">:=</span> 0.</span>
-<span class="st">2. <span class="kw">Repeat for</span> <span class="vr">K</span> = 2000 <span class="kw">to</span> 2019:</span>
-<span class="st">        <span class="kw">If</span> <span class="vr">AUTO</span>[<span class="vr">K</span>] &gt; 300, <span class="kw">then</span>: <span class="kw">Set</span> <span class="vr">NUM</span> <span class="op">:=</span> <span class="vr">NUM</span> + 1.</span>
-<span class="st">   <span class="cm">[End of loop]</span></span>
-<span class="st">3. <span class="kw">Return</span>.</span>
+  <p><b>Step it line by line.</b> The module is on the right; the line being executed is marked, and the <span class="mono">If</span> is tinted <b class="hl-good">green</b> when it is true and <b class="hl-bad">red</b> when it is false — every pass, whichever way it goes.</p>
+
+  <div class="simbox" id="trav-sim" data-title="Traversing AUTO(2000:2019)">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <button class="focusb" type="button" data-focus="trav-sim">⛶ Focus</button>
+    </div>
+    <div class="simgrid2">
+      <div class="simcol">
+        <div class="astrip" id="tstrip" style="margin-top:0"></div>
+        <div class="twatch">
+          <div class="tw2"><p class="tk2">K</p><p class="tv2" id="t-k">—</p></div>
+          <div class="tw2"><p class="tk2">AUTO[K]</p><p class="tv2" id="t-v">—</p></div>
+          <div class="tw2" id="t-numbox"><p class="tk2">NUM</p><p class="tv2" id="t-num">—</p></div>
+        </div>
+      </div>
+      <div class="simcol">
+        <div class="algo live" style="margin:0">
+          <div class="body" id="tcode">
+<span class="st" data-l="0">1. <span class="kw">Set</span> <span class="vr">NUM</span> <span class="op">:=</span> 0.</span>
+<span class="st" data-l="1">2. <span class="kw">Repeat for</span> <span class="vr">K</span> = 2000 <span class="kw">to</span> 2019:</span>
+<span class="st" data-l="2">3.       <span class="kw">If</span> <span class="vr">AUTO</span>[<span class="vr">K</span>] &gt; 300, <span class="kw">then</span>:<span class="verd" data-v=""></span></span>
+<span class="st" data-l="3">4.             <span class="kw">Set</span> <span class="vr">NUM</span> <span class="op">:=</span> <span class="vr">NUM</span> + 1.</span>
+<span class="st" data-l="4">   <span class="cm">[End of loop]</span></span>
+<span class="st" data-l="5">5. <span class="kw">Write</span>: <span class="vr">NUM</span>. <span class="kw">Return</span>.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="opdesc" id="t-msg" style="margin:.85rem .9rem 0">Press <b>Next</b> to run line 1.</p>
+    <div class="btnrow" style="padding:.75rem .9rem .95rem;margin-bottom:0">
+      <button class="btn ghost sm" id="t-back" data-k="back">◂ Back</button>
+      <button class="btn" id="t-next" data-k="next" style="background:#16a34a">Next ▸</button>
+      <button class="btn ghost sm" id="t-play">▶ Play</button>
+      <button class="btn ghost sm" id="t-reset" data-k="reset">Reset</button>
+      <span class="tstep mono" id="t-step">0 / 0</span>
     </div>
   </div>
 
-  <p>Step through it. Green means the year counted.</p>
+  <h3>The same shape, on four different exams</h3>
+  <p>The module question has been set four times, and it has been the <b>same question</b> every time — only the story and the threshold change.</p>
 
-  <div class="astrip" id="tstrip"></div>
-  <div class="twatch">
-    <div class="tw2"><p class="tk2">K (the year)</p><p class="tv2" id="t-k">—</p></div>
-    <div class="tw2"><p class="tk2">AUTO[K]</p><p class="tv2" id="t-v">—</p></div>
-    <div class="tw2" id="t-numbox"><p class="tk2">NUM</p><p class="tv2" id="t-num">0</p></div>
+  <div class="pastq">
+    <div class="pqh"><span class="pqs">Past exam</span><span class="pqw">Class Test I (Set B) · Q3</span><span class="pqm">8 marks</span></div>
+    <p class="pqt">"Suppose a company keeps a linear array <b>YEAR (1950 : 2024)</b> such that <b>YEAR[K]</b> contains the number of employees born in year K. Write a module for each of the following tasks:<br>
+    i) To print each of the years in which <b>no employee was born</b>.<br>
+    ii) To find the number N of years in which <b>more than 11 employees</b> were born."</p>
   </div>
-  <p class="opdesc" id="t-msg">Press <b>Next</b> to start at K = 2000.</p>
-  <div class="btnrow">
-    <button class="btn" id="t-next" style="background:#16a34a">Next year ▸</button>
-    <button class="btn ghost sm" id="t-play">▶ Play</button>
-    <button class="btn ghost sm" id="t-reset">Reset</button>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p><b>Write both modules out.</b> You have just watched the identical algorithm run on <span class="mono">AUTO</span> — this is the same four lines with different numbers in them.</p>
+      <p class="hint">Two things decide the marks before you write anything: <b>what does the loop run from and to</b>, and <b>which of the two parts needs an initialising step</b>?</p>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the model answer">Show the model answer</button>
+    <div class="ta">
+      <p><b>(i) Print the years in which no employee was born</b></p>
+      <div class="algo" style="margin:.5rem 0 1rem">
+        <div class="body">
+<span class="st">1. <span class="kw">Repeat for</span> <span class="vr">K</span> = 1950 <span class="kw">to</span> 2024:</span>
+<span class="st">        <span class="kw">If</span> <span class="vr">YEAR</span>[<span class="vr">K</span>] = 0, <span class="kw">then</span>: <span class="kw">Write</span>: <span class="vr">K</span>.</span>
+<span class="st">        <span class="cm">[End of If structure]</span></span>
+<span class="st">   <span class="cm">[End of loop]</span></span>
+<span class="st">2. <span class="kw">Return</span>.</span>
+        </div>
+      </div>
+      <p><b>(ii) Count the years with more than 11 employees</b></p>
+      <div class="algo" style="margin:.5rem 0 1rem">
+        <div class="body">
+<span class="st">1. <span class="cm">[Initialize]</span> <span class="kw">Set</span> <span class="vr">N</span> <span class="op">:=</span> 0.</span>
+<span class="st">2. <span class="kw">Repeat for</span> <span class="vr">K</span> = 1950 <span class="kw">to</span> 2024:</span>
+<span class="st">        <span class="kw">If</span> <span class="vr">YEAR</span>[<span class="vr">K</span>] &gt; 11, <span class="kw">then</span>: <span class="kw">Set</span> <span class="vr">N</span> <span class="op">:=</span> <span class="vr">N</span> + 1.</span>
+<span class="st">        <span class="cm">[End of If structure]</span></span>
+<span class="st">   <span class="cm">[End of loop]</span></span>
+<span class="st">3. <span class="kw">Write</span>: <span class="vr">N</span>.</span>
+<span class="st">4. <span class="kw">Return</span>.</span>
+        </div>
+      </div>
+      <p><b>The two things, answered.</b> The loop runs <b>1950 to 2024</b>, not 1 to 75 — the index <b>is</b> the year. And part (ii) needs <span class="mono">Set N := 0</span> while part (i) does not, because (i) counts nothing.</p>
+      <p><b>One more slip to avoid.</b> Part (i) prints <b>K</b>, the year — not <span class="mono">YEAR[K]</span>, the number of employees born in it.</p>
+    </div>
   </div>
+
+<details class="prob lc">
+    <summary><span class="plogo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.6 2.3a1.4 1.4 0 0 1 2 2l-4.1 4.2 5.3 5.4a1.4 1.4 0 1 1-2 2l-6.3-6.4a1.4 1.4 0 0 1 0-2z" fill="#ffa116"/><path d="M9.5 7.5 4.9 12.2a5.6 5.6 0 0 0 0 7.9 5.6 5.6 0 0 0 7.9 0l2-2a1.4 1.4 0 0 0-2-2l-2 2a2.8 2.8 0 0 1-4-4l4.6-4.6z" fill="#3e3e3e"/><path d="M12.4 17.2h8.2a1.35 1.35 0 1 0 0-2.7h-8.2a1.35 1.35 0 1 0 0 2.7z" fill="#b3b3b3"/></svg></span><b style="flex:1;min-width:0">Practice · Running Sum of 1d Array</b><span class="psrc">LeetCode</span></summary>
+    <div>
+      <p style="margin:0"><b>Problem.</b> Given an array <span class="mono">nums</span>, return an array <span class="mono">runningSum</span> where <span class="mono">runningSum[i]</span> is the sum of <span class="mono">nums[0] … nums[i]</span>.</p>
+      <div class="iogrid">
+        <div class="io"><span class="iok">Input</span><span class="mono">nums = [1, 2, 3, 4]</span><span class="iok">Output</span><span class="mono">[1, 3, 6, 10]</span>
+          <em><span class="mono">[1, 1+2, 1+2+3, 1+2+3+4]</span>.</em></div>
+        <div class="io"><span class="iok">Input</span><span class="mono">nums = [3, 1, 2, 10, 1]</span><span class="iok">Output</span><span class="mono">[3, 4, 6, 16, 17]</span>
+          <em>Each answer is the one before it plus the current element — so one pass is enough.</em></div>
+      </div>
+      <p style="margin:.7rem 0 0"><b>Why this one, today.</b> It is the traversal algorithm above with <span class="mono">PROCESS</span> replaced by one addition, and it is the smallest problem where the <b>obvious</b> solution — re-add everything from the start for each i — is O(n²) while the traversal is O(n). <span class="pconstraint">1 &le; nums.length &le; 1000</span> is small enough that both pass, so the point is the habit, not the verdict.</p>
+      <a class="plink" href="https://leetcode.com/problems/running-sum-of-1d-array/description/" target="_blank" rel="noopener">Open on LeetCode &nbsp;&rarr;</a>
+    </div>
+  </details>
 
   <div class="bridge" style="--accent:#16a34a">
     <p class="lbl">The cost</p>
@@ -1222,17 +1777,22 @@ body.codelight .exactbox .lo{color:#94a3b8}
 </article>
 
 <!-- ============ CLOSING ============ -->
-<article class="card numbered" id="s7" style="--accent:#0284c7">
-  <span class="badge">7</span>
+<article class="card numbered" id="s6" style="--accent:#0284c7" data-min="2">
+  <span class="badge">6</span>
   <div class="hdr-row">
     <div><p class="kicker">Before you go</p><h2>Three things to take home</h2></div>
     <span class="timechip">⏱ 2 min</span>
   </div>
 
   <div class="grid3">
-    <div class="box info" style="margin:0"><p class="bt">1 · Length</p><p class="mono" style="margin:0;font-weight:800">UB &minus; LB + 1</p><p style="margin:.4rem 0 0">Both ends are counted. Never forget the + 1.</p></div>
+    <div class="box info" style="margin:0"><p class="bt">1 · Length</p><p class="mono" style="margin:0;font-weight:800">UB &minus; LB + 1</p><p style="margin:.4rem 0 0">Both ends are counted. Never forget the + 1, and remember that a negative LB <b>adds</b>.</p></div>
     <div class="box good" style="margin:0"><p class="bt">2 · Address</p><p class="mono" style="margin:0;font-weight:800;font-size:.86rem">BASE + w (K &minus; LB)</p><p style="margin:.4rem 0 0">It is <b>K &minus; LB</b>, not K. You skipped that many elements.</p></div>
     <div class="box warn" style="margin:0"><p class="bt">3 · Why it is fast</p><p style="margin:0">One element is <b>O(1)</b>, because it is <b>calculated</b>, never searched. All elements is <b>O(n)</b>.</p></div>
+  </div>
+
+  <div class="box">
+    <p class="bt">Before the next class</p>
+    <p style="margin:0">Write out, on a blank page and without looking: the definition of a linear array, both formulas, and the traversal module for <span class="mono">YEAR(1950:2024)</span>. <b>If you cannot write it, you have not learned it</b> — and all three are worth marks in the Mid Term.</p>
   </div>
 
   <div class="bridge" style="--accent:#0284c7">
@@ -1248,7 +1808,7 @@ body.codelight .exactbox .lo{color:#94a3b8}
 </article>
 
 <nav class="pagenav" aria-label="Course navigation">
-  <a class="pgn pv" href="../../exam-prep/interview-bank.html"><span class="ar">&#8592;</span><span class="tx"><em>Previous</em><b>Interview Question Bank</b></span></a>
+  <a class="pgn pv" href="../01-introduction/05-time-and-space-complexity.html"><span class="ar">&#8592;</span><span class="tx"><em>Previous</em><b>Time &amp; space complexity</b></span></a>
   <a class="pgn home" href="../../index.html"><span class="ar">&#9776;</span><b>All classes</b></a>
   <a class="pgn nx" href="02-array-operations.html"><span class="ar">&#8594;</span><span class="tx"><em>Next</em><b>Operations on an array</b></span></a>
 </nav>
@@ -1260,7 +1820,7 @@ body.codelight .exactbox .lo{color:#94a3b8}
 <header class="hero" style="background:linear-gradient(160deg,#0f172a 0%,#4c0519 55%,#881337 100%)">
   <div class="wrap">
     <p class="eyebrow" style="color:#fda4af">Exam &amp; Interview · CSE-2321</p>
-    <h1>Where this class <em>shows up on paper</em></h1>
+    <h1>Where this class <em>shows up in the exam</em></h1>
     <p class="hero-lede">Segment 2 is the heaviest-scoring block of the Mid Term. This class is the foundation the rest of it stands on.</p>
     <div class="byline">
       <span class="av">JA</span>
@@ -1272,8 +1832,57 @@ body.codelight .exactbox .lo{color:#94a3b8}
 <main class="wrap">
 
 <article class="card" style="--accent:#e11d48">
-  <p class="kicker">Real past question</p>
-  <h2>The traversal module — Spring 2023, Q2(a)</h2>
+  <p class="kicker">Start here</p>
+  <h2>What this class is worth</h2>
+  <p class="subtle" style="margin-top:.4rem">Counted across the ten Mid Term and Class Test exams on file. Nothing here is a prediction — it is what has already been asked.</p>
+
+  <div class="freqt">
+    <div class="freqr top">
+      <span class="fqn">Write a <b>module</b> over a linear array</span><span class="fqc">4 exams</span>
+      <span class="fqw">YEAR(1950:2024) · YEAR(1950:2023) · STUCGPA(23001:23099) · STUCGPA(22001:22099). Worth 8 marks on a Class Test, 1.5–2 on a Mid Term.</span>
+    </div>
+    <div class="freqr top">
+      <span class="fqn">"What is a <b>linear array</b>? How can we represent it in memory?"</span><span class="fqc">3 exams</span>
+      <span class="fqw">Class Test I (Set B) Q5 · Autumn 2023 Q2(a) · Autumn 2022 Q2(a). Word for word, every time.</span>
+    </div>
+    <div class="freqr">
+      <span class="fqn"><b>1-D address</b> — length, then LOC of one element</span><span class="fqc">1 exam</span>
+      <span class="fqw">Class Test I (Set A) Q5, with a <b>negative</b> lower bound. Its multi-dimensional big brother is on <b>every</b> Mid Term.</span>
+    </div>
+    <div class="freqr">
+      <span class="fqn">Insert / delete counts on <span class="mono">A C F H K M O R T _</span></span><span class="fqc">2 exams</span>
+      <span class="fqw">Both Class Tests. That is <b>Class 2</b>, not this one — but it is the same array, so it is worth knowing it is coming.</span>
+    </div>
+  </div>
+
+  <div class="box info">
+    <p class="bt">The honest summary</p>
+    <p style="margin:0">This class on its own is worth <b>a few marks</b>. What it is really doing is making the rest of the segment possible: the 2-D address question — on <b>every single Mid Term</b> — is this formula with the skipping counted across rows, and the module question is the traversal algorithm with a different story attached.</p>
+  </div>
+</article>
+
+<article class="card" style="--accent:#e11d48">
+  <p class="kicker">Real past question · asked three times</p>
+  <h2>"What is a linear array?"</h2>
+
+  <div class="box bad">
+    <p class="bt">Class Test I (Set B) · Q5 · 4 marks &nbsp;·&nbsp; Autumn 2023 · Q2(a) · 1 mark · CO1 &nbsp;·&nbsp; Autumn 2022 · Q2(a) · 1 mark · CO1</p>
+    <p style="margin:0"><em>"What is <b>linear array</b>? How can we represent a linear array in memory?"</em></p>
+  </div>
+
+  <details class="dig"><summary><span class="dicon">?</span>Model answer — both halves</summary><div>
+    <b>It is two questions, and most answers only give the first.</b> On the 4-mark version that is half the marks gone.<br><br>
+    <b>Part 1 — the definition.</b> A linear array is a list of a finite number <b>n</b> of <b>homogeneous</b> data elements (elements of the same type) such that <b>(a)</b> the elements are referenced respectively by an index set consisting of <b>n consecutive numbers</b>, and <b>(b)</b> the elements are stored respectively in <b>successive memory locations</b>.<br><br>
+    <b>Part 2 — the representation.</b> The computer does <b>not</b> store the address of every element. It stores <b>one</b> address, <span class="mono">BASE(LA)</span>, the address of the first element. Given the number of bytes per element <b>w</b> and the lower bound <b>LB</b>, the address of any element is computed:<br><br>
+    <span class="mono">LOC(LA[K]) = BASE(LA) + w (K &minus; LB)</span><br><br>
+    Because the elements are the same size and sit in successive cells, this is <b>one multiplication and two additions</b> for any K — so access is <b>O(1)</b>, and no other element is ever examined.<br><br>
+    <b>Draw the strip.</b> On the 4-mark version, a row of boxes with the index above and the address below earns the second half of the marks faster than another paragraph does.
+  </div></details>
+</article>
+
+<article class="card" style="--accent:#e11d48">
+  <p class="kicker">Real past question · asked four times</p>
+  <h2>The traversal module</h2>
 
   <div class="box bad">
     <p class="bt">Spring 2023 · Q2(a) · 2 marks · CO3</p>
@@ -1309,22 +1918,63 @@ body.codelight .exactbox .lo{color:#94a3b8}
   </div></details>
 
   <div class="box info">
-    <p class="bt">The same question, different clothes</p>
-    <p style="margin:0">The textbook version is <span class="mono">AUTO(2000:2019)</span> counting car sales. The exam version is <span class="mono">STUCGPA(23001:23099)</span> counting students. <b>It is one pattern:</b> initialise a counter, loop the real index range, test each element, update.<br><br>
-    Learn the shape once and you can answer it whatever the story is.</p>
+    <p class="bt">The other three printings of it</p>
+    <p>Each one is the same four lines. Only the array, the range and the threshold move.</p>
+    <div class="freqt" style="margin:.7rem 0 0">
+      <div class="freqr"><span class="fqn"><span class="mono">YEAR (1950 : 2024)</span> — employees born in year K</span><span class="fqc">CT I · Set B · 8</span>
+        <span class="fqw">i) print each year in which <b>no</b> employee was born · ii) find the number N of years with <b>more than 11</b></span></div>
+      <div class="freqr"><span class="fqn"><span class="mono">YEAR (1950 : 2023)</span> — employees born in year K</span><span class="fqc">CT I · Set A · 8</span>
+        <span class="fqw">i) print each year with <b>more than 10</b> · ii) find the number N of years in which <b>no</b> employee was born</span></div>
+      <div class="freqr"><span class="fqn"><span class="mono">STUCGPA (22001 : 22099)</span> — CGPA of student K</span><span class="fqc">Spring 2022 · 1.5</span>
+        <span class="fqw">i) print the IDs above <b>3.75</b> · ii) count the students above <b>3.50</b></span></div>
+    </div>
+    <p style="margin:.8rem 0 0"><b>Note the swap.</b> Set A and Set B ask the two halves in the opposite order — so the part that needs <span class="mono">Set N := 0</span> is (ii) in one and (i)&hellip;is still (ii). Read which part <b>counts</b>; that is the one that needs the initialising step.</p>
   </div>
+</article>
+
+<article class="card" style="--accent:#e11d48">
+  <p class="kicker">Real past question</p>
+  <h2>The 1-D address question</h2>
+  <p class="subtle" style="margin-top:.4rem">Set once, on the Class Test — and it is this class end to end: the length formula, then the address formula, on an index set that starts below zero.</p>
+
+  <div class="box bad">
+    <p class="bt">Class Test I (Set A) · Q5 · 1 + 3 marks</p>
+    <p style="margin:0"><em>"Consider a 1D array <b>A (&minus;3 : 17)</b>. i) Find the length of the array A. ii) Suppose <b>Base(A) = 300</b> and <b>w = 4</b> words per memory cell for A. Find the address of the element <b>A[5]</b>."</em></p>
+  </div>
+
+  <details class="dig"><summary><span class="dicon">?</span>Model answer</summary><div>
+    <b>i) Length</b><br>
+    <span class="mono">Length = UB &minus; LB + 1 = 17 &minus; (&minus;3) + 1 = 17 + 3 + 1 = <b>21</b></span><br><br>
+    <b>ii) Address of A[5]</b><br>
+    <span class="mono">
+    LOC(A[K]) = Base(A) + w (K &minus; LB)<br>
+    LOC(A[5]) = 300 + 4 × (5 &minus; (&minus;3))<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 300 + 4 × 8<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 300 + 32 = <b>332</b>
+    </span><br><br>
+    <b>⚠ The one place the marks go</b><br>
+    <span class="mono">5 &minus; (&minus;3) = 8</span>, not 2. Subtracting a negative lower bound <b>adds</b>. Writing <span class="mono">5 &minus; 3 = 2</span> gives 308, and it is the single most common wrong answer on this question.<br><br>
+    Sanity check by counting: the indices run &minus;3, &minus;2, &minus;1, 0, 1, 2, 3, 4, 5 — so A[5] is the <b>ninth</b> element, and eight elements sit in front of it. Eight × 4 bytes = 32. ✓<br><br>
+    <b>Show the substitution line.</b> Both marks for part (ii) are in the working, not the number.
+  </div></details>
 </article>
 
 <article class="card" style="--accent:#0284c7">
   <p class="kicker">Coming in the next classes</p>
   <h2>What this formula turns into</h2>
-  <p class="subtle" style="margin-top:.4rem">The 1-D address formula is not examined on its own — it is examined as its 2-D big brother, which has appeared on <b>all four</b> Mid Term papers.</p>
+  <p class="subtle" style="margin-top:.4rem">The 1-D address formula is asked once. Its multi-dimensional big brother is on <b>all eight</b> Mid Term exams on file.</p>
 
   <div class="box bad">
-    <p class="bt">Autumn 2025 · Q2(b) &nbsp;·&nbsp; and Spring 2025, Spring 2024, Spring 2023</p>
+    <p class="bt">Autumn 2025 · Q2(b) · 3 marks &nbsp;—&nbsp; and Spring 2025, Autumn 2024, Spring 2024, Autumn 2023, Spring 2023, Autumn 2022, Spring 2022</p>
     <p style="margin:0"><em>"Consider a 2D array <b>A(4:12, 7:14)</b>. i. Find the length of each dimension and the total number of elements in A. ii. If Base(A) = 300 and w = 8 bytes per memory cell, calculate the address of the element A[6, 10] assuming row-major storage order."</em></p>
-    <p style="margin:.7rem 0 0"><b>Part (i) is this class.</b> Length of the first dimension is 12 &minus; 4 + 1 = <b>9</b>; the second is 14 &minus; 7 + 1 = <b>8</b>; total elements = 9 &times; 8 = <b>72</b>.<br><br>
-    <b>Part (ii) is next-but-one class</b> — the same <span class="mono">BASE + w &times; (how many you skipped)</span> idea, with the skipping counted across rows.</p>
+    <p style="margin:.7rem 0 1rem"><b>Part (i) is this class.</b> Length of the first dimension is 12 &minus; 4 + 1 = <b>9</b>; the second is 14 &minus; 7 + 1 = <b>8</b>; total elements = 9 &times; 8 = <b>72</b>.</p>
+    <p style="margin:0"><b>Part (ii) is Class 3</b> — the same <span class="mono">BASE + w &times; (how many you skipped)</span> idea, with the skipping counted across rows.</p>
+  </div>
+
+  <div class="box info">
+    <p class="bt">Which is to say</p>
+    <p>All eight of those exams gave marks for <span class="mono">UB &minus; LB + 1</span> before they asked anything hard. <b>Part (i) is free if you can count.</b></p>
+    <p style="margin:0">Spring 2025 set the <b>identical array</b>, <span class="mono">A(4:12, 7:14)</span>, and changed only Base to 500 and w to 4. Part (i)'s answer — 9, 8 and 72 — was the same in both exams.</p>
   </div>
 </article>
 
@@ -1354,12 +2004,6 @@ body.codelight .exactbox .lo{color:#94a3b8}
 </main>
 </section>
 
-<nav class="pagenav wrap" style="padding-bottom:0">
-  <a class="pn pv" href="../01-introduction/05-time-and-space-complexity.html"><span class="ar">&larr;</span><span class="tx"><em>Previous</em><b>Time &amp; space complexity</b></span></a>
-  <a class="pn home" href="../../index.html"><span class="ar">&#9783;</span><b>All classes</b></a>
-  <a class="pn nx" href="02-array-operations.html"><span class="ar">&rarr;</span><span class="tx"><em>Next</em><b>Operations on an array</b></span></a>
-</nav>
-
 <footer class="pagefoot">
   <div class="wrap fin">
     <div class="fw">
@@ -1377,13 +2021,16 @@ body.codelight .exactbox .lo{color:#94a3b8}
 "use strict";
 var $=function(s,r){return (r||document).querySelector(s);};
 var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+var el=function(t,c,h){var n=document.createElement(t);if(c)n.className=c;if(h!==undefined)n.innerHTML=h;return n;};
 
 /* TABS */
 $$('.tab').forEach(function(t){t.addEventListener('click',function(){
   $$('.tab').forEach(function(x){x.setAttribute('aria-selected','false');});
   t.setAttribute('aria-selected','true');
   $$('.panel').forEach(function(p){p.hidden=true;});
-  $('#p-'+t.dataset.tab).hidden=false; window.scrollTo({top:0,behavior:'instant'});
+  $('#p-'+t.dataset.tab).hidden=false;
+  document.body.classList.toggle('onexam', t.dataset.tab!=='lesson');
+  window.scrollTo({top:0,behavior:'instant'});
 });});
 
 /* RAIL */
@@ -1452,15 +2099,16 @@ function paintArr(){
 function paintFormula(){
   var c=cfg();
   if(selK===null){
-    $('#fboard').innerHTML='<span class="fline dim">LOC(LA[K]) = BASE(LA) + w (K &minus; LB)</span>'+
+    $('#fboard').innerHTML='<span class="fline">LOC(LA[<span class="fb-k">K</span>]) = <span class="fb-base">BASE(LA)</span> + <span class="fb-w">w</span> ( <span class="fb-k">K</span> &minus; <span class="fb-lb">LB</span> )</span>'+
       '<span class="fline dim"><span class="fc">// click any cell above to work it out</span></span>';
     return;
   }
   var skipped=selK-c.lb, jump=c.w*skipped, res=c.base+jump;
+  var lbTxt=(c.lb<0?'(&minus;'+Math.abs(c.lb).toLocaleString('en-US')+')':c.lb.toLocaleString('en-US'));
   $('#fboard').innerHTML=
-    '<span class="fline">LOC(LA[<span class="fk">'+selK.toLocaleString('en-US')+'</span>]) = BASE(LA) + w (K &minus; LB)</span>'+
-    '<span class="fline">                = <span class="fv">'+c.base.toLocaleString('en-US')+'</span> + <span class="fv">'+c.w+'</span> ( <span class="fk">'+selK.toLocaleString('en-US')+'</span> &minus; <span class="fv">'+c.lb.toLocaleString('en-US')+'</span> )</span>'+
-    '<span class="fline">                = '+c.base.toLocaleString('en-US')+' + '+c.w+' &times; <span class="fk">'+skipped.toLocaleString('en-US')+'</span>   <span class="fc">// '+skipped.toLocaleString('en-US')+' element'+(skipped===1?'':'s')+' skipped</span></span>'+
+    '<span class="fline">LOC(LA[<span class="fb-k">'+selK.toLocaleString('en-US')+'</span>]) = <span class="fb-base">BASE(LA)</span> + <span class="fb-w">w</span> ( <span class="fb-k">K</span> &minus; <span class="fb-lb">LB</span> )</span>'+
+    '<span class="fline">                = <span class="fb-base">'+c.base.toLocaleString('en-US')+'</span> + <span class="fb-w">'+c.w+'</span> ( <span class="fb-k">'+selK.toLocaleString('en-US')+'</span> &minus; <span class="fb-lb">'+lbTxt+'</span> )</span>'+
+    '<span class="fline">                = '+c.base.toLocaleString('en-US')+' + '+c.w+' &times; <span class="fb-k">'+skipped.toLocaleString('en-US')+'</span>   <span class="fc">// '+skipped.toLocaleString('en-US')+' element'+(skipped===1?'':'s')+' skipped</span></span>'+
     '<span class="fline">                = '+c.base.toLocaleString('en-US')+' + '+jump.toLocaleString('en-US')+'</span>'+
     '<span class="fline">                = <span class="fr">'+res.toLocaleString('en-US')+'</span></span>';
 }
@@ -1476,43 +2124,96 @@ $$('[data-preset2]').forEach(function(b){b.addEventListener('click',function(){
 });});
 paintArr(); paintFormula();
 
-/* ---------- 5 · TRAVERSAL ---------- */
-var AUTO=[240,310,180,420,295,350,600,275,330,510,190,480,305,260,720,215,390,285,455,340];
-var tp=-1, ttmr=null;
-function paintTrav(){
-  var html='', num=0;
-  for(var i=0;i<AUTO.length;i++){
-    var yr=2000+i, cls='acell2';
-    if(tp>=0){
-      if(i<tp) { cls+= AUTO[i]>300 ? ' hitc' : ' done2'; }
-      else if(i===tp) cls+=' walk';
+/* ---------- 5 · TRAVERSAL, LINE BY LINE ----------
+   The module on the right is the answer the exam asks for, so it is the thing
+   being executed rather than a listing beside the picture. Every pass lands on
+   the If and tints it by the answer — true and false both, which is what makes
+   "twelve of the twenty counted" something you watch instead of something you
+   are told at the end. */
+(function(){
+  var AUTO=[240,310,180,420,295,350,600,275,330,510,190,480,305,260,720,215,390,285,455,340];
+  var LB=2000;
+
+  /* the whole run, precomputed, so Back is exactly as correct as Next */
+  var S=[{ln:0, y:-1, num:0, act:'init'}];
+  (function(){
+    var num=0;
+    for(var y=0;y<AUTO.length;y++){
+      S.push({ln:1, y:y, num:num, act:'loop'});
+      var hit=AUTO[y]>300;
+      S.push({ln:2, y:y, num:num, act:'test', ok:hit});
+      if(hit){ num++; S.push({ln:3, y:y, num:num, act:'count'}); }
     }
-    html+='<div class="'+cls+'" style="width:52px"><span class="ai2">'+yr+'</span>'+
-          '<div class="ab2" style="font-size:.82rem">'+AUTO[i]+'</div></div>';
+    S.push({ln:5, y:-1, num:num, act:'end'});
+  })();
+
+  var at=-1, tmr=null;
+  var strip=$('#tstrip'), code=$('#tcode');
+
+  function draw(){
+    var s = at<0 ? null : S[at];
+    var num = s ? s.num : 0;
+    var cy  = s ? s.y : -1;
+
+    var html='';
+    for(var i=0;i<AUTO.length;i++){
+      var cls='acell2';
+      if(s){
+        var passed = (i<cy) || (i===cy && s.act!=='loop') || s.act==='end';
+        if(passed) cls += AUTO[i]>300 ? ' hitc' : ' done2';
+        if(i===cy) cls+=' walk';
+      }
+      html+='<div class="'+cls+'"><span class="ai2">'+(LB+i)+'</span>'+
+            '<div class="ab2">'+AUTO[i]+'</div></div>';
+    }
+    strip.innerHTML=html;
+
+    $$('.st',code).forEach(function(l){
+      var n=+l.dataset.l;
+      l.classList.remove('cur','tt','ff');
+      if(!s) return;
+      if(n===s.ln){
+        if(s.act==='test') l.classList.add(s.ok?'tt':'ff');
+        else l.classList.add('cur');
+      }
+    });
+    var v=$('.verd',code);
+    v.textContent = (s&&s.act==='test') ? (s.ok?'TRUE':'FALSE') : '';
+
+    $('#t-k').textContent   = (s&&cy>=0) ? (LB+cy) : '—';
+    $('#t-v').textContent   = (s&&cy>=0) ? AUTO[cy] : '—';
+    $('#t-num').textContent = s ? num : '—';
+    $('#t-numbox').classList.toggle('hit2', !!(s&&s.act==='count'));
+
+    var m;
+    if(!s) m='Press <b>Next</b> to run line 1.';
+    else if(s.act==='init')  m='<b>Line 1.</b> Set <b>NUM := 0</b> before the loop starts. This is the step the textbook warns about, and the one people forget.';
+    else if(s.act==='loop')  m='<b>Line 2.</b> K = <b>'+(LB+cy)+'</b>. The loop body runs for this year.';
+    else if(s.act==='test')  m='<b>Line 3.</b> AUTO['+(LB+cy)+'] = <b>'+AUTO[cy]+'</b>. Is it &gt; 300? '+
+        (s.ok?'<b class="hl-good">TRUE</b> — so line 4 runs.':'<b class="hl-bad">FALSE</b> — line 4 is skipped and K moves on.');
+    else if(s.act==='count') m='<b>Line 4.</b> NUM becomes <b>'+num+'</b>.';
+    else m='<b>Finished.</b> NUM = <b>'+num+'</b> of the '+AUTO.length+' years. The loop touched <b>every</b> element exactly once — that is <b>O(n)</b>, and it is O(n) whatever PROCESS does.';
+    $('#t-msg').innerHTML=m;
+
+    $('#t-step').textContent=(at+1)+' / '+S.length;
+    $('#t-next').disabled = at>=S.length-1;
+    $('#t-back').disabled = at<0;
+    $('#t-next').textContent = at>=S.length-1 ? 'Done ✓' : 'Next ▸';
   }
-  $('#tstrip').innerHTML=html;
-  for(var k=0;k<=Math.min(tp,AUTO.length-1);k++) if(AUTO[k]>300) num++;
-  $('#t-k').textContent = tp<0?'—':(tp>=AUTO.length?'done':2000+tp);
-  $('#t-v').textContent = (tp<0||tp>=AUTO.length)?'—':AUTO[tp];
-  $('#t-num').textContent=num;
-  var hit = tp>=0 && tp<AUTO.length && AUTO[tp]>300;
-  $('#t-numbox').classList.toggle('hit2',hit);
-  if(tp<0) $('#t-msg').innerHTML='Press <b>Next</b> to start at K = 2000.';
-  else if(tp>=AUTO.length) $('#t-msg').innerHTML='<b>Finished.</b> NUM = <b>'+num+'</b> years had more than 300 sales. We touched all <b>'+AUTO.length+'</b> elements exactly once — that is <b>O(n)</b>.';
-  else $('#t-msg').innerHTML='K = <b>'+(2000+tp)+'</b> &nbsp;·&nbsp; AUTO['+(2000+tp)+'] = <b>'+AUTO[tp]+'</b> &nbsp;·&nbsp; is it &gt; 300? '+
-       (hit?'<b style="color:#15803d">Yes → NUM becomes '+num+'</b>':'<b style="color:#94a3b8">No → NUM stays '+num+'</b>');
-  $('#t-next').disabled = tp>=AUTO.length;
-}
-$('#t-next').onclick=function(){ if(tp<AUTO.length){tp++;paintTrav();} };
-$('#t-reset').onclick=function(){ clearInterval(ttmr); ttmr=null; $('#t-play').textContent='▶ Play'; tp=-1; paintTrav(); };
-$('#t-play').onclick=function(){
-  var b=this;
-  if(ttmr){clearInterval(ttmr);ttmr=null;b.textContent='▶ Play';return;}
-  if(tp>=AUTO.length) tp=-1;
-  b.textContent='⏸ Pause';
-  ttmr=setInterval(function(){ if(tp<AUTO.length){tp++;paintTrav();} else {clearInterval(ttmr);ttmr=null;b.textContent='▶ Play';} },420);
-};
-paintTrav();
+  function stop(){ if(tmr){clearInterval(tmr);tmr=null;} $('#t-play').textContent='▶ Play'; }
+  $('#t-next').onclick =function(){ stop(); if(at<S.length-1){at++;draw();} };
+  $('#t-back').onclick =function(){ stop(); if(at>=0){at--;draw();} };
+  $('#t-reset').onclick=function(){ stop(); at=-1; draw(); };
+  $('#t-play').onclick =function(){
+    if(tmr){ stop(); return; }
+    if(at>=S.length-1) at=-1;
+    this.textContent='⏸ Pause';
+    tmr=setInterval(function(){
+      if(at<S.length-1){ at++; draw(); } else stop();
+    }, 420);
+  };
+  draw();
+})();
 
 
 /* ---------- 1b · CODE-DRIVEN ARRAY ---------- */
@@ -1543,6 +2244,7 @@ paintTrav();
     $('#cacells').innerHTML=html;
     $('#camsg').innerHTML = step<0 ? 'Press <b>Run next line</b>.' : LINES[step].note;
     $('#ca-next').disabled = step>=LINES.length-1;
+    $('#ca-back').disabled = step<0;
     $('#ca-next').textContent = step>=LINES.length-1 ? 'All lines run ✓' : 'Run next line ▸';
   }
   $('#ca-next').onclick=function(){
@@ -1552,6 +2254,9 @@ paintTrav();
     if(typeof l.act==='number') cells[l.act]=l.val;
     draw();
   };
+  $('#ca-back').onclick=function(){ if(step>-1){ step--; cells=[]; 
+    for(var i=0;i<=step;i++){ var l=LINES[i]; if(typeof l.act==='number') cells[l.act]=l.val; }
+    draw(); } };
   $('#ca-reset').onclick=reset;
   reset();
 })();
@@ -1560,21 +2265,251 @@ paintTrav();
 (function(){
   var d=0, rows=$$('#deriv .drow');
   function paint(){ rows.forEach(function(r,i){ r.classList.toggle('on', i<d); });
-    $('#der-go').textContent = d>=rows.length ? '↻ Start again' : 'Next row ▸'; }
+    $('#der-go').textContent = d>=rows.length ? '↻ Start again' : 'Next row ▸';
+    $('#der-back').disabled = d<=0; }
   $('#der-go').onclick=function(){ if(d>=rows.length) d=0; else d++; paint(); };
+  $('#der-back').onclick=function(){ if(d>0){ d--; paint(); } };
   $('#der-all').onclick=function(){ d=rows.length; paint(); };
   $('#der-reset').onclick=function(){ d=0; paint(); };
   paint();
 })();
 
-/* ---------- QUIZZES ---------- */
-$$('.quiz').forEach(function(q){
-  var o=$$('.qopt',q),e=$('.qexp',q);
-  o.forEach(function(b){b.addEventListener('click',function(){
-    o.forEach(function(x){x.disabled=true;if(x.dataset.ok)x.classList.add('ok');});
-    if(!b.dataset.ok)b.classList.add('no'); e.classList.add('show');
-  });});
-});
+
+/* ---------- YOUR TURN: ask before showing ----------
+   The question comes first and the answer is one button away. It is never
+   hidden from someone revising at home — the reveal is a prompt, not a gate. */
+(function(){
+  $$('.turn').forEach(function(t){
+    var btn=t.querySelector('.tbtn'), ans=t.querySelector('.ta');
+    if(!btn||!ans) return;
+    btn.addEventListener('click',function(){
+      var on=ans.classList.toggle('on');
+      btn.textContent = on ? 'Hide it again' : (btn.dataset.label||'Show me');
+    });
+  });
+})();
+
+/* ================= FOCUS MODE =================
+   For the projector. The widget is not duplicated — the whole .simbox is
+   physically moved into a full-screen overlay and moved back into its own
+   slot on close, so there is exactly one copy of every cell and every
+   handler, and nothing can drift out of sync. Everything on this page is
+   DOM rather than canvas, so it reflows on its own once the overlay is
+   wider; only the fixed cell sizes and the type are told to grow (see the
+   .fsbody rules in the stylesheet). */
+(function(){
+  var boxes=$$('.simbox'); if(!boxes.length) return;
+  var ov=el('div','fsov');
+  ov.id='fsov';
+  ov.setAttribute('role','dialog');
+  ov.setAttribute('aria-modal','true');
+  ov.innerHTML=
+    '<div class="fshd"><b id="fs-ttl"></b>'+
+      '<button class="fsx" id="fs-theme" type="button"></button>'+
+      '<button class="fsx" id="fs-x" type="button">Esc &#10005;</button></div>'+
+    '<div class="fsbody" id="fs-body"></div>'+
+    '<div class="fshint">'+
+      '<span><kbd>Esc</kbd> close</span>'+
+      '<span>the buttons work exactly as they do on the page</span>'+
+    '</div>';
+  document.body.appendChild(ov);
+
+  var body=$('#fs-body'), home=null, slot=null, node=null;
+
+  function open(id){
+    var box=$('#'+id); if(!box||node) return;
+    node=box; home=box.parentNode; slot=box.nextSibling;
+    $('#fs-ttl').textContent=box.dataset.title||'Simulator';
+    body.appendChild(box);
+    ov.classList.add('on'); document.body.classList.add('fsopen');
+    syncTheme();
+    $('#fs-x').focus();
+  }
+  function close(){
+    if(!node) return;
+    home.insertBefore(node,slot);          /* back into its own slot, not the end */
+    ov.classList.remove('on'); document.body.classList.remove('fsopen');
+    node=null; home=null; slot=null;
+  }
+  window.__fsClose=close;
+
+  /* one switch for the whole page: code panels and Focus mode together */
+  function syncTheme(){
+    var lightNow=document.body.classList.contains('codelight');
+    var b=$('#fs-theme'); if(b) b.textContent = lightNow ? '🌙 Dark code' : '☀ Light code';
+  }
+  window.__syncFsTheme=syncTheme;
+
+  $$('[data-focus]').forEach(function(b){
+    b.addEventListener('click',function(){ open(b.dataset.focus); });
+  });
+  $('#fs-x').addEventListener('click',close);
+  $('#fs-theme').addEventListener('click',function(){
+    document.body.classList.toggle('codelight');
+    try{ localStorage.setItem('dsa-code-theme',
+      document.body.classList.contains('codelight')?'light':'dark'); }catch(e){}
+    syncTheme();
+    if(window.__syncCodeTog) window.__syncCodeTog();
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape' && node) close();
+  });
+})();
+
+/* ================= THE TAKEAWAY RAIL =================
+   Each lesson card carries one sentence in data-key. As you reach a card the
+   sentence is added to a rail on the right — forward only, so going back to
+   re-explain something never removes it. By the end it is the revision list. */
+(function(){
+  var cards=$$('#p-lesson .card[data-key]');
+  if(!cards.length) return;
+  var KEY='cse2321-s2c1-keys';
+  var rail=el('div','keyrail');
+  rail.innerHTML='<div class="krhd" role="button" tabindex="0" aria-expanded="true">'+
+      '<span class="kt">So far</span><span class="kn" id="kr-n">0</span>'+
+      '<span class="kv">&#9662;</span></div>'+
+    '<div class="kbody" id="kr-body"></div>';
+  document.body.appendChild(rail);
+  var kbody=$('#kr-body'), num=$('#kr-n'), hd=$('.krhd',rail);
+
+  var shown=0;
+  try{ if(localStorage.getItem(KEY)==='hid') rail.classList.add('hid'); }catch(e){}
+
+  function add(upto){
+    if(upto<=shown) return;
+    for(var i=shown;i<upto;i++){
+      var c=cards[i];
+      var b=(c.querySelector('.badge')||{}).textContent||String(i+1);
+      kbody.appendChild(el('div','kitem new','<span class="kx">'+b+'</span>'+c.getAttribute('data-key')));
+    }
+    shown=upto;
+    num.textContent=shown;
+    $$('.kitem',kbody).forEach(function(k,i){ k.classList.toggle('new',i===shown-1); });
+    kbody.scrollTop=kbody.scrollHeight;
+  }
+  hd.addEventListener('click',function(){
+    rail.classList.toggle('hid');
+    hd.setAttribute('aria-expanded', rail.classList.contains('hid')?'false':'true');
+    try{ localStorage.setItem(KEY, rail.classList.contains('hid')?'hid':'open'); }catch(e){}
+  });
+  hd.addEventListener('keydown',function(e){
+    if(e.key==='Enter'||e.key===' '){ e.preventDefault(); hd.click(); }
+  });
+
+  /* A card's takeaway IS its answer. Where a card carries a "Your turn", hold
+     the takeaway back until the reader has scrolled past the question —
+     otherwise the rail answers it before anyone has had a chance to think. */
+  function trigger(c){
+    var t=c.querySelector('.turn'), r=(t||c).getBoundingClientRect();
+    return t ? r.bottom : r.top;
+  }
+  var tick=null;
+  function scan(){
+    var y=window.innerHeight*0.55, n=0;
+    for(var i=0;i<cards.length;i++) if(trigger(cards[i])<=y) n=i+1;
+    add(n);
+  }
+  window.addEventListener('scroll',function(){
+    if(tick) return;
+    tick=setTimeout(function(){ tick=null; scan(); },180);
+  },{passive:true});
+  scan();
+})();
+
+/* ---------- QUIZZES, WITH PROGRESS ----------
+   Which checks have been answered is remembered, so someone coming back to
+   revise sees where they got to rather than a blank page. The count shows in
+   the ribbon under the hero and again as a chip in the tab bar. */
+(function(){
+  var KEY='cse2321-s2c1-quiz';
+  var done={}; try{done=JSON.parse(localStorage.getItem(KEY)||'{}');}catch(e){done={};}
+  var QS=$$('.quiz'), total=QS.length;
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(done));}catch(e){}}
+
+  var qc=null, tabs=document.querySelector('.tabs');
+  if(tabs){ qc=el('span','qchip','<i></i>Quiz <b>0/'+total+'</b>'); tabs.appendChild(qc); }
+
+  function show(){
+    var n=Object.keys(done).length;
+    var bar=$('#pbar'), num=$('#pnum');
+    if(bar) bar.style.width=(total?Math.round(n/total*100):0)+'%';
+    if(num) num.textContent=n+' / '+total;
+    if(qc) qc.innerHTML='<i></i>Quiz <b>'+n+'/'+total+'</b>';
+  }
+  QS.forEach(function(q){
+    var id=q.dataset.q, o=$$('.qopt',q), e=$('.qexp',q);
+    function lock(picked){
+      o.forEach(function(x){x.disabled=true; if(x.dataset.ok)x.classList.add('ok');});
+      if(picked!==null && picked>=0 && o[picked] && !o[picked].dataset.ok) o[picked].classList.add('no');
+      e.classList.add('show');
+    }
+    if(done[id]) lock(done[id].p===undefined?-1:done[id].p);
+    o.forEach(function(b,i){b.addEventListener('click',function(){
+      done[id]={ok:!!b.dataset.ok,p:i}; save(); show(); lock(i);
+    });});
+  });
+  var rb=$('#preset');
+  if(rb) rb.onclick=function(){
+    done={}; save(); show();
+    QS.forEach(function(q){
+      $$('.qopt',q).forEach(function(x){x.disabled=false;x.classList.remove('ok','no');});
+      $('.qexp',q).classList.remove('show');
+    });
+  };
+  show();
+})();
+
+/* ---------- n / b / r drive the simulator you are looking at ----------
+   Every widget here has its own buttons, so the keys are wired to the block
+   nearest the middle of the view — or the one in Focus — and that block says
+   so in its own button row. */
+(function(){
+  var BLOCKS=$$('.simbox').filter(function(s){ return $('[data-k="next"]',s); });
+  if(!BLOCKS.length) return;
+  BLOCKS.forEach(function(sim){
+    var row=$('.btnrow',sim); if(!row) return;
+    var h=el('span','kbdhint','<kbd>n</kbd> next');
+    if($('[data-k="back"]',sim)) h.innerHTML+=' <kbd>b</kbd> back';
+    h.innerHTML+=' <kbd>r</kbd> reset';
+    row.appendChild(h);
+  });
+  var cur=null, tick=null;
+  function pick(){
+    var ov=document.querySelector('.fsov .simbox');
+    if(ov) return $('[data-k="next"]',ov)?ov:null;
+    var best=null, bd=1e9, mid=window.innerHeight/2;
+    BLOCKS.forEach(function(s){
+      var r=s.getBoundingClientRect();
+      if(r.bottom<70 || r.top>window.innerHeight-50) return;
+      var d=Math.abs((r.top+r.bottom)/2-mid);
+      if(d<bd){ bd=d; best=s; }
+    });
+    return best;
+  }
+  function mark(){
+    var s=pick();
+    if(s===cur) return;
+    if(cur) cur.classList.remove('kbdon');
+    cur=s; if(cur) cur.classList.add('kbdon');
+  }
+  window.addEventListener('scroll',function(){
+    if(tick) return;
+    tick=setTimeout(function(){ tick=null; mark(); },120);
+  },{passive:true});
+  window.addEventListener('resize',mark);
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey) return;
+    var fe=document.activeElement, t=(e.target&&e.target.tagName)||'';
+    var ft=(fe&&fe.tagName)||'';
+    if(/^(INPUT|SELECT|TEXTAREA)$/.test(t)||/^(INPUT|SELECT|TEXTAREA)$/.test(ft)) return;
+    var k=e.key.toLowerCase();
+    if(k!=='n'&&k!=='b'&&k!=='r') return;
+    mark(); var s=pick(); if(!s) return;
+    var btn=$('[data-k="'+(k==='n'?'next':k==='b'?'back':'reset')+'"]',s);
+    if(btn && !btn.disabled){ e.preventDefault(); btn.click(); }
+  });
+  mark();
+})();
 document.addEventListener('keydown',function(e){
   if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
   if(e.key==='j'||e.key==='ArrowDown'){e.preventDefault();jump(1);}
@@ -1660,18 +2595,55 @@ document.addEventListener('keydown',function(e){
   b.className='codetog'; b.type='button';
   function label(){ b.textContent = document.body.classList.contains('codelight') ? '🌙 Dark code' : '☀ Light code'; }
   label();
+  window.__syncCodeTog=label;              /* Focus mode flips the same switch */
   b.addEventListener('click',function(){
     document.body.classList.toggle('codelight');
     try{localStorage.setItem(KEY, document.body.classList.contains('codelight')?'light':'dark');}catch(e){}
     label();
+    if(window.__syncFsTheme) window.__syncFsTheme();
   });
   tabs.appendChild(b);
+})();
+
+/* ---------- REVISION MODE ----------
+   Every "Show the answer" on the page, opened at once and remembered. The
+   details blocks holding model answers are opened too, but never re-closed:
+   turning the switch off should not shut something the reader opened. */
+(function(){
+  var KEY='dsa-reveal-all';
+  var host=document.querySelector('.tabs')||document.querySelector('.topbar-in')||document.querySelector('.topbar');
+  var solo=false;
+  if(!host){ host=document.querySelector('main.wrap'); solo=true; }
+  if(!host) return;
+  var b=document.createElement('button');
+  b.className='revtog'+(solo?' solo':''); b.type='button';
+  b.title='Open every hidden answer on this page';
+  function paint(){
+    var on=document.body.classList.contains('revealall');
+    b.classList.toggle('on',on);
+    b.setAttribute('aria-pressed',on?'true':'false');
+    b.textContent = on ? '\uD83D\uDC41 Answers shown' : '\uD83D\uDC41 Show all answers';
+    if(on) Array.prototype.forEach.call(document.querySelectorAll('details.dig'),function(d){d.open=true;});
+  }
+  var saved=null; try{saved=localStorage.getItem(KEY);}catch(e){}
+  if(saved==='on') document.body.classList.add('revealall');
+  paint();
+  b.addEventListener('click',function(){
+    var on=document.body.classList.toggle('revealall');
+    try{localStorage.setItem(KEY,on?'on':'off');}catch(e){}
+    paint();
+  });
+  if(solo) host.insertBefore(b, host.firstChild); else host.appendChild(b);
 })();
 
 
 /* ---------- HIDE THE BAR ON THE WAY DOWN ---------- */
 (function(){
   var bar=document.querySelector('.topbar'); if(!bar) return;
+  /* the sticky offset is the bar's real height, so the ribbon never leaves a
+     strip of page showing between the two */
+  function measure(){ document.documentElement.style.setProperty('--barh', bar.offsetHeight+'px'); }
+  measure(); window.addEventListener('resize',measure);
   var last=window.scrollY, tick=null;
   function upd(){
     tick=null;
@@ -1683,7 +2655,9 @@ document.addEventListener('keydown',function(e){
                 document.body.classList.contains('noscroll')||
                 document.querySelector('.drawer.on');
     if(blocked){ bar.classList.remove('tucked'); return; }
-    bar.classList.toggle('tucked', dy>0 && y>bar.offsetHeight+40);
+    var away = dy>0 && y>bar.offsetHeight+40;
+    bar.classList.toggle('tucked', away);
+    document.body.classList.toggle('tucked', away);   /* the ribbon rides with it */
   }
   window.addEventListener('scroll',function(){
     if(!tick) tick=requestAnimationFrame(upd);
