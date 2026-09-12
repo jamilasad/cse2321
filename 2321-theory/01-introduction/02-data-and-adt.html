@@ -137,7 +137,11 @@ pre.code{font-family:var(--mono);font-size:.78rem;line-height:1.75;background:#0
 
 /* ============ BUTTONS ============ */
 .btn{appearance:none;font-family:inherit;font-weight:800;font-size:.82rem;padding:.6rem 1.15rem;border-radius:.55rem;
-     cursor:pointer;border:none;background:var(--accent);color:#fff;box-shadow:var(--sh-sm);
+     cursor:pointer;background:var(--accent);color:#fff;box-shadow:var(--sh-sm);
+     /* a transparent border of the same width .btn.ghost uses, so that
+        lighting a button in a toggle group does not change its box and
+        shift the whole control row by 2px under the cursor */
+     border:2px solid transparent;
      transition:filter .15s,transform .1s}
 .btn:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px)}
 .btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
@@ -410,6 +414,33 @@ ul.tight li,ol.tight li{margin-bottom:.4rem;font-size:.9rem}
 .opbtn:hover{border-color:var(--line-strong);color:var(--ink)}
 .opbtn.on{background:var(--accent);border-color:var(--accent);color:#fff}
 .opstage{border:1px solid var(--line);border-radius:.7rem;padding:1rem;background:#f8fafc;margin:.8rem 0}
+/* Merge needs three rows where the others need two, so the stage reserves the
+   taller of the two shapes and nothing below it moves as you walk the seven. */
+/* Merge needs three rows where the others need two. The stage reserves the
+   taller shape at every width, so walking the seven never moves the controls.
+   The numbers are measured, not guessed — see the heights at 1366 / 600 / 320. */
+#op-sim .opstage{min-height:15.8rem}
+@media(max-width:660px){#op-sim .opstage{min-height:16.7rem}}
+@media(max-width:540px){#op-sim .opstage{min-height:19.2rem}}
+@media(max-width:340px){#op-sim .opstage{min-height:29.5rem}}
+/* .beforeafter sets display:grid, which beats the UA rule for [hidden] — the
+   merge stage was drawing underneath a before/after that was meant to be gone */
+#op-sim [hidden]{display:none!important}
+.mstage{display:grid;gap:.5rem}
+.mstage .mrow{display:grid;grid-template-columns:76px 1fr;align-items:center;gap:.7rem;min-height:76px;
+  border:1px solid var(--line);border-radius:.6rem;background:#fff;padding:.55rem .7rem}
+.mstage .mrow.out{border-color:#86efac;background:#f0fdf4}
+.mstage .mlbl{font-size:.6rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-mute)}
+.mstage .mrow.out .mlbl{color:#15803d}
+.mstage .arr{margin:0;justify-content:flex-start}
+.mstage .mempty{font-size:.78rem;font-weight:700;color:#cbd5e1}
+.acell.slot{border-style:dashed;background:transparent}
+.acell.slot .av{color:#cbd5e1}
+.acell.slot .ai{color:#cbd5e1}
+/* stacking the label above the row on a phone made the merge stage twice the
+   height of the other six operations, which moved the controls on every jump */
+@media(max-width:560px){.mstage .mrow{grid-template-columns:52px 1fr;gap:.45rem;padding:.45rem .5rem}
+  .mstage .mlbl{font-size:.5rem;line-height:1.2}}
 .opdesc{font-size:.87rem;color:var(--ink-soft);min-height:3rem;line-height:1.65}
 .opdesc b{color:var(--ink)}
 
@@ -636,7 +667,10 @@ figure.ds svg{width:100%;height:auto;display:block;overflow:visible}
        margin:0 0 .5rem;text-align:center}
 .balbl.after{color:#15803d}
 .baarrow{text-align:center;font-size:1.3rem;color:#ca8a04;font-weight:700}
-@media(max-width:699px){.baarrow{transform:rotate(90deg)}}
+/* rotating a full-width block turns its bounding box on its side: the arrow
+   became 633px tall, overlapped the whole stage and swallowed clicks meant for
+   the pills. Shrink the box to the glyph first, then rotate it. */
+@media(max-width:699px){.baarrow{transform:rotate(90deg);width:1.6em;margin:0 auto;line-height:1}}
 
 /* ---- real-life modal ---- */
 .rlbtn{appearance:none;border:1px solid var(--sc);background:#fff;color:var(--sc);border-radius:999px;
@@ -674,7 +708,7 @@ figure.ds svg{width:100%;height:auto;display:block;overflow:visible}
 .codepane .ln .k{color:#c4b5fd}.codepane .ln .t{color:#fcd34d}.codepane .ln .f{color:#7dd3fc}
 .codepane .ln .n{color:#fdba74}.codepane .ln .c{color:#64748b;font-style:italic}
 .codepane .ln.err .c{color:#fca5a5}
-.codepane .cursor{display:inline-block;width:7px;height:1em;background:#2dd4bf;vertical-align:-2px;animation:bl 1s steps(2) infinite}
+/* .codepane .cursor removed — a blinking caret invited typing into a read-only pane */
 @keyframes slidein{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
 .outpane{background:#020617;border-radius:.5rem;padding:.6rem .8rem;margin-top:.55rem;font-family:var(--mono);
          font-size:.8rem;color:#86efac;min-height:2.6rem;line-height:1.7}
@@ -800,7 +834,121 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 .revtog.solo{display:block;margin:0 0 1.2rem;border-color:var(--line);color:var(--ink-soft);background:#fff}
 .revtog.solo:hover{color:var(--ink);border-color:var(--line-strong)}
 .revtog.solo.on{background:#6d28d9;border-color:#7c3aed;color:#fff}
+
+/* ============ YOUR TURN — ask before showing ============ */
+.turn{border:1.5px solid #c4b5fd;border-radius:.9rem;margin:1.2rem 0;overflow:hidden;
+  background:linear-gradient(180deg,#faf8ff,#f6f3ff)}
+.turn .th{display:flex;align-items:center;gap:.5rem;padding:.7rem .95rem;
+  border-bottom:1.5px solid #ddd6fe;background:rgba(255,255,255,.6)}
+.turn .th b{font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#6d28d9}
+.turn .tq{padding:.85rem .95rem;font-size:.98rem;line-height:1.6;color:var(--ink)}
+.turn .tq p{margin:0 0 .6rem}
+.turn .tq p:last-child{margin:0}
+.turn .tbtn{appearance:none;font-family:inherit;font-size:.78rem;font-weight:800;
+  border:1.5px solid #a78bfa;background:#fff;color:#6d28d9;border-radius:.5rem;
+  padding:.42rem .85rem;cursor:pointer;margin:0 .95rem .95rem;transition:.15s}
+.turn .tbtn:hover{background:#f5f3ff;border-color:#7c3aed}
+.turn .ta{display:none;padding:0 .95rem .95rem;font-size:.95rem;line-height:1.6;color:var(--ink)}
+.turn .ta.on{display:block;animation:drop .3s ease}
+.turn .ta p{margin:0 0 .55rem}
+.turn .ta p:last-child{margin:0}
+body.revealall .turn .ta{display:block}
+
+/* ============ A QUESTION FROM A REAL PAPER ============ */
+.pastq{border:1.5px solid #fecdd3;border-left:4px solid #e11d48;border-radius:.7rem;
+  background:linear-gradient(180deg,#fff7f8,#fff);padding:.9rem 1rem;margin:1.1rem 0}
+.pastq .pqh{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;margin:0 0 .55rem}
+.pastq .pqs{font-size:.58rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  background:#e11d48;color:#fff;border-radius:.3rem;padding:.16rem .45rem}
+.pastq .pqw{font-size:.68rem;font-weight:700;color:#9f1239}
+.pastq .pqm{margin-left:auto;font-family:var(--mono);font-size:.66rem;font-weight:800;color:#be123c;
+  background:#ffe4e6;border-radius:999px;padding:.14rem .55rem;white-space:nowrap}
+.pastq .pqt{margin:0;font-size:.93rem;line-height:1.68;color:#4c0519;font-style:italic}
+.pastq .pqt b{font-style:normal;color:#881337}
+
+/* ============ QUIZ PROGRESS RIBBON ============
+   Four quizzes on this page, so a count is worth showing. Not sticky — the
+   projector needs the height more than the reader needs the reminder. */
+.prog{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;
+  border:1px solid #e8ebfa;border-radius:.7rem;background:#fff;
+  padding:.55rem .8rem;margin:1.1rem 0 1.8rem;box-shadow:0 8px 22px -18px rgba(30,27,75,.5)}
+.prog .pk{font-size:.55rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#b4bcd8}
+.prog .pbar{flex:1;min-width:120px;height:8px;border-radius:99px;background:#eef2ff;overflow:hidden}
+.prog .pbar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#818cf8,#4f46e5);
+  transition:width .5s cubic-bezier(.32,1.1,.4,1)}
+.prog .pn{font-family:var(--mono);font-size:.78rem;font-weight:800;color:#4f46e5}
+.prog button{appearance:none;font-family:inherit;font-size:.68rem;font-weight:700;padding:.28rem .6rem;
+  border-radius:.4rem;border:1px solid var(--line);background:#fff;color:var(--ink-mute);cursor:pointer}
+.prog button:hover{border-color:#4f46e5;color:#1e1b4b}
+
+/* ============ THE TAKEAWAY RAIL ============ */
+.keyrail{position:fixed;right:1rem;top:5.6rem;bottom:10.6rem;width:290px;z-index:40;
+  display:none;flex-direction:column;pointer-events:none}
+/* 1080px column + 290px rail + gutters: below this the rail sits on the text */
+@media(min-width:1720px){.keyrail{display:flex}}
+.keyrail.hid .kbody{display:none}
+.krhd{pointer-events:auto;display:flex;align-items:center;gap:.55rem;align-self:flex-end;
+  background:linear-gradient(180deg,#fff,#fbfcff);border:1px solid #dfe3f2;border-radius:.7rem;
+  padding:.42rem .7rem;box-shadow:0 10px 26px -18px rgba(30,27,75,.55);cursor:pointer;transition:.15s}
+.krhd:hover{border-color:#a5b4fc;box-shadow:0 12px 30px -18px rgba(79,70,229,.6)}
+.krhd .kt{font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#7b8199}
+.krhd .kn{font-family:var(--mono);font-size:.66rem;font-weight:800;color:#fff;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:.35rem;padding:.06rem .38rem}
+.krhd .kv{color:#b4bcd8;font-size:.66rem;transition:transform .22s}
+.keyrail.hid .krhd .kv{transform:rotate(-90deg)}
+.kbody{pointer-events:auto;margin-top:.5rem;overflow-y:auto;display:flex;flex-direction:column;gap:.45rem;
+  padding:.2rem .2rem .5rem;scrollbar-width:thin;mask-image:linear-gradient(180deg,transparent 0,#000 12px)}
+.kitem{position:relative;background:#fff;border:1px solid #e6e9f7;border-radius:.6rem;
+  padding:.6rem .75rem .6rem 2.5rem;font-size:.82rem;line-height:1.5;color:#4c5480;
+  box-shadow:0 10px 24px -20px rgba(30,27,75,.6);animation:kin .38s cubic-bezier(.32,1.1,.4,1) both}
+.kitem b{color:#1e1b4b;font-weight:700}
+.kitem .kx{position:absolute;left:.6rem;top:.62rem;width:1.45rem;height:1.45rem;border-radius:.35rem;
+  display:grid;place-items:center;font-family:var(--mono);font-size:.62rem;font-weight:800;
+  background:#eef1ff;color:#4f46e5}
+.kitem.new{border-color:#c4b5fd;box-shadow:0 12px 28px -18px rgba(124,58,237,.6)}
+.kitem.new .kx{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff}
+@keyframes kin{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.kitem{animation:none}}
+body.fsopen .keyrail{display:none}/* ============ THIS PAGE'S OWN PICTURES, ON THE FOCUS BENCH ============ */
+.fsov:not(.lit) .fsbody .dibox{background:#1b2238;border-color:#2b3554}.fsov:not(.lit) .fsbody .dibox.raw{background:#151c30;border-color:#2b3554}.fsov:not(.lit) .fsbody .dibox.info{background:#0d2b24;border-color:#0f8a67}.fsbody .dibox .dt{font-size:.72rem}
+.fsov:not(.lit) .fsbody .dibox .dt{color:#6b769c}.fsov:not(.lit) .fsbody .diarrow{color:#8b85f5}.fsbody .mk{font-size:1.25rem}
+.fsov:not(.lit) .fsbody .mk{background:#151c30;border-color:#2b3554;color:#8f9ac2}.fsov:not(.lit) .fsbody .mk.on{background:#0d2b24;border-color:#059669;color:#6ee7b7}.fsbody .dirow{font-size:1rem}
+.fsov:not(.lit) .fsbody .dirow{color:#c3cbe4;border-bottom-color:#1f4a3d}.fsov:not(.lit) .fsbody .dirow b{color:#6ee7b7}.fsov:not(.lit) .fsbody .dirow:hover{background:#123a30}.fsov:not(.lit) .fsbody .dirow.sel{background:#12503f}.fsov:not(.lit) .fsbody .simpane{background:#151c30;border-color:#2b3554}.fsov:not(.lit) .fsbody .simpane h5{color:#6b769c}.fsbody .sbox{font-size:1.05rem}
+.fsov:not(.lit) .fsbody .sbox{background:#1b2238;border-color:#6366f1;color:#c7d2fe}.fsbody .lnode b{font-size:1.05rem}
+.fsov:not(.lit) .fsbody .lnode b{background:#10313a;border-color:#0891b2;color:#67e8f9}.fsov:not(.lit) .fsbody .lnode i{color:#4c5680}.fsbody .adtfoot{font-size:.95rem}
+.fsov:not(.lit) .fsbody .adtfoot{background:#151c30;border-top-color:#232b45;color:#c3cbe4}.fsov:not(.lit) .fsbody .acell{background:#1b2238;border-color:#2b3554}.fsbody .acell .av{font-size:1.2rem}
+.fsov:not(.lit) .fsbody .acell .av{color:#e6e9f7}.fsbody .acell .ai{font-size:.66rem}
+.fsov:not(.lit) .fsbody .acell .ai{color:#5b678f}.fsov:not(.lit) .fsbody .acell.look{background:#3a2a10;border-color:#b45309}.fsov:not(.lit) .fsbody .acell.look .av{color:#fcd34d}.fsov:not(.lit) .fsbody .acell.added{background:#0d2b24;border-color:#059669}.fsov:not(.lit) .fsbody .acell.added .av{color:#6ee7b7}.fsov:not(.lit) .fsbody .acell.moved{background:#241a45;border-color:#7c3aed}.fsov:not(.lit) .fsbody .acell.newv{background:#102a45;border-color:#0284c7}.fsov:not(.lit) .fsbody .acell.newv .av{color:#7dd3fc}.fsov:not(.lit) .fsbody .acell.gone{background:#2e1521;border-color:#e11d48}.fsbody .opbtn{font-size:.86rem}
+.fsov:not(.lit) .fsbody .opbtn{background:#1b2238;border-color:#2b3554;color:#8f9ac2}.fsov:not(.lit) .fsbody .opbtn.on{background:#4f46e5;border-color:#4f46e5;color:#fff}.fsbody .opdesc{font-size:1rem}
+.fsov:not(.lit) .fsbody .mstage .mrow{background:#1b2238;border-color:#2b3554}
+.fsov:not(.lit) .fsbody .mstage .mrow.out{background:#0d2b24;border-color:#0f8a67}
+.fsov:not(.lit) .fsbody .mstage .mlbl{color:#6b769c}
+.fsov:not(.lit) .fsbody .mstage .mrow.out .mlbl{color:#6ee7b7}
+.fsov:not(.lit) .fsbody .mstage .mempty{color:#4c5680}
+.fsov:not(.lit) .fsbody .implsw button{background:#1b2238;border-color:#2b3554;color:#8f9ac2}
+.fsov:not(.lit) .fsbody .implsw button.on{background:#0d9488;border-color:#0d9488;color:#fff}
+.fsbody .mstage .mlbl{font-size:.72rem}
+.fsov:not(.lit) .fsbody .opdesc{color:#c3cbe4}.fsov:not(.lit) .fsbody .opdesc b{color:#fff}.fsov:not(.lit) .fsbody .arrlab,.fsov:not(.lit) .fsbody .subtle{color:#8f9ac2}
+/* the console's own white card, and its code panes, on the dark bench */
+.sbox.off{border-color:#e2e8f0;background:#fff;color:#cbd5e1}.fsov:not(.lit) .fsbody .sbox.off{border-color:#2b3554;background:#151c30;color:#4c5680}.fsov:not(.lit) .fsbody .adt{background:transparent}.fsov:not(.lit) .fsbody .adth{background:#0f172a}
+.fsbody .adtb2{padding:0}body.codelight .fsov:not(.lit) .fsbody .codepane{background:#0f172a;border:0}body.codelight .fsov:not(.lit) .fsbody .codepane .ln{color:#e2e8f0}body.codelight .fsov:not(.lit) .fsbody .codepane .k{color:#c4b5fd}body.codelight .fsov:not(.lit) .fsbody .codepane .t{color:#fcd34d}body.codelight .fsov:not(.lit) .fsbody .codepane .f{color:#7dd3fc}body.codelight .fsov:not(.lit) .fsbody .codepane .n{color:#fdba74}body.codelight .fsov:not(.lit) .fsbody .codepane .c{color:#64748b}body.codelight .fsov:not(.lit) .fsbody .codepane .ln.newest{background:rgba(45,212,191,.16);box-shadow:inset 2px 0 0 #2dd4bf}body.codelight .fsov:not(.lit) .fsbody .codepane .cursor{background:#2dd4bf}body.codelight .fsov:not(.lit) .fsbody .outpane{background:#020617;color:#4ade80;border:1px solid #232b45}
+.fsbody .codepane{font-size:1rem}
+
+/* these three were framed boxes before they became simulators: one frame, not two */
+#adt-sim .adt{border:0;border-radius:0;margin:0}
+#op-sim .opstage{margin:0;border:0;background:none;padding:.2rem 0}
+#di-sim .di{margin:.2rem 0 .9rem}
+/* the results box fills up one line per press. Reserve the space it will need
+   from the start, or the buttons walk away from the cursor that is pressing them. */
+#di-sim .dibox.info{min-height:16.5rem}
+#di-sim .dibox.raw{min-height:12.7rem}
+/* the same reservation, re-measured where the text wraps differently */
+@media(max-width:820px){#di-sim .dibox.info{min-height:17.6rem}#di-sim .dibox.raw{min-height:14rem}}
+@media(max-width:400px){#di-sim .dibox.info{min-height:20rem}#di-sim .dibox.raw{min-height:16.9rem}}
+/* the note under the marks grows from one line to two as results are picked */
+#di-sim #marknote{min-height:2.7rem;margin-top:.7rem}
 </style>
+<link rel="stylesheet" href="../assets/sim.css">
 </head>
 <body>
 <div class="topbar">
@@ -849,8 +997,15 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
   <p style="margin:0">Last class: five stories, one answer. Facebook's 3 billion names and a trie hold the same data — 333 million times difference. <b>Today we start naming things.</b></p>
 </div>
 
+<div class="prog" id="prog">
+  <span class="pk">Your progress</span>
+  <span class="pbar"><i id="pbar"></i></span>
+  <span class="pn" id="pnum">0 / 4</span>
+  <button id="preset" type="button">Clear</button>
+</div>
+
 <!-- ============ 1 · DATA ============ -->
-<article class="card numbered" id="s1" style="--accent:#4f46e5">
+<article class="card numbered" id="s1" data-key="Data is what you store. <b>Information</b> is what you get after processing it — and nothing in the result came from outside the data." style="--accent:#4f46e5">
   <span class="badge">1</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 1</p><h2>Data, and what it becomes</h2></div>
@@ -875,7 +1030,15 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
   <h3>Data becomes information when it is processed</h3>
   <p>Below are the marks of ten students. Process them — then <b>click any result</b> and watch which of the original numbers it came from.</p>
 
-  <div class="di">
+  <div class="sim" id="di-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Ten marks, one result at a time</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+    <div class="simrail"></div>
+    <div class="di">
     <div class="dibox raw">
       <p class="dt">Data — raw values</p>
       <div class="marks" id="marks"></div>
@@ -887,9 +1050,15 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
       <p class="subtle" style="margin:0">Press the button to process them.</p>
     </div>
   </div>
-  <div class="btnrow">
-    <button class="btn" id="di-go" style="background:#4f46e5">Process the data</button>
-    <button class="btn ghost sm" id="di-reset">Reset</button>
+    <div class="simmsg"><span class="smn">1</span><p></p></div>
+    <div class="simctl">
+      <button class="btn" data-k="next" style="background:#4f46e5">Process one more &#9656;</button>
+      <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+      <button class="btn ghost sm" data-k="reset">Reset</button>
+      <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>r</kbd></span>
+      <span class="simcnt">1 / 6</span>
+    </div>
+    </div>
   </div>
 
   <div class="bridge" style="--accent:#4f46e5">
@@ -911,7 +1080,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 </article>
 
 <!-- ============ 2 · DATA ORGANIZATION ============ -->
-<article class="card numbered" id="s2" style="--accent:#0284c7">
+<article class="card numbered" id="s2" data-key="Entity → attributes → entity set. Stored, those become <b>record → field → file</b>. The <b>primary key</b> is the field no two records share." style="--accent:#0284c7">
   <span class="badge">2</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 2</p><h2>How data is organised: field, record, file</h2></div>
@@ -995,10 +1164,16 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
     </div>
     <div class="qexp"><b>The value of one field, for one record.</b> The <em>field</em> is the Section column. The <em>record</em> is Tanvir Hasan's whole row. The <em>entity</em> is Tanvir himself. <span class="mono">"B"</span> is just the value sitting where that field and that record cross.</div>
   </div>
+
+  <div class="pastq">
+    <div class="pqh"><span class="pqs">Past exam</span><span class="pqw">Spring 2024 Q1(a) &middot; and Spring 2023 Q1(a)</span><span class="pqm">asked twice</span></div>
+    <p class="pqt">"A professor keeps a class list containing the following data for each student: <b>Name, ID Number, Section, Total Marks, Final Grade</b>. Identify the <b>entity</b>, the <b>attributes</b>, the <b>entity set</b> and the <b>primary key</b>."</p>
+    <p style="margin:.7rem 0 0;font-size:.82rem;color:#9f1239">Spring 2023 asked the identical question about a library book list. The model answer for both is in the <b>Exam &amp; Interview</b> tab.</p>
+  </div>
 </article>
 
 <!-- ============ 3 · DATA ITEMS ============ -->
-<article class="card numbered" id="s3" style="--accent:#0284c7">
+<article class="card numbered" id="s3" data-key="A <b>group item</b> splits into sub-items; an <b>elementary item</b> does not. Which one it is depends on how the system uses it." style="--accent:#0284c7">
   <span class="badge">3</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 3</p><h2>Data items: group and elementary</h2></div>
@@ -1026,10 +1201,10 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 </article>
 
 <!-- ============ 3 · DATA TYPES ============ -->
-<article class="card numbered" id="s4" style="--accent:#0891b2">
+<article class="card numbered" id="s4" data-key="A <b>built-in type</b> arrives with the language. An <b>abstract type</b> is one you define by what it does." style="--accent:#0891b2">
   <span class="badge">4</span>
   <div class="hdr-row">
-    <div><p class="kicker">Section 3</p><h2>Data type: built-in and abstract</h2></div>
+    <div><p class="kicker">Section 4</p><h2>Data type: built-in and abstract</h2></div>
     <span class="timechip">⏱ 7 min</span>
   </div>
 
@@ -1075,7 +1250,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 </article>
 
 <!-- ============ 5 · ADT ============ -->
-<article class="card numbered" id="s5" style="--accent:#0d9488">
+<article class="card numbered" id="s5" data-key="An <b>ADT</b> says <b>what</b> operations exist, never <b>how</b>. Swap the machine underneath and not one line of your code changes." style="--accent:#0d9488">
   <span class="badge">5</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 5 · the most important idea today</p><h2>ADT — Abstract Data Type</h2></div>
@@ -1107,8 +1282,17 @@ v.<span class="f">push_back</span>(<span class="n">10</span>);
 v.<span class="f">push_back</span>(<span class="n">20</span>);
 cout &lt;&lt; v[<span class="n">0</span>] &lt;&lt; <span class="s">" "</span> &lt;&lt; v.<span class="f">size</span>();</pre>
 
-  <p>Now answer three questions about that code. <b>How big is the array inside? What happens when it fills up? Where in memory does it live?</b></p>
-  <p><b>You do not know any of them — and your program worked perfectly anyway.</b> That is abstraction doing its job.</p>
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>Three questions about the four lines you have just read.</p>
+      <p><b>How big is the array inside? What happens when it fills up? Where in memory does it live?</b></p>
+    </div>
+    <button class="tbtn" type="button">Show me</button>
+    <div class="ta">
+      <p><b>You do not know any of them — and your program worked perfectly anyway.</b> That is abstraction doing its job.</p>
+    </div>
+  </div>
 
   <div class="box">
     <p class="bt">What is actually happening inside</p>
@@ -1150,10 +1334,16 @@ cout &lt;&lt; v[<span class="n">0</span>] &lt;&lt; <span class="s">" "</span> &l
   <div class="digwrap">
     <p class="dighead">See it in action<span></span></p>
     <details class="dig"><summary><span class="dicon">?</span>The Stack ADT, hands on — we build this properly in Segment 4</summary><div>
-    <p style="margin:0 0 .8rem">Use the buttons on the left. Then <b>look inside</b> and switch the implementation. Watch what happens to the left side.</p>
-<p>Use the buttons on the left. Then <b>look inside</b>, and switch the implementation. Watch what happens to the left side.</p>
+    <p style="margin:0 0 .8rem">Use the buttons under the console. Then <b>look inside</b> and switch the implementation. Watch what happens to the left side.</p>
 
-  <div class="adt">
+  <div class="sim" id="adt-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">The ADT, and the machine underneath it</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+    <div class="adt">
     <div class="adth">
       <span class="lbl2">ADT</span><b>Stack</b>
       <span style="margin-left:auto;font-size:.72rem;color:#94a3b8">write the code on the left · watch the machine on the right</span>
@@ -1162,13 +1352,6 @@ cout &lt;&lt; v[<span class="n">0</span>] &lt;&lt; <span class="s">" "</span> &l
       <div>
         <div class="codepane" id="adt-code"></div>
         <div class="outpane" id="adt-out"><span class="oh">Program output</span><span id="adt-outv">—</span></div>
-        <div class="btnrow" style="margin:.7rem 0 0">
-          <button class="btn sm" id="adt-push" style="background:#0d9488">s.push(x)</button>
-          <button class="btn sm ghost" id="adt-pop">s.pop()</button>
-          <button class="btn sm ghost" id="adt-peek">s.top()</button>
-          <button class="btn sm ghost" id="adt-empty">s.empty()</button>
-          <button class="btn sm ghost" id="adt-reset">Reset</button>
-        </div>
       </div>
       <div class="simpane">
         <h5>What actually happens inside</h5>
@@ -1182,6 +1365,17 @@ cout &lt;&lt; v[<span class="n">0</span>] &lt;&lt; <span class="s">" "</span> &l
     </div>
     <div class="adtfoot" id="adt-foot">
       <b>The code on the left never changes.</b> Switch the implementation on the right and every line still compiles, still runs, still gives the same output. <b>That is an ADT.</b>
+    </div>
+  </div>
+    <div class="simwatch"></div>
+    <div class="simmsg"><span class="smn">&#8801;</span><p id="adt-msg">Press an operation. The code on the left is everything you ever write; the machine on the right is what somebody else chose.</p></div>
+    <div class="simctl">
+      <button class="btn sm" id="adt-push" style="background:#0d9488">s.push(x)</button>
+      <button class="btn sm ghost" id="adt-pop">s.pop()</button>
+      <button class="btn sm ghost" id="adt-peek">s.top()</button>
+      <button class="btn sm ghost" id="adt-empty">s.empty()</button>
+      <button class="btn sm ghost" data-k="reset" id="adt-reset">Reset</button>
+    </div>
     </div>
   </div>
 
@@ -1240,7 +1434,7 @@ cout &lt;&lt; v[<span class="n">0</span>] &lt;&lt; <span class="s">" "</span> &l
 </article>
 
 <!-- ============ 6 · DATA STRUCTURES ============ -->
-<article class="card numbered" id="s6" style="--accent:#16a34a">
+<article class="card numbered" id="s6" data-key="A <b>data structure</b> is the machine an ADT is built from. ADT is the contract; the data structure is the building you put up to satisfy it." style="--accent:#16a34a">
   <span class="badge">6</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 6</p><h2>So what is a data structure?</h2></div>
@@ -1441,24 +1635,33 @@ cout &lt;&lt; v[<span class="n">0</span>] &lt;&lt; <span class="s">" "</span> &l
 </article>
 
 <!-- ============ 7 · OPERATIONS ============ -->
-<article class="card numbered" id="s7" style="--accent:#ca8a04">
+<article class="card numbered" id="s7" data-key="Seven operations, asked of every structure for the next fourteen weeks: traverse, search, insert, delete, update, sort, merge." style="--accent:#ca8a04">
   <span class="badge">7</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 7</p><h2>The seven operations</h2></div>
     <span class="timechip">⏱ 10 min</span>
   </div>
 
-  <div class="box bad">
-    <p class="bt">🎓 Straight off your Mid Term paper</p>
-    <p style="margin:0"><b>Spring 2025, Q1(a) · 2 marks.</b> <em>"What do you mean by a data structure? Briefly describe the different <b>operations performed on data structures</b>."</em></p>
+  <div class="pastq">
+    <div class="pqh"><span class="pqs">Past exam</span><span class="pqw">Mid Term, Spring 2025 &middot; Q1 (a)</span><span class="pqm">2 marks</span></div>
+    <p class="pqt">"What do you mean by a data structure? Briefly describe the different <b>operations performed on data structures</b>."</p>
+    <p style="margin:.7rem 0 0;font-size:.82rem;color:#9f1239">Two marks, and the second half is a list of seven. Walk the simulator below and you have written the answer.</p>
   </div>
 
   <p>Whatever structure we study for the next 14 weeks, we always ask the same seven questions about it. Pick one and watch it happen.</p>
 
-  <div class="opbar" id="opbar"></div>
+  <div class="sim" id="op-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">The seven operations, one at a time</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+    <div class="simrail"></div>
+    <div class="opbar" id="opbar"></div>
 
-  <div class="opstage">
-    <div class="beforeafter">
+    <div class="opstage">
+    <div class="beforeafter" id="baview">
       <div class="ba">
         <p class="balbl">Before</p>
         <div class="arr" id="arr-before"></div>
@@ -1469,8 +1672,23 @@ cout &lt;&lt; v[<span class="n">0</span>] &lt;&lt; <span class="s">" "</span> &l
         <div class="arr" id="arr-after"></div>
       </div>
     </div>
-    <p class="opdesc" id="opdesc">Pick an operation above.</p>
-    <div class="btnrow" style="margin-bottom:0"><button class="btn sm ghost" id="op-replay" disabled>↻ Play again</button></div>
+
+    <div class="mstage" id="mstage" hidden>
+      <div class="mrow"><span class="mlbl">List A</span><div class="arr" id="m-a"></div></div>
+      <div class="mrow"><span class="mlbl">List B</span><div class="arr" id="m-b"></div></div>
+      <div class="mrow out"><span class="mlbl">Merged</span><div class="arr" id="m-c"></div></div>
+    </div>
+    </div>
+    <div class="simmsg"><span class="smn">1</span><p class="opdesc" id="opdesc"></p></div>
+    <div class="simctl">
+      <button class="btn" data-k="next" style="background:#ca8a04">Next operation &#9656;</button>
+      <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+      <button class="btn ghost sm" id="op-replay">↻ Play again</button>
+      <button class="btn ghost sm" data-k="reset">Reset</button>
+      <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>r</kbd></span>
+      <span class="simcnt">1 / 7</span>
+    </div>
+    </div>
   </div>
 
   <div class="tw">
@@ -1495,7 +1713,7 @@ cout &lt;&lt; v[<span class="n">0</span>] &lt;&lt; <span class="s">" "</span> &l
 </article>
 
 <!-- ============ 8 · TRADEOFF ============ -->
-<article class="card numbered" id="s8" style="--accent:#ea580c">
+<article class="card numbered" id="s8" data-key="You buy speed with memory, or memory with work. <b>You rarely get both</b> — and swapping two variables is the smallest example there is." style="--accent:#ea580c">
   <span class="badge">8</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 8 · the idea behind the whole course</p><h2>Time&ndash;space tradeoff</h2></div>
@@ -1509,6 +1727,19 @@ cout &lt;&lt; v[<span class="n">0</span>] &lt;&lt; <span class="s">" "</span> &l
 
   <h3>The smallest possible example: swap two variables</h3>
   <p>You have <span class="mono">a = 5</span> and <span class="mono">b = 9</span>. You want them exchanged. There are two well-known ways, and they sit on opposite sides of the trade.</p>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p><span class="mono">a = 5</span> and <span class="mono">b = 9</span>. Swap them &mdash; <b>without using a third variable</b>.</p>
+      <p>Two minutes. Then count how many operations your way costs, and hold that number against the three-line version you already know.</p>
+    </div>
+    <button class="tbtn" type="button">Show me one answer</button>
+    <div class="ta">
+      <p><span class="mono">a = a + b;</span> &nbsp; <span class="mono">b = a &minus; b;</span> &nbsp; <span class="mono">a = a &minus; b;</span></p>
+      <p>No extra memory, and <b>six operations</b> where the other way needed three. You did not get something for nothing &mdash; you paid for the saved variable with twice the work. Both versions are below, with their bills.</p>
+    </div>
+  </div>
 
   <div class="swap2">
     <div class="sw2 temp">
@@ -1621,7 +1852,7 @@ a = a - b;</pre>
 </article>
 
 <!-- ============ CLOSING ============ -->
-<article class="card numbered" id="s9" style="--accent:#4f46e5">
+<article class="card numbered" id="s9" data-key="Six words carry the class: entity, attribute, record, field, ADT, data structure." style="--accent:#4f46e5">
   <span class="badge">9</span>
   <div class="hdr-row">
     <div><p class="kicker">Before you go</p><h2>The six words</h2></div>
@@ -1815,6 +2046,7 @@ a = a - b;</pre>
   </div>
 </footer>
 
+<script src="../assets/sim.js"></script>
 <script>
 
 (function(){
@@ -1842,6 +2074,8 @@ function jump(d){
   if(t>s.length-1)t=s.length-1;
   window.scrollTo({top:Math.max(s[t].offsetTop-80,0),behavior:'smooth'});
 }
+/* the floating drawer lives in its own IIFE and needs this */
+window.cardJump=jump;
 /* ---- 1 · DATA -> INFORMATION ---- */
 var MARKS=[72,45,88,61,39,95,54,77,66,83];
 function drawMarks(hi){
@@ -1863,26 +2097,50 @@ var ROWS=[
  {k:'Students passing (40+)', v:PASSI.length+' of 10', idx:PASSI, note:'Nine numbers are 40 or above. Only 39 is not.'},
  {k:'Pass rate',     v:(PASSI.length*10)+'%',          idx:PASSI, note:'The same nine numbers, written as a percentage.'}
 ];
-$('#di-go').onclick=function(){
-  $('#di-out').innerHTML='<p class="dt">Information — after processing</p>'+
-    ROWS.map(function(r,i){return '<div class="dirow" data-r="'+i+'"><span>'+r.k+'</span><b>'+r.v+'</b></div>';}).join('')+
-    '<p class="subtle" style="margin:.6rem 0 0">Click any line to see which numbers it came from.</p>';
-  $('#marknote').innerHTML='Click a result on the right &rarr;';
+/* One result per press. Each step highlights the numbers that result came out
+   of, so "nothing came from outside the ten" is something seen, not asserted. */
+var DIWALK=[{r:-1,g:'data'}];
+ROWS.forEach(function(r,i){ DIWALK.push({r:i,g:r.k.split(' ')[0].toLowerCase()}); });
+
+function diWire(api){
   $$('#di-out .dirow').forEach(function(row){
     row.addEventListener('click',function(){
       $$('#di-out .dirow').forEach(function(x){x.classList.remove('sel');});
       row.classList.add('sel');
       var r=ROWS[+row.dataset.r];
       drawMarks(r.idx);
-      $('#marknote').innerHTML='<b>'+r.k+'</b> — '+r.note;
+      $('#marknote').innerHTML='<b>'+r.k+'</b> &mdash; '+r.note;
+      api.msg('<b>'+r.k+' = '+r.v+'</b>. '+r.note);
     });
   });
-};
-$('#di-reset').onclick=function(){
-  drawMarks(null);
-  $('#marknote').textContent='Ten numbers. Nothing more.';
-  $('#di-out').innerHTML='<p class="dt">Information — after processing</p><p class="subtle" style="margin:0">Press the button to process them.</p>';
-};
+}
+
+Sim.make({
+  el:'#di-sim',
+  name:'Ten marks, one result at a time',
+  steps:DIWALK,
+  group:function(st){ return st.g; },
+  render:function(st,idx,api){
+    if(st.r<0){
+      drawMarks(null);
+      $('#marknote').textContent='Ten numbers. Nothing more.';
+      $('#di-out').innerHTML='<p class="dt">Information &mdash; after processing</p>'+
+        '<p class="subtle" style="margin:0">Nothing has been worked out yet.</p>';
+      api.msg('Ten numbers, and nothing else. <b>34</b> on its own could be a mark, an age, a temperature or a house number &mdash; you cannot tell. That is <b>data</b>.');
+      return;
+    }
+    $('#di-out').innerHTML='<p class="dt">Information &mdash; after processing</p>'+
+      ROWS.slice(0,st.r+1).map(function(r,i){
+        return '<div class="dirow'+(i===st.r?' sel':'')+'" data-r="'+i+'"><span>'+r.k+'</span><b>'+r.v+'</b></div>';
+      }).join('')+
+      '<p class="subtle" style="margin:.6rem 0 0">Click any line again to see where it came from.</p>';
+    var r=ROWS[st.r];
+    drawMarks(r.idx);
+    $('#marknote').innerHTML='<b>'+r.k+'</b> &mdash; '+r.note;
+    api.msg('<b>'+r.k+' = '+r.v+'</b>. '+r.note+' Nothing was added from outside the ten.');
+    diWire(api);
+  }
+});
 drawMarks(null);
 
 /* ---- 2 · DATA ORGANISATION ---- */
@@ -1922,6 +2180,9 @@ $$('#orgbtns .btn').forEach(function(b){
     $('#orgmsg').innerHTML=ORGMSG[o];
   });
 });
+/* Entity is drawn as the chosen button, so the table has to agree with it on
+   load — a highlighted button over an unlit table reads as a broken widget. */
+(function(){ var d=$('#orgbtns .btn[data-o="entity"]'); if(d) d.click(); })();
 
 
 /* ---- 7 · OPERATIONS BEFORE / AFTER ---- */
@@ -1945,8 +2206,7 @@ var OPS=[
   d:'<b>Update</b> — change position 4 from 70 to <b>99</b>. Nothing moves; we just overwrite in place. Cost: <b>O(1)</b> — the cheapest of all seven.'},
  {k:'Sort', before:BASE, after:[20,30,40,50,70], am:{0:'moved',1:'moved',2:'moved',3:'moved',4:'moved'},
   d:'<b>Sort</b> — arrange in order. Almost every element moved. A whole segment is devoted to how. Cost: <b>O(n log n)</b> for the good algorithms.'},
- {k:'Merge', before:[20,30,50,70], after:[10,20,25,30,40,50,60,70], am:{0:'added',2:'added',4:'added',6:'added'},
-  d:'<b>Merge</b> — combine two already-sorted sets into one sorted set. Here [20,30,50,70] absorbed [10,25,40,60] — the green ones came from the second set. Cost: <b>O(n + m)</b>. This is the heart of merge sort.'}
+ {k:'Merge', walk:true}
 ];
 var curOp=null, opTimer=null;
 function runOp(o){
@@ -1954,7 +2214,6 @@ function runOp(o){
   $('#arr-before').innerHTML=cells(o.before,null);
   $('#arr-after').innerHTML='';
   $('#opdesc').innerHTML=o.d;
-  $('#op-replay').disabled=false;
   if(o.seq){
     $('#arr-after').innerHTML=cells(o.after,null);
     var i=0;
@@ -1968,21 +2227,96 @@ function runOp(o){
     opTimer=setTimeout(function(){ $('#arr-after').innerHTML=cells(o.after,o.am); },320);
   }
 }
+/* ---- Merge, walked ----
+   The other six operations are one picture each: before, then after. Merge is
+   not — showing the whole answer appear in one jump hides the only thing worth
+   seeing, which is that it never compares more than the two fronts. So it gets
+   two source lists, a third list that fills up, and one press per value taken.
+   The steps are generated by running the algorithm, not typed out by hand. */
+var MA=[20,30,50,70], MB=[10,25,40,60];
+function buildMerge(){
+  var steps=[{i:0,j:0,out:[],
+    t:'Two lists, and both are <b>already sorted</b>. Merge does not sort them again &mdash; it looks at the <b>front of each</b> and takes the smaller one. The two highlighted cells are the only values it ever compares.'}];
+  var i=0,j=0,out=[];
+  while(i<MA.length||j<MB.length){
+    var both=(i<MA.length&&j<MB.length), fromA, t;
+    if(i>=MA.length) fromA=false;
+    else if(j>=MB.length) fromA=true;
+    else fromA=(MA[i]<=MB[j]);
+    var v=fromA?MA[i]:MB[j];
+    if(both) t='Front of A is <b>'+MA[i]+'</b>, front of B is <b>'+MB[j]+'</b>. <b>'+v+'</b> is smaller, so it moves across.';
+    else     t='<b>'+(fromA?'B':'A')+' is empty.</b> Whatever is left in '+(fromA?'A':'B')+' is already in order, so <b>'+v+'</b> just moves across &mdash; no comparison needed.';
+    if(fromA) i++; else j++;
+    out=out.concat([v]);
+    steps.push({i:i,j:j,out:out.slice(),t:t});
+  }
+  steps[steps.length-1].t+=' Eight values, and <b>one pass</b> over each list &mdash; cost <b>O(n + m)</b>. This is the heart of merge sort.';
+  return steps;
+}
+var MERGE=buildMerge();
+
+function acell(v,i,cls){
+  return '<div class="acell '+(cls||'')+'"><span class="ai">['+(i+1)+']</span><span class="av">'+v+'</span></div>';
+}
+function mrow(arr,taken){
+  var h='';
+  for(var k=0;k<arr.length;k++) h+=acell(arr[k],k, k<taken?'gone':(k===taken?'look':''));
+  return h;
+}
+function drawMerge(m){
+  $('#m-a').innerHTML=mrow(MA,m.i);
+  $('#m-b').innerHTML=mrow(MB,m.j);
+  /* All eight slots from the start: the row then never grows under the buttons,
+     and the class can see how big the answer is going to be before it is one. */
+  var total=MA.length+MB.length, h='';
+  for(var k=0;k<total;k++){
+    h += (k<m.out.length)
+      ? acell(m.out[k],k, k===m.out.length-1?'added':'')
+      : '<div class="acell slot"><span class="ai">['+(k+1)+']</span><span class="av">·</span></div>';
+  }
+  $('#m-c').innerHTML=h;
+}
+
 (function(){
-  var bar=$('#opbar');
+  /* The seven operations are a sequence: Next walks them in the order the exam
+     asks for, and the pills above stay as a way to jump straight to one. Merge
+     contributes nine steps instead of one, so the rail shows it as a wider band. */
+  var STEPS=[], firstOf={};
+  OPS.forEach(function(o){
+    if(o.walk){ MERGE.forEach(function(m){ STEPS.push({k:o.k, mg:m}); }); }
+    else       { STEPS.push({k:o.k, op:o}); }
+  });
+  STEPS.forEach(function(st,i){ if(!(st.k in firstOf)) firstOf[st.k]=i; });
+
+  var bar=$('#opbar'), api=null;
   OPS.forEach(function(o){
     var b=document.createElement('button');
-    b.className='opbtn'; b.type='button'; b.textContent=o.k;
-    b.addEventListener('click',function(){
-      $$('.opbtn').forEach(function(x){x.classList.remove('on');});
-      b.classList.add('on'); curOp=o; runOp(o);
-    });
+    b.className='opbtn'; b.type='button'; b.textContent=o.k; b.dataset.k=o.k;
+    b.addEventListener('click',function(){ if(api) api.go(firstOf[o.k]); });
     bar.appendChild(b);
   });
   $('#arr-before').innerHTML=cells(BASE,null);
   $('#arr-after').innerHTML=cells(BASE,null);
+
+  function paint(st,a){
+    $$('.opbtn').forEach(function(x){ x.classList.toggle('on', x.dataset.k===st.k); });
+    if(st.op){
+      $('#mstage').hidden=true; $('#baview').hidden=false;
+      curOp=st.op; runOp(st.op);
+    } else {
+      $('#baview').hidden=true; $('#mstage').hidden=false;
+      curOp=null; drawMerge(st.mg); a.msg(st.mg.t);
+    }
+  }
+  api=Sim.make({
+    el:'#op-sim',
+    name:'The seven operations on an array',
+    steps:STEPS,
+    group:function(st){ return st.k; },
+    render:function(st,i,a){ paint(st,a); }
+  });
+  $('#op-replay').onclick=function(){ paint(STEPS[api.index()],api); };
 })();
-$('#op-replay').onclick=function(){ if(curOp) runOp(curOp); };
 
 
 
@@ -2014,7 +2348,19 @@ var ITEMS=[
 
 /* ---- ADT: CODE-DRIVEN STACK ---- */
 (function(){
-  var ST=[], LINES=[], impl='arr', vals=[10,20,30,40,50], out='';
+  var ST=[], LINES=[], impl='arr', vals=[10,20,30,40,50], out='', api=null;
+  function msg(t){ if(api) api.msg(t); }
+  /* size, top and empty() are identical in both machines; only capacity moves.
+     That is the ADT argument, in four numbers. */
+  function watches(){
+    if(!api) return;
+    api.watch([
+      ['size', ST.length],
+      ['top', ST.length ? ST[ST.length-1] : '\u2014'],
+      ['empty()', ST.length===0 ? 'true' : 'false'],
+      ['capacity', impl==='arr' ? '5' : 'unbounded']
+    ]);
+  }
   function esc(x){return x;}
   function draw(){
     var html='<span class="ln"><span class="t">stack</span>&lt;<span class="t">int</span>&gt; s;<span class="c">   // the ADT — no array, no list, no size</span></span>';
@@ -2022,10 +2368,11 @@ var ITEMS=[
       html+='<span class="ln'+(i===LINES.length-1?' newest':'')+(l.err?' err':'')+'">'+l.code+
             (l.cmt?'<span class="c">   // '+l.cmt+'</span>':'')+'</span>';
     });
-    html+='<span class="ln"><span class="cursor"></span></span>';
+    /* no blinking caret: this pane is a record of what ran, not a place to type */
     var cp=$('#adt-code'); cp.innerHTML=html; cp.scrollTop=cp.scrollHeight;
     $('#adt-outv').innerHTML = out || '—';
     drawImpl();
+    watches();
   }
   function drawImpl(){
     var v=$('#adt-view');
@@ -2033,7 +2380,7 @@ var ITEMS=[
       var cells='';
       for(var i=4;i>=0;i--) cells += ST[i]!==undefined
         ? '<div class="sbox">'+ST[i]+' <span style="font-size:.6rem;color:#94a3b8">['+i+']</span></div>'
-        : '<div class="sbox" style="border-color:#e2e8f0;background:#fff;color:#cbd5e1">empty ['+i+']</div>';
+        : '<div class="sbox off">empty ['+i+']</div>';
       v.innerHTML='<div class="stackview" style="flex-direction:column">'+cells+'</div>';
       $('#adt-note').innerHTML='A fixed block plus a <span class="mono">top</span> index. <b>top = '+(ST.length-1)+'</b>';
     } else {
@@ -2045,31 +2392,68 @@ var ITEMS=[
   }
   function add(code,cmt,err){ LINES.push({code:code,cmt:cmt,err:err}); if(LINES.length>14) LINES.shift(); draw(); }
   $('#adt-push').onclick=function(){
-    if(ST.length>=5){ add('s.<span class="f">push</span>(<span class="n">99</span>);','overflow — this demo holds 5',1); return; }
-    var x=vals[ST.length]; ST.push(x);
+    /* Only the array machine has a ceiling. The linked list keeps going, which
+       is the whole argument: same code, same ADT, different machine. */
+    if(impl==='arr' && ST.length>=5){
+      add('s.<span class="f">push</span>(<span class="n">99</span>);','overflow — this array holds 5',1);
+      msg('<b>Overflow.</b> This array machine was built with room for five. The ADT never promised a limit &mdash; <b>this machine</b> has one. Switch to the linked list and the same line works.');
+      return;
+    }
+    if(impl==='list' && ST.length>=8){
+      add('s.<span class="f">push</span>(<span class="n">99</span>);','stopping at 8 — the point is made',1);
+      msg('The list would keep going; eight is simply as many as fits on screen. <b>It never overflowed</b> — that is the difference the watch called <span class="mono">capacity</span> was telling you about.');
+      return;
+    }
+    var x = vals[ST.length]!==undefined ? vals[ST.length] : (ST.length+1)*10;
+    ST.push(x);
     add('s.<span class="f">push</span>(<span class="n">'+x+'</span>);','size is now '+ST.length);
+    msg('<b>push('+x+')</b> — it goes on the top. <span class="mono">size</span> is now <b>'+ST.length+'</b>. You did not say where it should live; the machine decided.');
   };
   $('#adt-pop').onclick=function(){
-    if(!ST.length){ add('s.<span class="f">pop</span>();','underflow — the stack is empty',1); return; }
-    var x=ST.pop(); add('s.<span class="f">pop</span>();','removed '+x+', size is now '+ST.length);
+    if(!ST.length){
+      add('s.<span class="f">pop</span>();','underflow — the stack is empty',1);
+      msg('<b>Underflow.</b> There is nothing to remove. Both machines fail the same way, because the <b>ADT</b> is what failed, not the array.');
+      return;
+    }
+    var x=ST.pop();
+    add('s.<span class="f">pop</span>();','removed '+x+', size is now '+ST.length);
+    msg('<b>pop()</b> removed <b>'+x+'</b> — the newest value, never the oldest. <span class="mono">size</span> is now <b>'+ST.length+'</b>.');
   };
   $('#adt-peek').onclick=function(){
     if(!ST.length){ add('cout &lt;&lt; s.<span class="f">top</span>();','the stack is empty',1); return; }
     var x=ST[ST.length-1];
     out += (out?' ':'')+x;
     add('cout &lt;&lt; s.<span class="f">top</span>();','prints '+x+' — nothing removed');
+    msg('<b>top()</b> prints <b>'+x+'</b> and <b>removes nothing</b>. Watch <span class="mono">size</span>: it did not move.');
   };
   $('#adt-empty').onclick=function(){
     var b=ST.length===0;
     out += (out?' ':'')+b;
     add('cout &lt;&lt; s.<span class="f">empty</span>();','prints '+b);
+    msg('<b>empty()</b> prints <b>'+b+'</b>. It is a question, not a change &mdash; nothing on the right moved.');
   };
-  $('#adt-reset').onclick=function(){ ST=[]; LINES=[]; out=''; draw(); };
   $$('.implsw button').forEach(function(b){ b.addEventListener('click',function(){
+    /* Six values will not fit in a machine built for five. Refusing the swap
+       and saying why teaches more than silently dropping the extras. */
+    if(b.dataset.impl==='arr' && ST.length>5){
+      msg('The array machine holds <b>five</b>, and you are holding <b>'+ST.length+'</b>. It cannot take them. <span class="mono">pop()</span> down to five and try again &mdash; that refusal is exactly what <span class="mono">capacity</span> was warning you about.');
+      return;
+    }
     $$('.implsw button').forEach(function(x){x.classList.remove('on');});
-    b.classList.add('on'); impl=b.dataset.impl; drawImpl();
+    b.classList.add('on'); impl=b.dataset.impl; drawImpl(); watches();
     $('#adt-foot').innerHTML='<b>You just swapped the entire machine</b> — and not one line of the code on the left had to change, and the output is identical. <b>That is an ADT.</b>';
+    msg('You swapped the <b>machine</b>, not the code. Look at the watches: <span class="mono">size</span>, <span class="mono">top</span> and <span class="mono">empty()</span> are unchanged. Only <span class="mono">capacity</span> moved &mdash; and that was never part of the promise.');
   });});
+
+  api=Sim.make({
+    el:'#adt-sim',
+    name:'The Stack ADT, and the machine underneath it',
+    render:function(st,i,a){ api=a; draw(); },
+    onReset:function(a){
+      ST=[]; LINES=[]; out=''; draw();
+      a.msg('Cleared. Push a few values, then switch the machine on the right and watch the left side not change.');
+    }
+  });
   draw();
 })();
 
@@ -2105,14 +2489,41 @@ var ITEMS=[
   document.addEventListener('keydown',function(e){ if(e.key==='Escape') close(); });
 })();
 
-/* ---- QUIZZES ---- */
-$$('.quiz').forEach(function(q){
-  var o=$$('.qopt',q),e=$('.qexp',q);
-  o.forEach(function(b){b.addEventListener('click',function(){
-    o.forEach(function(x){x.disabled=true;if(x.dataset.ok)x.classList.add('ok');});
-    if(!b.dataset.ok)b.classList.add('no'); e.classList.add('show');
-  });});
-});
+/* ---- QUIZZES, and the ribbon that counts them ----
+   Answers are remembered, so coming back to the page does not wipe the record
+   of what was already worked through. */
+(function(){
+  var KEY='cse2321-s1c2-quiz';
+  var done={}; try{done=JSON.parse(localStorage.getItem(KEY)||'{}');}catch(e){done={};}
+  var quizzes=$$('.quiz'), total=quizzes.length;
+  function save(){ try{localStorage.setItem(KEY,JSON.stringify(done));}catch(e){} }
+  function show(){
+    var k=Object.keys(done).length;
+    if($('#pbar')) $('#pbar').style.width=(total?Math.round(k/total*100):0)+'%';
+    if($('#pnum')) $('#pnum').textContent=k+' / '+total;
+  }
+  quizzes.forEach(function(q,qi){
+    var id=q.dataset.q||('q'+qi), o=$$('.qopt',q), e=$('.qexp',q);
+    function lock(picked){
+      o.forEach(function(x){ x.disabled=true; if(x.dataset.ok) x.classList.add('ok'); });
+      if(picked>=0 && o[picked] && !o[picked].dataset.ok) o[picked].classList.add('no');
+      if(e) e.classList.add('show');
+    }
+    if(done[id]) lock(done[id].p===undefined?-1:done[id].p);
+    o.forEach(function(b,i){ b.addEventListener('click',function(){
+      done[id]={ok:!!b.dataset.ok,p:i}; save(); show(); lock(i);
+    });});
+  });
+  if($('#preset')) $('#preset').onclick=function(){
+    done={}; save(); show();
+    quizzes.forEach(function(q){
+      $$('.qopt',q).forEach(function(x){ x.disabled=false; x.classList.remove('ok','no'); });
+      if($('.qexp',q)) $('.qexp',q).classList.remove('show');
+    });
+  };
+  show();
+})();
+
 document.addEventListener('keydown',function(e){
   if(e.target.tagName==='INPUT')return;
   if(e.key==='j'||e.key==='ArrowDown'){e.preventDefault();jump(1);}
@@ -2173,8 +2584,8 @@ document.addEventListener('keydown',function(e){
     document.body.style.overflow = v?'hidden':'';
   }
   fab.querySelector('.fmenu').onclick=function(){open(!dr.classList.contains('on'));};
-  fab.querySelector('.fup').onclick=function(){jump(-1);};
-  fab.querySelector('.fdn').onclick=function(){jump(1);};
+  fab.querySelector('.fup').onclick=function(){window.cardJump(-1);};
+  fab.querySelector('.fdn').onclick=function(){window.cardJump(1);};
   dr.querySelector('.dx').onclick=function(){open(false);};
   scrim.onclick=function(){open(false);};
   dr.addEventListener('click',function(e){
@@ -2257,6 +2668,81 @@ document.addEventListener('keydown',function(e){
   window.addEventListener('scroll',function(){
     if(!tick) tick=requestAnimationFrame(upd);
   },{passive:true});
+})();
+/* ---------- YOUR TURN: ask before showing ----------
+   The question comes first and the answer is one button away. It is never
+   hidden from someone revising at home — the reveal is a prompt, not a gate. */
+(function(){
+  Array.prototype.forEach.call(document.querySelectorAll('.turn'),function(t){
+    var btn=t.querySelector('.tbtn'), ans=t.querySelector('.ta');
+    if(!btn||!ans) return;
+    var label=btn.textContent;
+    btn.addEventListener('click',function(){
+      var on=ans.classList.toggle('on');
+      btn.textContent = on ? 'Hide it again' : label;
+    });
+  });
+})();
+
+/* ---------- THE TAKEAWAY RAIL ----------
+   Each story carries one sentence in data-key. As you reach a story the
+   sentence is added to a rail on the right — forward only, so going back to
+   re-tell something never removes it. By the last card it is the revision list. */
+(function(){
+  var cards=Array.prototype.slice.call(document.querySelectorAll('#p-lesson .card[data-key]'));
+  if(!cards.length) return;
+  var KEY='cse2321-s1c2-keys';
+  var rail=document.createElement('div'); rail.className='keyrail';
+  rail.innerHTML='<div class="krhd" role="button" tabindex="0" aria-expanded="true">'+
+      '<span class="kt">So far</span><span class="kn" id="kr-n">0</span><span class="kv">\u25be</span></div>'+
+    '<div class="kbody" id="kr-body"></div>';
+  document.body.appendChild(rail);
+  var body=rail.querySelector('#kr-body'), num=rail.querySelector('#kr-n'), hd=rail.querySelector('.krhd');
+  var shown=0;
+  try{ if(localStorage.getItem(KEY)==='hid') rail.classList.add('hid'); }catch(e){}
+
+  function add(upto){
+    if(upto<=shown) return;
+    for(var i=shown;i<upto;i++){
+      var c=cards[i];
+      var b=(c.querySelector('.badge')||{}).textContent||String(i+1);
+      var d=document.createElement('div'); d.className='kitem new';
+      d.innerHTML='<span class="kx">'+b+'</span>'+c.getAttribute('data-key');
+      body.appendChild(d);
+    }
+    shown=upto; num.textContent=shown;
+    Array.prototype.forEach.call(body.querySelectorAll('.kitem'),function(k,i){
+      k.classList.toggle('new', i===shown-1);
+    });
+    body.scrollTop=body.scrollHeight;
+  }
+  hd.addEventListener('click',function(){
+    rail.classList.toggle('hid');
+    hd.setAttribute('aria-expanded', rail.classList.contains('hid')?'false':'true');
+    try{ localStorage.setItem(KEY, rail.classList.contains('hid')?'hid':'open'); }catch(e){}
+  });
+  hd.addEventListener('keydown',function(e){
+    if(e.key==='Enter'||e.key===' '){ e.preventDefault(); hd.click(); }
+  });
+
+  /* A card's takeaway IS its answer. Where a card carries a Your turn, hold the
+     takeaway back until the reader has scrolled past the question — otherwise
+     the rail answers it before anyone has had a chance to think. */
+  function trigger(c){
+    var t=c.querySelector('.turn'), r=(t||c).getBoundingClientRect();
+    return t ? r.bottom : r.top;
+  }
+  var tick=null;
+  function scan(){
+    var y=window.innerHeight*0.55, k=0;
+    for(var i=0;i<cards.length;i++) if(trigger(cards[i])<=y) k=i+1;
+    add(k);
+  }
+  window.addEventListener('scroll',function(){
+    if(tick) return;
+    tick=setTimeout(function(){ tick=null; scan(); },180);
+  },{passive:true});
+  scan();
 })();
 </script>
 

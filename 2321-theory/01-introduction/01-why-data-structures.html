@@ -137,7 +137,11 @@ pre.code{font-family:var(--mono);font-size:.78rem;line-height:1.75;background:#0
 
 /* ============ BUTTONS ============ */
 .btn{appearance:none;font-family:inherit;font-weight:800;font-size:.82rem;padding:.6rem 1.15rem;border-radius:.55rem;
-     cursor:pointer;border:none;background:var(--accent);color:#fff;box-shadow:var(--sh-sm);
+     cursor:pointer;background:var(--accent);color:#fff;box-shadow:var(--sh-sm);
+     /* a transparent border of the same width .btn.ghost uses, so that
+        lighting a button in a toggle group does not change its box and
+        shift the whole control row by 2px under the cursor */
+     border:2px solid transparent;
      transition:filter .15s,transform .1s}
 .btn:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px)}
 .btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
@@ -209,13 +213,16 @@ pre.code{font-family:var(--mono);font-size:.78rem;line-height:1.75;background:#0
 /* ============ STACK TOY ============ */
 .stacks{display:grid;gap:1rem;margin:1rem 0}
 @media(min-width:600px){.stacks{grid-template-columns:1fr 1fr}}
-.stk{border:2px solid var(--line);border-radius:.8rem;background:#f8fafc;padding:.9rem;min-height:210px;
+/* a fixed height, not a minimum: the pile must not grow under the buttons
+   and the narration while someone is pressing them */
+.stk{border:2px solid var(--line);border-radius:.8rem;background:#f8fafc;padding:.9rem;height:292px;
      display:flex;flex-direction:column}
 .stk h5{font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);
         margin-bottom:.6rem;text-align:center}
 .stk.flash{animation:flash .55s ease}
 @keyframes flash{0%,100%{background:#f8fafc;border-color:var(--line)}40%{background:#fee2e2;border-color:#f87171}}
-.cells{display:flex;flex-direction:column-reverse;gap:.3rem;flex:1;justify-content:flex-start}
+.cells{display:flex;flex-direction:column-reverse;gap:.3rem;flex:1;justify-content:flex-start;
+       overflow-y:auto;min-height:0}
 .cell{background:#fff;border:2px solid #6366f1;border-radius:.4rem;padding:.4rem;text-align:center;
       font-family:var(--mono);font-weight:700;font-size:.95rem;color:#4338ca;animation:drop .25s ease}
 .stk.redo .cell{border-color:#f59e0b;color:#b45309}
@@ -223,7 +230,10 @@ pre.code{font-family:var(--mono);font-size:.78rem;line-height:1.75;background:#0
 .empty{color:#cbd5e1;font-size:.78rem;text-align:center;font-weight:700;margin:auto 0}
 .typed{font-family:var(--mono);font-size:1.1rem;font-weight:700;background:#0f172a;color:#e2e8f0;padding:.7rem .9rem;
        border-radius:.5rem;min-height:2.9rem;word-break:break-all;letter-spacing:.02em}
-.typed .car{display:inline-block;width:2px;height:1.05em;background:#22d3ee;vertical-align:-2px;animation:bl 1s steps(2) infinite}
+.typed .tph{color:#475569;font-style:italic;font-weight:500;letter-spacing:0}
+/* this one keeps its buttons at the very top: you press them, you do not read
+   the picture first — and they must never be under the pile that is growing */
+#ed-sim .simctl{order:-1;margin:0 0 .75rem}
 @keyframes bl{50%{opacity:0}}
 
 /* ============ PLATFORM CARDS ============ */
@@ -562,7 +572,91 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 .revtog.solo{display:block;margin:0 0 1.2rem;border-color:var(--line);color:var(--ink-soft);background:#fff}
 .revtog.solo:hover{color:var(--ink);border-color:var(--line-strong)}
 .revtog.solo.on{background:#6d28d9;border-color:#7c3aed;color:#fff}
+
+/* ============ YOUR TURN — ask before showing ============ */
+.turn{border:1.5px solid #c4b5fd;border-radius:.9rem;margin:1.2rem 0;overflow:hidden;
+  background:linear-gradient(180deg,#faf8ff,#f6f3ff)}
+.turn .th{display:flex;align-items:center;gap:.5rem;padding:.7rem .95rem;
+  border-bottom:1.5px solid #ddd6fe;background:rgba(255,255,255,.6)}
+.turn .th b{font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#6d28d9}
+.turn .tq{padding:.85rem .95rem;font-size:.98rem;line-height:1.6;color:var(--ink)}
+.turn .tq p{margin:0 0 .6rem}
+.turn .tq p:last-child{margin:0}
+.turn .tbtn{appearance:none;font-family:inherit;font-size:.78rem;font-weight:800;
+  border:1.5px solid #a78bfa;background:#fff;color:#6d28d9;border-radius:.5rem;
+  padding:.42rem .85rem;cursor:pointer;margin:0 .95rem .95rem;transition:.15s}
+.turn .tbtn:hover{background:#f5f3ff;border-color:#7c3aed}
+.turn .ta{display:none;padding:0 .95rem .95rem;font-size:.95rem;line-height:1.6;color:var(--ink)}
+.turn .ta.on{display:block;animation:drop .3s ease}
+.turn .ta p{margin:0 0 .55rem}
+.turn .ta p:last-child{margin:0}
+body.revealall .turn .ta{display:block}
+
+/* ============ A QUESTION FROM A REAL PAPER ============ */
+.pastq{border:1.5px solid #fecdd3;border-left:4px solid #e11d48;border-radius:.7rem;
+  background:linear-gradient(180deg,#fff7f8,#fff);padding:.9rem 1rem;margin:1.1rem 0}
+.pastq .pqh{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;margin:0 0 .55rem}
+.pastq .pqs{font-size:.58rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  background:#e11d48;color:#fff;border-radius:.3rem;padding:.16rem .45rem}
+.pastq .pqw{font-size:.68rem;font-weight:700;color:#9f1239}
+.pastq .pqm{margin-left:auto;font-family:var(--mono);font-size:.66rem;font-weight:800;color:#be123c;
+  background:#ffe4e6;border-radius:999px;padding:.14rem .55rem;white-space:nowrap}
+.pastq .pqt{margin:0;font-size:.93rem;line-height:1.68;color:#4c0519;font-style:italic}
+.pastq .pqt b{font-style:normal;color:#881337}
+
+/* ============ THE TAKEAWAY RAIL ============
+   One sentence per story, added as the reader reaches it. Forward only, so
+   going back to re-explain something never removes it. By the last card it
+   is the revision list. */
+.keyrail{position:fixed;right:1rem;top:5.6rem;bottom:10.6rem;width:290px;z-index:40;
+  display:none;flex-direction:column;pointer-events:none}
+/* 1080px reading column + 290px rail + gutters needs ~1720px before the rail
+   stops sitting on top of the text. Segment 3 shows it from 1240px and the
+   cards' right edge is occluded there; this is the width where it actually fits. */
+@media(min-width:1720px){.keyrail{display:flex}}
+.keyrail.hid .kbody{display:none}
+.krhd{pointer-events:auto;display:flex;align-items:center;gap:.55rem;align-self:flex-end;
+  background:linear-gradient(180deg,#fff,#fbfcff);border:1px solid #dfe3f2;border-radius:.7rem;
+  padding:.42rem .7rem;box-shadow:0 10px 26px -18px rgba(30,27,75,.55);cursor:pointer;transition:.15s}
+.krhd:hover{border-color:#a5b4fc;box-shadow:0 12px 30px -18px rgba(79,70,229,.6)}
+.krhd .kt{font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#7b8199}
+.krhd .kn{font-family:var(--mono);font-size:.66rem;font-weight:800;color:#fff;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:.35rem;padding:.06rem .38rem}
+.krhd .kv{color:#b4bcd8;font-size:.66rem;transition:transform .22s}
+.keyrail.hid .krhd .kv{transform:rotate(-90deg)}
+.kbody{pointer-events:auto;margin-top:.5rem;overflow-y:auto;display:flex;flex-direction:column;gap:.45rem;
+  padding:.2rem .2rem .5rem;scrollbar-width:thin;mask-image:linear-gradient(180deg,transparent 0,#000 12px)}
+.kitem{position:relative;background:#fff;border:1px solid #e6e9f7;border-radius:.6rem;
+  padding:.6rem .75rem .6rem 2.5rem;font-size:.82rem;line-height:1.5;color:#4c5480;
+  box-shadow:0 10px 24px -20px rgba(30,27,75,.6);animation:kin .38s cubic-bezier(.32,1.1,.4,1) both}
+.kitem b{color:#1e1b4b;font-weight:700}
+.kitem .kx{position:absolute;left:.6rem;top:.62rem;width:1.45rem;height:1.45rem;border-radius:.35rem;
+  display:grid;place-items:center;font-family:var(--mono);font-size:.62rem;font-weight:800;
+  background:#eef1ff;color:#4f46e5}
+.kitem.new{border-color:#c4b5fd;box-shadow:0 12px 28px -18px rgba(124,58,237,.6)}
+.kitem.new .kx{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff}
+@keyframes kin{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.kitem{animation:none}}
+body.fsopen .keyrail{display:none}      /* never over a projected screen */
+
+/* ============ THIS PAGE'S OWN PICTURES, ON THE FOCUS BENCH ============
+   Focus is a dark surface. These three widgets are drawn in page colours, so
+   they get a dark set here — nowhere else, and never on the page itself. */
+#map-sim .ivwrap{max-height:min(56vh,520px);overflow:auto;margin:0}.fsov:not(.lit) .fsbody .ivwrap{background:#151c30;border-color:#232b45}
+/* the id rule above wins on specificity, so the Focus override has to match it */
+.fsbody #map-sim .ivwrap{max-height:none;overflow:auto;flex:1 1 auto;min-height:0}
+.fsbody #map-sim .simbd{display:flex;flex-direction:column;min-height:0}.fsov:not(.lit) .fsbody .ivhead{color:#6b769c}.fsov:not(.lit) .fsbody .ivhead b{color:#e6e9f7}.fsov:not(.lit) .fsbody .ivhead span{background:#2b3554}.fsov:not(.lit) .fsbody .ivq{background:#1b2238;border-color:#2b3554}.fsbody .ivq .qt{font-size:.95rem}
+.fsov:not(.lit) .fsbody .ivq .qt{color:#8f9ac2}.fsov:not(.lit) .fsbody .ivq.mapped .qt{color:#fff}.fsov:not(.lit) .fsbody .ivq.skip .qt{color:#5b678f}.fsov:not(.lit) .fsbody .lane{background:#1b2238;border-color:#2b3554}.fsov:not(.lit) .fsbody .lane.win{background:#0d2b24;border-color:#059669}.fsov:not(.lit) .fsbody .lane.lose{background:#2e1521;border-color:#e11d48}.fsbody .lane h4{font-size:1.05rem}
+.fsov:not(.lit) .fsbody .lane h4{color:#e6e9f7}.fsbody .lane .way{font-size:.82rem}
+.fsov:not(.lit) .fsbody .lane .way{color:#8f9ac2}.fsbody .lane .count{font-size:1.8rem}
+.fsov:not(.lit) .fsbody .lane .count{color:#fff}.fsbody .lane .pct,.fsbody .lane .verdict{font-size:.9rem}
+.fsov:not(.lit) .fsbody .lane .pct,.fsov:not(.lit) .fsbody .lane .verdict{color:#c3cbe4}.fsov:not(.lit) .fsbody .meter{background:#2b3554}.fsov:not(.lit) .fsbody .stk{background:#1b2238;border-color:#2b3554}.fsbody .stk h5{font-size:.8rem}
+.fsov:not(.lit) .fsbody .stk h5{color:#6b769c}.fsbody .cell{font-size:1.15rem}
+.fsov:not(.lit) .fsbody .cell{background:#151c30;border-color:#818cf8;color:#c7d2fe}.fsov:not(.lit) .fsbody .stk.redo .cell{border-color:#f59e0b;color:#fcd34d}.fsbody .empty{font-size:.9rem}
+.fsov:not(.lit) .fsbody .empty{color:#4c5680}.fsbody .typed{font-size:1.5rem}
+.fsov:not(.lit) .fsbody .typed{background:#0b1122;border:1px solid #232b45}
 </style>
+<link rel="stylesheet" href="../assets/sim.css">
 </head>
 <body>
 <div class="topbar">
@@ -607,7 +701,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 <main class="wrap">
 
 <!-- ============ 1 · WEDDING ============ -->
-<article class="card numbered" id="s1" style="--accent:#f59e0b">
+<article class="card numbered" id="s1" data-key="The subject follows you out of the room. A marriage talk turned into a viva." style="--accent:#f59e0b">
   <span class="badge">1</span>
   <div class="hdr-row">
     <div><p class="kicker">Story one · Laugh</p><h2>A wedding. And a viva nobody asked for.</h2></div>
@@ -632,7 +726,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 </article>
 
 <!-- ============ 2 · INTERVIEW ============ -->
-<article class="card numbered" id="s2" style="--accent:#e11d48">
+<article class="card numbered" id="s2" data-key="Seventeen of the twenty-nine questions in a real interview came from <b>this course</b>. The transcript is the syllabus." style="--accent:#e11d48">
   <span class="badge">2</span>
   <div class="hdr-row">
     <div><p class="kicker">Story two · Fear</p><h2>61 minutes. One job. These 29 questions.</h2></div>
@@ -641,12 +735,25 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 
   <p>A student from this university sat in a job interview and wrote down <b>every single question</b> they asked him. Here is his list, in the exact order it happened. <b>Read it in silence first.</b></p>
 
-  <div class="btnrow">
-    <button class="btn sm" id="map-all" style="background:#e11d48">Show me where we teach each one</button>
-    <button class="btn sm ghost" id="map-reset">Clear</button>
+  <div class="sim" id="map-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Where each question is taught</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+      <div class="simrail"></div>
+      <div class="ivwrap" id="ivwrap"></div>
+      <div class="simmsg"><span class="smn">1</span><p></p></div>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#e11d48">Next segment &#9656;</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 10</span>
+      </div>
+    </div>
   </div>
-
-  <div class="ivwrap" id="ivwrap"></div>
 
   <div class="ivstat" id="ivstat"></div>
 
@@ -684,7 +791,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 </article>
 
 <!-- ============ 3 · FACEBOOK ============ -->
-<article class="card numbered" id="s3" style="--accent:#6366f1">
+<article class="card numbered" id="s3" data-key="The slow way gets slower when the <b>data</b> grows. A good structure gets slower only when the <b>question</b> grows." style="--accent:#6366f1">
   <span class="badge">3</span>
   <div class="hdr-row">
     <div><p class="kicker">Story three · Wow</p><h2>You search "Hero Alam" on Facebook.</h2></div>
@@ -781,6 +888,13 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
     <h3>Watch it happen</h3>
     <p>Press start. Both are doing the <b>same search</b> for the <b>same name</b>.</p>
 
+    <div class="sim" id="race-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">3,000,000,000 names against 9 letters</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
     <div class="race">
       <div class="lane lose" id="lane-lin">
         <h4>Check every name</h4>
@@ -799,9 +913,14 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
         <p class="verdict" id="v-tri"></p>
       </div>
     </div>
-    <div class="btnrow">
-      <button class="btn" id="race-go" style="background:#6366f1">Start the search</button>
-      <button class="btn ghost sm" id="race-reset">Reset</button>
+      <div class="simmsg"><span class="smn">&#9654;</span><p id="race-msg">Both lanes are looking for the same name. Press start and watch which one is still going.</p></div>
+      <div class="simctl">
+        <button class="btn" id="race-go" style="background:#6366f1">Start the search</button>
+        <button class="btn ghost sm" id="race-pause" disabled>&#10074;&#10074; Pause</button>
+        <button class="btn ghost sm" data-k="reset" id="race-reset">Reset</button>
+        <span class="simmeter">time gone <b id="race-secs">0.0s</b></span>
+      </div>
+    </div>
     </div>
 
     <div class="bridge" style="--accent:#6366f1">
@@ -868,7 +987,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 </article>
 
 <!-- ============ 4 · CTRL+Z ============ -->
-<article class="card numbered" id="s4" style="--accent:#0d9488">
+<article class="card numbered" id="s4" data-key="Undo and Redo are two stacks. Typing pushes to Undo <b>and clears Redo</b> — nobody designed that, it falls out of the structure." style="--accent:#0d9488">
   <span class="badge">4</span>
   <div class="hdr-row">
     <div><p class="kicker">Story four · Oh, I know this</p><h2>You pressed Ctrl + Z this morning.</h2></div>
@@ -884,22 +1003,44 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
     <li>And here is the strange part — <b>type one new letter and Redo dies.</b> Gone. Forever.</li>
   </ul>
 
+  <p>Two piles are doing that work: one holding what you typed, one holding what you undid. Each of them
+  is a <b>stack</b> &mdash; a pile you can only touch at the top. You <b>push</b> something on, and the only
+  thing you can take off is the one you put on <b>last</b>. Like a stack of plates: last plate on, first
+  plate off.</p>
+
   <p>Why should typing one small letter destroy your Redo? Try it below and watch.</p>
 
-  <div class="box">
-    <p class="bt">Type here, then press Undo and Redo</p>
-    <div class="typed" id="ed-text"><span class="car"></span></div>
-    <div class="btnrow">
-      <button class="btn sm" id="ed-type" style="background:#0d9488">Type a letter</button>
-      <button class="btn sm ghost" id="ed-undo">↶ Undo</button>
-      <button class="btn sm ghost" id="ed-redo">↷ Redo</button>
-      <button class="btn sm ghost" id="ed-clear">Reset</button>
+  <div class="sim" id="ed-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Type here, then press Undo and Redo</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
     </div>
-    <div class="stacks">
-      <div class="stk" id="stk-u"><h5>Undo stack</h5><div class="cells" id="cells-u"></div></div>
-      <div class="stk redo" id="stk-r"><h5>Redo stack</h5><div class="cells" id="cells-r"></div></div>
+    <div class="simbd">
+      <div class="simctl">
+        <button class="btn sm" id="ed-type" style="background:#0d9488">Type a letter</button>
+        <button class="btn sm ghost" id="ed-undo">↶ Undo</button>
+        <button class="btn sm ghost" id="ed-redo">↷ Redo</button>
+        <button class="btn sm ghost" data-k="reset" id="ed-clear">Reset</button>
+      </div>
+      <div class="typed" id="ed-text"><span class="tph">nothing typed yet</span></div>
+      <div class="stacks">
+        <div class="stk" id="stk-u"><h5>Undo stack</h5><div class="cells" id="cells-u"></div></div>
+        <div class="stk redo" id="stk-r"><h5>Redo stack</h5><div class="cells" id="cells-r"></div></div>
+      </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">↶</span><p id="ed-msg">Press "Type a letter" a few times. Then Undo. Then Redo. Then Undo twice and type again.</p></div>
     </div>
-    <p class="subtle" id="ed-msg" style="min-height:1.3rem">Press "Type a letter" a few times. Then Undo. Then Redo. Then Undo twice and type again.</p>
+  </div>
+
+  <div class="note13">
+    <span class="ic">📌</span>
+    <div>
+      <p><b>If the stack part has not landed yet, that is fine.</b></p>
+      <p style="margin-top:.5rem">Stacks get a whole segment of their own &mdash; <b>Segment 4</b>, with recursion &mdash; where
+      we build one from scratch and write the code for push and pop. Today you only need to have <b>seen</b> one
+      working, and to know that you have been using two of them every day without being told.</p>
+    </div>
   </div>
 
   <h3>That is the whole feature</h3>
@@ -911,10 +1052,10 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 
   <p style="margin-top:1rem">Nobody sat in a meeting and decided "Redo should die when you type". <b>It happens by itself</b>, because of the data structure they chose. Two stacks. That is all.</p>
 
-  <div class="box bad">
-    <p class="bt">🎓 And now look at your own final exam paper</p>
-    <p style="margin:0"><b>Spring 2026 Final, Question 1(c):</b> <em>"An editor tracks document changes using an Undo Stack and a Redo Stack… Write a program to process a sequence of N operations and display the final contents of the Undo Stack."</em></p>
-    <p style="margin:.6rem 0 0">The full question is in the <b>Exam &amp; Interview</b> tab at the top.</p>
+  <div class="pastq">
+    <div class="pqh"><span class="pqs">Past exam</span><span class="pqw">Final Term, Spring 2026 &middot; Q1 (c)</span><span class="pqm">4 marks</span></div>
+    <p class="pqt">"An editor tracks document changes using an <b>Undo Stack</b> and a <b>Redo Stack</b>. Use integer codes to represent operations: <b>1</b> for Type, <b>2</b> for Undo, <b>3</b> for Redo. Write a program to process a sequence of N operations and display the final contents of the Undo Stack."</p>
+    <p style="margin:.7rem 0 0;font-size:.82rem;color:#9f1239"><b>Input <span class="mono">4 / 1 5 / 1 15 / 2 / 1 25</span> gives <span class="mono">5 25</span></b> &mdash; the 15 is gone, for exactly the reason you just found. The full question, with both sample runs, is in the <b>Exam &amp; Interview</b> tab.</p>
   </div>
 
   <div class="bridge" style="--accent:#0d9488">
@@ -924,7 +1065,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 </article>
 
 <!-- ============ 5 · WHERE IT TAKES YOU ============ -->
-<article class="card numbered" id="s5" style="--accent:#7c3aed">
+<article class="card numbered" id="s5" data-key="Every product you want to build has a data structure at its centre." style="--accent:#7c3aed">
   <span class="badge">5</span>
   <div class="hdr-row">
     <div><p class="kicker">Story five · Where it takes you</p><h2>The engine inside everything you want to build</h2></div>
@@ -996,7 +1137,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 </article>
 
 <!-- ============ 6 · PLATFORMS ============ -->
-<article class="card numbered" id="s6" style="--accent:#16a34a">
+<article class="card numbered" id="s6" data-key="LeetCode teaches you the structures. Codeforces teaches you to think under time. You need both." style="--accent:#16a34a">
   <span class="badge">6</span>
   <div class="hdr-row">
     <div><p class="kicker">Your two tools</p><h2>LeetCode and Codeforces. You need both.</h2></div>
@@ -1070,7 +1211,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 </article>
 
 <!-- ============ CLOSING ============ -->
-<article class="card numbered" id="s7" style="--accent:#4f46e5">
+<article class="card numbered" id="s7" data-key="One right structure is the difference between <b>30 seconds</b> and <b>90 nanoseconds</b> for the same question." style="--accent:#4f46e5">
   <span class="badge">7</span>
   <div class="hdr-row">
     <div><p class="kicker">Before you go</p><h2>Five stories, one answer</h2></div>
@@ -1195,6 +1336,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
   </div>
 </footer>
 
+<script src="../assets/sim.js"></script>
 <script>
 (function(){
 "use strict";
@@ -1225,6 +1367,8 @@ function jump(d){
   if(t>s.length-1)t=s.length-1;
   window.scrollTo({top:Math.max(s[t].offsetTop-80,0),behavior:'smooth'});
 }
+/* the floating drawer lives in its own IIFE and needs this */
+window.cardJump=jump;
 /* ---------- INTERVIEW TRANSCRIPT (exact order from the note) ---------- */
 var IV = [
  {h:'Introduce yourself'},
@@ -1270,7 +1414,7 @@ var IV = [
       if(open){html+='</div>'; open=false;}
       html+='<p class="ivhead"><b>'+r.h+'</b><span></span></p><div class="ivlist">'; open=true;
     } else {
-      html+='<div class="ivq sg'+r.s+(r.skip?' skip':'')+'" data-c="'+r.c+'">'+
+      html+='<div class="ivq sg'+r.s+(r.skip?' skip':'')+'" data-c="'+r.c+'" data-s="'+r.s+'">'+
             '<span class="qt">'+r.q+(r.skip?' <em style="font-style:normal;font-size:.7rem;color:#94a3b8">— skipped by the interviewer</em>':'')+'</span>'+
             (r.n?'<span class="sgtag">'+r.n+'</span>':'')+'</div>';
     }
@@ -1288,10 +1432,49 @@ var IV = [
     '<div class="sgX"><p class="n">'+o+'</p><p class="l">from <b>other courses</b><br>OOP and DBMS</p></div>';
 })();
 
-$('#map-all').onclick=function(){
-  $$('.ivq').forEach(function(r,i){setTimeout(function(){r.classList.add('mapped');},i*45);});
-};
-$('#map-reset').onclick=function(){$$('.ivq').forEach(function(r){r.classList.remove('mapped');});};
+/* One press per segment, so the class watches their own syllabus assemble
+   itself out of an interview transcript. The running total is the argument. */
+var WALK=[
+ {g:'his list',s:null,
+  t:'Twenty-nine questions, in the order he was asked them. Nothing is marked yet &mdash; read down the list and count how many you could answer <b>today</b>.'},
+ {g:'seg 1',s:'1',
+  t:'<b>Segment 1</b> &mdash; the class you are sitting in. Three questions, and one of them is the warning at the bottom: every answer had to come with its time and space cost. Running total <b>3</b>.'},
+ {g:'seg 2',s:'2',
+  t:'<b>Segment 2 &middot; Arrays and strings</b> &mdash; one more. Running total <b>4</b>.'},
+ {g:'seg 3',s:'3',
+  t:'<b>Segment 3 &middot; Linked lists</b> &mdash; one more. Running total <b>5</b>.'},
+ {g:'seg 4',s:'4',
+  t:'<b>Segment 4 &middot; Stacks and recursion</b> &mdash; two more. Running total <b>7</b>.'},
+ {g:'seg 5',s:'5',
+  t:'<b>Segment 5 &middot; Queues</b> &mdash; one more. Running total <b>8</b>.'},
+ {g:'seg 6',s:'6',
+  t:'<b>Segment 6 &middot; Sorting</b> &mdash; one more. Running total <b>9</b>.'},
+ {g:'seg 8',s:'8',
+  t:'<b>Segment 8 &middot; Trees and heaps</b> &mdash; <b>eight questions from one segment</b>. Running total <b>17</b>. That is where the interview actually lived.'},
+ {g:'sem 4',s:'S4',
+  t:'These five are real, but they are not this course &mdash; they are <b>Algorithms, next semester</b>. On the board: <b>22</b>.'},
+ {g:'other',s:'X',
+  t:'Six from <b>OOP and DBMS</b>. That makes <b>28</b>. The twenty-ninth was &ldquo;introduce yourself&rdquo; &mdash; that one is on you.'}
+];
+Sim.make({
+  el:'#map-sim',
+  name:'Where each of the 29 questions is taught',
+  steps:WALK,
+  group:function(st){ return st.g; },
+  render:function(st,idx,api){
+    var want={},k;
+    for(k=1;k<=idx;k++) want[WALK[k].s]=1;
+    $$('.ivq').forEach(function(q){
+      q.classList.toggle('mapped', !!want[q.getAttribute('data-s')]);
+    });
+    api.msg(st.t);
+    /* Only move the list if the segment that just lit is off the bottom or the
+       top of its box — never re-centre on every press. */
+    var wrap=$('.ivwrap',api.el), first=st.s?$('.ivq[data-s="'+st.s+'"]',wrap):null;
+    if(wrap && first) api.reveal(first,wrap);
+    else if(wrap && !st.s) wrap.scrollTop=0;
+  }
+});
 
 /* ---------- GUESS 1 : how long for 1M linear searches ---------- */
 var p1=null;
@@ -1341,77 +1524,148 @@ function countTo(el,target,dur,dp,suffix){
   requestAnimationFrame(step);
 }
 
-/* ---------- SEARCH RACE ---------- */
-var raceRun=false;
-function fmt(n){return Math.floor(n).toLocaleString('en-US');}
-function resetRace(){
-  raceRun=false;
-  $('#c-lin').textContent='0'; $('#m-lin').style.width='0'; $('#p-lin').textContent='0.0000%'; $('#v-lin').textContent='';
-  $('#c-tri').textContent='0'; $('#m-tri').style.width='0'; $('#p-tri').textContent='0.0000%'; $('#v-tri').textContent='';
-  $('#race-go').disabled=false;
-}
-$('#race-reset').onclick=resetRace;
-$('#race-go').onclick=function(){
-  if(raceRun)return; raceRun=true; this.disabled=true;
-  var LIN=3e9, TRI=9, DUR=9000, t0=null, ti=0;
-  var tint=setInterval(function(){
-    ti++;
-    $('#c-tri').textContent=ti+' / 9 steps';
-    $('#m-tri').style.width=(ti/TRI*100)+'%';
-    $('#p-tri').textContent=(ti/TRI*100).toFixed(1)+'%';
-    if(ti>=TRI){clearInterval(tint);
-      $('#c-tri').textContent='9 steps';
-      $('#v-tri').innerHTML='<span class="hl-good">✅ DONE — found in 90 nanoseconds</span>';}
-  },100);
-  function step(ts){
-    if(!t0)t0=ts;
-    var k=Math.min((ts-t0)/DUR,1);
-    $('#c-lin').textContent=fmt(LIN*k);
+/* ---------- SEARCH RACE ----------
+   One clock drives both lanes, so Pause stops the pair together. The trie's
+   nine steps land inside the first 900 ms of a 9 s run; the other lane needs
+   the whole run. That gap is the entire point of the story. */
+(function(){
+  var LIN=3e9, TRI=9, DUR=9000, TRIMS=900;
+  var raf=null, elapsed=0, mark=0, running=false, api=null;
+  var go=$('#race-go'), pz=$('#race-pause');
+  function fmt(n){return Math.floor(n).toLocaleString('en-US');}
+
+  function paint(){
+    var k=Math.min(elapsed/DUR,1);
+    var ti=Math.min(TRI,Math.floor(elapsed/(TRIMS/TRI)));
+    $('#c-lin').textContent = k>=1 ? '3,000,000,000' : fmt(LIN*k);
     $('#m-lin').style.width=(k*100)+'%';
     $('#p-lin').textContent=(k*100).toFixed(4)+'%';
-    if(k<0.35)$('#v-lin').textContent='still going…';
-    else if(k<0.75)$('#v-lin').textContent='the trie finished long ago…';
-    else if(k<1)$('#v-lin').textContent='almost 3 billion…';
-    if(k<1)requestAnimationFrame(step);
-    else{$('#c-lin').textContent='3,000,000,000';
-      $('#v-lin').innerHTML='<span class="hl-bad">Finished — 30 seconds for ONE search</span>';
-      $('#race-go').disabled=false; raceRun=false;}
-  }
-  requestAnimationFrame(step);
-};
+    $('#m-tri').style.width=(ti/TRI*100)+'%';
+    $('#p-tri').textContent=(ti/TRI*100).toFixed(1)+'%';
+    $('#c-tri').textContent = ti>=TRI ? '9 steps' : ti+' / 9 steps';
+    $('#v-tri').innerHTML = ti>=TRI ? '<span class="hl-good">\u2705 DONE \u2014 found in 90 nanoseconds</span>' : '';
+    $('#race-secs').textContent=(30*k).toFixed(1)+'s';
 
-/* ---------- UNDO / REDO ---------- */
-var LETTERS='datastructure', U=[], R=[], li=0;
-function drawStacks(){
-  $('#cells-u').innerHTML = U.length ? U.map(function(c){return '<div class="cell">'+c+'</div>';}).join('') : '<p class="empty">empty</p>';
-  $('#cells-r').innerHTML = R.length ? R.map(function(c){return '<div class="cell">'+c+'</div>';}).join('') : '<p class="empty">empty</p>';
-  $('#ed-text').innerHTML = (U.join('')||'') + '<span class="car"></span>';
-}
-function msg(t){$('#ed-msg').innerHTML=t;}
-$('#ed-type').onclick=function(){
-  var ch=LETTERS[li%LETTERS.length]; li++; U.push(ch);
-  if(R.length){
-    R=[]; $('#stk-r').classList.add('flash');
-    setTimeout(function(){$('#stk-r').classList.remove('flash');},560);
-    msg('You typed <b>'+ch+'</b>. It went on the Undo stack — <b>and the whole Redo stack was wiped.</b> That is why Redo dies.');
-  } else msg('You typed <b>'+ch+'</b>. It was pushed on the Undo stack.');
-  drawStacks();
-};
-$('#ed-undo').onclick=function(){
-  if(!U.length){msg('Undo stack is empty. Nothing to undo.');return;}
-  var c=U.pop(); R.push(c); drawStacks();
-  msg('Undo: <b>'+c+'</b> moved from the Undo stack to the Redo stack.');
-};
-$('#ed-redo').onclick=function(){
-  if(!R.length){msg('Redo stack is empty. Nothing to redo.');return;}
-  var c=R.pop(); U.push(c); drawStacks();
-  msg('Redo: <b>'+c+'</b> moved back from the Redo stack to the Undo stack.');
-};
-$('#ed-clear').onclick=function(){
-  U=[];R=[];li=0;drawStacks();
-  msg('Reset. Try this: type 3 letters → Undo twice → then type once. Watch the Redo stack die.');
-};
-drawStacks();
+    if(elapsed===0){
+      $('#v-lin').textContent='';
+      if(api) api.msg('Both lanes are looking for the same name. Press start and watch which one is still going.');
+      return;
+    }
+    if(k>=1){
+      $('#v-lin').innerHTML='<span class="hl-bad">Finished \u2014 30 seconds for ONE search</span>';
+      if(api) api.msg('Done. <b>30 seconds</b> against <b>90 nanoseconds</b> \u2014 the same search, for the same name, on the same machine.');
+    } else if(ti>=TRI){
+      $('#v-lin').textContent = k<0.75 ? 'still going\u2026' : 'almost 3 billion\u2026';
+      if(api) api.msg('The trie stopped after <b>9</b> letters. The other lane has checked <b>'+fmt(LIN*k)+'</b> of 3,000,000,000 \u2014 that is <b>'+(k*100).toFixed(2)+'%</b>.');
+    } else {
+      if(api) api.msg('Both lanes started together. The trie is already <b>'+ti+'</b> letters in.');
+    }
+  }
+
+  function frame(ts){
+    if(!running) return;
+    if(!mark) mark=ts;
+    elapsed+=(ts-mark); mark=ts;
+    if(elapsed>=DUR){
+      elapsed=DUR; running=false;
+      go.disabled=false; go.textContent='Run it again';
+      pz.disabled=true; pz.innerHTML='\u2759\u2759 Pause';
+    }
+    paint();
+    if(running) raf=requestAnimationFrame(frame);
+  }
+
+  function start(){
+    if(running) return;
+    if(elapsed>=DUR) reset();
+    running=true; mark=0;
+    go.disabled=true; pz.disabled=false; pz.innerHTML='\u2759\u2759 Pause';
+    raf=requestAnimationFrame(frame);
+  }
+  function toggle(){
+    if(running){
+      running=false; if(raf) cancelAnimationFrame(raf); raf=null;
+      pz.innerHTML='\u25b6 Resume';
+      if(api) api.msg('Paused at <b>'+(30*Math.min(elapsed/DUR,1)).toFixed(1)+' seconds</b>. The trie is long finished; this lane is not.');
+    } else {
+      running=true; mark=0; pz.innerHTML='\u2759\u2759 Pause';
+      raf=requestAnimationFrame(frame);
+    }
+  }
+  function reset(){
+    running=false; if(raf) cancelAnimationFrame(raf); raf=null;
+    elapsed=0; mark=0;
+    go.disabled=false; go.textContent='Start the search';
+    pz.disabled=true; pz.innerHTML='\u2759\u2759 Pause';
+    $('#v-tri').textContent='';
+    paint();
+  }
+
+  api=Sim.make({
+    el:'#race-sim',
+    name:'3,000,000,000 names against 9 letters',
+    onReset:reset
+  });
+  go.addEventListener('click',start);
+  pz.addEventListener('click',toggle);
+  reset();
+})();
+
+/* ---------- UNDO / REDO ----------
+   Free-play: the student drives it, so there is no Next. What it gains is a
+   watch strip \u2014 redo.size is the number that has to be seen going to zero,
+   and until now nothing on screen said it had. */
+(function(){
+  var LETTERS='datastructure', U=[], R=[], li=0, wiped=false, api=null;
+
+  function draw(a){
+    $('#cells-u').innerHTML = U.length ? U.map(function(c){return '<div class="cell">'+c+'</div>';}).join('') : '<p class="empty">empty</p>';
+    $('#cells-r').innerHTML = R.length ? R.map(function(c){return '<div class="cell">'+c+'</div>';}).join('') : '<p class="empty">empty</p>';
+    $('#ed-text').innerHTML = U.length ? U.join('') : '<span class="tph">nothing typed yet</span>';
+    $('#ed-undo').disabled = !U.length;
+    $('#ed-redo').disabled = !R.length;
+    a.watch([
+      ['undo.size', U.length],
+      ['undo.top',  U.length ? U[U.length-1] : '\u2014'],
+      ['redo.size', R.length, wiped?'gone':''],
+      ['redo.top',  R.length ? R[R.length-1] : '\u2014']
+    ]);
+  }
+
+  api=Sim.make({
+    el:'#ed-sim',
+    name:'Undo and Redo, as two stacks',
+    render:function(st,i,a){ draw(a); },
+    onReset:function(a){
+      U=[];R=[];li=0;wiped=false; draw(a);
+      a.msg('Reset. Try this: type 3 letters \u2192 Undo twice \u2192 then type once. Watch the Redo stack die.');
+    }
+  });
+
+  $('#ed-type').onclick=function(){
+    var ch=LETTERS[li%LETTERS.length]; li++; U.push(ch);
+    if(R.length){
+      R=[]; wiped=true;
+      $('#stk-r').classList.add('flash');
+      setTimeout(function(){$('#stk-r').classList.remove('flash');},560);
+      draw(api);
+      api.msg('You typed <b>'+ch+'</b>. It went on the Undo stack \u2014 <b>and the whole Redo stack was wiped.</b> Watch <span class="mono">redo.size</span>: that is why Redo dies.');
+      return;
+    }
+    wiped=false; draw(api);
+    api.msg('You typed <b>'+ch+'</b>. It was pushed on the Undo stack.');
+  };
+  $('#ed-undo').onclick=function(){
+    if(!U.length) return;
+    var c=U.pop(); R.push(c); wiped=false; draw(api);
+    api.msg('Undo: <b>'+c+'</b> moved from the Undo stack to the Redo stack. Nothing was thrown away \u2014 yet.');
+  };
+  $('#ed-redo').onclick=function(){
+    if(!R.length) return;
+    var c=R.pop(); U.push(c); wiped=false; draw(api);
+    api.msg('Redo: <b>'+c+'</b> moved back from the Redo stack to the Undo stack.');
+  };
+})();
 
 /* ---------- QUIZZES ---------- */
 $$('.quiz').forEach(function(q){
@@ -1482,8 +1736,8 @@ document.addEventListener('keydown',function(e){
     document.body.style.overflow = v?'hidden':'';
   }
   fab.querySelector('.fmenu').onclick=function(){open(!dr.classList.contains('on'));};
-  fab.querySelector('.fup').onclick=function(){jump(-1);};
-  fab.querySelector('.fdn').onclick=function(){jump(1);};
+  fab.querySelector('.fup').onclick=function(){window.cardJump(-1);};
+  fab.querySelector('.fdn').onclick=function(){window.cardJump(1);};
   dr.querySelector('.dx').onclick=function(){open(false);};
   scrim.onclick=function(){open(false);};
   dr.addEventListener('click',function(e){
@@ -1566,6 +1820,81 @@ document.addEventListener('keydown',function(e){
   window.addEventListener('scroll',function(){
     if(!tick) tick=requestAnimationFrame(upd);
   },{passive:true});
+})();
+/* ---------- YOUR TURN: ask before showing ----------
+   The question comes first and the answer is one button away. It is never
+   hidden from someone revising at home — the reveal is a prompt, not a gate. */
+(function(){
+  Array.prototype.forEach.call(document.querySelectorAll('.turn'),function(t){
+    var btn=t.querySelector('.tbtn'), ans=t.querySelector('.ta');
+    if(!btn||!ans) return;
+    var label=btn.textContent;
+    btn.addEventListener('click',function(){
+      var on=ans.classList.toggle('on');
+      btn.textContent = on ? 'Hide it again' : label;
+    });
+  });
+})();
+
+/* ---------- THE TAKEAWAY RAIL ----------
+   Each story carries one sentence in data-key. As you reach a story the
+   sentence is added to a rail on the right — forward only, so going back to
+   re-tell something never removes it. By the last card it is the revision list. */
+(function(){
+  var cards=Array.prototype.slice.call(document.querySelectorAll('#p-lesson .card[data-key]'));
+  if(!cards.length) return;
+  var KEY='cse2321-s1c1-keys';
+  var rail=document.createElement('div'); rail.className='keyrail';
+  rail.innerHTML='<div class="krhd" role="button" tabindex="0" aria-expanded="true">'+
+      '<span class="kt">So far</span><span class="kn" id="kr-n">0</span><span class="kv">\u25be</span></div>'+
+    '<div class="kbody" id="kr-body"></div>';
+  document.body.appendChild(rail);
+  var body=rail.querySelector('#kr-body'), num=rail.querySelector('#kr-n'), hd=rail.querySelector('.krhd');
+  var shown=0;
+  try{ if(localStorage.getItem(KEY)==='hid') rail.classList.add('hid'); }catch(e){}
+
+  function add(upto){
+    if(upto<=shown) return;
+    for(var i=shown;i<upto;i++){
+      var c=cards[i];
+      var b=(c.querySelector('.badge')||{}).textContent||String(i+1);
+      var d=document.createElement('div'); d.className='kitem new';
+      d.innerHTML='<span class="kx">'+b+'</span>'+c.getAttribute('data-key');
+      body.appendChild(d);
+    }
+    shown=upto; num.textContent=shown;
+    Array.prototype.forEach.call(body.querySelectorAll('.kitem'),function(k,i){
+      k.classList.toggle('new', i===shown-1);
+    });
+    body.scrollTop=body.scrollHeight;
+  }
+  hd.addEventListener('click',function(){
+    rail.classList.toggle('hid');
+    hd.setAttribute('aria-expanded', rail.classList.contains('hid')?'false':'true');
+    try{ localStorage.setItem(KEY, rail.classList.contains('hid')?'hid':'open'); }catch(e){}
+  });
+  hd.addEventListener('keydown',function(e){
+    if(e.key==='Enter'||e.key===' '){ e.preventDefault(); hd.click(); }
+  });
+
+  /* A card's takeaway IS its answer. Where a card carries a Your turn, hold the
+     takeaway back until the reader has scrolled past the question — otherwise
+     the rail answers it before anyone has had a chance to think. */
+  function trigger(c){
+    var t=c.querySelector('.turn'), r=(t||c).getBoundingClientRect();
+    return t ? r.bottom : r.top;
+  }
+  var tick=null;
+  function scan(){
+    var y=window.innerHeight*0.55, k=0;
+    for(var i=0;i<cards.length;i++) if(trigger(cards[i])<=y) k=i+1;
+    add(k);
+  }
+  window.addEventListener('scroll',function(){
+    if(tick) return;
+    tick=setTimeout(function(){ tick=null; scan(); },180);
+  },{passive:true});
+  scan();
 })();
 </script>
 </body>

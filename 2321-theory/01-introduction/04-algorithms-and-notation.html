@@ -137,7 +137,11 @@ pre.code{font-family:var(--mono);font-size:.78rem;line-height:1.75;background:#0
 
 /* ============ BUTTONS ============ */
 .btn{appearance:none;font-family:inherit;font-weight:800;font-size:.82rem;padding:.6rem 1.15rem;border-radius:.55rem;
-     cursor:pointer;border:none;background:var(--accent);color:#fff;box-shadow:var(--sh-sm);
+     cursor:pointer;background:var(--accent);color:#fff;box-shadow:var(--sh-sm);
+     /* a transparent border of the same width .btn.ghost uses, so that
+        lighting a button in a toggle group does not change its box and
+        shift the whole control row by 2px under the cursor */
+     border:2px solid transparent;
      transition:filter .15s,transform .1s}
 .btn:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px)}
 .btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
@@ -274,6 +278,10 @@ ul.tight li,ol.tight li{margin-bottom:.4rem;font-size:.9rem}
 .algo .body{padding:.7rem .4rem}
 .algo .st{display:block;padding:.22rem .7rem;border-radius:.3rem;white-space:pre-wrap;transition:background .2s;color:#334155}
 .algo .st.cur{background:#fef3c7;box-shadow:inset 3px 0 0 #d97706;font-weight:700;color:#78350f}
+/* a step that TESTS something is tinted by what the test came to. Written
+   after .st.cur on purpose: same specificity, and this one must win. */
+.algo .st.simtrue{background:#ecfdf5;box-shadow:inset 3px 0 0 #059669;color:#065f46}
+.algo .st.simfalse{background:#fff1f2;box-shadow:inset 3px 0 0 #e11d48;color:#9f1239}
 .algo .st.done{color:#94a3b8}
 .algo .st .cm{color:#0891b2;font-style:italic}
 .algo .st .kw{color:#be123c;font-weight:700}
@@ -318,7 +326,10 @@ ul.tight li,ol.tight li{margin-bottom:.4rem;font-size:.9rem}
 .htrack{background:#f1f5f9;border-radius:.4rem;padding:3px;border:1px solid var(--line)}
 .hsteps{display:flex;gap:.3rem;flex-wrap:wrap;margin:.8rem 0}
 .hstep{font-family:var(--mono);font-size:.72rem;font-weight:700;padding:.28rem .55rem;border-radius:.35rem;
-       background:#fef3c7;color:#92400e;border:1px solid #fde68a;animation:drop .25s}
+       background:#fef3c7;color:#92400e;border:1px solid #fde68a;visibility:hidden}
+/* every cut is in the layout from step 1 and only becomes visible when the
+   press lands, so the buttons below never move while you are pressing them */
+.hstep.on{visibility:visible;animation:drop .25s}
 
 /* expansion chips */
 .expand{font-family:var(--mono);font-size:clamp(.8rem,3.2vw,1.05rem);font-weight:700;line-height:2;
@@ -333,6 +344,8 @@ ul.tight li,ol.tight li{margin-bottom:.4rem;font-size:.9rem}
 .fib.add{border-color:#d97706;background:#fffbeb}
 .fib.add .fv{color:#b45309}
 .fib.newv{border-color:#16a34a;background:#f0fdf4;animation:drop .3s}
+/* a term that has not been worked out yet holds its place and shows nothing */
+.fib.pend{visibility:hidden}
 .fib.newv .fv{color:#15803d}
 
 /* control structure cards */
@@ -544,6 +557,11 @@ figure.shp figcaption span{display:block;font-size:.68rem;color:var(--ink-mute);
 .fcn.no path{fill:#fff1f2;stroke:#fda4af}
 .fcn.cur rect,.fcn.cur path{fill:#e11d48;stroke:#9f1239}
 .fcn.cur text{fill:#fff}
+/* the whole point of landing on a diamond is the answer, so the diamond
+   itself carries it: green for Yes, red for No. Nothing else about the
+   drawing changes, and Yes/No stay labelled on the arrows as before. */
+.fcn.cur.simtrue rect,.fcn.cur.simtrue path{fill:#059669;stroke:#047857}
+.fcn.cur.simfalse rect,.fcn.cur.simfalse path{fill:#e11d48;stroke:#9f1239}
 .fcedges .fe{transition:stroke .2s,stroke-width .2s}
 .fcedges .fe.lit{stroke:#e11d48;stroke-width:3.4;marker-end:url(#fah)}
 
@@ -556,6 +574,9 @@ figure.shp figcaption span{display:block;font-size:.68rem;color:var(--ink-mute);
 
 .fcside .arr{justify-content:center;gap:.4rem}
 .fcside .acell{min-width:58px;padding:.5rem .35rem;border-width:2.5px}
+/* the index belongs above the value, the same way the tracer draws it three
+   sections up \u2014 side by side it read as "[0]30", one number */
+.fcside .acell .ai,.fcside .acell .av{display:block}
 .fcside .acell .ai{font-size:.62rem}
 .fcside .acell .av{font-size:1.3rem}
 .fcside .vars{max-width:340px;margin-left:auto;margin-right:auto}
@@ -735,6 +756,210 @@ body.codelight .exactbox .lo{color:#94a3b8}
          white-space:nowrap;transition:.15s;flex:0 0 auto}
 .codetog:hover{color:#e2e8f0;border-color:#64748b}
 
+/* ============ YOUR TURN \u2014 ask before showing ============ */
+.turn{border:1.5px solid #c4b5fd;border-radius:.9rem;margin:1.2rem 0;overflow:hidden;
+  background:linear-gradient(180deg,#faf8ff,#f6f3ff)}
+.turn .th{display:flex;align-items:center;gap:.5rem;padding:.7rem .95rem;
+  border-bottom:1.5px solid #ddd6fe;background:rgba(255,255,255,.6)}
+.turn .th b{font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#6d28d9}
+.turn .tq{padding:.85rem .95rem;font-size:.98rem;line-height:1.6;color:var(--ink)}
+.turn .tq p{margin:0 0 .6rem}
+.turn .tq p:last-child{margin:0}
+.turn .tbtn{appearance:none;font-family:inherit;font-size:.78rem;font-weight:800;
+  border:1.5px solid #a78bfa;background:#fff;color:#6d28d9;border-radius:.5rem;
+  padding:.42rem .85rem;cursor:pointer;margin:0 .95rem .95rem;transition:.15s}
+.turn .tbtn:hover{background:#f5f3ff;border-color:#7c3aed}
+.turn .ta{display:none;padding:0 .95rem .95rem;font-size:.95rem;line-height:1.6;color:var(--ink)}
+.turn .ta.on{display:block;animation:drop .3s ease}
+.turn .ta p{margin:0 0 .55rem}
+.turn .ta p:last-child{margin:0}
+body.revealall .turn .ta{display:block}
+
+/* ============ A QUESTION FROM A REAL PAPER ============ */
+.pastq{border:1.5px solid #fecdd3;border-left:4px solid #e11d48;border-radius:.7rem;
+  background:linear-gradient(180deg,#fff7f8,#fff);padding:.9rem 1rem;margin:1.1rem 0}
+.pastq .pqh{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;margin:0 0 .55rem}
+.pastq .pqs{font-size:.58rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  background:#e11d48;color:#fff;border-radius:.3rem;padding:.16rem .45rem}
+.pastq .pqw{font-size:.68rem;font-weight:700;color:#9f1239}
+.pastq .pqm{margin-left:auto;font-family:var(--mono);font-size:.66rem;font-weight:800;color:#be123c;
+  background:#ffe4e6;border-radius:999px;padding:.14rem .55rem;white-space:nowrap}
+.pastq .pqt{margin:0;font-size:.93rem;line-height:1.68;color:#4c0519;font-style:italic}
+.pastq .pqt b{font-style:normal;color:#881337}
+
+/* ============ QUIZ PROGRESS RIBBON ============ */
+.prog{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;
+  border:1px solid #e8ebfa;border-radius:.7rem;background:#fff;
+  padding:.55rem .8rem;margin:1.1rem 0 1.8rem;box-shadow:0 8px 22px -18px rgba(30,27,75,.5)}
+.prog .pk{font-size:.55rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#b4bcd8}
+.prog .pbar{flex:1;min-width:120px;height:8px;border-radius:99px;background:#eef2ff;overflow:hidden}
+.prog .pbar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#818cf8,#4f46e5);
+  transition:width .5s cubic-bezier(.32,1.1,.4,1)}
+.prog .pn{font-family:var(--mono);font-size:.78rem;font-weight:800;color:#4f46e5}
+.prog button{appearance:none;font-family:inherit;font-size:.68rem;font-weight:700;padding:.28rem .6rem;
+  border-radius:.4rem;border:1px solid var(--line);background:#fff;color:var(--ink-mute);cursor:pointer}
+.prog button:hover{border-color:#4f46e5;color:#1e1b4b}
+
+/* ============ THE TAKEAWAY RAIL ============ */
+.keyrail{position:fixed;right:1rem;top:5.6rem;bottom:10.6rem;width:290px;z-index:40;
+  display:none;flex-direction:column;pointer-events:none}
+/* 1080px column + 290px rail + gutters: below this the rail sits on the text */
+@media(min-width:1720px){.keyrail{display:flex}}
+.keyrail.hid .kbody{display:none}
+.krhd{pointer-events:auto;display:flex;align-items:center;gap:.55rem;align-self:flex-end;
+  background:linear-gradient(180deg,#fff,#fbfcff);border:1px solid #dfe3f2;border-radius:.7rem;
+  padding:.42rem .7rem;box-shadow:0 10px 26px -18px rgba(30,27,75,.55);cursor:pointer;transition:.15s}
+.krhd:hover{border-color:#a5b4fc;box-shadow:0 12px 30px -18px rgba(79,70,229,.6)}
+.krhd .kt{font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#7b8199}
+.krhd .kn{font-family:var(--mono);font-size:.66rem;font-weight:800;color:#fff;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:.35rem;padding:.06rem .38rem}
+.krhd .kv{color:#b4bcd8;font-size:.66rem;transition:transform .22s}
+.keyrail.hid .krhd .kv{transform:rotate(-90deg)}
+.kbody{pointer-events:auto;margin-top:.5rem;overflow-y:auto;display:flex;flex-direction:column;gap:.45rem;
+  padding:.2rem .2rem .5rem;scrollbar-width:thin;mask-image:linear-gradient(180deg,transparent 0,#000 12px)}
+.kitem{position:relative;background:#fff;border:1px solid #e6e9f7;border-radius:.6rem;
+  padding:.6rem .75rem .6rem 2.5rem;font-size:.82rem;line-height:1.5;color:#4c5480;
+  box-shadow:0 10px 24px -20px rgba(30,27,75,.6);animation:kin .38s cubic-bezier(.32,1.1,.4,1) both}
+.kitem b{color:#1e1b4b;font-weight:700}
+.kitem .kx{position:absolute;left:.6rem;top:.62rem;width:1.45rem;height:1.45rem;border-radius:.35rem;
+  display:grid;place-items:center;font-family:var(--mono);font-size:.62rem;font-weight:800;
+  background:#eef1ff;color:#4f46e5}
+.kitem.new{border-color:#c4b5fd;box-shadow:0 12px 28px -18px rgba(124,58,237,.6)}
+.kitem.new .kx{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff}
+@keyframes kin{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.kitem{animation:none}}
+body.fsopen .keyrail{display:none}
+
+/* ============ THE PICTURES, INSIDE THE SHELL ============
+   Everything below is scoped to .sim, so the same classes used elsewhere on
+   the page as static illustrations keep the margins they have. Inside a
+   simulator the shell's own gap is the only spacing, or the two stack. */
+.sim .bldgwrap,.sim .readout,.sim .expand,.sim .halve,.sim .algo,
+.sim .findbug,.sim .fcwrap,.sim .arr,.sim .fibrow,.sim .hsteps{margin:0}
+.sim .simboard .arr,.sim .simboard .fibrow{justify-content:center}
+.sim .inp{width:auto}
+#fib-sim .simboard,#tr-sim .simboard{min-height:0;padding:1rem .8rem}
+#bug-sim .dots{display:flex;gap:.28rem}
+#bug-sim .dots i{width:11px;height:11px;border-radius:50%;background:#e2e8f0;display:block}
+#bug-sim .dots i.on{background:#16a34a}
+
+/* the flowchart's side column: the drawing is 520 units tall and the column
+   beside it was mostly air, so the instruments live in it. Controls above the
+   narration, because the narration grows from one line to three. */
+#fc-sim .fcside{display:flex;flex-direction:column;gap:.7rem}
+/* the watch strip is the one thing in this column that sits ABOVE a button,
+   so it is the one thing that gets a reserve. Measured, not guessed: one row
+   of four chips is 74px down to 561px wide, two rows of 110px below that. */
+#fc-sim .fcside .simwatch{order:0;min-height:4.7rem;align-content:flex-start}
+#fc-sim .fcside .simctl{order:1;justify-content:center}
+#fc-sim .fcside .simmsg{order:3;min-height:5.3rem}
+#fc-sim .fcside .simcnt{margin-left:0}
+@media(max-width:560px){#fc-sim .fcside .simwatch{min-height:6.9rem}}
+
+/* ============ THESE PICTURES ON THE FOCUS BENCH ============
+   Focus is the projector, so everything grows. Sizes are written once for
+   both skins; only colour is skinned below. */
+.fsbody .bldg{height:min(62vh,560px)}
+.fsbody .bdside{min-height:0}
+.fsbody .bdcard .bdk{font-size:.72rem}
+.fsbody .bdcard .bdv{font-size:clamp(2rem,5.2vw,3rem)}
+.fsbody .bdcard .bdn{font-size:.84rem}
+.fsbody .flr .fnum{font-size:.86rem}
+.fsbody .flr .ftag{font-size:.66rem}
+.fsbody .cab{font-size:1.15rem}
+.fsbody .grndtag{font-size:.66rem}
+.fsbody .ro{padding:1rem .8rem}
+.fsbody .ro .rk{font-size:.74rem}
+.fsbody .ro .rv{font-size:clamp(1.9rem,5.5vw,2.9rem)}
+.fsbody .expand{font-size:clamp(1rem,3.4vw,1.4rem);padding:1.2rem}
+.fsbody .fib{min-width:66px;padding:.5rem .3rem}
+.fsbody .fib .fi{font-size:.7rem}
+.fsbody .fib .fv{font-size:1.4rem}
+.fsbody .hbar{height:46px;font-size:1.1rem}
+.fsbody .hstep{font-size:.9rem;padding:.34rem .7rem}
+.fsbody .algo{font-size:clamp(.86rem,2.3vw,1.12rem);line-height:2.05}
+.fsbody .algo .ahead{font-size:.95rem}
+.fsbody .acell{min-width:96px;padding:.7rem .5rem;border-width:3px}
+.fsbody .acell .ai{font-size:.82rem}
+.fsbody .acell .av{font-size:2.15rem}
+.fsbody .arr{gap:.55rem}
+.fsbody .findbug{font-size:clamp(.86rem,2.3vw,1.08rem);padding:1.1rem .8rem}
+.fsbody .fcside .fclbl{font-size:.7rem}
+/* the drawing is the point of this one, so in Focus it takes the height of
+   the bench and the instruments take the wider half of the column beside it */
+.fsbody #fc-sim .fcwrap{flex:1 0 auto;align-items:stretch;min-height:min(70vh,720px)}
+@media(min-width:780px){.fsbody #fc-sim .fcwrap{grid-template-columns:minmax(0,40%) 1fr}}
+.fsbody #fcsvg{max-width:100%;width:100%;height:100%;padding:1rem}
+.fsbody #fc-sim .fcside{justify-content:center}
+.fsbody .fcn text{font-size:13.5px}
+.fsbody .simmeter{font-size:.9rem}
+.fsbody #bug-sim .dots i{width:14px;height:14px}
+
+/* ---- colour: the dark bench. The flowchart stays light on purpose \u2014 it is
+        a drawing of what you put on paper, and the five shapes are read by
+        their pale fills. Everything else goes dark so it is one surface. ---- */
+.fsov:not(.lit) .fsbody .bdcard{background:#1b2238;border-color:#2b3554;box-shadow:none}
+.fsov:not(.lit) .fsbody .bdcard .bdn{color:#8f9ac2}
+.fsov:not(.lit) .fsbody .bdcard.f .bdv,.fsov:not(.lit) .fsbody .bdcard.f .bdk{color:#6ee7b7}
+.fsov:not(.lit) .fsbody .bdcard.c .bdv,.fsov:not(.lit) .fsbody .bdcard.c .bdk{color:#93c5fd}
+.fsov:not(.lit) .fsbody .bdcard.i .bdv,.fsov:not(.lit) .fsbody .bdcard.i .bdk{color:#fcd34d}
+.fsov:not(.lit) .fsbody .ro{background:#1b2238;border-color:#2b3554}
+.fsov:not(.lit) .fsbody .ro .rk{color:#6b769c}
+.fsov:not(.lit) .fsbody .ro .rv{color:#e6e9f7}
+.fsov:not(.lit) .fsbody .ro.cool{background:#0d2730;border-color:#0e7490}
+.fsov:not(.lit) .fsbody .ro.cool .rv{color:#67e8f9}
+.fsov:not(.lit) .fsbody .ro.hot{background:#3b0d1c;border-color:#be123c}
+.fsov:not(.lit) .fsbody .ro.hot .rv{color:#fda4af}
+.fsov:not(.lit) .fsbody .ro.sky{background:#111f3d;border-color:#1d4ed8}
+.fsov:not(.lit) .fsbody .ro.sky .rk,.fsov:not(.lit) .fsbody .ro.sky .rv{color:#93c5fd}
+.fsov:not(.lit) .fsbody .expand{background:#1b2238;border-color:#3d3018;color:#e6e9f7}
+.fsov:not(.lit) .fsbody .expand b{color:#fcd34d}
+.fsov:not(.lit) .fsbody .expand .eq{color:#fcd34d}
+.fsov:not(.lit) .fsbody .expand .res{background:#0d2b24;border-color:#0f8a67;color:#6ee7b7}
+.fsov:not(.lit) .fsbody .fib{background:#1b2238;border-color:#3d4670}
+.fsov:not(.lit) .fsbody .fib .fi{color:#5b678f}
+.fsov:not(.lit) .fsbody .fib .fv{color:#e6e9f7}
+.fsov:not(.lit) .fsbody .fib.add{background:#3a2a10;border-color:#b45309}
+.fsov:not(.lit) .fsbody .fib.add .fv{color:#fcd34d}
+.fsov:not(.lit) .fsbody .fib.newv{background:#0d2b24;border-color:#0f8a67}
+.fsov:not(.lit) .fsbody .fib.newv .fv{color:#6ee7b7}
+.fsov:not(.lit) .fsbody .htrack{background:#1b2238;border-color:#2b3554}
+.fsov:not(.lit) .fsbody .hstep{background:#3a2a10;border-color:#b45309;color:#fcd34d}
+.fsov:not(.lit) .fsbody .algo{background:#131a2e;border-color:#232b45}
+.fsov:not(.lit) .fsbody .algo .ahead{background:#1b2238;border-bottom-color:#3d3018;color:#e6cf9c}
+.fsov:not(.lit) .fsbody .algo .ahead b{color:#fcd34d}
+.fsov:not(.lit) .fsbody .algo .st{color:#c3cbe4}
+.fsov:not(.lit) .fsbody .algo .st.cur{background:#3a2a10;box-shadow:inset 3px 0 0 #d97706;color:#fcd34d}
+.fsov:not(.lit) .fsbody .algo .st.simtrue{background:#0d2b24;box-shadow:inset 3px 0 0 #0f8a67;color:#6ee7b7}
+.fsov:not(.lit) .fsbody .algo .st.simfalse{background:#3b0d1c;box-shadow:inset 3px 0 0 #c2295a;color:#fda4af}
+.fsov:not(.lit) .fsbody .acell{background:#1b2238;border-color:#3d4670}
+.fsov:not(.lit) .fsbody .acell .ai{color:#5b678f}
+.fsov:not(.lit) .fsbody .acell .av{color:#e6e9f7}
+.fsov:not(.lit) .fsbody .acell.look{background:#3a2a10;border-color:#b45309}
+.fsov:not(.lit) .fsbody .acell.look .av{color:#fcd34d}
+.fsov:not(.lit) .fsbody .acell.best{background:#0d2b24;border-color:#0f8a67}
+.fsov:not(.lit) .fsbody .acell.best .av{color:#6ee7b7}
+.fsov:not(.lit) .fsbody .fcside .acell.look{background:#3b0d1c;border-color:#c2295a}
+.fsov:not(.lit) .fsbody .fcside .acell.look .av{color:#fda4af}
+.fsov:not(.lit) .fsbody .fcside .acell.hitv{background:#0d2b24;border-color:#0f8a67}
+.fsov:not(.lit) .fsbody .fcside .acell.hitv .av{color:#6ee7b7}
+.fsov:not(.lit) .fsbody .fclbl{color:#6b769c}
+.fsov:not(.lit) .fsbody .inp{background:#1b2238;border-color:#2b3554;color:#e6e9f7}
+.fsov:not(.lit) .fsbody #bug-sim .dots i{background:#2b3554}
+.fsov:not(.lit) .fsbody #bug-sim .dots i.on{background:#0f8a67}
+.fsov:not(.lit) .fsbody #fcsvg{border-color:#2b3554;box-shadow:0 18px 40px -22px rgba(0,0,0,.8)}
+/* the find-the-bug listing is a code surface, so the light code theme turns
+   it white \u2014 which on the dark bench is the slab we keep having to fix */
+body.codelight .fsov:not(.lit) .fsbody .findbug{background:#0f172a;color:#cbd5e1;border-color:#232b45}
+body.codelight .fsov:not(.lit) .fsbody .findbug .fbline{background:rgba(148,163,184,.08)}
+body.codelight .fsov:not(.lit) .fsbody .findbug .tok{border-bottom-color:#475569}
+body.codelight .fsov:not(.lit) .fsbody .findbug .tok.got{background:#14532d;color:#86efac;border-bottom-color:#22c55e}
+body.codelight .fsov:not(.lit) .fsbody .findbug .fix{color:#86efac}
+
+/* ---- the light bench keeps the page's own colours; only the paper plate
+        under the flowchart needs softening ---- */
+.fsov.lit .fsbody #fcsvg{border-color:#e2e8f0}
+
 /* ---- the bar gets out of the way ----
    Vertical space is the scarce thing in a lecture room, so the bar slides
    away as you read down and comes back the moment you scroll up. It is
@@ -764,6 +989,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 .revtog.solo:hover{color:var(--ink);border-color:var(--line-strong)}
 .revtog.solo.on{background:#6d28d9;border-color:#7c3aed;color:#fff}
 </style>
+<link rel="stylesheet" href="../assets/sim.css">
 </head>
 <body>
 <div class="topbar">
@@ -813,8 +1039,15 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
   <p style="margin:0">Look at your own final paper. <b>"Write an algorithm <em>or program</em> to&hellip;"</b> — Question 1(c). <b>"Implement the push function&hellip;"</b> — Question 2(d). These questions appear every year, and <b>working C/C++ code is accepted just as happily as the notation</b>.<br><br>So learn the notation because it is <b>faster to write and easier to correct under time pressure</b> — not because code would be refused. Write whichever one you are quicker at.</p>
 </div>
 
+<div class="prog" id="prog">
+  <span class="pk">Your progress</span>
+  <span class="pbar"><i id="pbar"></i></span>
+  <span class="pn" id="pnum">0 / 3</span>
+  <button id="preset" type="button">Clear</button>
+</div>
+
 <!-- ============ 1 · INT AND ABS ============ -->
-<article class="card numbered" id="s1" style="--accent:#d97706">
+<article class="card numbered" id="s1" data-key="INT cuts toward <b>zero</b>, floor always goes down, ceil always goes up. So INT matches <b>ceil</b> below zero and <b>floor</b> above it." style="--accent:#d97706">
   <span class="badge">1</span>
   <div class="hdr-row">
     <div><p class="kicker">Section</p><h2>INT(x), ABS(x), FLOOR(x) and CEIL(x)</h2></div>
@@ -860,16 +1093,13 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 
   <p><b>Press a number and watch the lift move.</b></p>
 
-  <div class="btnrow" style="align-items:center">
-    <input class="inp" id="bd-in" type="number" step="any" value="2.7" style="max-width:150px" aria-label="value">
-    <button class="btn sm ghost" data-bd="2.7">2.7</button>
-    <button class="btn sm ghost" data-bd="3.14">3.14</button>
-    <button class="btn sm ghost" data-bd="-0.4">&minus;0.4</button>
-    <button class="btn sm ghost" data-bd="-2.5">&minus;2.5</button>
-    <button class="btn sm ghost" data-bd="-8.5">&minus;8.5</button>
-    <button class="btn sm ghost" data-bd="7">7 (exact)</button>
-  </div>
-
+  <div class="sim" id="bd-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">The lift between two floors</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
   <div class="bldgwrap">
     <div class="bldg" id="bd-view">
       <div class="shaft" id="bd-shaft"></div>
@@ -882,7 +1112,20 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
       <div class="bdcard i"><p class="bdk">&#8596; INT(x)</p><p class="bdv" id="bd-i">&mdash;</p><p class="bdn">walk toward the <b>ground floor</b>, 0</p></div>
     </div>
   </div>
-  <p class="opdesc" id="bd-msg" style="text-align:center"></p>
+  <div class="simctl">
+    <input class="inp" id="bd-in" type="number" step="any" value="2.7" style="max-width:130px" aria-label="value">
+    <button class="btn sm ghost" data-bd="2.7">2.7</button>
+    <button class="btn sm ghost" data-bd="3.14">3.14</button>
+    <button class="btn sm ghost" data-bd="-0.4">&minus;0.4</button>
+    <button class="btn sm ghost" data-bd="-2.5">&minus;2.5</button>
+    <button class="btn sm ghost" data-bd="-8.5">&minus;8.5</button>
+    <button class="btn sm ghost" data-bd="7">7 (exact)</button>
+    <button class="btn ghost sm" data-k="reset">Reset</button>
+  </div>
+  <div class="simwatch"></div>
+  <div class="simmsg"><span class="smn">&#8597;</span><p id="bd-msg"></p></div>
+    </div>
+  </div>
 
   <div class="tw">
   <table>
@@ -900,20 +1143,31 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
   <p class="subtle">Notice the last row: <b>if x is already a whole number, nothing moves.</b> The lift is standing exactly on a floor, so all three answers are the same.</p>
 
   <h3>Everything in action &mdash; type any number and see all four</h3>
-  <div class="btnrow" style="align-items:center">
-    <input class="inp" id="int-in" type="number" step="any" value="-8.5" style="max-width:170px" aria-label="number">
-    <button class="btn sm ghost" data-iv="3.14">3.14</button>
-    <button class="btn sm ghost" data-iv="-8.5">&minus;8.5</button>
-    <button class="btn sm ghost" data-iv="7">7</button>
-    <button class="btn sm ghost" data-iv="-0.2">&minus;0.2</button>
-  </div>
+
+  <div class="sim" id="int-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">All four functions on one number</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
   <div class="readout r4">
     <div class="ro cool"><p class="rk">INT(x) &mdash; toward 0</p><p class="rv" id="int-t">&mdash;</p></div>
     <div class="ro"><p class="rk">ABS(x) &mdash; |x|</p><p class="rv" id="int-a">&mdash;</p></div>
     <div class="ro hot"><p class="rk">&#8595; floor(x) &mdash; down</p><p class="rv" id="int-f">&mdash;</p></div>
     <div class="ro sky"><p class="rk">&#8593; ceil(x) &mdash; up</p><p class="rv" id="int-c">&mdash;</p></div>
   </div>
-  <p class="opdesc" id="int-msg"></p>
+  <div class="simctl">
+    <input class="inp" id="int-in" type="number" step="any" value="-8.5" style="max-width:150px" aria-label="number">
+    <button class="btn sm ghost" data-iv="3.14">3.14</button>
+    <button class="btn sm ghost" data-iv="-8.5">&minus;8.5</button>
+    <button class="btn sm ghost" data-iv="7">7</button>
+    <button class="btn sm ghost" data-iv="-0.2">&minus;0.2</button>
+    <button class="btn ghost sm" data-k="reset">Reset</button>
+  </div>
+  <div class="simmsg"><span class="smn">x</span><p id="int-msg"></p></div>
+    </div>
+  </div>
 
   <div class="box good">
     <p class="bt">How to write them</p>
@@ -942,7 +1196,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 </article>
 
 <!-- ============ 2 · FACTORIAL & FIBONACCI ============ -->
-<article class="card numbered" id="s2" style="--accent:#d97706">
+<article class="card numbered" id="s2" data-key="<b>0! = 1</b> by definition, and every Fibonacci term is the sum of the two before it." style="--accent:#d97706">
   <span class="badge">2</span>
   <div class="hdr-row">
     <div><p class="kicker">Section</p><h2>Factorial and Fibonacci</h2></div>
@@ -952,15 +1206,26 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
   <h3>Factorial</h3>
   <p class="mono" style="font-weight:700">n! = 1 &middot; 2 &middot; 3 &middot; &hellip; &middot; (n&minus;2) &middot; (n&minus;1) &middot; n</p>
   <p>Multiply every whole number from 1 up to n.</p>
-  <div class="btnrow" style="align-items:center">
-    <input class="inp" id="fac-in" type="number" min="0" max="20" value="4" style="max-width:130px" aria-label="factorial of">
+  <div class="sim" id="fac-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">n! written out, and where it stops fitting</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+  <div class="expand" id="fac-out"></div>
+  <div class="simctl">
+    <input class="inp" id="fac-in" type="number" min="0" max="20" value="4" style="max-width:110px" aria-label="factorial of">
     <button class="btn sm ghost" data-fac="0">0!</button>
     <button class="btn sm ghost" data-fac="5">5!</button>
     <button class="btn sm ghost" data-fac="13">13!</button>
     <button class="btn sm ghost" data-fac="20">20!</button>
+    <button class="btn ghost sm" data-k="reset">Reset</button>
   </div>
-  <div class="expand" id="fac-out"></div>
-  <p class="subtle" id="fac-msg"></p>
+  <div class="simwatch"></div>
+  <div class="simmsg"><span class="smn">n!</span><p id="fac-msg"></p></div>
+    </div>
+  </div>
 
   <div class="box warn">
     <p class="bt">🔑 The one you must simply remember</p>
@@ -977,12 +1242,26 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
   <p class="mono" style="font-weight:700">0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, &hellip;</p>
   <p>Start with <span class="mono">F<sub>0</sub> = 0</span> and <span class="mono">F<sub>1</sub> = 1</span>. After that, <b>every term is the sum of the two before it</b>.</p>
 
-  <div class="fibrow" id="fib-row"></div>
-  <div class="btnrow">
-    <button class="btn" id="fib-go" style="background:#d97706">Add the next term</button>
-    <button class="btn ghost sm" id="fib-reset">Reset</button>
+  <div class="sim" id="fib-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Every term is the sum of the two before it</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+  <div class="simrail"></div>
+  <div class="simboard"><span class="plate">the sequence</span><div class="fibrow" id="fib-row"></div></div>
+  <div class="simctl">
+    <button class="btn" data-k="next" style="background:#d97706">Add the next term &#9656;</button>
+    <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+    <button class="btn ghost sm" data-k="reset">Reset</button>
+    <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>r</kbd></span>
+    <span class="simcnt">1 / 14</span>
   </div>
-  <p class="subtle" id="fib-msg">Press the button. Watch which two boxes light up.</p>
+  <div class="simwatch"></div>
+  <div class="simmsg"><span class="smn">1</span><p></p></div>
+    </div>
+  </div>
 
   <div class="box info">
     <p class="bt">Why we care about this one</p>
@@ -991,7 +1270,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 </article>
 
 <!-- ============ 3 · LOGARITHMS ============ -->
-<article class="card numbered" id="s3" style="--accent:#0891b2">
+<article class="card numbered" id="s3" data-key="log&#8322; n is <b>how many times you can halve n before 1 is left</b>. A million takes twenty." style="--accent:#0891b2">
   <span class="badge">3</span>
   <div class="hdr-row">
     <div><p class="kicker">Section</p><h2>Exponents and logarithms</h2></div>
@@ -1025,20 +1304,34 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 
   <p>Start with 1024 items. Keep halving. Count the cuts.</p>
 
+  <div class="sim" id="hv-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Halving until one is left &mdash; and counting the cuts</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+  <div class="simrail"></div>
   <div class="halve">
     <div class="htrack"><div class="hbar" id="hv-bar" style="width:100%">1024</div></div>
     <div class="hsteps" id="hv-steps"></div>
   </div>
-  <div class="btnrow">
-    <button class="btn" id="hv-go" style="background:#0891b2">Cut it in half</button>
-    <button class="btn ghost sm" id="hv-reset">Reset</button>
-    <select class="btn ghost sm" id="hv-n" style="font-family:var(--mono)">
+  <div class="simctl">
+    <button class="btn" data-k="next" style="background:#0891b2">Cut it in half &#9656;</button>
+    <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+    <button class="btn ghost sm" data-k="reset">Reset</button>
+    <select class="btn ghost sm" id="hv-n" style="font-family:var(--mono)" aria-label="starting size">
       <option value="1024">start at 1024</option>
       <option value="64">start at 64</option>
       <option value="1000000">start at 1,000,000</option>
     </select>
+    <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>r</kbd></span>
+    <span class="simcnt">1 / 11</span>
   </div>
-  <p class="subtle" id="hv-msg">You will need 10 cuts to get from 1024 down to 1. That is why log&#8322; 1024 = 10.</p>
+  <div class="simwatch"></div>
+  <div class="simmsg"><span class="smn">1</span><p></p></div>
+    </div>
+  </div>
 
   <div class="box good">
     <p class="bt">Why this matters more than anything else today</p>
@@ -1059,7 +1352,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 </article>
 
 <!-- ============ 4 · WHAT IS AN ALGORITHM ============ -->
-<article class="card numbered" id="s4" style="--accent:#7c3aed">
+<article class="card numbered" id="s4" data-key="An algorithm is <b>finite</b> and <b>well-defined</b>. Written out, it is an opening paragraph <b>and then</b> the numbered steps." style="--accent:#7c3aed">
   <span class="badge">4</span>
   <div class="hdr-row">
     <div><p class="kicker">Section</p><h2>What is an algorithm?</h2></div>
@@ -1087,10 +1380,18 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
   </table>
   </div>
 
-  <div class="box bad">
-    <p class="bt">Is this an algorithm?</p>
-    <p style="margin:0"><em>"Step 1. Think of a big number. Step 2. Keep adding 1 to it."</em><br><br>
-    <b>No.</b> It fails <b>definiteness</b> ("big" means nothing) and it fails <b>finiteness</b> (it never stops) and it fails <b>output</b> (nothing is ever produced).</p>
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p><em>"Step 1. Think of a big number. Step 2. Keep adding 1 to it."</em></p>
+      <p>Is that an algorithm? <b>Name every property in the table above that it breaks</b> &mdash; there is more than one.</p>
+    </div>
+    <button class="tbtn" type="button">Show me</button>
+    <div class="ta">
+      <p><b>No &mdash; it breaks three of the five.</b></p>
+      <p><b>Definiteness:</b> "a big number" has no single meaning, so two people would start from two different places. <b>Finiteness:</b> "keep adding 1" never ends. <b>Output:</b> nothing is ever produced or written.</p>
+      <p>It passes on <b>input</b> (zero inputs is allowed) and on <b>effectiveness</b> &mdash; adding 1 is certainly a step you can carry out.</p>
+    </div>
   </div>
 
   <h3>The format your exam expects</h3>
@@ -1114,7 +1415,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 </article>
 
 <!-- ============ 5 · THE 5 RULES ============ -->
-<article class="card numbered" id="s5" style="--accent:#d97706">
+<article class="card numbered" id="s5" data-key="CAPITAL names, <b>:=</b> to assign, <b>[comments]</b> in brackets, <b>Read:</b> and <b>Write:</b>, and finish with <b>Exit</b>." style="--accent:#d97706">
   <span class="badge">5</span>
   <div class="hdr-row">
     <div><p class="kicker">Section</p><h2>The 5 rules of algorithmic notation</h2></div>
@@ -1142,6 +1443,12 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
     <p style="margin-top:.9rem">Say it five times. Write it on the first page of your notebook. You will use it in every exam for the next two years.</p>
   </div>
 
+  <div class="pastq">
+    <div class="pqh"><span class="pqs">Past exam</span><span class="pqw">Final Spring 2026 &middot; Q1(c)</span><span class="pqm">4 marks</span></div>
+    <p class="pqt">"<b>Write an algorithm or program</b> to read a string consisting exclusively of opening ( and closing ) parentheses. The program must use a Stack data structure&hellip;"</p>
+    <p style="margin:.7rem 0 0;font-size:.82rem;color:#9f1239">Four marks marked against the five rules on this page. The stack itself comes in Segment 4 &mdash; the <b>form</b> of the answer is what you are learning now.</p>
+  </div>
+
   <h3>Here is all five rules in one real algorithm</h3>
 
   <div class="algo">
@@ -1165,13 +1472,15 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
   <h3>Now walk through it</h3>
   <p>Press Next and watch what each step actually does. <span class="subtle">DATA = [30, 50, 20, 70, 40], N = 5.</span></p>
 
-  <div class="arr" id="tr-arr"></div>
-  <div class="vars">
-    <div class="vcell" id="v-K"><div class="vk">K</div><div class="vv">&mdash;</div></div>
-    <div class="vcell" id="v-LOC"><div class="vk">LOC</div><div class="vv">&mdash;</div></div>
-    <div class="vcell" id="v-MAX"><div class="vk">MAX</div><div class="vv">&mdash;</div></div>
-    <div class="vcell" id="v-STEP"><div class="vk">AT STEP</div><div class="vv">&mdash;</div></div>
-  </div>
+  <div class="sim" id="tr-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Largest element, one step at a time</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+  <div class="simrail"></div>
+  <div class="simboard"><span class="plate">DATA</span><div class="arr" id="tr-arr"></div></div>
 
   <div class="algo" id="tr-algo">
     <div class="body">
@@ -1183,21 +1492,29 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 <span class="st" data-l="5">Step 6. Exit.</span>
     </div>
   </div>
-  <div class="btnrow">
-    <button class="btn" id="tr-next" style="background:#d97706">Next step ▸</button>
-    <button class="btn ghost sm" id="tr-auto">▶ Play</button>
-    <button class="btn ghost sm" id="tr-reset">Reset</button>
+  <div class="simctl">
+    <button class="btn" data-k="next" style="background:#d97706">Next step &#9656;</button>
+    <button class="btn ghost sm" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+    <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+    <button class="btn ghost sm" data-k="reset">Reset</button>
+    <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+    <span class="simcnt">1 / 20</span>
   </div>
-  <p class="subtle" id="tr-msg">Press Next to begin.</p>
+  <div class="simwatch"></div>
+  <div class="simmsg"><span class="smn">1</span><p></p></div>
+    </div>
+  </div>
 
   <h3>Your turn — find the mistakes</h3>
   <p>The algorithm below does the right thing, but it <b>breaks the notation rules in 5 places</b>. Click each mistake.</p>
 
-  <div class="bugbar">
-    <span class="cnt" id="bug-cnt">0 / 5</span>
-    <span class="dots" id="bug-dots"><i></i><i></i><i></i><i></i><i></i></span>
-    <button class="btn ghost sm" id="bug-reset">Reset</button>
-  </div>
+  <div class="sim" id="bug-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Five notation mistakes, and the marks they cost</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
   <div class="findbug" id="findbug">
 <span class="fbline">Step 1. <span class="tok" data-fix="Set" data-why="Keywords start with a capital: Set, If, Write, Exit.">set</span> k := 1, <span class="tok" data-fix="LOC" data-why="Rule 3 — variable names use CAPITAL letters. Only single letters used as counters may be lower case.">loc</span> := 1, MAX := DATA[1]</span>
 <span class="fbline">Step 2. Set k := k + 1</span>
@@ -1206,25 +1523,28 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 <span class="fbline">Step 5. Go to Step 2</span>
 <span class="fbline">Step 6. <span class="tok" data-fix="Exit" data-why="Rule 1 — the algorithm is finished at Exit. 'End' is not the convention used in this course.">End</span></span>
 </div>
-  <p class="buglog" id="bug-log">Click on anything you think is wrong.</p>
+  <div class="simctl">
+    <span class="simmeter">found <b>0</b> of 5</span>
+    <span class="dots" id="bug-dots"><i></i><i></i><i></i><i></i><i></i></span>
+    <button class="btn ghost sm" data-k="reset">Reset</button>
+  </div>
+  <div class="simmsg"><span class="smn">?</span><p>Click on anything you think is wrong.</p></div>
+    </div>
+  </div>
 </article>
 
 <!-- ============ FLOWCHARTS ============ -->
-<article class="card numbered" id="s6" style="--accent:#e11d48">
+<article class="card numbered" id="s6" data-key="Five shapes. A decision diamond needs <b>two labelled arrows</b>, and every path must reach <b>Stop</b>." style="--accent:#e11d48">
   <span class="badge">6</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 6</p><h2>Flowcharts — the drawing they ask for every year</h2></div>
     <span class="timechip">⏱ 12 min</span>
   </div>
 
-  <div class="box bad">
-    <p class="bt">🎓 This is the most reliable 3 marks on the paper</p>
-    <p style="margin:0">
-    <b>Autumn 2025 Q1(b):</b> <em>"Draw a flowchart or write a code for linear search algorithm."</em><br>
-    <b>Spring 2025 Q1(b):</b> <em>"Draw a flowchart for linear search algorithm."</em><br>
-    <b>Spring 2024 Q1(b):</b> <em>"Draw a flowchart for binary search algorithm."</em><br>
-    <b>Spring 2023 Q1(b):</b> <em>"Draw a flowchart for linear search algorithm."</em><br><br>
-    <b>Four papers. Four flowchart questions.</b> Learn the five shapes and you cannot lose these marks.</p>
+  <div class="pastq">
+    <div class="pqh"><span class="pqs">Past exam</span><span class="pqw">Mid-term Autumn 2025 &middot; Q1(b)</span><span class="pqm">4 papers running</span></div>
+    <p class="pqt">"Draw a flowchart or write a code for <b>linear search</b> algorithm."</p>
+    <p style="margin:.7rem 0 0;font-size:.82rem;color:#9f1239">And in <b>Spring 2025</b>, <b>Spring 2024</b> and <b>Spring 2023</b> &mdash; Q1(b) every time, worth 2 to 3 marks. Three of the four asked for <b>linear search</b>, which is the one drawn and running below.</p>
   </div>
 
   <h3>The five shapes</h3>
@@ -1252,6 +1572,14 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
     <button class="btn sm ghost" data-fckey="99">99 <span style="opacity:.7">(not there)</span></button>
   </div>
 
+  <div class="sim" id="fc-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Linear search, running on its own flowchart</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+  <div class="simrail"></div>
   <div class="fcwrap">
     <svg viewBox="0 0 380 520" id="fcsvg" role="img" aria-label="Flowchart of the linear search algorithm">
       <defs>
@@ -1290,16 +1618,18 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
     <div class="fcside">
       <p class="fclbl">Array</p>
       <div class="arr" id="fcarr"></div>
-      <div class="vars" style="grid-template-columns:1fr 1fr">
-        <div class="vcell" id="fc-i"><div class="vk">i</div><div class="vv">—</div></div>
-        <div class="vcell" id="fc-k"><div class="vk">KEY</div><div class="vv">—</div></div>
+      <div class="simwatch"></div>
+      <div class="simctl">
+        <button class="btn sm" data-k="next" style="background:#e11d48">Next &#9656;</button>
+        <button class="btn sm ghost" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+        <button class="btn sm ghost" data-k="back">&#9666; Back</button>
+        <button class="btn sm ghost" data-k="reset">Reset</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 15</span>
       </div>
-      <p class="opdesc" id="fcmsg" style="min-height:3.4rem">Press <b>Next</b> to start.</p>
-      <div class="btnrow" style="margin-bottom:0">
-        <button class="btn sm" id="fc-next" style="background:#e11d48">Next ▸</button>
-        <button class="btn sm ghost" id="fc-play">▶ Play</button>
-        <button class="btn sm ghost" id="fc-reset">Reset</button>
-      </div>
+      <div class="simmsg"><span class="smn">1</span><p></p></div>
+    </div>
+  </div>
     </div>
   </div>
 
@@ -1335,7 +1665,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 </article>
 
 <!-- ============ 6 · CONTROL STRUCTURES ============ -->
-<article class="card numbered" id="s7" style="--accent:#059669">
+<article class="card numbered" id="s7" data-key="Three movements and no more: <b>sequence, selection, iteration</b>. Close each one with its <b>[End of&hellip;]</b> line." style="--accent:#059669">
   <span class="badge">7</span>
   <div class="hdr-row">
     <div><p class="kicker">Section</p><h2>Three ways a program can move</h2></div>
@@ -1425,7 +1755,7 @@ Step 4. Write: SUM.</div>
 </article>
 
 <!-- ============ 7 · SUB-ALGORITHMS ============ -->
-<article class="card numbered" id="s8" style="--accent:#7c3aed">
+<article class="card numbered" id="s8" data-key="A sub-algorithm is headed <b>NAME(PAR1,&hellip;)</b> and ends with <b>Return</b> &mdash; never Exit." style="--accent:#7c3aed">
   <span class="badge">8</span>
   <div class="hdr-row">
     <div><p class="kicker">Section</p><h2>Breaking a big job into small ones</h2></div>
@@ -1494,7 +1824,7 @@ Step 4. Write: SUM.</div>
 </article>
 
 <!-- ============ CLOSING ============ -->
-<article class="card numbered" id="s9" style="--accent:#d97706">
+<article class="card numbered" id="s9" data-key="Three ways to hand in the same answer: numbered steps, a flowchart, or code. <b>The exam picks the form, not you.</b>" style="--accent:#d97706">
   <span class="badge">9</span>
   <div class="hdr-row">
     <div><p class="kicker">Last 2 minutes</p><h2>The page to write in your notebook tonight</h2></div>
@@ -1763,6 +2093,7 @@ Step 4. Write: SUM.</div>
   </div>
 </footer>
 
+<script src="../assets/sim.js"></script>
 <script>
 (function(){
 "use strict";
@@ -1793,28 +2124,46 @@ function jump(d){
   if(t>s.length-1)t=s.length-1;
   window.scrollTo({top:Math.max(s[t].offsetTop-80,0),behavior:'smooth'});
 }
-/* ---- INT / ABS / FLOOR ---- */
-function paintInt(){
-  var v=parseFloat($('#int-in').value); if(isNaN(v))v=0;
-  var t=Math.trunc(v), f=Math.floor(v), c=Math.ceil(v), a=Math.abs(v);
-  var g=function(n){return n<0?'\u2212'+Math.abs(n):''+n;};
-  $('#int-t').textContent=g(t); $('#int-a').textContent=g(a);
-  $('#int-f').textContent=g(f); $('#int-c').textContent=g(c);
-  $('#int-msg').innerHTML = (f===c)
-    ? '<b>'+g(v)+' is a whole number</b> — nothing to round, so all four agree (except ABS, which only drops the sign).'
-    : (t===c
-        ? '<b style="color:#be123c">Negative:</b> INT gives <b>'+g(t)+'</b> and so does ceil — but floor gives <b>'+g(f)+'</b>. INT walked <b>up</b> toward zero.'
-        : 'Positive: INT gives <b>'+g(t)+'</b> and so does floor — but ceil gives <b>'+g(c)+'</b>. INT walked <b>down</b> toward zero.');
-}
-$('#int-in').addEventListener('input',paintInt);
-$$('[data-iv]').forEach(function(b){b.addEventListener('click',function(){$('#int-in').value=b.dataset.iv;paintInt();});});
-paintInt();
+/* the floating drawer is a separate IIFE, so it cannot see jump() unless we
+   hand it over. Without this its up and down arrows throw on every press. */
+window.cardJump=jump;
+/* ---- INT / ABS / FLOOR / CEIL : all four on one number ----
+   No watch strip on this one. The four readouts already ARE the four values,
+   at projector size; a watch chip would only repeat them a size smaller. */
+(function(){
+  var api=null;
+  function paintInt(){
+    var v=parseFloat($('#int-in').value); if(isNaN(v))v=0;
+    var t=Math.trunc(v), f=Math.floor(v), c=Math.ceil(v), a=Math.abs(v);
+    var g=function(x){return x<0?'\u2212'+Math.abs(x):''+x;};
+    $('#int-t').textContent=g(t); $('#int-a').textContent=g(a);
+    $('#int-f').textContent=g(f); $('#int-c').textContent=g(c);
+    /* the preset that is actually in the box is the one that looks pressed */
+    $$('[data-iv]').forEach(function(b){ b.classList.toggle('ghost', parseFloat(b.dataset.iv)!==v); });
+    var m = (f===c)
+      ? '<b>'+g(v)+' is a whole number</b> \u2014 nothing to round, so all four agree (except ABS, which only drops the sign).'
+      : (t===c
+          ? '<b style="color:#be123c">Negative:</b> INT gives <b>'+g(t)+'</b> and so does ceil \u2014 but floor gives <b>'+g(f)+'</b>. INT walked <b>up</b> toward zero.'
+          : 'Positive: INT gives <b>'+g(t)+'</b> and so does floor \u2014 but ceil gives <b>'+g(c)+'</b>. INT walked <b>down</b> toward zero.');
+    if(api) api.msg(m); else $('#int-msg').innerHTML=m;
+  }
+  $('#int-in').addEventListener('input',paintInt);
+  $$('[data-iv]').forEach(function(b){b.addEventListener('click',function(){
+    $('#int-in').value=b.dataset.iv; paintInt(); });});
+  api=Sim.make({
+    el:'#int-sim',
+    name:'All four functions on one number',
+    render:function(st,i,a){ api=a; paintInt(); },
+    onReset:function(){ $('#int-in').value='-8.5'; paintInt(); }
+  });
+})();
 
 /* ---- FLOOR / CEIL : the building with a basement ---- */
 (function(){
   var TOP=14, BOT=-14, U=64;                 /* floors shown, and pixels per floor */
   var view=$('#bd-view'), shaft=$('#bd-shaft');
   var H=(TOP-BOT+1)*U;
+  var api=null;
 
   function yOf(v){ return (TOP-v)*U + U/2; } /* pixel position of a value inside the shaft */
 
@@ -1840,6 +2189,9 @@ paintInt();
     if(isNaN(x)) x=0;
     x=Math.max(BOT+1, Math.min(TOP-1, x));
     var f=Math.floor(x), c=Math.ceil(x), t=Math.trunc(x), exact=(f===c);
+
+    /* the preset that is actually in the box is the one that looks pressed */
+    $$('[data-bd]').forEach(function(b){ b.classList.toggle('ghost', parseFloat(b.dataset.bd)!==x); });
 
     /* results */
     $('#bd-f').textContent=f; $('#bd-c').textContent=c; $('#bd-i').textContent=t;
@@ -1881,241 +2233,408 @@ paintInt();
            'Walk toward the ground floor → INT = <b style="color:#b45309">'+fmt(t)+'</b>'+
            (x<0 ? ' — and here that means going <b>up</b>, which is why INT matches ceil for negative numbers.'
                 : ' — and here that means going <b>down</b>, which is why INT matches floor for positive numbers.');
-    $('#bd-msg').innerHTML=m;
+    if(api) api.msg(m); else $('#bd-msg').innerHTML=m;
+
+    /* The three answers are already on screen at full size. What is NOT on
+       screen is the fact the whole section turns on: which of the other two
+       INT agrees with, and that it swaps over as you cross zero. */
+    if(api) api.watch([
+      ['x', fmt(x)],
+      ['between', exact ? 'nothing \u2014 on a floor' : fmt(f)+' and '+fmt(c)],
+      ['INT matches', exact ? 'both' : (t===f ? '\u2193 floor' : '\u2191 ceil')]
+    ]);
   }
   function fmt(v){ return v<0 ? '\u2212'+Math.abs(v) : ''+v; }
 
   build();
   $('#bd-in').addEventListener('input',paint);
   $$('[data-bd]').forEach(function(b){b.addEventListener('click',function(){
-    $$('[data-bd]').forEach(function(x){x.classList.add('ghost');}); b.classList.remove('ghost');
     $('#bd-in').value=b.dataset.bd; paint(); });});
-  paint();
+  api=Sim.make({
+    el:'#bd-sim',
+    name:'The lift between two floors',
+    render:function(st,i,a){ api=a; paint(); },
+    onReset:function(){ $('#bd-in').value='2.7'; paint(); }
+  });
 })();
 
 /* ---- FACTORIAL ---- */
-function paintFac(){
-  var n=parseInt($('#fac-in').value,10);
-  if(isNaN(n)||n<0)n=0; if(n>20)n=20; $('#fac-in').value=n;
-  var parts=[],r=1;
-  for(var i=1;i<=n;i++){parts.push(i); r*=i;}
-  var lhs = n===0 ? '(empty product)' : parts.join(' <span class="eq">&times;</span> ');
-  $('#fac-out').innerHTML='<b>'+n+'!</b> <span class="eq">=</span> '+lhs+' <span class="eq">=</span> <span class="res">'+
-    (n===0?'1':r.toLocaleString('en-US'))+'</span>';
-  var m='';
-  if(n===0) m='0! = 1 by definition. There is nothing to multiply, and the empty product is 1.';
-  else if(r>9223372036854775807) m='⚠ This is bigger than a long long can hold. Even 64 bits is not enough.';
-  else if(r>2147483647) m='⚠ This is bigger than an int can hold ('+ (2147483647).toLocaleString('en-US') +'). You would need long long — and it would NOT warn you.';
-  else m='This still fits comfortably in an int.';
-  $('#fac-msg').innerHTML=m;
-}
-$('#fac-in').addEventListener('input',paintFac);
-$$('[data-fac]').forEach(function(b){b.addEventListener('click',function(){$('#fac-in').value=b.dataset.fac;paintFac();});});
-paintFac();
-
-/* ---- FIBONACCI ---- */
-var FIB=[0,1];
-function paintFib(newIdx){
-  var row=$('#fib-row'); row.innerHTML='';
-  FIB.forEach(function(v,i){
-    var d=document.createElement('div');
-    var cls='fib';
-    if(newIdx!==undefined){
-      if(i===newIdx) cls+=' newv';
-      else if(i===newIdx-1||i===newIdx-2) cls+=' add';
-    }
-    d.className=cls;
-    d.innerHTML='<div class="fi">F'+i+'</div><div class="fv">'+v+'</div>';
-    row.appendChild(d);
-  });
-}
-$('#fib-go').onclick=function(){
-  if(FIB.length>=15){$('#fib-msg').textContent='That is enough terms. Press Reset to start again.';return;}
-  var n=FIB.length;
-  FIB.push(FIB[n-1]+FIB[n-2]);
-  paintFib(n);
-  $('#fib-msg').innerHTML='F'+n+' = F'+(n-1)+' + F'+(n-2)+' = '+FIB[n-1]+' + '+FIB[n-2]+' = <b>'+FIB[n]+'</b>';
-};
-$('#fib-reset').onclick=function(){FIB=[0,1];paintFib();$('#fib-msg').textContent='Press the button. Watch which two boxes light up.';};
-paintFib();
-
-/* ---- HALVING / LOG ---- */
-var hvStart=1024, hvCur=1024, hvCuts=0;
-function paintHv(){
-  var pct=Math.max(hvCur/hvStart*100,3.2);
-  $('#hv-bar').style.width=pct+'%';
-  $('#hv-bar').textContent=hvCur.toLocaleString('en-US');
-}
-function resetHv(){
-  hvStart=parseInt($('#hv-n').value,10); hvCur=hvStart; hvCuts=0;
-  $('#hv-steps').innerHTML=''; paintHv();
-  $('#hv-msg').textContent='Keep cutting until only 1 is left. Count the cuts.';
-}
-$('#hv-go').onclick=function(){
-  if(hvCur<=1){$('#hv-msg').innerHTML='<b>Done in '+hvCuts+' cuts.</b> That is exactly what log&#8322; '+hvStart.toLocaleString('en-US')+' means.';return;}
-  hvCur=Math.ceil(hvCur/2); hvCuts++;
-  var s=document.createElement('span'); s.className='hstep';
-  s.textContent='cut '+hvCuts+' → '+hvCur.toLocaleString('en-US');
-  $('#hv-steps').appendChild(s); paintHv();
-  if(hvCur<=1) $('#hv-msg').innerHTML='<b>Only 1 left. It took '+hvCuts+' cuts.</b> &nbsp;log&#8322; '+hvStart.toLocaleString('en-US')+' = '+hvCuts+'. From '+hvStart.toLocaleString('en-US')+' items to the answer in '+hvCuts+' steps.';
-  else $('#hv-msg').textContent=hvCuts+' cut'+(hvCuts>1?'s':'')+' so far. '+hvCur.toLocaleString('en-US')+' left.';
-};
-$('#hv-reset').onclick=resetHv;
-$('#hv-n').addEventListener('change',resetHv);
-resetHv();
-
-/* ---- ALGORITHM TRACER ---- */
-var DATA=[30,50,20,70,40], N=5;
-var TR=[], timer=null;
-(function buildTrace(){
-  var K=null,LOC=null,MAX=null;
-  function snap(line,msg,look){TR.push({l:line,K:K,LOC:LOC,MAX:MAX,m:msg,look:look});}
-  K=1;LOC=1;MAX=DATA[0];
-  snap(0,'Set K := 1, LOC := 1, MAX := DATA[1] = 30. We assume the first element is the biggest until proved wrong.',0);
-  var guard=0;
-  while(guard++<40){
-    K=K+1; snap(1,'Set K := K + 1. Now K = '+K+'.',null);
-    if(K>N){ snap(2,'Is K &gt; N?  '+K+' &gt; '+N+' is TRUE. So Write: LOC, MAX and Exit.',null);
-             snap(5,'Finished. LOC = '+LOC+', MAX = '+MAX+'.',null); break; }
-    snap(2,'Is K &gt; N?  '+K+' &gt; '+N+' is FALSE. Carry on to Step 4.',null);
-    var d=DATA[K-1];
-    if(MAX<d){ LOC=K; MAX=d;
-      snap(3,'Is MAX &lt; DATA['+K+']?  Yes ('+d+' beats the old MAX). So Set LOC := '+K+' and MAX := '+d+'.',K-1);
-    } else {
-      snap(3,'Is MAX &lt; DATA['+K+']?  No, '+MAX+' is still bigger than '+d+'. Change nothing.',K-1);
-    }
-    snap(4,'Go to Step 2.',null);
-  }
-})();
-var tp=-1;
-function paintTrace(){
-  var s = tp<0 ? null : TR[tp];
-  $$('#tr-algo .st').forEach(function(el,i){
-    el.classList.toggle('cur', !!s && i===s.l);
-  });
-  $('#v-K').querySelector('.vv').textContent = s&&s.K!==null?s.K:'—';
-  $('#v-LOC').querySelector('.vv').textContent = s&&s.LOC!==null?s.LOC:'—';
-  $('#v-MAX').querySelector('.vv').textContent = s&&s.MAX!==null?s.MAX:'—';
-  $('#v-STEP').querySelector('.vv').textContent = s?(s.l+1):'—';
-  var arr=$('#tr-arr'); arr.innerHTML='';
-  DATA.forEach(function(v,i){
-    var d=document.createElement('div'); d.className='acell';
-    if(s&&s.look===i)d.className+=' look';
-    if(s&&s.LOC===i+1)d.className+=' best';
-    d.innerHTML='<div class="ai">['+(i+1)+']</div><div class="av">'+v+'</div>';
-    arr.appendChild(d);
-  });
-  $('#tr-msg').innerHTML = s?s.m:'Press Next to begin.';
-}
-$('#tr-next').onclick=function(){ if(tp<TR.length-1){tp++;paintTrace();} };
-$('#tr-reset').onclick=function(){ clearInterval(timer);timer=null;$('#tr-auto').textContent='▶ Play';tp=-1;paintTrace(); };
-$('#tr-auto').onclick=function(){
-  var b=this;
-  if(timer){clearInterval(timer);timer=null;b.textContent='▶ Play';return;}
-  b.textContent='⏸ Pause';
-  timer=setInterval(function(){
-    if(tp<TR.length-1){tp++;paintTrace();}
-    else{clearInterval(timer);timer=null;b.textContent='▶ Play';}
-  },1100);
-};
-paintTrace();
-
-/* ---- SPOT THE MISTAKE ---- */
-var found=0, TOTAL=5;
-function paintBugs(){
-  $('#bug-cnt').textContent=found+' / '+TOTAL;
-  $$('#bug-dots i').forEach(function(d,i){d.classList.toggle('on',i<found);});
-}
-$$('#findbug .tok').forEach(function(t){
-  t.addEventListener('click',function(){
-    if(t.classList.contains('got'))return;
-    t.classList.add('got');
-    t.innerHTML=t.textContent+' <span class="fix">→ '+t.dataset.fix+'</span>';
-    found++; paintBugs();
-    $('#bug-log').innerHTML='<b>Found it.</b> '+t.dataset.why;
-    if(found===TOTAL) $('#bug-log').innerHTML='<b style="color:#15803d">All 5 found.</b> Those five mistakes are exactly what costs marks — the answer was correct, the writing was not.';
-  });
-});
-$('#findbug').addEventListener('click',function(e){
-  if(e.target===this||(e.target.nodeType===1&&!e.target.classList.contains('tok')&&!e.target.classList.contains('fix'))){
-    $('#bug-log').textContent='Nothing wrong there. Look at names, at the assignment sign, and at how it ends.';
-  }
-});
-$('#bug-reset').onclick=function(){
-  found=0; paintBugs();
-  $$('#findbug .tok').forEach(function(t){
-    t.classList.remove('got');
-    t.innerHTML=t.textContent.replace(/\s*→.*$/,'');
-  });
-  $('#bug-log').textContent='Click on anything you think is wrong.';
-};
-paintBugs();
-
-
-/* ---------- FLOWCHART RUNNER ---------- */
 (function(){
-  var A=[30,50,20,70,40], KEY=70, steps=[], sp=-1, tmr=null;
+  var api=null, INTMAX=2147483647, LLMAX=9223372036854775807;
+  function paintFac(){
+    var k=parseInt($('#fac-in').value,10);
+    if(isNaN(k)||k<0)k=0; if(k>20)k=20; $('#fac-in').value=k;
+    $$('[data-fac]').forEach(function(b){ b.classList.toggle('ghost', +b.dataset.fac!==k); });
+    var parts=[],r=1;
+    for(var i=1;i<=k;i++){parts.push(i); r*=i;}
+    var lhs = k===0 ? '(empty product)' : parts.join(' <span class="eq">&times;</span> ');
+    $('#fac-out').innerHTML='<b>'+k+'!</b> <span class="eq">=</span> '+lhs+' <span class="eq">=</span> <span class="res">'+
+      (k===0?'1':r.toLocaleString('en-US'))+'</span>';
+    var fits = r>LLMAX ? 'nothing' : (r>INTMAX ? 'long long' : 'int');
+    var m;
+    if(k===0) m='0! = 1 by definition. There is nothing to multiply, and the empty product is 1.';
+    else if(fits==='nothing') m='\u26a0 This is bigger than a long long can hold. Even 64 bits is not enough.';
+    else if(fits==='long long') m='\u26a0 This is bigger than an int can hold ('+INTMAX.toLocaleString('en-US')+'). You would need long long \u2014 and it would NOT warn you.';
+    else m='This still fits comfortably in an int.';
+    if(api){
+      api.msg(m);
+      api.watch([
+        ['n', k],
+        ['n!', k===0?'1':r.toLocaleString('en-US')],
+        ['digits', String(k===0?1:r).replace(/[^0-9]/g,'').length],
+        ['fits in', fits]
+      ]);
+    } else $('#fac-msg').innerHTML=m;
+  }
+  $('#fac-in').addEventListener('input',paintFac);
+  $$('[data-fac]').forEach(function(b){b.addEventListener('click',function(){
+    $('#fac-in').value=b.dataset.fac; paintFac(); });});
+  api=Sim.make({
+    el:'#fac-sim',
+    name:'n! written out, and where it stops fitting',
+    render:function(st,i,a){ api=a; paintFac(); },
+    onReset:function(){ $('#fac-in').value='4'; paintFac(); }
+  });
+})();
+
+/* ---- FIBONACCI : one term per press, and Back takes it away again ----
+   Every box is drawn from the step rather than appended to what is already
+   there, so Back is as correct as Next and clicking into the middle of the
+   rail lands on a real state. */
+(function(){
+  var LAST=14, FIB=[0,1];
+  while(FIB.length<=LAST) FIB.push(FIB[FIB.length-1]+FIB[FIB.length-2]);
+
+  var FSTEPS=[{g:'seed',k:1}];
+  for(var k=2;k<=LAST;k++) FSTEPS.push({g:'terms',k:k});
+
+  Sim.make({
+    el:'#fib-sim',
+    name:'Every term is the sum of the two before it',
+    steps:FSTEPS,
+    group:function(st){ return st.g; },
+    render:function(st,idx,a){
+      /* Every box that the walk will ever draw is in the layout from step 1,
+         hidden until its press lands. Reserving the row is what keeps the
+         buttons still \u2014 on a phone the row grows five lines deep otherwise
+         and walks them off the screen. Hidden means hidden: an unarrived term
+         shows neither its value nor its name. */
+      var seed=(idx===0), k=st.k, h='';
+      for(var i=0;i<=LAST;i++){
+        var cls='fib';
+        if(i>k) cls+=' pend';
+        else if(!seed){
+          if(i===k) cls+=' newv';
+          else if(i===k-1||i===k-2) cls+=' add';
+        }
+        h+='<div class="'+cls+'"><div class="fi">F'+i+'</div><div class="fv">'+FIB[i]+'</div></div>';
+      }
+      $('#fib-row').innerHTML=h;
+      a.watch([
+        ['n', k],
+        ['F(n\u22121)', seed?'\u2014':FIB[k-1]],
+        ['F(n\u22122)', seed?'\u2014':FIB[k-2]],
+        ['F(n)', FIB[k]]
+      ]);
+      a.msg(seed
+        ? 'Start with the two you are <b>given</b>: F<sub>0</sub> = 0 and F<sub>1</sub> = 1. Nothing has been worked out yet \u2014 these two are the definition.'
+        : 'F'+k+' = F'+(k-1)+' + F'+(k-2)+' = '+FIB[k-1]+' + '+FIB[k-2]+' = <b>'+FIB[k]+'</b>');
+    }
+  });
+})();
+
+/* ---- HALVING / LOG ----
+   Every cut chip is drawn up front and revealed one per press, so the block
+   is the same height on step 1 as it is on the last one and the buttons
+   underneath never walk away from the cursor pressing them. */
+(function(){
+  var api=null, START=1024, STEPS=[];
+  var fm=function(v){ return v.toLocaleString('en-US'); };
+
   function build(){
-    steps=[]; var i=0;
-    steps.push({n:0,e:null,i:null,m:'<b>Start.</b>'});
-    steps.push({n:1,e:'0-1',i:null,m:'<b>Read A, N, KEY.</b> The array, its size (5) and the value we are hunting for ('+KEY+').'});
-    steps.push({n:2,e:'1-2',i:0,m:'<b>i = 0.</b> Begin at the first box.'});
+    var chips='', v=START, c=0;
+    STEPS.length=0;
+    STEPS.push({v:START,c:0,g:'start'});
+    while(v>1){
+      v=Math.ceil(v/2); c++;
+      STEPS.push({v:v,c:c,g:'cuts'});
+      chips+='<span class="hstep">cut '+c+' \u2192 '+fm(v)+'</span>';
+    }
+    $('#hv-steps').innerHTML=chips;
+  }
+
+  build();
+  api=Sim.make({
+    el:'#hv-sim',
+    name:'Halving until one is left \u2014 and counting the cuts',
+    steps:STEPS,
+    group:function(st){ return st.g; },
+    render:function(st,idx,a){
+      $('#hv-bar').style.width=Math.max(st.v/START*100,3.2)+'%';
+      $('#hv-bar').textContent=fm(st.v);
+      $$('#hv-steps .hstep').forEach(function(el,i){ el.classList.toggle('on', i<idx); });
+      /* The count IS the answer the walk exists to produce, so the third chip
+         holds a question mark until the last cut lands. Printing it on step 1
+         would answer "how many times can I halve this?" before anyone had a
+         chance to count. */
+      a.watch([
+        ['value', fm(st.v)],
+        ['cuts so far', st.c],
+        ['log\u2082 '+fm(START), st.v<=1 ? st.c : '?']
+      ]);
+      a.msg(idx===0
+        ? '<b>'+fm(START)+' items</b>, and not one cut made yet. Press <b>Cut it in half</b> and count them.'
+        : (st.v<=1
+            ? '<b>Only 1 left, and it took '+st.c+' cuts.</b> That is the whole meaning of log\u2082 '+fm(START)+' = '+st.c+' \u2014 from '+fm(START)+' items down to the answer in '+st.c+' steps.'
+            : st.c+' cut'+(st.c>1?'s':'')+' so far, and <b>'+fm(st.v)+'</b> left.'));
+    }
+  });
+
+  /* a different starting size is a different walk: rebuild it and start over */
+  $('#hv-n').addEventListener('change',function(){
+    START=parseInt(this.value,10);
+    build(); api.reset();
+  });
+})();
+
+/* ---- ALGORITHM TRACER ----
+   The centrepiece of the page, and the first simulator on the site to use the
+   shell's `cond` field. Every pass lands on Step 3 and on Step 4 \u2014 the two
+   lines that TEST something \u2014 and the shell tints the line and prints the
+   answer, so a finished run leaves a readable column of greens and reds in
+   the rail. The narration no longer says "is TRUE": the chip says it. */
+(function(){
+  var DATA=[30,50,20,70,40], N=5, TR=[];
+
+  (function buildTrace(){
+    var K=null, LOC=null, MAX=null;
+    function snap(line,msg,look,g,cond){
+      TR.push({l:line,K:K,LOC:LOC,MAX:MAX,m:msg,look:look,g:g,cond:cond||null});
+    }
+    K=1; LOC=1; MAX=DATA[0];
+    snap(0,'Set K := 1, LOC := 1, MAX := DATA[1] = 30. We assume the first element is the biggest until something proves otherwise.',0,'setup');
+    var guard=0;
+    while(guard++<40){
+      K=K+1;
+      var g='K = '+K;
+      snap(1,'Set K := K + 1. Now K = '+K+'.',null,g);
+      if(K>N){
+        snap(2,'Is K &gt; N? &nbsp;'+K+' &gt; '+N+'. There is no element '+K+', so Write: LOC, MAX and Exit.',null,g,{ok:true});
+        snap(5,'Finished. <b>LOC = '+LOC+', MAX = '+MAX+'</b> \u2014 DATA['+LOC+'] is the largest element of the array.',null,'done');
+        break;
+      }
+      snap(2,'Is K &gt; N? &nbsp;'+K+' &gt; '+N+'. There is still an element to look at, so carry on to Step 4.',null,g,{ok:false});
+      var d=DATA[K-1], was=MAX;
+      if(MAX<d){
+        LOC=K; MAX=d;
+        snap(3,'Is MAX &lt; DATA['+K+']? &nbsp;'+was+' &lt; '+d+', so Set LOC := '+K+' and MAX := '+d+'. A new leader.',K-1,g,{ok:true});
+      } else {
+        snap(3,'Is MAX &lt; DATA['+K+']? &nbsp;'+MAX+' is not less than '+d+', so change nothing and move on.',K-1,g,{ok:false});
+      }
+      snap(4,'Go to Step 2.',null,g);
+    }
+  })();
+
+  Sim.make({
+    el:'#tr-sim',
+    name:'Largest element, one step at a time',
+    steps:TR,
+    play:1100,
+    lines:'#tr-algo .st',
+    group:function(st){ return st.g; },
+    render:function(st,idx,a){
+      var h='';
+      for(var i=0;i<DATA.length;i++){
+        var cls='acell';
+        if(st.look===i) cls+=' look';
+        if(st.LOC===i+1) cls+=' best';
+        h+='<div class="'+cls+'"><div class="ai">['+(i+1)+']</div><div class="av">'+DATA[i]+'</div></div>';
+      }
+      $('#tr-arr').innerHTML=h;
+      var inRange = st.K!==null && st.K>=1 && st.K<=N;
+      a.watch([
+        ['K',       st.K===null?'\u2014':st.K],
+        ['DATA[K]', inRange ? DATA[st.K-1] : '\u2014'],
+        ['MAX',     st.MAX===null?'\u2014':st.MAX],
+        ['LOC',     st.LOC===null?'\u2014':st.LOC],
+        ['at step', st.l+1]
+      ]);
+      a.msg(st.m);
+    }
+  });
+})();
+
+/* ---- SPOT THE MISTAKE ----
+   Free play with a score. The count moves onto the shell's meter and the
+   verdict onto the shell's narration, so the only thing this page still owns
+   is the listing and the five reasons. */
+(function(){
+  var api=null, found=0, TOTAL=5;
+  var OPEN='Click on anything you think is wrong.';
+
+  function paintBugs(){
+    if(api) api.meter(found);
+    $$('#bug-dots i').forEach(function(d,i){ d.classList.toggle('on', i<found); });
+  }
+
+  $$('#findbug .tok').forEach(function(t){
+    t.addEventListener('click',function(){
+      if(t.classList.contains('got')) return;
+      t.classList.add('got');
+      t.innerHTML=t.textContent+' <span class="fix">\u2192 '+t.dataset.fix+'</span>';
+      found++; paintBugs();
+      api.msg(found===TOTAL
+        ? '<b style="color:#15803d">All 5 found.</b> Those five are exactly what costs marks \u2014 the answer was right, the writing was not.'
+        : '<b>Found it.</b> '+t.dataset.why);
+    });
+  });
+
+  $('#findbug').addEventListener('click',function(e){
+    if(e.target===this||(e.target.nodeType===1&&!e.target.classList.contains('tok')&&!e.target.classList.contains('fix'))){
+      api.msg('Nothing wrong there. Look at the <b>names</b>, at the <b>assignment sign</b>, and at <b>how it ends</b>.');
+    }
+  });
+
+  api=Sim.make({
+    el:'#bug-sim',
+    name:'Five notation mistakes, and the marks they cost',
+    render:function(st,i,a){ api=a; paintBugs(); },
+    onReset:function(a){
+      found=0;
+      $$('#findbug .tok').forEach(function(t){
+        t.classList.remove('got');
+        t.innerHTML=t.textContent.replace(/\s*\u2192.*$/,'');
+      });
+      paintBugs(); a.msg(OPEN);
+    }
+  });
+})();
+
+/* ---------- FLOWCHART RUNNER ----------
+   `lines` does not have to be a code listing. Here the nominated nodes are
+   the SVG shapes themselves, so the decision diamond goes green on Yes and
+   red on No \u2014 the condition is coloured by its answer on the drawing the
+   exam actually asks you to produce. */
+(function(){
+  var A=[30,50,20,70,40], KEY=70, STEPS=[], api=null;
+
+  function build(){
+    var st=[], i=0, comps=0;
+    st.push({n:0,e:null,i:null,c:0,g:'start',m:'<b>Start.</b> Nothing has happened yet.'});
+    st.push({n:1,e:'0-1',i:null,c:0,g:'start',m:'<b>Read A, N, KEY.</b> The array, its size (5), and the value we are hunting for ('+KEY+').'});
+    st.push({n:2,e:'1-2',i:0,c:0,g:'start',m:'<b>i = 0.</b> Begin at the first box.'});
     var guard=0, first=true;
     while(guard++<20){
-      steps.push({n:3,e:first?'2-3':'5-3',i:i,m:'<b>i &lt; N ?</b> &nbsp;'+i+' &lt; 5 is '+(i<5?'<b>Yes</b> — carry on.':'<b>No</b> — the array is finished.')});
+      var g='i = '+i, inRange=(i<A.length);
+      st.push({n:3,e:first?'2-3':'5-3',i:i,c:comps,g:g,cond:{ok:inRange},
+        m:'<b>i &lt; N ?</b> &nbsp;'+i+' &lt; 5 \u2014 '+(inRange?'there is still a box to check.':'every box has been checked.')});
       first=false;
-      if(i>=A.length){ steps.push({n:7,e:'3-7',i:i,m:'<b>Print "Not found".</b> Every box was checked and '+KEY+' was never there — <b>'+A.length+' comparisons</b>, the worst case.',end:1}); break; }
-      var hit=A[i]===KEY;
-      steps.push({n:4,e:'3-4',i:i,look:1,m:'<b>A['+i+'] = KEY ?</b> &nbsp;'+A[i]+' = '+KEY+' is '+(hit?'<b>Yes</b> — found it.':'<b>No</b>.')});
-      if(hit){ steps.push({n:6,e:'4-6',i:i,found:1,m:'<b>Print i.</b> Found at position <b>'+i+'</b>, after <b>'+(i+1)+' comparison'+(i?'s':'')+'</b>.',end:1}); break; }
-      steps.push({n:5,e:'4-5',i:i,m:'<b>i = i + 1.</b> Move to the next box.'});
+      if(!inRange){
+        st.push({n:7,e:'3-7',i:i,c:comps,g:'done',end:1,
+          m:'<b>Print "Not found".</b> Every box was checked and '+KEY+' was never in the array \u2014 <b>'+comps+' comparisons</b>, which is the worst case.'});
+        break;
+      }
+      comps++;
+      var hit=(A[i]===KEY);
+      st.push({n:4,e:'3-4',i:i,look:1,c:comps,g:g,cond:{ok:hit},
+        m:'<b>A['+i+'] = KEY ?</b> &nbsp;'+A[i]+' = '+KEY+' \u2014 '+(hit?'this is the one.':'not this box.')});
+      if(hit){
+        st.push({n:6,e:'4-6',i:i,found:1,c:comps,g:'done',end:1,
+          m:'<b>Print i.</b> Found at position <b>'+i+'</b>, after <b>'+comps+' comparison'+(comps>1?'s':'')+'</b>.'});
+        break;
+      }
+      st.push({n:5,e:'4-5',i:i,c:comps,g:g,m:'<b>i = i + 1.</b> Move to the next box.'});
       i++;
     }
+    STEPS.length=0;
+    for(var k=0;k<st.length;k++) STEPS.push(st[k]);
   }
-  function paint(){
-    var st = sp<0 ? null : steps[sp];
-    $$('#fcsvg .fcn').forEach(function(g){ g.classList.toggle('cur', !!st && +g.dataset.n===st.n); });
-    $$('#fcsvg .fe').forEach(function(e){ e.classList.toggle('lit', !!st && e.dataset.e===st.e); });
-    $('#fcarr').innerHTML=A.map(function(v,k){
-      var cls='acell';
-      if(st && st.look && k===st.i) cls+=' look';
-      if(st && st.found && k===st.i) cls+=' hitv';
-      return '<div class="'+cls+'"><span class="ai">['+k+']</span><span class="av">'+v+'</span></div>';
-    }).join('');
-    $('#fc-i').querySelector('.vv').textContent = st && st.i!==null && st.i!==undefined ? st.i : '—';
-    $('#fc-k').querySelector('.vv').textContent = KEY;
-    $('#fcmsg').innerHTML = st ? st.m : 'Press <b>Next</b> to start.';
-    $('#fc-next').disabled = sp>=steps.length-1;
-  }
-  function reset(){ clearInterval(tmr); tmr=null; $('#fc-play').textContent='▶ Play'; build(); sp=-1; paint(); }
-  $('#fc-next').onclick=function(){ if(sp<steps.length-1){sp++;paint();} };
-  $('#fc-reset').onclick=reset;
-  $('#fc-play').onclick=function(){
-    var b=this;
-    if(tmr){ clearInterval(tmr); tmr=null; b.textContent='▶ Play'; return; }
-    if(sp>=steps.length-1) sp=-1;
-    b.textContent='⏸ Pause';
-    tmr=setInterval(function(){
-      if(sp<steps.length-1){ sp++; paint(); }
-      else { clearInterval(tmr); tmr=null; b.textContent='▶ Play'; }
-    },950);
-  };
+
+  build();
+  api=Sim.make({
+    el:'#fc-sim',
+    name:'Linear search, running on its own flowchart',
+    steps:STEPS,
+    play:950,
+    lines:'#fcsvg .fcn',
+    lineOf:function(st){ return st.n; },
+    group:function(st){ return st.g; },
+    render:function(st,idx,a){
+      $$('#fcsvg .fe').forEach(function(e){ e.classList.toggle('lit', e.dataset.e===st.e); });
+      $('#fcarr').innerHTML=A.map(function(v,k){
+        var cls='acell';
+        if(st.look && k===st.i) cls+=' look';
+        if(st.found && k===st.i) cls+=' hitv';
+        return '<div class="'+cls+'"><span class="ai">['+k+']</span><span class="av">'+v+'</span></div>';
+      }).join('');
+      var has = st.i!==null && st.i!==undefined && st.i<A.length;
+      a.watch([
+        ['i',    st.i===null||st.i===undefined?'\u2014':st.i],
+        ['A[i]', has?A[st.i]:'\u2014'],
+        ['KEY',  KEY],
+        ['comparisons', st.c]
+      ]);
+      a.msg(st.m);
+    }
+  });
+
   $$('[data-fckey]').forEach(function(b){
     b.addEventListener('click',function(){
       $$('[data-fckey]').forEach(function(x){x.classList.add('ghost');});
-      b.classList.remove('ghost'); KEY=+b.dataset.fckey; reset();
+      b.classList.remove('ghost');
+      KEY=+b.dataset.fckey;
+      build(); api.reset();
     });
   });
-  reset();
 })();
 
-$$('.quiz').forEach(function(q){
-  var o=$$('.qopt',q),e=$('.qexp',q);
-  o.forEach(function(b){b.addEventListener('click',function(){
-    o.forEach(function(x){x.disabled=true;if(x.dataset.ok)x.classList.add('ok');});
-    if(!b.dataset.ok)b.classList.add('no'); e.classList.add('show');
-  });});
-});
+/* ---- QUIZZES, and the ribbon that counts them ----
+   Answers are remembered, so coming back to the page does not wipe the record
+   of what was already worked through. */
+(function(){
+  var KEY='cse2321-s1c4-quiz';
+  var done={}; try{done=JSON.parse(localStorage.getItem(KEY)||'{}');}catch(e){done={};}
+  var quizzes=$$('.quiz'), total=quizzes.length;
+  function save(){ try{localStorage.setItem(KEY,JSON.stringify(done));}catch(e){} }
+  function show(){
+    var k=Object.keys(done).length;
+    if($('#pbar')) $('#pbar').style.width=(total?Math.round(k/total*100):0)+'%';
+    if($('#pnum')) $('#pnum').textContent=k+' / '+total;
+  }
+  quizzes.forEach(function(q,qi){
+    var id=q.dataset.q||('q'+qi), o=$$('.qopt',q), e=$('.qexp',q);
+    function lock(picked){
+      o.forEach(function(x){ x.disabled=true; if(x.dataset.ok) x.classList.add('ok'); });
+      if(picked>=0 && o[picked] && !o[picked].dataset.ok) o[picked].classList.add('no');
+      if(e) e.classList.add('show');
+    }
+    if(done[id]) lock(done[id].p===undefined?-1:done[id].p);
+    o.forEach(function(b,i){ b.addEventListener('click',function(){
+      done[id]={ok:!!b.dataset.ok,p:i}; save(); show(); lock(i);
+    });});
+  });
+  if($('#preset')) $('#preset').onclick=function(){
+    done={}; save(); show();
+    quizzes.forEach(function(q){
+      $$('.qopt',q).forEach(function(x){ x.disabled=false; x.classList.remove('ok','no'); });
+      if($('.qexp',q)) $('.qexp',q).classList.remove('show');
+    });
+  };
+  show();
+})();
+
+/* ---- YOUR TURN: ask before showing ---- */
+(function(){
+  $$('.turn').forEach(function(t){
+    var btn=$('.tbtn',t), ans=$('.ta',t);
+    if(!btn||!ans) return;
+    var label=btn.textContent;
+    btn.addEventListener('click',function(){
+      var on=ans.classList.toggle('on');
+      btn.textContent = on ? 'Hide it again' : label;
+    });
+  });
+})();
 
 document.addEventListener('keydown',function(e){
   if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
@@ -2177,8 +2696,8 @@ document.addEventListener('keydown',function(e){
     document.body.style.overflow = v?'hidden':'';
   }
   fab.querySelector('.fmenu').onclick=function(){open(!dr.classList.contains('on'));};
-  fab.querySelector('.fup').onclick=function(){jump(-1);};
-  fab.querySelector('.fdn').onclick=function(){jump(1);};
+  fab.querySelector('.fup').onclick=function(){window.cardJump(-1);};
+  fab.querySelector('.fdn').onclick=function(){window.cardJump(1);};
   dr.querySelector('.dx').onclick=function(){open(false);};
   scrim.onclick=function(){open(false);};
   dr.addEventListener('click',function(e){
@@ -2241,6 +2760,68 @@ document.addEventListener('keydown',function(e){
   if(solo) host.insertBefore(b, host.firstChild); else host.appendChild(b);
 })();
 
+
+/* ---------- THE TAKEAWAY RAIL ----------
+   Each section carries one sentence in data-key. As you reach the section the
+   sentence is added to a rail on the right \u2014 forward only, so scrolling back
+   to re-read something never takes it away. By the last card it is the
+   revision list for the whole class. */
+(function(){
+  var cards=Array.prototype.slice.call(document.querySelectorAll('#p-lesson .card[data-key]'));
+  if(!cards.length) return;
+  var KEY='cse2321-s1c4-keys';
+  var rail=document.createElement('div'); rail.className='keyrail';
+  rail.innerHTML='<div class="krhd" role="button" tabindex="0" aria-expanded="true">'+
+      '<span class="kt">So far</span><span class="kn" id="kr-n">0</span><span class="kv">\u25be</span></div>'+
+    '<div class="kbody" id="kr-body"></div>';
+  document.body.appendChild(rail);
+  var body=rail.querySelector('#kr-body'), num=rail.querySelector('#kr-n'), hd=rail.querySelector('.krhd');
+  var shown=0;
+  try{ if(localStorage.getItem(KEY)==='hid') rail.classList.add('hid'); }catch(err){}
+
+  function add(upto){
+    if(upto<=shown) return;
+    for(var i=shown;i<upto;i++){
+      var c=cards[i];
+      var b=(c.querySelector('.badge')||{}).textContent||String(i+1);
+      var d=document.createElement('div'); d.className='kitem new';
+      d.innerHTML='<span class="kx">'+b+'</span>'+c.getAttribute('data-key');
+      body.appendChild(d);
+    }
+    shown=upto; num.textContent=shown;
+    Array.prototype.forEach.call(body.querySelectorAll('.kitem'),function(k,i){
+      k.classList.toggle('new', i===shown-1);
+    });
+    body.scrollTop=body.scrollHeight;
+  }
+  hd.addEventListener('click',function(){
+    rail.classList.toggle('hid');
+    hd.setAttribute('aria-expanded', rail.classList.contains('hid')?'false':'true');
+    try{ localStorage.setItem(KEY, rail.classList.contains('hid')?'hid':'open'); }catch(err){}
+  });
+  hd.addEventListener('keydown',function(ev){
+    if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); hd.click(); }
+  });
+
+  /* A card's takeaway IS its answer. Where a card carries a Your turn, hold
+     the takeaway back until the reader has scrolled past the question \u2014
+     otherwise the rail answers it before anyone has had a chance to think. */
+  function trigger(c){
+    var t=c.querySelector('.turn'), r=(t||c).getBoundingClientRect();
+    return t ? r.bottom : r.top;
+  }
+  var tick=null;
+  function scan(){
+    var y=window.innerHeight*0.55, k=0;
+    for(var i=0;i<cards.length;i++) if(trigger(cards[i])<=y) k=i+1;
+    add(k);
+  }
+  window.addEventListener('scroll',function(){
+    if(tick) return;
+    tick=setTimeout(function(){ tick=null; scan(); },180);
+  },{passive:true});
+  scan();
+})();
 
 /* ---------- HIDE THE BAR ON THE WAY DOWN ---------- */
 (function(){

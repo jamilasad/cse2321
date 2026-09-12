@@ -137,7 +137,11 @@ pre.code{font-family:var(--mono);font-size:.78rem;line-height:1.75;background:#0
 
 /* ============ BUTTONS ============ */
 .btn{appearance:none;font-family:inherit;font-weight:800;font-size:.82rem;padding:.6rem 1.15rem;border-radius:.55rem;
-     cursor:pointer;border:none;background:var(--accent);color:#fff;box-shadow:var(--sh-sm);
+     cursor:pointer;background:var(--accent);color:#fff;box-shadow:var(--sh-sm);
+     /* a transparent border of the same width .btn.ghost uses, so that
+        lighting a button in a toggle group does not change its box and
+        shift the whole control row by 2px under the cursor */
+     border:2px solid transparent;
      transition:filter .15s,transform .1s}
 .btn:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px)}
 .btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
@@ -291,6 +295,10 @@ ul.tight li,ol.tight li{margin-bottom:.4rem;font-size:.9rem}
 .tcstep{display:flex;align-items:center;gap:.8rem;padding:.7rem .9rem;border:1px solid var(--line);border-radius:.6rem;
         background:#fff;margin-bottom:.5rem;opacity:.25;transition:opacity .35s,transform .35s;transform:translateX(-6px);flex-wrap:wrap}
 .tcstep.on{opacity:1;transform:none}
+/* a step walk must not print its own answers in advance: the rows reserve their
+   height from the start, but a rule's result only appears on the press that
+   applies it */
+.tcstep:not(.on) .tb{visibility:hidden}
 .tcstep .tn{width:1.7rem;height:1.7rem;border-radius:50%;background:#0891b2;color:#fff;display:grid;place-items:center;
             font-weight:800;font-size:.78rem;flex:0 0 auto}
 .tcstep .tl{font-size:.78rem;font-weight:700;color:var(--ink-mute);flex:1 1 130px;min-width:0}
@@ -665,41 +673,8 @@ table{min-width:0}
 .bigslide input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;background:#fff;
   border:4px solid #0891b2;cursor:pointer;box-shadow:0 3px 10px rgba(8,145,178,.45)}
 /* ---- the frequency-count walkthrough (section 7) ---------------------
-   A small self-contained stepper. The linked-list classes have a whole
-   engine for this; one figure on one page does not need it, so this is
-   the same feel built from four elements, namespaced fq- throughout. */
-.fqsim{border:1px solid #d9f2ee;border-radius:1rem;margin:1.15rem 0;overflow:hidden;
-  background:linear-gradient(180deg,#fff 0%,#fbfefe 55%,#f5fdfb 100%);box-shadow:0 14px 32px -26px rgba(13,148,136,.45)}
-.fqhd{display:flex;align-items:center;gap:.7rem;padding:.55rem .9rem;border-bottom:1px solid #eafaf7}
-.fqfocus{margin-left:auto;appearance:none;font-family:inherit;font-size:.68rem;font-weight:800;
-  border:1px solid #b6e7e0;background:#fff;color:#0f766e;border-radius:.45rem;
-  padding:.28rem .6rem;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:.35rem}
-.fqfocus:hover{border-color:#0d9488;background:#0d9488;color:#fff}
-/* Focus: the whole block takes the screen, and everything in it grows. Nothing
-   here is a scaled canvas, so it needs no refit — only bigger type. */
-body.fqfull{overflow:hidden}
-.fqsim.full{position:fixed;inset:0;z-index:120;margin:0;border-radius:0;overflow:auto;
-  background:#f4f6fc;box-shadow:none;display:flex;flex-direction:column;justify-content:center}
-.fqsim.full .fqgrid{width:100%;max-width:1500px;margin:0 auto;gap:1.4rem;padding:1.2rem 1.6rem}
-@media(min-width:900px){.fqsim.full .fqgrid{grid-template-columns:1.3fr .9fr}}
-.fqsim.full .fqstage{padding:1.4rem 1.2rem}
-.fqsim.full .fqch{width:58px;height:66px;font-size:1.6rem}
-.fqsim.full .fqarr{gap:.4rem}
-.fqsim.full .fqcell{padding:.4rem .1rem}
-.fqsim.full .fqcell .fl{font-size:.72rem}
-.fqsim.full .fqcell .fv{font-size:1.3rem}
-.fqsim.full .fql{font-size:1rem;line-height:1.95}
-.fqsim.full .fqcap{font-size:.66rem}
-.fqsim.full .fqtx{font-size:1.06rem}
-.fqsim.full .fqw b{font-size:1.05rem}
-.fqsim.full .fqmsg{max-width:1500px;margin:0 auto;width:calc(100% - 3.2rem)}
-.fqsim.full .btnrow{max-width:1500px;margin:0 auto;width:100%;justify-content:center}
-.fqhint{display:none;gap:1rem;justify-content:center;padding:.2rem 1rem .9rem;
-  font-size:.68rem;font-weight:600;color:#8f96b0}
-.fqsim.full .fqhint{display:flex}
-.fqhint kbd{font-family:var(--mono);font-size:.66rem;border:1px solid #dfe3f2;border-bottom-width:2px;
-  border-radius:.25rem;padding:.02rem .3rem;background:#fff;color:#6d7392}
-.fqttl{font-family:var(--mono);font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#5eada3}
+   The drawing only. Its frame, Focus, narration, counter and watch strip
+   used to live here as a private copy; they now come from assets/sim.css. */
 .fqgrid{display:grid;gap:.9rem;padding:.9rem}
 @media(min-width:900px){.fqgrid{grid-template-columns:1.25fr .95fr;align-items:start}}
 .fqstage{background:#fbfdfd;border:1px solid #eef6f5;border-radius:.8rem;padding:.9rem .8rem}
@@ -727,20 +702,74 @@ body.fqfull{overflow:hidden}
 .fql.on{background:rgba(45,212,191,.14);border-left-color:#2dd4bf;color:#e6fffb;font-weight:700}
 .fql.on .g{color:#2dd4bf}
 .fql .k{color:#c4b5fd}.fql .t{color:#fbbf24}.fql .n{color:#fca5a5}.fql .q{color:#86efac}
-.fqwatch{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem}
-.fqw{display:inline-flex;align-items:baseline;gap:.35rem;border:1.5px solid #e3e7f6;background:#fbfcff;
-  border-radius:.45rem;padding:.2rem .5rem}
-.fqw em{font-style:normal;font-size:.56rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8}
-.fqw b{font-family:var(--mono);font-size:.92rem;font-weight:800;color:#1e1b4b}
-.fqw.lit{border-color:#5eead4;background:#f0fdfa}
-.fqw.lit b{color:#0f766e}
-.fqmsg{display:flex;align-items:flex-start;gap:.6rem;margin:0 .9rem .2rem;padding:.7rem .85rem;
-  border-left:4px solid #0d9488;border-radius:.55rem;background:#f0fdfa}
-.fqic{font-size:.95rem;line-height:1.5;color:#0d9488}
-.fqtx{margin:0;flex:1;font-size:.93rem;line-height:1.6;color:var(--ink)}
-.fqn{font-family:var(--mono);font-size:.72rem;font-weight:800;color:#5eada3;white-space:nowrap;padding-top:.15rem}
-.fqsim .btnrow{padding:.2rem .9rem .9rem;margin:0}
 @media(max-width:560px){.fqch{width:34px;height:40px;font-size:1rem}.fqarr{gap:.2rem}.fqcell .fv{font-size:.82rem}}
+/* the code pane is shorter than the drawing beside it, so the watches fill the
+   gap under it instead of starting a new row below the whole grid */
+.fqside{display:flex;flex-direction:column;gap:.7rem;min-width:0}
+.fqside .simwatch{order:0;min-height:5.4rem;align-content:flex-start}
+@media(max-width:899px){.fqside .simwatch{min-height:0}}
+
+/* ============ FOCUS IS THE PROJECTOR: THE DRAWINGS GROW ============
+   These are sizes, so they apply to the light bench and the dark one alike. */
+.fsbody .bit{width:clamp(54px,6.4vw,88px);font-size:1.75rem}
+.fsbody .bitlbl span{width:clamp(54px,6.4vw,88px);font-size:.8rem}
+.fsbody .ro{padding:.9rem 1rem}
+.fsbody .rk{font-size:.78rem}
+.fsbody .rv{font-size:1.8rem}
+.fsbody .scrow{gap:.6rem;padding:.42rem .7rem}
+.fsbody .scrow .scb{width:32px;height:32px;font-size:1.02rem}
+.fsbody .scrow .scv{font-size:1.3rem;min-width:4rem}
+.fsbody .scrow .sctag{font-size:.7rem;padding:.18rem .45rem}
+.fsbody .combside .csh{font-size:.82rem}
+.fsbody .combside .csh i{width:24px;height:24px;font-size:.82rem}
+.fsbody .combsum .csr{font-size:2rem}
+.fsbody .combsum .csn{font-size:.95rem}
+.fsbody .tcstep{padding:.85rem 1.05rem}
+.fsbody .tcstep .tn{width:2.1rem;height:2.1rem;font-size:.95rem}
+.fsbody .tcstep .tl{font-size:.95rem}
+.fsbody .tcstep .tb{font-size:1.6rem}
+.fsbody .odo{padding:1.8rem 1.2rem}
+.fsbody .odo .ov{font-size:clamp(2.6rem,7vw,4.6rem)}
+.fsbody .odo .ob{font-size:clamp(1rem,2.6vw,1.5rem)}
+.fsbody .odo .om{font-size:1.02rem}
+.fsbody .chip{min-width:76px;padding:.6rem .65rem}
+.fsbody .chip .cc{font-size:1.75rem}
+.fsbody .chip .cn{font-size:.98rem}
+.fsbody .chip .cb{font-size:.72rem}
+.fsbody .rb .rbox{height:48px}
+.fsbody .rb .rad{font-size:.64rem;top:54px}
+.fsbody .rb .rad.dots{font-size:.9rem}
+.fsbody .rb .vlbl{font-size:.8rem;top:-20px}
+.fsbody .ramchip{padding:.8rem}
+.fsbody .chiphead b,.fsbody .chiphead span,.fsbody .chipfoot span{font-size:.82rem}
+.fsbody .inp{font-size:1.15rem;padding:.7rem .9rem}
+.fsbody .exactbox{font-size:1.05rem;padding:1.1rem}
+.fsbody .vs .side .sv{font-size:2rem}
+.fsbody .vs .side .st{font-size:.82rem}
+
+/* ---- and their colours on the dark bench ---- */
+.fsov:not(.lit) .fsbody .bit{background:#1b2238;border-color:#3d4670;color:#8f9ac2}
+.fsov:not(.lit) .fsbody .bit:hover{border-color:#22d3ee}
+.fsov:not(.lit) .fsbody .bitlbl span{color:#5b678f}
+.fsov:not(.lit) .fsbody .combside{background:#1b2238;border-color:#2b3554}
+.fsov:not(.lit) .fsbody .combside.pos{background:#10262e;border-color:#0e7490}
+.fsov:not(.lit) .fsbody .combside.neg{background:#2a1420;border-color:#9f1239}
+.fsov:not(.lit) .fsbody .combside.pos .csh{color:#67e8f9}
+.fsov:not(.lit) .fsbody .combside.neg .csh{color:#fda4af}
+.fsov:not(.lit) .fsbody .scrow{background:#151c30;border-color:#2b3554}
+.fsov:not(.lit) .fsbody .scrow.pos{background:#102a31}
+.fsov:not(.lit) .fsbody .scrow.neg{background:#2a1620}
+.fsov:not(.lit) .fsbody .scrow .scb{background:#1b2238;border-color:#3d4670;color:#8f9ac2}
+.fsov:not(.lit) .fsbody .scrow .scb.val.on{background:#10404d;border-color:#22d3ee;color:#a5f3fc}
+.fsov:not(.lit) .fsbody .scrow .scb.sgn{background:#3a1523;border-color:#e11d48;color:#fda4af}
+.fsov:not(.lit) .fsbody .scrow .scb.sgn.on{background:#7f1d1d;border-color:#fb7185;color:#fecdd3}
+.fsov:not(.lit) .fsbody .scrow .scsep{background:#3d4670}
+.fsov:not(.lit) .fsbody .scrow .scar{color:#4c5680}
+.fsov:not(.lit) .fsbody .scrow.pos .scv{color:#67e8f9}
+.fsov:not(.lit) .fsbody .scrow.neg .scv{color:#fda4af}
+.fsov:not(.lit) .fsbody .combsum{background:#151c30;border-color:#2b3554}
+.fsov:not(.lit) .fsbody .combsum .csr{color:#e6e9f7}
+.fsov:not(.lit) .fsbody .combsum .csn{color:#8f9ac2}
 
 .bigticks{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.66rem;color:#94a3b8;font-weight:700;
   padding:0 15px;margin-top:.15rem}   /* 15px = half the thumb, so a label sits over its own stop */
@@ -959,7 +988,99 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 .revtog.solo{display:block;margin:0 0 1.2rem;border-color:var(--line);color:var(--ink-soft);background:#fff}
 .revtog.solo:hover{color:var(--ink);border-color:var(--line-strong)}
 .revtog.solo.on{background:#6d28d9;border-color:#7c3aed;color:#fff}
+
+/* ============ YOUR TURN — ask before showing ============ */
+.turn{border:1.5px solid #c4b5fd;border-radius:.9rem;margin:1.2rem 0;overflow:hidden;
+  background:linear-gradient(180deg,#faf8ff,#f6f3ff)}
+.turn .th{display:flex;align-items:center;gap:.5rem;padding:.7rem .95rem;
+  border-bottom:1.5px solid #ddd6fe;background:rgba(255,255,255,.6)}
+.turn .th b{font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#6d28d9}
+.turn .tq{padding:.85rem .95rem;font-size:.98rem;line-height:1.6;color:var(--ink)}
+.turn .tq p{margin:0 0 .6rem}
+.turn .tq p:last-child{margin:0}
+.turn .tbtn{appearance:none;font-family:inherit;font-size:.78rem;font-weight:800;
+  border:1.5px solid #a78bfa;background:#fff;color:#6d28d9;border-radius:.5rem;
+  padding:.42rem .85rem;cursor:pointer;margin:0 .95rem .95rem;transition:.15s}
+.turn .tbtn:hover{background:#f5f3ff;border-color:#7c3aed}
+.turn .ta{display:none;padding:0 .95rem .95rem;font-size:.95rem;line-height:1.6;color:var(--ink)}
+.turn .ta.on{display:block;animation:drop .3s ease}
+.turn .ta p{margin:0 0 .55rem}
+.turn .ta p:last-child{margin:0}
+body.revealall .turn .ta{display:block}
+
+/* ============ A QUESTION FROM A REAL PAPER ============ */
+.pastq{border:1.5px solid #fecdd3;border-left:4px solid #e11d48;border-radius:.7rem;
+  background:linear-gradient(180deg,#fff7f8,#fff);padding:.9rem 1rem;margin:1.1rem 0}
+.pastq .pqh{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;margin:0 0 .55rem}
+.pastq .pqs{font-size:.58rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  background:#e11d48;color:#fff;border-radius:.3rem;padding:.16rem .45rem}
+.pastq .pqw{font-size:.68rem;font-weight:700;color:#9f1239}
+.pastq .pqm{margin-left:auto;font-family:var(--mono);font-size:.66rem;font-weight:800;color:#be123c;
+  background:#ffe4e6;border-radius:999px;padding:.14rem .55rem;white-space:nowrap}
+.pastq .pqt{margin:0;font-size:.93rem;line-height:1.68;color:#4c0519;font-style:italic}
+.pastq .pqt b{font-style:normal;color:#881337}
+
+/* ============ QUIZ PROGRESS RIBBON ============
+   Four quizzes on this page, so a count is worth showing. Not sticky — the
+   projector needs the height more than the reader needs the reminder. */
+.prog{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;
+  border:1px solid #e8ebfa;border-radius:.7rem;background:#fff;
+  padding:.55rem .8rem;margin:1.1rem 0 1.8rem;box-shadow:0 8px 22px -18px rgba(30,27,75,.5)}
+.prog .pk{font-size:.55rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#b4bcd8}
+.prog .pbar{flex:1;min-width:120px;height:8px;border-radius:99px;background:#eef2ff;overflow:hidden}
+.prog .pbar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#818cf8,#4f46e5);
+  transition:width .5s cubic-bezier(.32,1.1,.4,1)}
+.prog .pn{font-family:var(--mono);font-size:.78rem;font-weight:800;color:#4f46e5}
+.prog button{appearance:none;font-family:inherit;font-size:.68rem;font-weight:700;padding:.28rem .6rem;
+  border-radius:.4rem;border:1px solid var(--line);background:#fff;color:var(--ink-mute);cursor:pointer}
+.prog button:hover{border-color:#4f46e5;color:#1e1b4b}
+
+/* ============ THE TAKEAWAY RAIL ============ */
+.keyrail{position:fixed;right:1rem;top:5.6rem;bottom:10.6rem;width:290px;z-index:40;
+  display:none;flex-direction:column;pointer-events:none}
+/* 1080px column + 290px rail + gutters: below this the rail sits on the text */
+@media(min-width:1720px){.keyrail{display:flex}}
+.keyrail.hid .kbody{display:none}
+.krhd{pointer-events:auto;display:flex;align-items:center;gap:.55rem;align-self:flex-end;
+  background:linear-gradient(180deg,#fff,#fbfcff);border:1px solid #dfe3f2;border-radius:.7rem;
+  padding:.42rem .7rem;box-shadow:0 10px 26px -18px rgba(30,27,75,.55);cursor:pointer;transition:.15s}
+.krhd:hover{border-color:#a5b4fc;box-shadow:0 12px 30px -18px rgba(79,70,229,.6)}
+.krhd .kt{font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#7b8199}
+.krhd .kn{font-family:var(--mono);font-size:.66rem;font-weight:800;color:#fff;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:.35rem;padding:.06rem .38rem}
+.krhd .kv{color:#b4bcd8;font-size:.66rem;transition:transform .22s}
+.keyrail.hid .krhd .kv{transform:rotate(-90deg)}
+.kbody{pointer-events:auto;margin-top:.5rem;overflow-y:auto;display:flex;flex-direction:column;gap:.45rem;
+  padding:.2rem .2rem .5rem;scrollbar-width:thin;mask-image:linear-gradient(180deg,transparent 0,#000 12px)}
+.kitem{position:relative;background:#fff;border:1px solid #e6e9f7;border-radius:.6rem;
+  padding:.6rem .75rem .6rem 2.5rem;font-size:.82rem;line-height:1.5;color:#4c5480;
+  box-shadow:0 10px 24px -20px rgba(30,27,75,.6);animation:kin .38s cubic-bezier(.32,1.1,.4,1) both}
+.kitem b{color:#1e1b4b;font-weight:700}
+.kitem .kx{position:absolute;left:.6rem;top:.62rem;width:1.45rem;height:1.45rem;border-radius:.35rem;
+  display:grid;place-items:center;font-family:var(--mono);font-size:.62rem;font-weight:800;
+  background:#eef1ff;color:#4f46e5}
+.kitem.new{border-color:#c4b5fd;box-shadow:0 12px 28px -18px rgba(124,58,237,.6)}
+.kitem.new .kx{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff}
+@keyframes kin{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.kitem{animation:none}}
+body.fsopen .keyrail{display:none}/* ============ THIS PAGE'S OWN PICTURES, ON THE FOCUS BENCH ============
+   The RAM chip, the odometer and the exact-value box are already dark. These
+   are the light ones that would otherwise punch a white hole in the bench. */
+.fsov:not(.lit) .fsbody .ramline{background:#151c30}.fsov:not(.lit) .fsbody .rb .rbox{border-color:#2b3554;background:#1b2238}.fsov:not(.lit) .fsbody .rad{color:#5b678f}.fsov:not(.lit) .fsbody .rdots{color:#4c5680}.fsov:not(.lit) .fsbody .ro{background:#1b2238;border-color:#2b3554}.fsov:not(.lit) .fsbody .rk{color:#6b769c}.fsov:not(.lit) .fsbody .rv{color:#e6e9f7}.fsov:not(.lit) .fsbody .tcstep{background:#1b2238;border-color:#2b3554}.fsov:not(.lit) .fsbody .tcstep .tl{color:#8f9ac2}.fsbody .tcstep .tb{font-size:1.25rem}
+.fsov:not(.lit) .fsbody .tcstep .tb{color:#e6e9f7}.fsov:not(.lit) .fsbody .inp{background:#1b2238;border-color:#2b3554;color:#e6e9f7}.fsov:not(.lit) .fsbody .chip{background:#10313a;border-color:#0891b2}.fsov:not(.lit) .fsbody .chip b,.fsov:not(.lit) .fsbody .chip .cv{color:#67e8f9}.fsov:not(.lit) .fsbody .fqstage{background:#151c30;border-color:#232b45}.fsbody .fqcap{font-size:.7rem}
+/* the odometer's caption goes from one line to three on a narrow screen, and
+   it sits above the + 1 button — reserve the tallest it gets */
+@media(max-width:520px){#odo-sim #odo-m{min-height:2.7rem}}
+@media(max-width:360px){#odo-sim #odo-m{min-height:4rem}}
+.fsov:not(.lit) .fsbody .fqcap{color:#8f9ac2}
+.fsov.lit .fsbody .fqcap{color:#6b7280}.fsbody .fqch{width:56px;height:64px;font-size:1.5rem}
+.fsov:not(.lit) .fsbody .fqch{background:#1b2238;border-color:#3d4670;color:#e6e9f7}.fsov:not(.lit) .fsbody .fqch.now{background:#0d2b24;border-color:#0d9488;color:#5eead4}.fsbody .fqcell{padding:.4rem .1rem}
+.fsov:not(.lit) .fsbody .fqcell{background:#1b2238;border-color:#2b3554}.fsbody .fqcell .fl{font-size:.72rem}
+.fsov:not(.lit) .fsbody .fqcell .fl{color:#5b678f}.fsbody .fqcell .fv{font-size:1.3rem}
+.fsov:not(.lit) .fsbody .fqcell .fv{color:#4c5680}.fsov:not(.lit) .fsbody .fqcell.has{background:#0d2b24;border-color:#0f8a67}.fsov:not(.lit) .fsbody .fqcell.has .fv{color:#5eead4}.fsov:not(.lit) .fsbody .fqcell.hit{background:#12503f;border-color:#2dd4bf}.fsov:not(.lit) .fsbody .fqcell.hit .fv{color:#99f6e4}
+.fsbody .fql{font-size:1rem;line-height:1.95}.fsov:not(.lit) .fsbody .side{background:#1b2238;border-color:#2b3554}.fsov:not(.lit) .fsbody .side .st{color:#6b769c}.fsov:not(.lit) .fsbody .vs .mid{color:#6b769c}
 </style>
+<link rel="stylesheet" href="../assets/sim.css">
 </head>
 <body>
 <div class="topbar">
@@ -1010,8 +1131,15 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
   <p style="margin:0">Last class: data, data items, data types, the <b>ADT</b>, the seven operations and the time&ndash;space tradeoff. You now know <b>what</b> a data structure is. Today we open the box and look at what your data actually <b>is</b> inside the machine.</p>
 </div>
 
+<div class="prog" id="prog">
+  <span class="pk">Your progress</span>
+  <span class="pbar"><i id="pbar"></i></span>
+  <span class="pn" id="pnum">0 / 3</span>
+  <button id="preset" type="button">Clear</button>
+</div>
+
 <!-- ============ 1 · WHERE DO VARIABLES LIVE ============ -->
-<article class="card numbered" id="s1" style="--accent:#0891b2">
+<article class="card numbered" id="s1" data-key="A variable is a <b>name</b> for a place. The place is a run of numbered boxes, and the computer picks which ones." style="--accent:#0891b2">
   <span class="badge">1</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 1</p><h2>Where does a variable actually go?</h2></div>
@@ -1056,7 +1184,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 </article>
 
 <!-- ============ 2 · RAM AS AN ARRAY OF BYTES ============ -->
-<article class="card numbered" id="s2" style="--accent:#0891b2">
+<article class="card numbered" id="s2" data-key="RAM is one array of bytes numbered from 0. Every box holds <b>one byte</b> and carries its own address." style="--accent:#0891b2">
   <span class="badge">2</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 2</p><h2>RAM is one long array of bytes</h2></div>
@@ -1075,6 +1203,15 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 
   <p>This is the only picture of memory you need all semester. <b>It is an array.</b> Every box holds <b>one byte</b> and carries its own number — its <b>address</b>.</p>
 
+  <p style="margin-top:1.1rem"><b>Now put a variable in it.</b> Press a type and watch where it lands.</p>
+
+  <div class="sim" id="ram-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">One long array of bytes, and a variable landing in it</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
   <div class="ramchip">
     <div class="chiphead">
       <span class="chipdot"></span><b>RAM</b>
@@ -1085,19 +1222,21 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
     <div class="chipfoot"><span>address 0</span><span>one byte per box</span><span id="ramlastlbl">address 12,884,901,887</span></div>
   </div>
 
-  <p style="margin-top:1.1rem"><b>Now put a variable in it.</b> Press a type and watch where it lands.</p>
-  <div class="btnrow" id="placebar">
+  <div class="simwatch"></div>
+  <div class="simmsg"><span class="smn">&#9635;</span><p id="placemsg">Nothing placed yet — the ⋯ stand for billions more boxes we cannot draw.</p></div>
+  <div class="btnrow simctl" id="placebar">
     <button class="btn sm ghost" data-t="char">char c</button>
     <button class="btn sm ghost" data-t="int">int x</button>
     <button class="btn sm ghost" data-t="float">float f</button>
     <button class="btn sm ghost" data-t="double">double d</button>
-    <button class="btn sm" id="place-clear">Clear</button>
+    <button class="btn sm" data-k="reset" id="place-clear">Clear</button>
   </div>
-  <p class="opdesc" id="placemsg">Nothing placed yet — the ⋯ stand for billions more boxes we cannot draw.</p>
 
   <div class="readout" style="grid-template-columns:1fr 1fr">
     <div class="ro cool"><div class="rk">Total boxes (bytes)</div><div class="rv" id="r-bytes" style="font-size:1.05rem">—</div></div>
     <div class="ro hot"><div class="rk">At 1 mm per byte, the strip is</div><div class="rv" id="r-km" style="font-size:1.05rem">—</div></div>
+  </div>
+    </div>
   </div>
 
   <div class="bridge" style="--accent:#0891b2">
@@ -1137,7 +1276,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 </article>
 
 <!-- ============ 3 · HOW FAST ============ -->
-<article class="card numbered" id="s3" style="--accent:#e11d48">
+<article class="card numbered" id="s3" data-key="One read takes about <b>10 nanoseconds</b> and never searches. Do it three billion times and unbelievably fast becomes far too slow." style="--accent:#e11d48">
   <span class="badge">3</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 3</p><h2>Now think about what just happened</h2></div>
@@ -1199,7 +1338,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 </article>
 
 <!-- ============ 4 · BITS AND THE RANGE OF INT ============ -->
-<article class="card numbered" id="s4" style="--accent:#0891b2">
+<article class="card numbered" id="s4" data-key="Eight switches give 256 patterns. Spend one on the sign and the positive side stops at <b>127</b>, because it also has to carry zero." style="--accent:#0891b2">
   <span class="badge">4</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 4</p><h2>Open one box: bits, and where int's range comes from</h2></div>
@@ -1210,21 +1349,31 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 
   <p>Flip them. <b>The same 8 bits, read three different ways.</b></p>
 
-  <div class="bitlbl" id="bitlbl"></div>
-  <div class="bitrow" id="bits"></div>
+  <div class="sim" id="bit-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Eight switches, read three ways</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+      <div class="bitlbl" id="bitlbl"></div>
+      <div class="bitrow" id="bits"></div>
 
-  <div class="readout">
-    <div class="ro cool"><div class="rk">Binary</div><div class="rv" id="r-bin" style="font-size:.95rem">00000000</div></div>
-    <div class="ro"><div class="rk">As unsigned</div><div class="rv" id="r-uns">0</div></div>
-    <div class="ro hot"><div class="rk">As signed</div><div class="rv" id="r-sgn">0</div></div>
-    <div class="ro"><div class="rk">As a char</div><div class="rv" id="r-chr">·</div></div>
-  </div>
+      <div class="readout">
+        <div class="ro cool"><div class="rk">Binary</div><div class="rv" id="r-bin" style="font-size:.95rem">00000000</div></div>
+        <div class="ro"><div class="rk">As unsigned</div><div class="rv" id="r-uns">0</div></div>
+        <div class="ro hot"><div class="rk">As signed</div><div class="rv" id="r-sgn">0</div></div>
+        <div class="ro"><div class="rk">As a char</div><div class="rv" id="r-chr">·</div></div>
+      </div>
 
-  <div class="btnrow">
-    <button class="btn sm ghost" data-preset="65">'A' (65)</button>
-    <button class="btn sm ghost" data-preset="255">All ones</button>
-    <button class="btn sm ghost" data-preset="128">Only the left switch</button>
-    <button class="btn sm ghost" data-preset="0">Clear</button>
+      <div class="simmsg"><span class="smn">01</span><p id="bit-msg">Click any switch. The row of bits never changes meaning &mdash; only the rule you read it with does.</p></div>
+      <div class="btnrow simctl">
+        <button class="btn sm ghost" data-preset="65">'A' (65)</button>
+        <button class="btn sm ghost" data-preset="255">All ones</button>
+        <button class="btn sm ghost" data-preset="128">Only the left switch</button>
+        <button class="btn sm ghost" data-preset="0" data-k="reset">Clear</button>
+      </div>
+    </div>
   </div>
 
   <div class="bridge" style="--accent:#0891b2">
@@ -1233,9 +1382,30 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
   </div>
 
   <h3>Where the range of a type comes from</h3>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>Eight switches, each on or off. <b>How many different patterns are there?</b></p>
+      <p>Now spend one of them on the sign. <b>What is the biggest positive number you can still write &mdash; and why is it not 128?</b></p>
+    </div>
+    <button class="tbtn" type="button">Show me</button>
+    <div class="ta">
+      <p><b>2<sup>8</sup> = 256</b> patterns. Spend one switch on the sign and <b>7</b> are left for the value, so each side gets <b>2<sup>7</sup> = 128</b> patterns.</p>
+      <p>The positive side has to spend one of its 128 on <b>zero</b>, so it stops at <b>127</b>. The negative side has no zero to carry, so it keeps all 128 and reaches <b>&minus;128</b>. That is the whole reason the range is lopsided.</p>
+    </div>
+  </div>
+
   <p>Forget 32 bits. Start with <b>one sign bit and a few value bits</b>, and list <b>every single combination</b>.</p>
 
-  <div class="btnrow" id="vbits">
+  <div class="sim" id="comb-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Every combination, listed</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+  <div class="btnrow simctl" id="vbits" style="margin:0;order:-1">
     <span class="subtle" style="font-weight:700;align-self:center">Value bits:</span>
     <button class="btn sm ghost" data-vb="1">1</button>
     <button class="btn sm ghost" data-vb="2">2</button>
@@ -1253,6 +1423,9 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
     </div>
   </div>
   <div class="combsum" id="combsum"></div>
+  <div class="simmsg"><span class="smn">&#931;</span><p id="comb-msg">Three value bits and one sign bit. Every combination is listed &mdash; press 1 or 2 to shrink it and watch both halves halve.</p></div>
+    </div>
+  </div>
 
   <div class="box info">
     <p class="bt">Read the list and the range falls out</p>
@@ -1299,7 +1472,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 </article>
 
 <!-- ============ 5 · INT + TWO'S COMPLEMENT ============ -->
-<article class="card numbered" id="s5" style="--accent:#0891b2">
+<article class="card numbered" id="s5" data-key="Negative numbers are stored as <b>two&rsquo;s complement</b>: flip every bit, add one. No sign flag — the same boxes, read the same way." style="--accent:#0891b2">
   <span class="badge">5</span>
   <div class="hdr-row">
     <div><p class="kicker">int</p><h2>How a negative number is stored</h2></div>
@@ -1326,11 +1499,25 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
     </ol>
   </div>
 
+  <div class="pastq">
+    <div class="pqh"><span class="pqs">Past exam</span><span class="pqw">Mid-term &middot; Q1</span><span class="pqm">3 marks</span></div>
+    <p class="pqt">"Represent <b>&minus;25</b> in 8-bit two's complement form. <b>Show all steps</b>."</p>
+    <p style="margin:.7rem 0 0;font-size:.82rem;color:#9f1239">"Show all steps" is worth most of the marks. Walk the three below with 25 in the box and you have written the answer.</p>
+  </div>
+
   <p>Try it yourself. Put in any number from 1 to 127.</p>
 
-  <div class="btnrow" style="align-items:center">
+  <div class="sim" id="tc-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Making a number negative, one rule at a time</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+  <div class="simrail"></div>
+  <div class="btnrow" style="align-items:center;margin-top:0">
     <input class="inp" id="tc-in" type="number" min="1" max="127" value="25" style="max-width:150px" aria-label="number to negate">
-    <button class="btn" id="tc-go" style="background:#0891b2">Make it negative</button>
+    <button class="btn ghost sm" id="tc-go">Use this number</button>
   </div>
 
   <div id="tc-out">
@@ -1338,6 +1525,16 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
     <div class="tcstep" data-s="2"><span class="tn">2</span><span class="tl">Flip every bit</span><span class="tb" id="tc-b2">&mdash;</span></div>
     <div class="tcstep" data-s="3"><span class="tn">3</span><span class="tl">Add 1</span><span class="tb" id="tc-b3">&mdash;</span></div>
     <div class="tcstep" data-s="4"><span class="tn">✓</span><span class="tl">Result</span><span class="tb" id="tc-b4">&mdash;</span></div>
+  </div>
+  <div class="simmsg"><span class="smn">1</span><p></p></div>
+  <div class="simctl">
+    <button class="btn" data-k="next" style="background:#0891b2">Next rule &#9656;</button>
+    <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+    <button class="btn ghost sm" data-k="reset">Reset</button>
+    <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>r</kbd></span>
+    <span class="simcnt">1 / 4</span>
+  </div>
+    </div>
   </div>
 
   <h3>Two things this buys us</h3>
@@ -1378,7 +1575,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 </article>
 
 <!-- ============ 6 · OVERFLOW ============ -->
-<article class="card numbered" id="s6" style="--accent:#e11d48">
+<article class="card numbered" id="s6" data-key="Overflow does not crash. The <b>sign bit</b> flips, and you get a wrong answer with no warning at all." style="--accent:#e11d48">
   <span class="badge">6</span>
   <div class="hdr-row">
     <div><p class="kicker">The bug that will cost you marks</p><h2>Overflow: when the number falls off the edge</h2></div>
@@ -1388,14 +1585,25 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
   <p>An 8-bit number can hold up to <b>127</b>. What happens if you add 1 to 127?</p>
   <p class="subtle">Press the button and find out. Keep pressing.</p>
 
-  <div class="odo" id="odo">
-    <div class="ov" id="odo-v">120</div>
-    <div class="ob" id="odo-b">0 1 1 1 1 0 0 0</div>
-    <div class="om" id="odo-m">8-bit signed number. Keep adding 1.</div>
-  </div>
-  <div class="btnrow">
-    <button class="btn" id="odo-go" style="background:#e11d48">+ 1</button>
-    <button class="btn ghost sm" id="odo-reset">Reset</button>
+  <div class="sim" id="odo-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Eight bits, and the edge they fall off</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+      <div class="odo" id="odo">
+        <div class="ov" id="odo-v">120</div>
+        <div class="ob" id="odo-b">0 1 1 1 1 0 0 0</div>
+        <div class="om" id="odo-m">8-bit signed number. Keep adding 1.</div>
+      </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">+1</span><p id="odo-msg">Press <b>+ 1</b> and keep pressing. Watch the leftmost bit.</p></div>
+      <div class="simctl">
+        <button class="btn" id="odo-go" style="background:#e11d48">+ 1</button>
+        <button class="btn ghost sm" data-k="reset" id="odo-reset">Reset</button>
+      </div>
+    </div>
   </div>
 
   <div class="box bad">
@@ -1438,7 +1646,7 @@ cout &lt;&lt; sum;</pre>
 </article>
 
 <!-- ============ 7 · CHAR / ASCII ============ -->
-<article class="card numbered" id="s7" style="--accent:#0d9488">
+<article class="card numbered" id="s7" data-key="A char is a small number wearing a costume. The gap between a capital and its small letter is always <b>32</b>." style="--accent:#0d9488">
   <span class="badge">7</span>
   <div class="hdr-row">
     <div><p class="kicker">char</p><h2>A letter is just a small number wearing a costume</h2></div>
@@ -1455,12 +1663,23 @@ cout &lt;&lt; sum;</pre>
 
   <p style="margin-top:1.1rem">Type anything below. Watch the letters turn into numbers.</p>
 
-  <div class="btnrow" style="align-items:center">
-    <input class="inp" id="as-in" value="Hero Alam" maxlength="24" aria-label="text to convert to ASCII">
-    <button class="btn sm ghost" id="as-lower">+32 → small letters</button>
-    <button class="btn sm ghost" id="as-upper">&minus;32 → CAPITALS</button>
+  <div class="sim" id="as-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Letters, as the numbers they really are</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+      <div class="chips" id="as-out"></div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">A</span><p id="as-msg">Type anything. Every character is already a number — these are the numbers.</p></div>
+      <div class="btnrow simctl" style="align-items:center">
+        <input class="inp" id="as-in" value="Hero Alam" maxlength="24" aria-label="text to convert to ASCII">
+        <button class="btn sm ghost" id="as-lower">+32 → small letters</button>
+        <button class="btn sm ghost" id="as-upper">&minus;32 → CAPITALS</button>
+      </div>
+    </div>
   </div>
-  <div class="chips" id="as-out"></div>
 
   <div class="bridge" style="--accent:#0d9488">
     <p class="lbl">Look at the gap</p>
@@ -1490,9 +1709,14 @@ cout &lt;&lt; sum;</pre>
   <h3>Watch it happen</h3>
   <p>One short word, twenty-six counters, and a single line doing all the work. Press <b>Next step</b> and watch which slot goes up.</p>
 
-  <div class="fqsim">
-    <div class="fqhd"><span class="fqttl">count[c &minus; 'a']++</span>
-      <button class="fqfocus" type="button" id="fq-focus">&#10530; Focus</button></div>
+  <div class="sim" id="fq-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">count[c &minus; 'a']++</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+    <div class="simrail"></div>
     <div class="fqgrid">
       <div class="fqmain">
         <div class="fqstage">
@@ -1504,23 +1728,17 @@ cout &lt;&lt; sum;</pre>
       </div>
       <div class="fqside">
         <div class="fqcode" id="fq-code"></div>
-        <div class="fqwatch" id="fq-watch"></div>
+        <div class="simwatch"></div>
       </div>
     </div>
-    <div class="fqmsg" id="fq-msgbox">
-      <span class="fqic" id="fq-ic">&#9656;</span>
-      <p class="fqtx" id="fq-msg">Press <b>Next step</b>.</p>
-      <span class="fqn" id="fq-num">&mdash;</span>
+    <div class="simmsg"><span class="smn">1</span><p id="fq-msg">Press <b>Next step</b>.</p></div>
+    <div class="simctl">
+      <button class="btn" data-k="next" style="background:#0d9488">Next step &#9656;</button>
+      <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+      <button class="btn ghost sm" data-k="reset">Reset</button>
+      <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>r</kbd></span>
+      <span class="simcnt">1 / 15</span>
     </div>
-    <div class="btnrow" style="justify-content:center">
-      <button class="btn sm ghost" id="fq-back">&#9666; Back</button>
-      <button class="btn" id="fq-next" style="background:#0d9488">Next step &#9656;</button>
-      <button class="btn sm ghost" id="fq-reset">Reset</button>
-    </div>
-    <div class="fqhint">
-      <span><kbd>n</kbd> <kbd>b</kbd> <kbd>r</kbd> next &middot; back &middot; reset</span>
-      <span><kbd>&larr;</kbd> <kbd>&rarr;</kbd> step</span>
-      <span><kbd>Esc</kbd> close</span>
     </div>
   </div>
 
@@ -1542,7 +1760,7 @@ cout &lt;&lt; sum;</pre>
 </article>
 
 <!-- ============ 8 · FLOAT ============ -->
-<article class="card numbered" id="s8" style="--accent:#2563eb">
+<article class="card numbered" id="s8" data-key="0.1 cannot be written in binary, so <b>0.1 + 0.2 is not 0.3</b>. Never compare two floating-point numbers with <b>==</b>." style="--accent:#2563eb">
   <span class="badge">8</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 8</p><h2>Why 0.1 + 0.2 is not 0.3</h2></div>
@@ -1557,8 +1775,27 @@ cout &lt;&lt; sum;</pre>
     <div class="side" style="border-color:#fecdd3;background:#fff1f2"><p class="st">The computer says</p><p class="sv" style="color:#be123c">0.30000000000000004</p></div>
   </div>
 
-  <div class="btnrow"><button class="btn" id="ft-go" style="background:#2563eb">Check it live in your browser</button></div>
-  <div class="exactbox" id="ft-live" style="display:none"></div>
+  <div class="sim" id="ft-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Not a slide — your own browser, right now</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+      <div class="exactbox" id="ft-live" style="display:none"></div>
+      <div class="simmsg"><span class="smn">&#8776;</span><p id="ft-msg">Nothing here is pre-written. Press the button and this page runs the addition in front of you.</p></div>
+      <div class="simctl">
+        <button class="btn" id="ft-go" style="background:#2563eb">Check it live in your browser</button>
+        <button class="btn ghost sm" data-k="reset" id="ft-reset">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pastq">
+    <div class="pqh"><span class="pqs">Past exam</span><span class="pqw">Mid-term &middot; Q6</span><span class="pqm">3 marks</span></div>
+    <p class="pqt">"Why is <b>0.1 + 0.2</b> not exactly equal to <b>0.3</b>? How should floating-point numbers be compared?"</p>
+    <p style="margin:.7rem 0 0;font-size:.82rem;color:#9f1239">Two questions in one. The second half &mdash; compare with a small tolerance, never with <b>==</b> &mdash; is the half students forget.</p>
+  </div>
 
   <h3>Why</h3>
   <p><b>0.1 cannot be written in binary.</b> Not "hard" — <b>impossible</b>, the same way you cannot write 1&frasl;3 exactly in decimal.</p>
@@ -1654,7 +1891,7 @@ cout &lt;&lt; sum;</pre>
 </article>
 
 <!-- ============ CLOSING ============ -->
-<article class="card numbered" id="s9" style="--accent:#7c3aed">
+<article class="card numbered" id="s9" data-key="Memory is an array of bytes; a type says how many boxes and how to read them; what is inside is only ever bits." style="--accent:#7c3aed">
   <span class="badge">9</span>
   <div class="hdr-row">
     <div><p class="kicker">Last 2 minutes</p><h2>Take these three sentences home</h2></div>
@@ -1827,6 +2064,7 @@ cout &lt;&lt; product;</pre>
   </div>
 </footer>
 
+<script src="../assets/sim.js"></script>
 <script>
 (function(){
 "use strict";
@@ -1861,6 +2099,8 @@ function jump(d){
   if(t>s.length-1)t=s.length-1;
   window.scrollTo({top:Math.max(s[t].offsetTop-80,0),behavior:'smooth'});
 }
+/* the floating drawer lives in its own IIFE and needs this */
+window.cardJump=jump;
 /* ---------- 1 · WHERE VARIABLES LIVE ---------- */
 var VINFO={
  g:{z:'g', t:'<b>counter</b> is a <b>global</b> — declared outside every function, so it exists for the whole run of the program.'},
@@ -1926,6 +2166,23 @@ $$('#rampick .btn').forEach(function(b){
     drawRam();
   });
 });
+/* Free play on purpose: the address it lands on is different every press, and
+   that randomness is the lesson — where a variable goes is not your choice. */
+var ramApi=null;
+function ramWatch(){
+  if(!ramApi) return;
+  if(!placed){
+    ramApi.watch([['type','—'],['bytes','—'],['first addr','—'],['last addr','—']]);
+    return;
+  }
+  var g=GROUPS[placed.g], a0=g.base+placed.at;
+  ramApi.watch([
+    ['type', placed.l.split(' ')[0]],
+    ['bytes', placed.n],
+    ['first addr', a0.toLocaleString('en-US')],
+    ['last addr', (a0+placed.n-1).toLocaleString('en-US')]
+  ]);
+}
 $$('#placebar .btn[data-t]').forEach(function(b){
   b.addEventListener('click',function(){
     $$('#placebar .btn').forEach(function(x){x.classList.add('ghost');});
@@ -1942,15 +2199,21 @@ $$('#placebar .btn[data-t]').forEach(function(b){
     drawRam();
     var a0=g.base+at;
     $('#placemsg').innerHTML='<b>'+sp.l+'</b> was given <b>'+sp.n+' box'+(sp.n>1?'es':'')+'</b>, from address <b class="mono">'+a0.toLocaleString('en-US')+'</b> to <b class="mono">'+(a0+sp.n-1).toLocaleString('en-US')+'</b>. Press again — it lands somewhere else, because <b>where</b> it goes is the computer’s choice, not yours.';
+    ramWatch();
   });
 });
-$('#place-clear').onclick=function(){
-  $$('#placebar .btn').forEach(function(x){x.classList.add('ghost');});
-  this.classList.remove('ghost');
-  placed=null; drawRam();
-  $('#placemsg').textContent='Nothing placed yet — the ⋯ stand for billions more boxes we cannot draw.';
-};
-drawRam();
+ramApi=Sim.make({
+  el:'#ram-sim',
+  name:'One long array of bytes',
+  render:function(st,i,a){ ramApi=a; ramWatch(); },
+  onReset:function(a){
+    $$('#placebar .btn').forEach(function(x){x.classList.add('ghost');});
+    $('#place-clear').classList.remove('ghost');
+    placed=null; drawRam(); ramWatch();
+    a.msg('Nothing placed yet — the ⋯ stand for billions more boxes we cannot draw.');
+  }
+});
+drawRam(); ramWatch();
 
 /* ---------- 3 · HOW FAST ---------- */
 var pm=null;
@@ -1994,7 +2257,16 @@ $$('#vbits .btn').forEach(function(b){
   b.addEventListener('click',function(){
     $$('#vbits .btn').forEach(function(x){x.classList.add('ghost');});
     b.classList.remove('ghost'); VB=+b.dataset.vb; paintComb();
+    if(combApi){
+      var c=Math.pow(2,VB);
+      combApi.msg('<b>'+VB+' value bit'+(VB>1?'s':'')+'</b> give <b>'+c+'</b> patterns on each side of the sign. The positive side spends one of its '+c+' on <b>zero</b>, so it stops at <b>'+(c-1)+'</b>; the negative side keeps all '+c+' and reaches <b>&minus;'+c+'</b>. Add a bit and both halves double.');
+    }
   });
+});
+var combApi=Sim.make({
+  el:'#comb-sim',
+  name:'Every combination, listed',
+  render:function(st,i,a){ combApi=a; }
 });
 paintComb();
 
@@ -2049,13 +2321,24 @@ function paintBits(){
   $('#r-sgn').textContent=sgn;
   $('#r-chr').textContent=(uns>=33&&uns<=126)?String.fromCharCode(uns):(uns===32?'space':'not printable');
   $('#r-chr').style.fontSize=(uns>=33&&uns<=126)?'1.3rem':'.85rem';
+  if(bitApi){
+    bitApi.msg(BITS[0]
+      ? 'The leftmost switch is <b>on</b>. Read as unsigned that is <b>'+uns+'</b>; read as signed it is <b>'+sgn+'</b>. <b>Both are correct</b> &mdash; the switches did not change, the rule did.'
+      : 'Unsigned <b>'+uns+'</b>, signed <b>'+sgn+'</b> &mdash; the same, because the leftmost switch is off. Turn it on and the two readings part company.');
+  }
 }
+var bitApi=null;
 $$('[data-preset]').forEach(function(b){
   b.addEventListener('click',function(){
     var v=parseInt(b.dataset.preset,10);
     for(var i=0;i<8;i++)BITS[i]=(v>>(7-i))&1;
     paintBits();
   });
+});
+bitApi=Sim.make({
+  el:'#bit-sim',
+  name:'Eight switches, read three ways',
+  render:function(st,i,a){ bitApi=a; }
 });
 paintBits();
 
@@ -2070,23 +2353,49 @@ function diffMark(a,b){
   }
   return o;
 }
-$('#tc-go').onclick=function(){
-  var n=parseInt($('#tc-in').value,10);
-  if(isNaN(n)||n<1||n>127){ $('#tc-in').value=25; n=25; }
-  var s1=bin8(n);
-  var s2=''; for(var i=0;i<8;i++) s2+= (s1[i]==='1'?'0':'1');
-  var v3=(parseInt(s2,2)+1)&255;
-  var s3=bin8(v3);
-  $('#tc-b1').innerHTML=space4(s1)+' <span class="subtle">= '+n+'</span>';
-  $('#tc-b2').innerHTML=diffMark(s1,s2);
-  $('#tc-b3').innerHTML=diffMark(s2,s3);
-  $('#tc-b4').innerHTML='<b>'+space4(s3)+'</b> <span class="subtle">= &minus;'+n+'</span>';
-  $$('.tcstep').forEach(function(st,k){
-    st.classList.remove('on');
-    setTimeout(function(){st.classList.add('on');},k*420);
+/* One rule per press. The three lines in the box above are three steps here,
+   so the rule being applied is the one on screen. */
+(function(){
+  var TCS=[
+    {g:'binary', k:0},
+    {g:'flip',   k:1},
+    {g:'+1',     k:2},
+    {g:'result', k:3}
+  ];
+  var api=null, N=25, s1='', s2='', s3='';
+  function compute(){
+    var v=parseInt($('#tc-in').value,10);
+    if(isNaN(v)||v<1||v>127){ $('#tc-in').value=25; v=25; }
+    N=v;
+    s1=bin8(N);
+    s2=''; for(var i=0;i<8;i++) s2 += (s1[i]==='1'?'0':'1');
+    s3=bin8((parseInt(s2,2)+1)&255);
+    $('#tc-b1').innerHTML=space4(s1)+' <span class="subtle">= '+N+'</span>';
+    $('#tc-b2').innerHTML=diffMark(s1,s2);
+    $('#tc-b3').innerHTML=diffMark(s2,s3);
+    $('#tc-b4').innerHTML='<b>'+space4(s3)+'</b> <span class="subtle">= &minus;'+N+'</span>';
+  }
+  var MSG=[
+    function(){ return 'Step 1 — <b>'+N+'</b> written in eight bits: <span class="mono">'+space4(s1)+'</span>. Nothing clever yet.'; },
+    function(){ return 'Step 2 — <b>flip every bit</b>. Every 0 became a 1 and every 1 became a 0; the changed ones are marked. This is called the <b>one\u2019s complement</b>.'; },
+    function(){ return 'Step 3 — <b>add 1</b>. Only the bits that carried have changed. That is the whole rule.'; },
+    function(){ return '<span class="mono">'+space4(s3)+'</span> <b>is</b> &minus;'+N+'. Not a sign flag, not a special case &mdash; the same eight boxes, read by the same hardware.'; }
+  ];
+  compute();
+  api=Sim.make({
+    el:'#tc-sim',
+    name:'Making a number negative',
+    steps:TCS,
+    group:function(st){ return st.g; },
+    render:function(st,idx,a){
+      $$('.tcstep').forEach(function(el,k){ el.classList.toggle('on', k<=idx); });
+      a.msg(MSG[idx]());
+    }
   });
-};
-$('#tc-go').click();
+  $('#tc-go').addEventListener('click',function(){ compute(); api.go(0); });
+  /* a fresh number typed in is a fresh walk */
+  $('#tc-in').addEventListener('change',function(){ compute(); api.go(0); });
+})();
 
 /* ---------- 3 · OVERFLOW ODOMETER ---------- */
 var odo=120;
@@ -2102,13 +2411,43 @@ function paintOdo(blown){
     $('#odo-m').textContent='8-bit signed number. Keep adding 1.';
   }
 }
+/* The sign bit is the thing to watch, and until now nothing on screen named it. */
+var odoApi=null;
+function odoWatch(){
+  if(!odoApi) return;
+  var u = odo<0 ? odo+256 : odo;
+  odoApi.watch([
+    ['value', odo],
+    ['sign bit', (u>>7)&1],
+    ['bits', bin8(u)],
+    ['room left', odo<0 ? (127-odo)+' below 127' : (127-odo)]
+  ]);
+}
 $('#odo-go').onclick=function(){
-  if(odo===127){odo=-128;paintOdo(true);}
-  else if(odo===-128){odo=-127;paintOdo(false);$('#odo-m').textContent='And now it just keeps counting up from the bottom.';}
-  else {odo++;paintOdo(false);}
+  if(odo===127){
+    odo=-128; paintOdo(true); odoWatch();
+    if(odoApi) odoApi.msg('<b>127 + 1 = &minus;128.</b> The leftmost bit &mdash; the <b>sign bit</b> &mdash; just went from 0 to 1, and that one bit is what the hardware reads as &ldquo;negative&rdquo;. Nothing crashed. Nothing warned you.');
+  } else if(odo===-128){
+    odo=-127; paintOdo(false); odoWatch();
+    $('#odo-m').textContent='And now it just keeps counting up from the bottom.';
+    if(odoApi) odoApi.msg('It carries on counting, upward, from the bottom of the range. The arithmetic never stopped being correct <b>for eight bits</b> &mdash; eight bits is simply not what you meant.');
+  } else {
+    odo++; paintOdo(false); odoWatch();
+    if(odoApi) odoApi.msg(odo===127
+      ? '<b>127.</b> Every bit but the leftmost is now a 1. There is nowhere left to carry to. Press <b>+ 1</b> once more.'
+      : 'Now <b>'+odo+'</b>. The sign bit is still 0, so this is still a positive number.');
+  }
 };
-$('#odo-reset').onclick=function(){odo=120;paintOdo(false);};
-paintOdo(false);
+odoApi=Sim.make({
+  el:'#odo-sim',
+  name:'Eight bits, and the edge they fall off',
+  render:function(st,i,a){ odoApi=a; odoWatch(); },
+  onReset:function(a){
+    odo=120; paintOdo(false); odoWatch();
+    a.msg('Back to 120. Press <b>+ 1</b> and keep pressing &mdash; watch the leftmost bit.');
+  }
+});
+paintOdo(false); odoWatch();
 
 /* ---------- 4 · ASCII ---------- */
 function paintAscii(alt){
@@ -2123,20 +2462,54 @@ function paintAscii(alt){
     out.appendChild(d);
   }
 }
-$('#as-in').addEventListener('input',function(){paintAscii(false);});
-$('#as-lower').onclick=function(){$('#as-in').value=$('#as-in').value.toLowerCase();paintAscii(true);};
-$('#as-upper').onclick=function(){$('#as-in').value=$('#as-in').value.toUpperCase();paintAscii(true);};
-paintAscii(false);
+/* One byte per character is the claim §2 made; this counts them. */
+var asApi=null;
+function asWatch(){
+  if(!asApi) return;
+  var v=$('#as-in').value, letters=0, i;
+  for(i=0;i<v.length;i++){ var c=v.charCodeAt(i); if((c>=65&&c<=90)||(c>=97&&c<=122)) letters++; }
+  asApi.watch([
+    ['characters', v.length],
+    ['bytes', v.length],
+    ['letters', letters],
+    ['first code', v.length ? v.charCodeAt(0) : '—']
+  ]);
+}
+$('#as-in').addEventListener('input',function(){ paintAscii(false); asWatch();
+  if(asApi) asApi.msg('Every character became a number the moment you typed it. The bottom row is the same number in binary &mdash; <b>eight bits, one byte, one box in the strip above</b>.'); });
+$('#as-lower').onclick=function(){
+  $('#as-in').value=$('#as-in').value.toLowerCase(); paintAscii(true); asWatch();
+  if(asApi) asApi.msg('Every capital went up by exactly <b>+32</b>. Not a function, not a lookup table &mdash; addition.');
+};
+$('#as-upper').onclick=function(){
+  $('#as-in').value=$('#as-in').value.toUpperCase(); paintAscii(true); asWatch();
+  if(asApi) asApi.msg('Every small letter came down by exactly <b>&minus;32</b>. The gap between a capital and its small letter is 32 for every letter in the alphabet.');
+};
+asApi=Sim.make({
+  el:'#as-sim',
+  name:'Letters, as the numbers they really are',
+  render:function(st,i,a){ asApi=a; asWatch(); }
+});
+paintAscii(false); asWatch();
 
 
 /* ---------- 8 · FLOAT / DOUBLE ---------- */
 var FPREC=32;
+var ftApi=Sim.make({
+  el:'#ft-sim',
+  name:'Your own browser, right now',
+  onReset:function(a){
+    $('#ft-live').style.display='none';
+    a.msg('Nothing here is pre-written. Press the button and this page runs the addition in front of you.');
+  }
+});
 $('#ft-go').onclick=function(){
   var box=$('#ft-live'); box.style.display='block';
   var r=0.1+0.2;
   box.innerHTML='0.1 + 0.2 = <span class="hi">'+r.toPrecision(20)+'</span><br>'+
                 '0.1 + 0.2 == 0.3 &nbsp;→&nbsp; <span class="hi">'+(r===0.3)+'</span><br>'+
                 '<span class="lo">// computed right now, in your browser</span>';
+  if(ftApi) ftApi.msg('That is <b>your</b> machine, in <b>this</b> browser, a second ago. Twenty digits of it, and the last of them are not zero. Every language on every machine gives the same answer, because they all store doubles the same way.');
 };
 $$('#fltoggle button').forEach(function(b){
   b.addEventListener('click',function(){
@@ -2173,17 +2546,40 @@ $$('[data-fl]').forEach(function(b){
 });
 paintFloat();
 
-/* ---------- QUIZZES ---------- */
-$$('.quiz').forEach(function(q){
-  var opts=$$('.qopt',q), exp=$('.qexp',q);
-  opts.forEach(function(o){
-    o.addEventListener('click',function(){
-      opts.forEach(function(x){x.disabled=true; if(x.dataset.ok)x.classList.add('ok');});
-      if(!o.dataset.ok)o.classList.add('no');
-      exp.classList.add('show');
-    });
+/* ---- QUIZZES, and the ribbon that counts them ----
+   Answers are remembered, so coming back to the page does not wipe the record
+   of what was already worked through. */
+(function(){
+  var KEY='cse2321-s1c3-quiz';
+  var done={}; try{done=JSON.parse(localStorage.getItem(KEY)||'{}');}catch(e){done={};}
+  var quizzes=$$('.quiz'), total=quizzes.length;
+  function save(){ try{localStorage.setItem(KEY,JSON.stringify(done));}catch(e){} }
+  function show(){
+    var k=Object.keys(done).length;
+    if($('#pbar')) $('#pbar').style.width=(total?Math.round(k/total*100):0)+'%';
+    if($('#pnum')) $('#pnum').textContent=k+' / '+total;
+  }
+  quizzes.forEach(function(q,qi){
+    var id=q.dataset.q||('q'+qi), o=$$('.qopt',q), e=$('.qexp',q);
+    function lock(picked){
+      o.forEach(function(x){ x.disabled=true; if(x.dataset.ok) x.classList.add('ok'); });
+      if(picked>=0 && o[picked] && !o[picked].dataset.ok) o[picked].classList.add('no');
+      if(e) e.classList.add('show');
+    }
+    if(done[id]) lock(done[id].p===undefined?-1:done[id].p);
+    o.forEach(function(b,i){ b.addEventListener('click',function(){
+      done[id]={ok:!!b.dataset.ok,p:i}; save(); show(); lock(i);
+    });});
   });
-});
+  if($('#preset')) $('#preset').onclick=function(){
+    done={}; save(); show();
+    quizzes.forEach(function(q){
+      $$('.qopt',q).forEach(function(x){ x.disabled=false; x.classList.remove('ok','no'); });
+      if($('.qexp',q)) $('.qexp',q).classList.remove('show');
+    });
+  };
+  show();
+})();
 
 /* ---------- KEYBOARD ---------- */
 document.addEventListener('keydown',function(e){
@@ -2206,7 +2602,7 @@ document.addEventListener('keydown',function(e){
     '<span class="k">for</span> (<span class="t">char</span> c : s)',
     '    count[c - <span class="q">&#39;a&#39;</span>]++;'
   ];
-  var arr=$('#fq-arr'), code=$('#fq-code'), watch=$('#fq-watch');
+  var arr=$('#fq-arr'), code=$('#fq-code'), api=null;
 
   var SEQ=[
     {ln:0,i:-1,show:false,hit:-1,
@@ -2230,9 +2626,7 @@ document.addEventListener('keydown',function(e){
     for(k=0;k<=sp && k<SEQ.length;k++) if(SEQ[k].bump) t[SEQ[k].hit]++;
     return t;
   }
-  var cur=-1;
   function draw(sp){
-    cur=sp;
     var st=SEQ[sp], t=tally(sp), out=[], k;
     for(k=0;k<N;k++){
       out.push('<div class="fqch'+(k===st.i?' now':(st.i>k?' done':''))+'">'+W.charAt(k)+'</div>');
@@ -2252,44 +2646,28 @@ document.addEventListener('keydown',function(e){
     }
     code.innerHTML=out.join('');
     var c=(st.i>=0&&st.i<N)?W.charAt(st.i):null;
-    watch.innerHTML=
-      '<span class="fqw'+(c?' lit':'')+'"><em>c</em><b>'+(c?'&#39;'+c+'&#39;':'&mdash;')+'</b></span>'+
-      '<span class="fqw'+(c?' lit':'')+'"><em>c &minus; &#39;a&#39;</em><b>'+(c?(c.charCodeAt(0)-97):'&mdash;')+'</b></span>'+
-      '<span class="fqw"><em>a</em><b>'+t[0]+'</b></span>'+
-      '<span class="fqw"><em>b</em><b>'+t[1]+'</b></span>'+
-      '<span class="fqw"><em>n</em><b>'+t[13]+'</b></span>';
-    $('#fq-msg').innerHTML=st.t;
-    $('#fq-ic').innerHTML=st.done?'&#10003;':(st.bump?'&#8593;':'&#10022;');
-    $('#fq-num').innerHTML=(sp+1)+' / '+SEQ.length;
-    $('#fq-back').disabled=(sp<=0);
-    $('#fq-next').disabled=(sp>=SEQ.length-1);
+    if(api) api.watch([
+      ['c', c ? '&#39;'+c+'&#39;' : '&mdash;'],
+      ['c - &#39;a&#39;', c ? (c.charCodeAt(0)-97) : '&mdash;'],
+      ['count[a]', t[0]],
+      ['count[b]', t[1]],
+      ['count[n]', t[13]]
+    ]);
+    if(api) api.msg(st.t);
   }
-  function next(){ if(cur<SEQ.length-1) draw(cur+1); }
-  function back(){ if(cur>0) draw(cur-1); }
-  $('#fq-next').addEventListener('click',next);
-  $('#fq-back').addEventListener('click',back);
-  $('#fq-reset').addEventListener('click',function(){ draw(0); });
 
-  /* ---- Focus: this is a lecture figure, so it has to fill a projector ---- */
-  var sim=$('.fqsim'), fb=$('#fq-focus');
-  function full(on){
-    sim.classList.toggle('full',on);
-    document.body.classList.toggle('fqfull',on);
-    fb.innerHTML = on ? '&#10006; Close' : '&#10530; Focus';
-  }
-  fb.addEventListener('click',function(){ full(!sim.classList.contains('full')); });
-  document.addEventListener('keydown',function(e){
-    if(e.metaKey||e.ctrlKey||e.altKey||e.shiftKey) return;
-    var tg=e.target.tagName;
-    if(tg==='INPUT'||tg==='TEXTAREA'||tg==='SELECT'||e.target.isContentEditable) return;
-    if(e.key==='Escape' && sim.classList.contains('full')){ e.preventDefault(); full(false); return; }
-    if(!sim.classList.contains('full')) return;      /* the page keys stay the page's */
-    var k=(e.key||'').toLowerCase();
-    if(k==='n'||e.key==='ArrowRight'){ e.preventDefault(); next(); }
-    else if(k==='b'||e.key==='ArrowLeft'){ e.preventDefault(); back(); }
-    else if(k==='r'){ e.preventDefault(); draw(0); }
+  /* Frame, Focus, narration, counter, keyboard and the step rail all come from
+     assets/sim.js now. This file used to carry a private copy of all six. */
+  api=Sim.make({
+    el:'#fq-sim',
+    name:'count[c - \u2019a\u2019]++',
+    steps:SEQ,
+    group:function(st){
+      if(st.done) return 'done';
+      return st.i<0 ? 'setup' : '\u2018'+W.charAt(st.i)+'\u2019';
+    },
+    render:function(st,idx,a){ api=a; draw(idx); }
   });
-  draw(0);
 })();
 })();
 
@@ -2346,8 +2724,8 @@ document.addEventListener('keydown',function(e){
     document.body.style.overflow = v?'hidden':'';
   }
   fab.querySelector('.fmenu').onclick=function(){open(!dr.classList.contains('on'));};
-  fab.querySelector('.fup').onclick=function(){jump(-1);};
-  fab.querySelector('.fdn').onclick=function(){jump(1);};
+  fab.querySelector('.fup').onclick=function(){window.cardJump(-1);};
+  fab.querySelector('.fdn').onclick=function(){window.cardJump(1);};
   dr.querySelector('.dx').onclick=function(){open(false);};
   scrim.onclick=function(){open(false);};
   dr.addEventListener('click',function(e){
@@ -2430,6 +2808,81 @@ document.addEventListener('keydown',function(e){
   window.addEventListener('scroll',function(){
     if(!tick) tick=requestAnimationFrame(upd);
   },{passive:true});
+})();
+/* ---------- YOUR TURN: ask before showing ----------
+   The question comes first and the answer is one button away. It is never
+   hidden from someone revising at home — the reveal is a prompt, not a gate. */
+(function(){
+  Array.prototype.forEach.call(document.querySelectorAll('.turn'),function(t){
+    var btn=t.querySelector('.tbtn'), ans=t.querySelector('.ta');
+    if(!btn||!ans) return;
+    var label=btn.textContent;
+    btn.addEventListener('click',function(){
+      var on=ans.classList.toggle('on');
+      btn.textContent = on ? 'Hide it again' : label;
+    });
+  });
+})();
+
+/* ---------- THE TAKEAWAY RAIL ----------
+   Each story carries one sentence in data-key. As you reach a story the
+   sentence is added to a rail on the right — forward only, so going back to
+   re-tell something never removes it. By the last card it is the revision list. */
+(function(){
+  var cards=Array.prototype.slice.call(document.querySelectorAll('#p-lesson .card[data-key]'));
+  if(!cards.length) return;
+  var KEY='cse2321-s1c3-keys';
+  var rail=document.createElement('div'); rail.className='keyrail';
+  rail.innerHTML='<div class="krhd" role="button" tabindex="0" aria-expanded="true">'+
+      '<span class="kt">So far</span><span class="kn" id="kr-n">0</span><span class="kv">\u25be</span></div>'+
+    '<div class="kbody" id="kr-body"></div>';
+  document.body.appendChild(rail);
+  var body=rail.querySelector('#kr-body'), num=rail.querySelector('#kr-n'), hd=rail.querySelector('.krhd');
+  var shown=0;
+  try{ if(localStorage.getItem(KEY)==='hid') rail.classList.add('hid'); }catch(e){}
+
+  function add(upto){
+    if(upto<=shown) return;
+    for(var i=shown;i<upto;i++){
+      var c=cards[i];
+      var b=(c.querySelector('.badge')||{}).textContent||String(i+1);
+      var d=document.createElement('div'); d.className='kitem new';
+      d.innerHTML='<span class="kx">'+b+'</span>'+c.getAttribute('data-key');
+      body.appendChild(d);
+    }
+    shown=upto; num.textContent=shown;
+    Array.prototype.forEach.call(body.querySelectorAll('.kitem'),function(k,i){
+      k.classList.toggle('new', i===shown-1);
+    });
+    body.scrollTop=body.scrollHeight;
+  }
+  hd.addEventListener('click',function(){
+    rail.classList.toggle('hid');
+    hd.setAttribute('aria-expanded', rail.classList.contains('hid')?'false':'true');
+    try{ localStorage.setItem(KEY, rail.classList.contains('hid')?'hid':'open'); }catch(e){}
+  });
+  hd.addEventListener('keydown',function(e){
+    if(e.key==='Enter'||e.key===' '){ e.preventDefault(); hd.click(); }
+  });
+
+  /* A card's takeaway IS its answer. Where a card carries a Your turn, hold the
+     takeaway back until the reader has scrolled past the question — otherwise
+     the rail answers it before anyone has had a chance to think. */
+  function trigger(c){
+    var t=c.querySelector('.turn'), r=(t||c).getBoundingClientRect();
+    return t ? r.bottom : r.top;
+  }
+  var tick=null;
+  function scan(){
+    var y=window.innerHeight*0.55, k=0;
+    for(var i=0;i<cards.length;i++) if(trigger(cards[i])<=y) k=i+1;
+    add(k);
+  }
+  window.addEventListener('scroll',function(){
+    if(tick) return;
+    tick=setTimeout(function(){ tick=null; scan(); },180);
+  },{passive:true});
+  scan();
 })();
 </script>
 </body>

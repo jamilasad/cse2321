@@ -1,0 +1,284 @@
+/* ==========================================================================
+   CSE-2321 · the simulator shell
+   --------------------------------------------------------------------------
+   One frame for every simulator on the site. A page supplies the picture;
+   this file supplies the frame around it, so a student who learns to drive
+   the array simulator in Week 3 can drive the AVL simulator in Week 13.
+
+   Layout follows the "deck": the drawing gets the full width on top, and the
+   instruments (code, watches, narration, controls) sit in a row beneath it.
+   Focus — which only ever runs on a projector — switches to the "bench":
+   one dark surface, larger type, no card seams.
+
+   Every class here is either .sim-scoped or carries a name that no lesson
+   page already uses. Checked against all 21 pages before naming.
+   ========================================================================== */
+
+/* ---------- the frame ---------- */
+.sim{border:1px solid #e8ebfa;border-radius:1rem;background:#fff;margin:1.3rem 0;
+     box-shadow:0 14px 32px -26px rgba(30,27,75,.45),inset 0 1px 0 #fff;overflow:hidden}
+.sim .simhd{display:flex;align-items:center;gap:.7rem;padding:.55rem .85rem;border-bottom:1px solid #eef0f8}
+.sim .simttl{font-size:.5rem;font-weight:800;letter-spacing:.24em;text-transform:uppercase;color:#b4bcd8}
+.sim .simnm{font-size:.78rem;font-weight:700;color:#4c5480}
+.sim .focusb{margin-left:auto;appearance:none;font-family:inherit;font-size:.68rem;font-weight:800;
+     color:#7b8199;background:#fff;border:1px solid #e2e6f5;border-radius:.42rem;padding:.28rem .6rem;
+     cursor:pointer;transition:.15s;white-space:nowrap}
+.sim .focusb:hover{border-color:#a5b4fc;color:#4f46e5}
+.sim .simbd{padding:.9rem;display:flex;flex-direction:column;gap:.75rem}
+/* ---------- nothing that changes size may sit above the buttons ----------
+   The watch strip wraps and the narration grows from one line to three, so a
+   control row placed after them walks away from the cursor that is pressing
+   it. The rail and the picture are fixed; the controls follow them, and the
+   two things that breathe go underneath. Markup order stays readable. */
+.sim .simctl{order:1}
+.sim .simwatch{order:2}
+.sim .simmsg{order:3}
+/* and none of them may be squeezed: a flex child that shrinks below its content
+   inside a .sim — which clips its own overflow — is content nobody can reach */
+.sim .simbd > *{flex-shrink:0}
+
+/* ---------- the step rail: every step a segment, grouped by loop pass ---------- */
+.simrail{display:flex;gap:2px;align-items:stretch;margin:0;border-radius:.35rem;
+     overflow:hidden;background:#eef2ff;padding:2px}
+.simrail .grp{display:flex;gap:2px;flex:var(--f,1);position:relative;padding-top:13px;min-width:0}
+.simrail .grp::before{content:attr(data-l);position:absolute;top:0;left:0;right:0;text-align:center;
+     font-size:.5rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#a5b4fc;
+     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.simrail .sg{flex:1;min-width:3px;height:9px;border-radius:2px;background:#dbe1ff;cursor:pointer;
+     transition:.18s;border:0;padding:0;appearance:none}
+.simrail .sg:hover{background:#c3ccff}
+.simrail .sg:focus-visible{outline:2px solid #4f46e5;outline-offset:1px}
+.simrail .sg.done{background:#818cf8}
+.simrail .sg.tr{background:#059669}
+.simrail .sg.fl{background:#e11d48}
+.simrail .sg.now{background:#4f46e5;box-shadow:0 0 0 2px rgba(79,70,229,.25)}
+
+/* ---------- the stage ---------- */
+.simboard{position:relative;border:1px solid #e8ebfa;border-radius:.6rem;overflow:auto;
+     background:linear-gradient(180deg,#fff 0%,#fcfdff 55%,#f7f9ff 100%);
+     display:grid;place-items:center;padding:1.15rem .8rem;min-height:150px}
+.simboard > .plate{position:absolute;left:.75rem;top:.5rem;font-size:.5rem;font-weight:800;
+     letter-spacing:.22em;text-transform:uppercase;color:#b4bcd8;pointer-events:none}
+.simboard > .simfig{max-width:100%}
+
+/* ---------- the instrument row under the stage ---------- */
+.simrow{display:grid;gap:.8rem;margin:0;align-items:stretch}
+@media(min-width:900px){
+  .simrow.two{grid-template-columns:1fr 1fr}
+  .simrow.three{grid-template-columns:1.3fr .85fr 1fr}
+}
+.simcol{display:flex;flex-direction:column;gap:.5rem;min-width:0}
+.simcol > .cttl{font-size:.5rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#b4bcd8}
+
+/* ---------- watches: nothing changes without a signal ---------- */
+.simwatch{display:flex;gap:.4rem;flex-wrap:wrap;align-content:flex-start}
+.wch{display:flex;align-items:stretch;border:1px solid #e2e8f0;border-radius:.4rem;overflow:hidden;
+     background:#fff;font-family:var(--mono,ui-monospace,monospace);font-size:.72rem}
+.wch .wn{padding:.22rem .45rem;background:#f8fafc;color:#64748b;font-weight:700;border-right:1px solid #e2e8f0}
+.wch .wv{padding:.22rem .5rem;font-weight:800;color:#1e1b4b;min-width:32px;text-align:center;
+     font-variant-numeric:tabular-nums}
+.wch.chg{border-color:#fcd34d;box-shadow:0 0 0 3px rgba(252,211,77,.28)}
+.wch.chg .wv{background:#fffbeb;color:#b45309}
+.wch.gone .wv{color:#cbd5e1;text-decoration:line-through;text-decoration-color:#fb7185}
+
+/* ---------- narration ---------- */
+.simmsg{display:flex;align-items:flex-start;gap:.7rem;border:1px solid #e8ebfa;border-radius:.5rem;
+     background:#fbfcff;padding:.62rem .8rem;min-height:58px}
+.simmsg .smn{font-family:var(--mono,ui-monospace,monospace);font-size:.66rem;font-weight:800;color:#fff;
+     background:#4f46e5;border-radius:.3rem;padding:.18rem .42rem;flex:0 0 auto;margin-top:.1rem}
+/* ---------- the verdict chip: what the condition on this step came to -----
+   A step carrying `cond` lands on the line that tests something, and the
+   answer is printed here rather than left inside a sentence. The rail segment
+   takes the same two colours, so a finished run reads as a column of greens
+   and reds you can point at.                                              */
+.simmsg .smv{display:none;font-family:var(--mono,ui-monospace,monospace);font-size:.6rem;font-weight:800;
+     letter-spacing:.1em;border-radius:.3rem;padding:.17rem .4rem;flex:0 0 auto;margin-top:.1rem}
+.simmsg .smv.on{display:inline-flex}
+.simmsg .smv.tr{background:#ecfdf5;color:#047857;border:1px solid #6ee7b7}
+.simmsg .smv.fl{background:#fff1f2;color:#be123c;border:1px solid #fda4af}
+.simmsg p{margin:0;font-size:.86rem;line-height:1.55;color:#475569}
+.simmsg p b{color:#1e293b}
+
+/* ---------- controls ---------- */
+.simctl{display:flex;gap:.45rem;align-items:center;flex-wrap:wrap;margin:0}
+.simcnt{margin-left:auto;font-family:var(--mono,ui-monospace,monospace);font-size:.72rem;font-weight:800;
+     color:#64748b;font-variant-numeric:tabular-nums}
+.simmeter{display:inline-flex;align-items:center;gap:.45rem;font-size:.68rem;font-weight:800;color:#b45309;
+     background:#fffbeb;border:1px solid #fcd34d;border-radius:.4rem;padding:.2rem .55rem}
+.simmeter b{font-family:var(--mono,ui-monospace,monospace);font-size:.85rem;font-variant-numeric:tabular-nums}
+.simkeys{font-size:.62rem;font-weight:700;color:#b4bcd8;letter-spacing:.04em}
+.simkeys kbd{font-family:var(--mono,ui-monospace,monospace);font-size:.62rem;font-weight:800;color:#7b8199;
+     background:#f4f6fd;border:1px solid #e2e6f5;border-radius:.25rem;padding:0 .25rem}
+
+/* ---------- the cell strip: indexed boxes in a row ---------- */
+.cstrip{display:flex;gap:.3rem;align-items:flex-end;justify-content:center;flex-wrap:nowrap}
+.ccel{width:var(--cw,58px);text-align:center;min-width:0}
+.ccel .cix{font-family:var(--mono,ui-monospace,monospace);font-size:calc(var(--cw,58px)*.132);
+     font-weight:700;color:#94a3b8;margin-bottom:.2rem}
+.ccel .cbx{height:var(--cw,58px);display:grid;place-items:center;border:1px solid #a5b4fc;border-radius:.4rem;
+     background:#fff;font-family:var(--mono,ui-monospace,monospace);font-size:calc(var(--cw,58px)*.32);
+     font-weight:800;color:#1e1b4b;transition:.28s}
+.ccel .cad{font-family:var(--mono,ui-monospace,monospace);font-size:calc(var(--cw,58px)*.118);
+     color:#a5b4fc;margin-top:.18rem}
+.ccel.look .cbx{border-color:#fcd34d;background:#fffbeb;color:#b45309;transform:translateY(-3px)}
+.ccel.hit  .cbx{border-color:#6ee7b7;background:#ecfdf5;color:#047857;box-shadow:0 0 0 3px rgba(110,231,183,.3)}
+.ccel.miss .cbx{color:#cbd5e1;border-color:#e2e8f0}
+.ccel.gone .cbx{opacity:.28}
+.clane{display:flex;gap:.3rem;justify-content:center;margin-top:.5rem}
+.clane .cpin{width:var(--cw,58px);display:grid;place-items:center;height:28px;min-width:0;
+     border:0;background:none;padding:0;margin:0}
+.cpin .ctag{display:inline-flex;align-items:center;gap:.3rem;border:1px solid #fcd34d;background:#fffbeb;
+     border-radius:.35rem;padding:.16rem .4rem;font-family:var(--mono,ui-monospace,monospace);
+     font-size:.62rem;font-weight:800;color:#b45309}
+
+/* ==========================================================================
+   FOCUS — the bench
+   Focus only ever runs on a projector, so it goes to one surface with bigger
+   type: no card seams, and the eye stops jumping between a white drawing and
+   a black listing. It comes in two skins. The dark bench is the default and
+   gives the highest contrast in a lit room; some projectors cannot draw a
+   convincing black, so the ☀ button switches the whole overlay to light and
+   the choice is remembered. Everything that changes SIZE is written once and
+   applies to both; only colour is skinned.
+   ========================================================================== */
+body.fsopen{overflow:hidden}
+.fsov{position:fixed;inset:0;z-index:120;background:#0f172a;display:none;flex-direction:column;
+     padding:.6rem .8rem 1rem}
+.fsov.on{display:flex}
+.fsov .fsbar{display:flex;align-items:center;gap:.4rem;padding:.2rem .1rem .55rem;flex:0 0 auto}
+.fsov .fsnm{font-family:var(--mono,ui-monospace,monospace);font-size:.7rem;font-weight:700;
+     letter-spacing:.16em;text-transform:uppercase;color:#4c5680;margin-right:auto;
+     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fsov .fslt,.fsov .fsx{appearance:none;font-family:inherit;font-size:.78rem;font-weight:800;
+     color:#c3cbe4;background:#1b2238;border:1px solid #2b3554;border-radius:.45rem;
+     padding:.4rem .8rem;cursor:pointer;flex:0 0 auto}
+.fsov .fslt{padding:.4rem .6rem}
+.fsov .fslt:hover,.fsov .fsx:hover{border-color:#8b85f5;color:#fff}
+.fsbody{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:auto}
+/* flex:1 0 auto, not 1 1 auto. The simulator may GROW to fill the overlay, but
+   it must never SHRINK below the size its content needs: .sim clips its own
+   overflow for the rounded corners, so a shrunk one hides the controls and the
+   narration with no way to reach them. At 200% browser zoom that was the whole
+   bottom half of every simulator. Kept at content height, .fsbody scrolls. */
+.fsbody .sim{margin:0;border:0;border-radius:.6rem;box-shadow:none;
+     flex:1 0 auto;display:flex;flex-direction:column;min-height:0}
+.fsbody .simhd{display:none}
+.fsbody .simbd{flex:1 0 auto;display:flex;flex-direction:column;min-height:0;padding:.7rem}
+.fsbody .simboard{flex:1 0 auto;min-height:0}
+.fsbody .simrow{flex:0 0 auto}
+
+/* ---- size: both skins. The old Focus shrank the drawing and left the type
+        alone, which is the wrong way round for a room. ---- */
+.fsbody{--cw:112px}
+.fsbody .simmsg{min-height:64px;padding:.7rem .9rem}
+.fsbody .simmsg p{font-size:1.06rem}
+.fsbody .simmsg .smn{font-size:.82rem}
+.fsbody .simmsg .smv{font-size:.74rem;padding:.2rem .5rem}
+.fsbody .wch{font-size:.95rem}
+.fsbody .simcol > .cttl{font-size:.58rem}
+.fsbody .simcnt{font-size:.9rem}
+.fsbody .simboard > .plate{font-size:.62rem}
+.fsbody .simrail .grp::before{font-size:.58rem}
+.fsbody .simrail .sg{height:12px}
+.fsbody .cpin .ctag{font-size:.8rem}
+.fsbody .simmeter{font-size:.82rem}
+.fsbody .simmeter b{font-size:1rem}
+/* the controls sit under the middle of the drawing, not off to one side */
+.fsbody .simctl{justify-content:center}
+.fsbody .simcnt{margin-left:0}
+
+/* ---- colour: the dark bench ---- */
+.fsov:not(.lit) .fsbody .sim{background:#131a2e}
+.fsov:not(.lit) .fsbody .simboard{background:#151c30;border-color:#232b45}
+.fsov:not(.lit) .fsbody .simboard > .plate{color:#4c5680}
+.fsov:not(.lit) .fsbody .simmsg{background:#141a2e;border-color:#232b45}
+.fsov:not(.lit) .fsbody .simmsg p{color:#c3cbe4}
+.fsov:not(.lit) .fsbody .simmsg p b{color:#fff}
+.fsov:not(.lit) .fsbody .simmsg .smv.tr{background:#0d2b24;color:#6ee7b7;border-color:#0f8a67}
+.fsov:not(.lit) .fsbody .simmsg .smv.fl{background:#3b0d1c;color:#fda4af;border-color:#c2295a}
+.fsov:not(.lit) .fsbody .wch{background:#1b2238;border-color:#2b3554}
+.fsov:not(.lit) .fsbody .wch .wn{background:#151c30;color:#6b769c;border-right-color:#2b3554}
+.fsov:not(.lit) .fsbody .wch .wv{color:#e6e9f7}
+/* the "this just changed" flash was written for white paper: pale yellow
+   behind brown text is almost invisible projected onto the dark bench */
+.fsov:not(.lit) .fsbody .wch.chg{border-color:#b45309;box-shadow:0 0 0 3px rgba(180,83,9,.35)}
+.fsov:not(.lit) .fsbody .wch.chg .wv{background:#3a2a10;color:#fcd34d}
+.fsov:not(.lit) .fsbody .wch.gone .wv{color:#4c5680}
+.fsov:not(.lit) .fsbody .simcol > .cttl{color:#4c5680}
+.fsov:not(.lit) .fsbody .simcnt{color:#6b769c}
+.fsov:not(.lit) .fsbody .simkeys{color:#4c5680}
+.fsov:not(.lit) .fsbody .simkeys kbd{background:#1b2238;border-color:#2b3554;color:#8f9ac2}
+.fsov:not(.lit) .fsbody .simrail{background:#1b2238}
+.fsov:not(.lit) .fsbody .simrail .grp::before{color:#4c5680}
+.fsov:not(.lit) .fsbody .simrail .sg{background:#2b3554}
+.fsov:not(.lit) .fsbody .simrail .sg:hover{background:#3d4a75}
+.fsov:not(.lit) .fsbody .simrail .sg.done{background:#6f79d8}
+.fsov:not(.lit) .fsbody .simrail .sg.tr{background:#0f8a67}
+.fsov:not(.lit) .fsbody .simrail .sg.fl{background:#c2295a}
+.fsov:not(.lit) .fsbody .simrail .sg.now{background:#8b85f5;box-shadow:0 0 0 2px rgba(139,133,245,.3)}
+.fsov:not(.lit) .fsbody .ccel .cbx{background:#1b2238;border-color:#3d4670;color:#e6e9f7}
+.fsov:not(.lit) .fsbody .ccel .cix{color:#5b678f}
+.fsov:not(.lit) .fsbody .ccel .cad{color:#4c5680}
+.fsov:not(.lit) .fsbody .ccel.look .cbx{background:#3a2a10;border-color:#b45309;color:#fcd34d}
+.fsov:not(.lit) .fsbody .ccel.hit  .cbx{background:#0d2b24;border-color:#059669;color:#6ee7b7}
+.fsov:not(.lit) .fsbody .ccel.miss .cbx{color:#4c5680;border-color:#2b3554}
+.fsov:not(.lit) .fsbody .cpin .ctag{background:#3a2a10;border-color:#b45309;color:#fcd34d}
+.fsov:not(.lit) .fsbody .simmeter{background:#3a2a10;border-color:#b45309;color:#fcd34d}
+.fsov:not(.lit) .fsbody .box,.fsov:not(.lit) .fsbody .subtle{color:#c3cbe4}
+/* every lesson page carries a site-wide `.btn.ghost{...!important}` next to the
+   drawer styles, so the bench has to answer in kind. Dark skin only — on the
+   light bench the page's own button is exactly right. */
+.fsov:not(.lit) .fsbody .btn.ghost{background:#1b2238!important;color:#c3cbe4!important;
+     border-color:#2b3554!important}
+.fsov:not(.lit) .fsbody .btn.ghost:hover:not(:disabled){border-color:#8b85f5!important;color:#fff!important}
+/* the light-code theme is for reading at home; on the dark bench a white code
+   surface lands as a slab in the middle of the instrument */
+body.codelight .fsov:not(.lit) .fsbody pre.code,
+body.codelight .fsov:not(.lit) .fsbody .carr-code{background:#0f172a;color:#e2e8f0;border-color:#232b45}
+body.codelight .fsov:not(.lit) .fsbody pre.code .k,body.codelight .fsov:not(.lit) .fsbody .carr-code .k{color:#c4b5fd}
+body.codelight .fsov:not(.lit) .fsbody pre.code .t,body.codelight .fsov:not(.lit) .fsbody .carr-code .t{color:#7dd3fc}
+body.codelight .fsov:not(.lit) .fsbody pre.code .f,body.codelight .fsov:not(.lit) .fsbody .carr-code .f{color:#fca5a5}
+body.codelight .fsov:not(.lit) .fsbody pre.code .n,body.codelight .fsov:not(.lit) .fsbody .carr-code .n{color:#fcd34d}
+body.codelight .fsov:not(.lit) .fsbody pre.code .c,body.codelight .fsov:not(.lit) .fsbody .carr-code .c{color:#64748b}
+
+/* ---- colour: the light bench. Everything not named here simply keeps the
+        page's own styling, which is the point — it is the page, enlarged. ---- */
+.fsov.lit{background:#eef1f8}
+.fsov.lit .fsnm{color:#94a3b8}
+.fsov.lit .fslt,.fsov.lit .fsx{background:#fff;border-color:#dfe3f2;color:#475569}
+.fsov.lit .fslt:hover,.fsov.lit .fsx:hover{border-color:#4f46e5;color:#1e1b4b}
+.fsov.lit .fsbody .sim{background:#fff;box-shadow:0 14px 32px -26px rgba(30,27,75,.45)}
+.fsov.lit .fsbody .simboard > .plate{color:#7b8199}
+/* plates, captions and key hints are deliberately faint on the page. Projected,
+   a label nobody can read is a label that is not there — Focus lifts them all. */
+.fsov:not(.lit) .fsbody .simboard > .plate{color:#8f9ac2}
+.fsov.lit .fsbody .simkeys{color:#7b8199}
+.fsov.lit .fsbody .simkeys kbd{color:#475569;border-color:#cbd5e1}
+
+/* ---------- the first card in a column needs room for its badge ----------
+   The numbered badge hangs 1.15rem above the card it belongs to, so a card
+   sitting flush against whatever is above it has its number clipped or
+   crowded. Every page gets the same clearance. */
+#p-lesson > .card:first-of-type,
+#p-exam > .card:first-of-type,
+.panel > main.wrap > .card:first-of-type{margin-top:2.6rem}
+main.wrap > .card:first-of-type{margin-top:2.6rem}
+
+/* ---------- narrow screens ---------- */
+@media(max-width:899px){
+  .sim .simbd{padding:.75rem}
+  .simboard{padding:.9rem .6rem;min-height:130px}
+  .simrow{gap:.65rem;margin-top:.65rem}
+}
+@media(max-width:560px){
+  .sim .simhd{padding:.5rem .65rem}
+  .sim .simbd{padding:.6rem}
+  .simmsg{padding:.55rem .65rem;min-height:64px}
+  .simmsg p{font-size:.82rem}
+  .simctl{gap:.35rem}
+  .simcnt{margin-left:0;width:100%;text-align:right}
+  .simrail .grp::before{font-size:.44rem;letter-spacing:.02em}
+  .fsov{padding:.5rem .5rem .8rem}
+  .fsbody{--cw:62px}
+  .fsbody .simmsg p{font-size:.92rem}
+}

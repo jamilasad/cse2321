@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Simulator Design Review — CSE-2321</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --mono:'Fira Code',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  --bg:#f1f5f9; --panel:#fff; --ink:#1e293b; --soft:#475569; --mute:#64748b;
+  --line:#e2e8f0; --line2:#cbd5e1; --dark:#0f172a; --dark2:#1e293b;
+  --acc:#4f46e5; --acc-w:#eef2ff; --acc-b:#a5b4fc; --acc-d:#1e1b4b;
+  --ok:#059669; --ok-w:#ecfdf5; --ok-b:#6ee7b7;
+  --no:#e11d48; --no-w:#fff1f2; --no-b:#fda4af;
+  --hot:#b45309; --hot-w:#fffbeb; --hot-b:#fcd34d;
+  --r:1rem; --r2:.6rem;
+  --sh:0 1px 2px rgba(15,23,42,.06),0 1px 3px rgba(15,23,42,.04);
+  --sh2:0 4px 6px -1px rgba(15,23,42,.07),0 2px 4px -2px rgba(15,23,42,.05);
+  --sh3:0 14px 32px -18px rgba(30,27,75,.35);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.62;font-size:16px;
+     -webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:0 1.4rem}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* ---------- page furniture ---------- */
+header.top{background:linear-gradient(160deg,#1e1b4b,#312e81 55%,#4338ca);color:#e0e7ff;padding:3.2rem 0 2.6rem}
+header.top .kick{font-size:.58rem;font-weight:800;letter-spacing:.26em;text-transform:uppercase;color:#a5b4fc;margin:0 0 .55rem}
+header.top h1{margin:0;font-size:clamp(1.7rem,4.2vw,2.6rem);font-weight:900;letter-spacing:-.025em;line-height:1.15;
+  text-wrap:balance;color:#fff}
+header.top p.sub{margin:.85rem 0 0;max-width:62ch;color:#c7d2fe;font-size:1.02rem}
+header.top .meta{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.4rem}
+header.top .meta span{font-size:.7rem;font-weight:700;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);
+  padding:.3rem .65rem;border-radius:.4rem;color:#ddd6fe}
+
+nav.bar{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);padding:.55rem 0}
+nav.bar .in{max-width:1180px;margin:0 auto;padding:0 1.4rem;display:flex;align-items:center;gap:.45rem;flex-wrap:wrap}
+nav.bar a{font-size:.76rem;font-weight:700;color:var(--mute);text-decoration:none;padding:.32rem .6rem;border-radius:.35rem}
+nav.bar a:hover{background:var(--acc-w);color:var(--acc)}
+nav.bar .sp{margin-left:auto;display:flex;gap:.4rem;align-items:center}
+.tgl{display:inline-flex;border:1px solid var(--line2);border-radius:.45rem;overflow:hidden;background:#fff}
+.tgl button{appearance:none;border:0;background:transparent;font-family:inherit;font-size:.7rem;font-weight:800;
+  color:var(--mute);padding:.36rem .7rem;cursor:pointer}
+.tgl button.on{background:var(--acc);color:#fff}
+
+section{padding:3.2rem 0 .6rem}
+section > .wrap > .hd{margin-bottom:1.6rem}
+.hd .n{font-size:.58rem;font-weight:800;letter-spacing:.24em;text-transform:uppercase;color:var(--acc-b);margin:0 0 .35rem}
+.hd h2{margin:0;font-size:clamp(1.35rem,3vw,1.9rem);font-weight:900;letter-spacing:-.02em;text-wrap:balance}
+.hd p{margin:.6rem 0 0;color:var(--soft);max-width:70ch}
+.lede{font-size:1.02rem}
+
+/* ---------- census ---------- */
+.lin{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;margin:1.4rem 0}
+.lin .c{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:1.05rem 1.1rem;box-shadow:var(--sh)}
+.lin .c.bad{border-color:#fecdd3;background:linear-gradient(180deg,#fff,#fffafb)}
+.lin .c.ok{border-color:#bbf7d0;background:linear-gradient(180deg,#fff,#f7fffb)}
+.lin .c.mid{border-color:#fde68a;background:linear-gradient(180deg,#fff,#fffdf6)}
+.lin h3{margin:0 0 .1rem;font-size:.95rem;font-weight:800}
+.lin .sm{font-size:.7rem;color:var(--mute);font-weight:600;margin:0 0 .7rem}
+.lin ul{margin:0;padding-left:1.05rem;font-size:.81rem;color:var(--soft);line-height:1.7}
+.lin ul li::marker{color:var(--acc-b)}
+.tally{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.8rem}
+.tally i{font-style:normal;font-size:.62rem;font-weight:800;padding:.2rem .45rem;border-radius:.3rem;letter-spacing:.02em}
+.tally i.y{background:var(--ok-w);color:#047857;border:1px solid var(--ok-b)}
+.tally i.n{background:var(--no-w);color:#be123c;border:1px solid var(--no-b)}
+.tally i.p{background:var(--hot-w);color:var(--hot);border:1px solid var(--hot-b)}
+
+table.grid{width:100%;border-collapse:collapse;font-size:.83rem;background:#fff;border:1px solid var(--line);
+  border-radius:var(--r2);overflow:hidden;box-shadow:var(--sh)}
+table.grid th{background:#f8fafc;text-align:left;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--mute);font-weight:800;padding:.6rem .75rem;border-bottom:1px solid var(--line)}
+table.grid td{padding:.55rem .75rem;border-bottom:1px solid #f1f5f9;vertical-align:top}
+table.grid tr:last-child td{border-bottom:0}
+table.grid td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:center;font-weight:700}
+.zero{color:#e11d48;font-weight:800}
+.full{color:#047857;font-weight:800}
+.part{color:#b45309;font-weight:800}
+.scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* ---------- stage-type gallery ---------- */
+.gal{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.1rem;margin-top:1.4rem}
+.gc{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);
+  display:flex;flex-direction:column}
+.gc .gh{display:flex;align-items:baseline;gap:.5rem;padding:.75rem .95rem .25rem}
+.gc .gn{font-family:var(--mono);font-size:.68rem;font-weight:700;color:var(--acc-b)}
+.gc .gh b{font-size:.92rem;font-weight:800}
+.gc .gs{padding:0 .95rem .55rem;font-size:.76rem;color:var(--mute)}
+.gc .gv{flex:1;display:grid;place-items:center;padding:1rem .8rem;background:
+   linear-gradient(180deg,#fff 0%,#fcfdff 55%,#f7f9ff 100%);border-top:1px solid #f1f5f9;min-height:150px}
+.gc .gf{padding:.55rem .95rem;border-top:1px solid #f1f5f9;font-size:.68rem;color:var(--mute);background:#fcfdff}
+.gc .gf b{color:var(--soft);font-weight:700}
+
+/* --- shared stage primitives --- */
+.strip{display:flex;gap:.3rem;align-items:flex-end;justify-content:center}
+.cel{width:var(--cw,46px);text-align:center}
+.cel .ix{font-family:var(--mono);font-size:calc(var(--cw,46px)*.132);font-weight:700;color:#94a3b8;margin-bottom:.2rem}
+.cel .bx{height:var(--cw,46px);display:grid;place-items:center;border:1px solid var(--acc-b);border-radius:.4rem;background:#fff;
+  font-family:var(--mono);font-size:calc(var(--cw,46px)*.32);font-weight:800;color:var(--acc-d);transition:.28s}
+.cel.look .bx{border-color:var(--hot-b);background:var(--hot-w);color:var(--hot);transform:translateY(-3px)}
+.cel.hit .bx{border-color:var(--ok-b);background:var(--ok-w);color:#047857;box-shadow:0 0 0 3px rgba(110,231,183,.3)}
+.cel.miss .bx{color:#cbd5e1;border-color:#e2e8f0}
+.cel .ad{font-family:var(--mono);font-size:calc(var(--cw,46px)*.118);color:#a5b4fc;margin-top:.18rem}
+.lane{margin-top:.5rem}
+.lane .pcel{width:var(--cw,46px);min-width:0;min-height:0;display:grid;place-items:center;height:28px;
+  border:0;background:none;padding:0;margin:0}
+
+.nod{display:flex;width:86px;height:46px;border:1px solid var(--acc-b);border-radius:.45rem;background:#fff;
+  box-shadow:0 4px 12px -8px rgba(79,70,229,.5)}
+.nod .d{flex:1;display:grid;place-items:center;font-family:var(--mono);font-size:.9rem;font-weight:800;color:var(--acc-d)}
+.nod .x{width:30px;display:grid;place-items:center;background:var(--acc-w);border-left:1px solid var(--acc-b);
+  border-radius:0 .4rem .4rem 0}
+.nod .x i{display:block;width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 3px rgba(79,70,229,.13)}
+.nod .x u{font-family:var(--mono);font-size:.8rem;font-weight:800;color:#818cf8;text-decoration:none}
+.arw{width:26px;height:2px;background:var(--acc-b);position:relative;align-self:center}
+.arw::after{content:"";position:absolute;right:-1px;top:-3px;border:4px solid transparent;border-left-color:var(--acc-b)}
+.chip{display:inline-flex;align-items:center;gap:.3rem;border:1px dashed var(--acc-b);background:#fff;border-radius:.35rem;
+  padding:.16rem .4rem;font-family:var(--mono);font-size:.62rem;font-weight:800;color:#818cf8}
+.chip.hot{border-color:var(--hot-b);color:var(--hot);background:var(--hot-w);border-style:solid}
+
+.ram{width:150px;border:1px solid var(--acc-b);border-radius:.5rem;overflow:hidden;background:#fff;font-size:.55rem}
+.ram .bnd{padding:.28rem .45rem;border-bottom:1px solid #eef2ff;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  color:#a5b4fc;display:flex;justify-content:space-between}
+.ram .bnd:last-child{border-bottom:0}
+.ram .bnd.hp{background:#fefce8;color:#a16207}
+.ram .bnd.st{background:#eef2ff;color:#4338ca}
+.ram .vb{display:flex;align-items:center;gap:.3rem;padding:.3rem .45rem;background:#fbfcff}
+.ram .vb .v{width:34px;height:26px;display:grid;place-items:center;border:1px solid var(--acc-b);border-radius:.3rem;
+  font-family:var(--mono);font-size:.72rem;font-weight:800;color:var(--acc-d);background:#fff}
+.ram .vb .lb{font-family:var(--mono);font-size:.6rem;font-weight:700;color:var(--soft)}
+.ram .vb .lb s{display:block;text-decoration:none;font-size:.5rem;color:#a5b4fc}
+
+.fbd{font-family:var(--mono);font-size:.95rem;font-weight:700;color:var(--acc-d);text-align:center;line-height:2.1}
+.fbd span{padding:.14rem .3rem;border-radius:.28rem}
+.fbd .p1{background:var(--acc-w);color:var(--acc)}
+.fbd .p2{background:var(--hot-w);color:var(--hot)}
+.fbd .p3{background:var(--ok-w);color:#047857}
+.fbd small{display:block;font-family:var(--sans);font-size:.62rem;font-weight:700;color:var(--mute);letter-spacing:.06em;
+  text-transform:uppercase;margin-top:.4rem}
+
+.diffp{display:grid;grid-template-columns:1fr auto 1fr;gap:.5rem;align-items:center;width:100%;font-family:var(--mono);
+  font-size:.62rem;line-height:1.9}
+.diffp .pane{border:1px solid var(--line);border-radius:.4rem;padding:.45rem .5rem;background:#fff;min-height:86px}
+.diffp .pane.l s{color:#cbd5e1}
+.diffp .pane.r em{font-style:normal;background:var(--ok-w);color:#047857;border-radius:.2rem;padding:0 .2rem;display:block}
+.diffp .mv{font-size:1.1rem;color:var(--acc-b)}
+
+/* ---------- direction panels ---------- */
+.dir{margin:1.6rem 0 2.4rem;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:#fff;
+  box-shadow:var(--sh3)}
+.dir > .dh{display:flex;align-items:flex-start;gap:1rem;padding:1rem 1.15rem;border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,#fff,#fbfcff);flex-wrap:wrap}
+.dir .dt{flex:1;min-width:230px}
+.dir .dt .lab{font-family:var(--mono);font-size:.62rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--acc-b);margin:0 0 .12rem}
+.dir .dt h3{margin:0;font-size:1.14rem;font-weight:900;letter-spacing:-.015em}
+.dir .dt p{margin:.3rem 0 0;font-size:.83rem;color:var(--soft);max-width:60ch}
+.dir .verd{display:flex;flex-direction:column;gap:.28rem;min-width:190px}
+.dir .verd .v{display:flex;align-items:center;gap:.4rem;font-size:.7rem;font-weight:700;color:var(--soft)}
+.dir .verd .v b{font-family:var(--mono);font-size:.66rem;margin-left:auto;font-weight:800}
+.dir .verd .v .dot{width:7px;height:7px;border-radius:50%;flex:0 0 auto}
+.dot.g{background:var(--ok)} .dot.a{background:#f59e0b} .dot.r{background:var(--no)}
+
+.body{padding:1.15rem}
+.body.dk{background:#0f172a}
+
+/* step rail */
+.rail{display:flex;gap:2px;align-items:stretch;margin:0 0 .7rem;border-radius:.35rem;overflow:hidden;background:#eef2ff;
+  padding:2px}
+.rail .grp{display:flex;gap:2px;flex:var(--f,1);position:relative;padding-top:13px}
+.rail .grp::before{content:attr(data-l);position:absolute;top:0;left:0;right:0;text-align:center;font-size:.5rem;
+  font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#a5b4fc}
+.rail .sg{flex:1;height:9px;border-radius:2px;background:#dbe1ff;cursor:pointer;transition:.18s;border:0;padding:0}
+.rail .sg:hover{background:#c3ccff}
+.rail .sg.done{background:#818cf8}
+.rail .sg.now{background:var(--acc);box-shadow:0 0 0 2px rgba(79,70,229,.25)}
+.rail .sg.tr{background:var(--ok)} .rail .sg.fl{background:var(--no)}
+.body.dk .rail{background:#1b2238;padding:2px}
+.body.dk .rail .grp::before{color:#4c5680}
+.body.dk .rail .sg{background:#2b3554}
+.body.dk .rail .sg:hover{background:#3d4a75}
+.body.dk .rail .sg.done{background:#6f79d8}
+.body.dk .rail .sg.tr{background:#0f8a67}
+.body.dk .rail .sg.fl{background:#c2295a}
+.body.dk .rail .sg.now{background:#8b85f5;box-shadow:0 0 0 2px rgba(139,133,245,.3)}
+
+/* code pane */
+.code{background:var(--dark);border-radius:.55rem;padding:.7rem .35rem;overflow:auto;font-family:var(--mono);
+  font-size:.82rem;line-height:1.95;position:relative}
+.code .cl{display:grid;grid-template-columns:22px 1fr auto;gap:.5rem;align-items:center;padding:0 .55rem;border-radius:3px;
+  border-left:3px solid transparent;color:#94a3b8;white-space:pre;transition:.22s}
+.code .cl .g{color:#475569;font-size:.7rem;text-align:right;user-select:none}
+.code .cl.on{background:#1e293b;border-left-color:#818cf8;color:#e2e8f0;font-weight:700}
+.code .cl.on.tr{border-left-color:var(--ok-b);background:#0d2b24}
+.code .cl.on.fl{border-left-color:var(--no-b);background:#2e1521}
+.code .k{color:#c4b5fd} .code .t{color:#7dd3fc} .code .f{color:#fca5a5} .code .n{color:#fcd34d}
+.code .vd{font-size:.6rem;font-weight:800;letter-spacing:.08em;padding:.05rem .3rem;border-radius:.25rem}
+.code .vd.tr{background:rgba(16,185,129,.18);color:#6ee7b7}
+.code .vd.fl{background:rgba(244,63,94,.18);color:#fda4af}
+
+/* stage board */
+.board{border:1px solid #e8ebfa;border-radius:.6rem;background:
+   linear-gradient(180deg,#fff 0%,#fcfdff 55%,#f7f9ff 100%);position:relative;display:grid;place-items:center;
+   padding:1.1rem .8rem;overflow:auto}
+.board .plate{position:absolute;left:.75rem;top:.5rem;font-size:.5rem;font-weight:800;letter-spacing:.22em;
+  text-transform:uppercase;color:#b4bcd8}
+.board.dk{background:#131a2e;border-color:#232b45}
+.board.dk .plate{color:#4c5680}
+.board.dk .cel .ix{color:#5b678f}
+.board.dk .cel .bx{background:#1b2238;border-color:#3d4670;color:#e6e9f7}
+.board.dk .cel.look .bx{background:#3a2a10;border-color:#b45309;color:#fcd34d}
+.board.dk .cel.hit .bx{background:#0d2b24;border-color:#059669;color:#6ee7b7}
+.board.dk .chip{background:#1b2238;border-color:#3d4670;color:#a5b4fc}
+.board.dk .chip.hot{background:#3a2a10;border-color:#b45309;color:#fcd34d}
+
+/* watches */
+.watch{display:flex;gap:.4rem;flex-wrap:wrap}
+.wc{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:.4rem;overflow:hidden;background:#fff;
+  font-family:var(--mono);font-size:.72rem}
+.wc .n{padding:.22rem .45rem;background:#f8fafc;color:var(--mute);font-weight:700;border-right:1px solid var(--line)}
+.wc .v{padding:.22rem .5rem;font-weight:800;color:var(--acc-d);min-width:32px;text-align:center;
+  font-variant-numeric:tabular-nums}
+.wc.chg{border-color:var(--hot-b);box-shadow:0 0 0 3px rgba(252,211,77,.28)}
+.wc.chg .v{background:var(--hot-w);color:var(--hot)}
+.body.dk .wc{background:#1b2238;border-color:#2b3554}
+.body.dk .wc .n{background:#151c30;color:#6b769c;border-right-color:#2b3554}
+.body.dk .wc .v{color:#e6e9f7}
+
+/* narration */
+.narr{display:flex;align-items:center;gap:.7rem;border:1px solid #e8ebfa;border-radius:.5rem;background:#fbfcff;
+  padding:.6rem .8rem;min-height:56px}
+.narr .num{font-family:var(--mono);font-size:.66rem;font-weight:800;color:#fff;background:var(--acc);border-radius:.3rem;
+  padding:.18rem .42rem;flex:0 0 auto}
+.narr p{margin:0;font-size:.84rem;color:var(--soft)}
+.narr p b{color:var(--ink)}
+.body.dk .narr{background:#141a2e;border-color:#232b45}
+.body.dk .narr p{color:#c3cbe4}
+.body.dk .narr p b{color:#fff}
+
+/* controls */
+.ctl{display:flex;gap:.45rem;align-items:center;flex-wrap:wrap}
+.bt{appearance:none;font-family:inherit;font-weight:800;font-size:.8rem;padding:.5rem 1rem;border-radius:.5rem;border:0;
+  background:var(--acc);color:#fff;cursor:pointer;transition:.16s;box-shadow:var(--sh)}
+.bt:hover{filter:brightness(1.07)}
+.bt:disabled{opacity:.4;cursor:default;filter:none}
+.bt.gh{background:#fff;color:var(--soft);border:1px solid var(--line2);box-shadow:none;font-size:.74rem;padding:.44rem .8rem}
+.bt.gh:hover{background:#f8fafc}
+.body.dk .bt.gh{background:#1b2238;color:#c3cbe4;border-color:#2b3554}
+.cnt{margin-left:auto;font-family:var(--mono);font-size:.72rem;font-weight:800;color:var(--mute)}
+.body.dk .cnt{color:#6b769c}
+.meter{display:flex;align-items:center;gap:.45rem;font-size:.68rem;font-weight:800;color:var(--hot);
+  background:var(--hot-w);border:1px solid var(--hot-b);border-radius:.4rem;padding:.2rem .55rem}
+.meter b{font-family:var(--mono);font-size:.85rem}
+
+/* layout A: split rig */
+.rigA{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;align-items:stretch}
+.rigA .board{min-height:230px}
+.rigA .code{max-height:230px}
+/* layout B: deck */
+.rigB .board{min-height:280px;margin-bottom:.8rem}
+.rigB .row{display:grid;grid-template-columns:1.35fr .8fr 1fr;gap:.8rem;align-items:stretch}
+.rigB .code{max-height:200px}
+.rigB .col{display:flex;flex-direction:column;gap:.5rem}
+.rigB .col .ttl{font-size:.5rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#b4bcd8}
+/* layout C: bench */
+.rigC{border-radius:.6rem;overflow:hidden;border:1px solid #232b45;background:#131a2e}
+.rigC .tb{display:flex;align-items:center;gap:.5rem;padding:.5rem .7rem;background:#0f172a;border-bottom:1px solid #232b45;
+  flex-wrap:wrap}
+.rigC .tb .nm{font-family:var(--mono);font-size:.62rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:#4c5680}
+.rigC .mn{display:grid;grid-template-columns:minmax(240px,.85fr) 1.15fr;min-height:280px}
+.rigC .cw{border-right:1px solid #232b45;overflow:auto}
+.rigC .code{background:transparent;border-radius:0;padding:.6rem .2rem}
+.rigC .sw{display:flex;flex-direction:column}
+.rigC .board{border:0;border-radius:0;flex:1}
+.rigC .sl{display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;background:#0f172a;border-top:1px solid #232b45;
+  min-height:52px}
+.rigC .sl p{margin:0;font-size:.82rem;color:#c3cbe4}
+.rigC .sl p b{color:#fff}
+.rigC .wr{display:flex;gap:.4rem;padding:.45rem .8rem;background:#151c30;border-top:1px solid #232b45;flex-wrap:wrap}
+
+@media(max-width:880px){
+  .rigA{grid-template-columns:1fr}
+  .rigB .row{grid-template-columns:1fr}
+  .rigC .mn{grid-template-columns:1fr}
+  .rigC .cw{border-right:0;border-bottom:1px solid #232b45}
+}
+
+/* projector mode */
+body.proj .dir .body{position:relative}
+body.proj .dir .body::after{content:"728 px — the height a Focus overlay gets on a 1366×768 projector";position:absolute;left:0;right:0;
+  top:728px;border-top:2px dashed #fb7185;color:#e11d48;font-size:.58rem;font-weight:800;letter-spacing:.1em;
+  text-transform:uppercase;padding:.2rem .5rem;background:linear-gradient(180deg,rgba(255,241,242,.95),transparent);
+  pointer-events:none;z-index:5}
+body.proj .wrap{max-width:1366px}
+.fitnote{font-size:.7rem;font-weight:700;padding:.3rem .6rem;border-radius:.35rem;display:inline-block;margin-top:.5rem}
+.fitnote.ok{background:var(--ok-w);color:#047857;border:1px solid var(--ok-b)}
+.fitnote.no{background:var(--no-w);color:#be123c;border:1px solid var(--no-b)}
+
+/* component proposals */
+.cmp{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:1.1rem;margin-top:1.4rem}
+.cc{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:1rem 1.1rem;box-shadow:var(--sh)}
+.cc h4{margin:0 0 .1rem;font-size:.92rem;font-weight:800}
+.cc .fix{font-size:.63rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--acc);
+  background:var(--acc-w);border-radius:.28rem;padding:.12rem .38rem;display:inline-block;margin-bottom:.5rem}
+.cc p{margin:.4rem 0 0;font-size:.81rem;color:var(--soft)}
+.cc .demo{margin-top:.75rem;padding:.75rem;border:1px dashed var(--line2);border-radius:.5rem;background:#fbfcff;
+  display:grid;place-items:center;min-height:74px}
+
+footer{padding:2.6rem 0 3.4rem;color:var(--mute);font-size:.78rem}
+footer .wrap{border-top:1px solid var(--line);padding-top:1.4rem}
+.callout{border:1px solid var(--acc-b);background:linear-gradient(180deg,#fff,#f8f9ff);border-radius:var(--r);
+  padding:1.1rem 1.2rem;margin:1.4rem 0}
+.callout .t{font-size:.58rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--acc);margin:0 0 .35rem}
+.callout p{margin:0;font-size:.95rem;color:var(--ink)}
+.callout p + p{margin-top:.6rem;font-size:.85rem;color:var(--soft)}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <p class="kick">CSE-2321 · Course site · Design review</p>
+    <h1>Every simulator on the site, sorted — and three ways to draw them all the same</h1>
+    <p class="sub">21 pages, about 120 interactive widgets, built in four unrelated lineages. This page counts what
+      exists, reduces it to seven kinds of picture, and puts three working shell designs side by side so one can be
+      chosen before anything is rewritten.</p>
+    <div class="meta"><span>21 pages</span><span>≈120 widgets</span><span>4 lineages</span><span>7 stage types</span><span>3 proposals</span></div>
+  </div>
+</header>
+
+<nav class="bar"><div class="in">
+  <a href="#census">1 · The census</a>
+  <a href="#kinds">2 · Seven kinds</a>
+  <a href="#dirs">3 · Three shells</a>
+  <a href="#parts">4 · Shared parts</a>
+  <a href="#pick">5 · Choosing</a>
+  <span class="sp">
+    <span class="tgl" id="pv"><button data-v="lap" class="on">Laptop</button><button data-v="proj">Projector 1366×768</button></span>
+  </span>
+</div></nav>
+
+<section id="census"><div class="wrap">
+  <div class="hd"><p class="n">Section 1</p><h2>What is actually on the site</h2>
+    <p class="lede">The non-uniformity is not scattered. It is four codebases that never met. A widget's behaviour is
+      predicted almost perfectly by which lineage it was born in.</p></div>
+
+  <div class="lin">
+    <div class="c bad"><h3>Lineage 1 · Segment 1</h3><p class="sm">5 pages · ~27 widgets · no shell at all</p>
+      <ul><li>Every widget is hand-built markup with a bare <span class="mono">.btnrow</span>.</li>
+          <li>No frame, no title, no step counter, no narration slot.</li>
+          <li>One bespoke Focus button exists — <span class="mono">.fqfocus</span> on the float stepper — and nothing else has one.</li>
+          <li><span class="mono">.simbox</span> here is a different component from <span class="mono">.simbox</span> in Segment 2.</li></ul>
+      <div class="tally"><i class="n">no Focus</i><i class="n">no counter</i><i class="n">no watches</i><i class="n">no condition landing</i></div></div>
+
+    <div class="c mid"><h3>Lineage 2 · Segment 2</h3><p class="sm">4 pages · 15 widgets · half a shell</p>
+      <ul><li><span class="mono">.simbox + .simhd + .focusb</span> on 15 of them — the frame exists.</li>
+          <li>Narration <span class="mono">.stepmsg</span> on only 7 of 15.</li>
+          <li>No <span class="mono">fitCv</span>: the drawing never grows for a projector.</li>
+          <li>The strings page has none of it — no frame, no Focus, no Back.</li></ul>
+      <div class="tally"><i class="y">Focus 15/15</i><i class="p">narration 7/15</i><i class="n">no scaling</i><i class="p">1 page skipped</i></div></div>
+
+    <div class="c ok"><h3>Lineage 3 · Segment 3</h3><p class="sm">8 pages · 50 widgets · the full system</p>
+      <ul><li>Frame, Focus, narration and counter on all 50 — no exceptions.</li>
+          <li>Four engines: <span class="mono">ChainSim</span>, <span class="mono">VarSim</span>, <span class="mono">ConvSim</span>, <span class="mono">TableSim</span>.</li>
+          <li>Next / Back / Reset verified working on every one.</li>
+          <li>Cost: each page carries its own copy of the engine — eight copies to edit.</li></ul>
+      <div class="tally"><i class="y">Focus 50/50</i><i class="y">narration 51</i><i class="y">Back 50/50</i><i class="p">8 engine copies</i></div></div>
+
+    <div class="c bad"><h3>Lineage 4 · After the mid-term</h3><p class="sm">4 pages · ~31 widgets · a different framework</p>
+      <ul><li>Tailwind CDN, Font Awesome, MathJax — shares nothing with the other three.</li>
+          <li>Its own controls: <span class="mono">Prev / Next Step / Reset</span>, its own log line.</li>
+          <li>Some of the best ideas on the whole site live here: the predicate strip, the tombstone walk, the chaining board.</li>
+          <li>Nothing here is portable to the lesson pages as written.</li></ul>
+      <div class="tally"><i class="n">no shared CSS</i><i class="n">no Focus</i><i class="y">strong content</i></div></div>
+  </div>
+
+  <div class="scrollx"><table class="grid">
+    <thead><tr><th>Lineage</th><th>Pages</th><th>Widgets</th><th>Frame</th><th>Focus</th><th>Narration</th><th>Step counter</th><th>Back</th><th>Live code line</th><th>Scales up</th></tr></thead>
+    <tbody>
+      <tr><td><b>Segment 1</b> — Introduction</td><td class="num">5</td><td class="num">27</td>
+        <td class="num zero">0</td><td class="num part">1</td><td class="num zero">0</td><td class="num zero">0</td><td class="num part">4</td><td class="num part">1</td><td class="num zero">no</td></tr>
+      <tr><td><b>Segment 2</b> — Arrays &amp; strings</td><td class="num">4</td><td class="num">15</td>
+        <td class="num full">15</td><td class="num full">15</td><td class="num part">7</td><td class="num part">5</td><td class="num part">11</td><td class="num part">6</td><td class="num zero">no</td></tr>
+      <tr><td><b>Segment 3</b> — Linked lists</td><td class="num">8</td><td class="num">50</td>
+        <td class="num full">50</td><td class="num full">50</td><td class="num full">51</td><td class="num full">50</td><td class="num full">50</td><td class="num full">44</td><td class="num part">capped</td></tr>
+      <tr><td><b>Post-mid-term</b> — BS, AVL, hashing</td><td class="num">4</td><td class="num">31</td>
+        <td class="num zero">0</td><td class="num zero">0</td><td class="num part">log</td><td class="num zero">0</td><td class="num part">7</td><td class="num part">2</td><td class="num zero">no</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout"><p class="t">The one sentence</p>
+    <p>The fix is not 120 fixes. It is <b>one shell with slots</b>, <b>seven stage types</b> that plug into it, and
+      <b>one engine file</b> that all 21 pages load — instead of eight copies and four traditions.</p>
+    <p>Everything below is about choosing what that one shell looks like.</p></div>
+</div></section>
+
+<section id="kinds"><div class="wrap">
+  <div class="hd"><p class="n">Section 2</p><h2>All 120 widgets are seven pictures</h2>
+    <p class="lede">Sorted by what is drawn, not by which page it sits on. Each of these is one renderer. Everything
+      else — counters, sliders, reveals, quizzes — is a control or a decoration on top of one of them.</p></div>
+
+  <div class="gal">
+
+    <div class="gc"><div class="gh"><span class="gn">01</span><b>Cell strip</b></div>
+      <p class="gs">Indexed boxes in a row. Read, shift, compare, swap, hash.</p>
+      <div class="gv"><div>
+        <div class="strip">
+          <div class="cel"><div class="ix">1</div><div class="bx">12</div><div class="ad">2000</div></div>
+          <div class="cel miss"><div class="ix">2</div><div class="bx">45</div><div class="ad">2004</div></div>
+          <div class="cel look"><div class="ix">3</div><div class="bx">30</div><div class="ad">2008</div></div>
+          <div class="cel"><div class="ix">4</div><div class="bx">7</div><div class="ad">2012</div></div>
+          <div class="cel"><div class="ix">5</div><div class="bx">28</div><div class="ad">2016</div></div>
+        </div>
+        <div style="text-align:center;margin-top:.5rem"><span class="chip hot">LOC = 3</span></div>
+      </div></div>
+      <div class="gf"><b>≈ 34 widgets.</b> Linear array, insert, delete, linear search, bubble sort, binary search,
+        2-D flattening, strings, hash table, probing, predicate strip.</div></div>
+
+    <div class="gc"><div class="gh"><span class="gn">02</span><b>Node chain</b></div>
+      <p class="gs">Split boxes with arrows, and walker chips underneath.</p>
+      <div class="gv"><div>
+        <div style="display:flex;align-items:center">
+          <div class="nod"><div class="d">10</div><div class="x"><i></i></div></div><div class="arw"></div>
+          <div class="nod"><div class="d">20</div><div class="x"><i></i></div></div><div class="arw"></div>
+          <div class="nod"><div class="d">30</div><div class="x"><u>&#10005;</u></div></div>
+        </div>
+        <div style="display:flex;gap:1.4rem;margin-top:.5rem;padding-left:.4rem">
+          <span class="chip">head</span><span class="chip hot">p</span></div>
+      </div></div>
+      <div class="gf"><b>≈ 29 widgets.</b> All of Segment 3's <span class="mono">ChainSim</span>, the two-way and
+        circular lists, the OOP wrap, and hashing's separate chaining.</div></div>
+
+    <div class="gc"><div class="gh"><span class="gn">03</span><b>Memory map</b></div>
+      <p class="gs">The RAM chip with bands, frames born and cleared.</p>
+      <div class="gv"><div class="ram">
+        <div class="bnd">Code<span></span></div>
+        <div class="bnd">Globals<span></span></div>
+        <div class="bnd hp">Heap<span>&#8595;</span></div>
+        <div class="vb"><div class="v">10</div><div class="lb">*n<s>9040</s></div></div>
+        <div class="bnd st">Stack<span>&#8593;</span></div>
+        <div class="vb"><div class="v">7</div><div class="lb">v<s>0216</s></div></div>
+      </div></div>
+      <div class="gf"><b>≈ 17 widgets.</b> <span class="mono">VarSim</span> across Segment 3, plus Segment 1's
+        "place the variables" and the space-complexity stepper.</div></div>
+
+    <div class="gc"><div class="gh"><span class="gn">04</span><b>Formula board</b></div>
+      <p class="gs">An exam expression whose parts fill in as you pick inputs.</p>
+      <div class="gv"><div class="fbd">
+        LOC(LA[<span class="p2">K</span>]) = <span class="p1">Base</span> + <span class="p3">w</span>(<span class="p2">K</span> &minus; <span class="p1">LB</span>)
+        <small>substitute · evaluate · answer</small>
+      </div></div>
+      <div class="gf"><b>≈ 9 widgets.</b> Length, the 1-D derivation, effective index, the 3-D calculator, sparse
+        savings, the three hash functions.</div></div>
+
+    <div class="gc"><div class="gh"><span class="gn">05</span><b>Tree canvas</b></div>
+      <p class="gs">Nodes, edges, and a badge per node for height or balance.</p>
+      <div class="gv"><svg viewBox="0 0 220 128" width="220" height="128" aria-label="Small unbalanced tree">
+        <line x1="110" y1="26" x2="62" y2="66" stroke="#a5b4fc" stroke-width="2"/>
+        <line x1="110" y1="26" x2="158" y2="66" stroke="#a5b4fc" stroke-width="2"/>
+        <line x1="62" y1="66" x2="30" y2="106" stroke="#a5b4fc" stroke-width="2"/>
+        <circle cx="110" cy="26" r="17" fill="#fff" stroke="#e11d48" stroke-width="2"/>
+        <text x="110" y="31" text-anchor="middle" font-family="Fira Code" font-size="12" font-weight="700" fill="#1e1b4b">30</text>
+        <text x="134" y="18" font-family="Fira Code" font-size="9" font-weight="700" fill="#e11d48">+2</text>
+        <circle cx="62" cy="66" r="17" fill="#fff" stroke="#a5b4fc" stroke-width="2"/>
+        <text x="62" y="71" text-anchor="middle" font-family="Fira Code" font-size="12" font-weight="700" fill="#1e1b4b">20</text>
+        <text x="84" y="59" font-family="Fira Code" font-size="9" font-weight="700" fill="#94a3b8">+1</text>
+        <circle cx="158" cy="66" r="17" fill="#fff" stroke="#a5b4fc" stroke-width="2"/>
+        <text x="158" y="71" text-anchor="middle" font-family="Fira Code" font-size="12" font-weight="700" fill="#1e1b4b">40</text>
+        <circle cx="30" cy="106" r="17" fill="#ecfdf5" stroke="#6ee7b7" stroke-width="2"/>
+        <text x="30" y="111" text-anchor="middle" font-family="Fira Code" font-size="12" font-weight="700" fill="#047857">10</text>
+      </svg></div>
+      <div class="gf"><b>≈ 8 widgets.</b> All four AVL quizzes, the rotation phases, the bridge animation — and
+        everything Weeks 12–14 still needs: BST, heap, trie.</div></div>
+
+    <div class="gc"><div class="gh"><span class="gn">06</span><b>Two-pane move</b></div>
+      <p class="gs">A line leaves the left pane and appears on the right.</p>
+      <div class="gv"><div class="diffp">
+        <div class="pane l"><s>Node* head;</s><br><s>int length;</s><br>void insert(){<br>&nbsp;&nbsp;...<br>}</div>
+        <div class="mv">&#8594;</div>
+        <div class="pane r">class List {<br><em>&nbsp;Node* head;</em><br><em>&nbsp;int length;</em><br>public:<br>};</div>
+      </div></div>
+      <div class="gf"><b>≈ 6 widgets.</b> The structured&nbsp;→&nbsp;OOP conversion, the array-vs-list duel, the
+        with/without-sentinel pair, linear vs binary probing.</div></div>
+
+    <div class="gc"><div class="gh"><span class="gn">07</span><b>Curve &amp; meter</b></div>
+      <p class="gs">Cost against N, or one running total that must be watched.</p>
+      <div class="gv"><div style="width:100%;max-width:250px">
+        <svg viewBox="0 0 250 96" width="100%" height="96" aria-label="Growth curves">
+          <line x1="18" y1="82" x2="242" y2="82" stroke="#e2e8f0" stroke-width="1.5"/>
+          <line x1="18" y1="82" x2="18" y2="8" stroke="#e2e8f0" stroke-width="1.5"/>
+          <path d="M18 82 C 90 76, 150 60, 242 12" fill="none" stroke="#e11d48" stroke-width="2.5"/>
+          <path d="M18 82 L242 40" fill="none" stroke="#4f46e5" stroke-width="2.5"/>
+          <path d="M18 82 C 70 68, 140 64, 242 62" fill="none" stroke="#059669" stroke-width="2.5"/>
+          <text x="205" y="22" font-family="Fira Code" font-size="9" font-weight="700" fill="#e11d48">N&#178;</text>
+          <text x="222" y="36" font-family="Fira Code" font-size="9" font-weight="700" fill="#4f46e5">N</text>
+          <text x="202" y="74" font-family="Fira Code" font-size="9" font-weight="700" fill="#059669">log N</text>
+        </svg>
+        <div style="display:flex;justify-content:center;margin-top:.35rem">
+          <span class="meter">comparisons <b>C = 14</b></span></div>
+      </div></div>
+      <div class="gf"><b>≈ 12 widgets.</b> The complexity case studies, the halving bars, bubble sort's C and D,
+        the sparse saving, Koko and the ropes.</div></div>
+
+  </div>
+
+  <div class="callout"><p class="t">Why this matters for the rewrite</p>
+    <p>Seven renderers cover everything, and four of them already exist in some form. The work is not inventing
+      pictures — it is <b>agreeing one frame</b> so a student who learns to drive the array simulator in Week 3 can
+      drive the AVL simulator in Week 13 without being taught again.</p></div>
+</div></section>
+
+<section id="dirs"><div class="wrap">
+  <div class="hd"><p class="n">Section 3</p><h2>Three shells, same run</h2>
+    <p class="lede">All three are live. All three run the same thing — linear search for <span class="mono">7</span>
+      in a six-cell array, thirteen steps, four passes of the loop — so the only difference you are judging is the
+      arrangement. Press <b>Next</b> in each. Switch the toolbar to <b>Projector</b> to see where 768px cuts each
+      one off.</p></div>
+
+  <!-- ============ DIRECTION A ============ -->
+  <div class="dir" id="dirA">
+    <div class="dh">
+      <div class="dt"><p class="lab">Direction A</p><h3>Split rig — what you have, made consistent</h3>
+        <p>Stage left, code right, equal height. Adds the three things that are missing today: a step rail that shows
+          the loop passes, a watch strip, and TRUE/FALSE on the condition line.</p></div>
+      <div class="verd">
+        <div class="v"><span class="dot g"></span>Least work — the shell already exists <b>1×</b></div>
+        <div class="v"><span class="dot a"></span>Drawing stays narrow (~511px) <b>—</b></div>
+        <div class="v"><span class="dot g"></span>Code stays tall, long listings fine <b>+</b></div>
+      </div>
+    </div>
+    <div class="body">
+      <div class="rail" id="A-rail"></div>
+      <div class="rigA">
+        <div class="board" style="--cw:52px"><span class="plate">Array</span><div id="A-stage"></div></div>
+        <div class="code" id="A-code"></div>
+      </div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin:.7rem 0 .55rem" id="A-watch" class="watch"></div>
+      <div class="narr"><span class="num" id="A-num">1</span><p id="A-msg"></p></div>
+      <div class="ctl" style="margin-top:.7rem">
+        <button class="bt" data-a="n" data-s="A">Next &#9656;</button>
+        <button class="bt gh" data-a="b" data-s="A">&#9666; Back</button>
+        <button class="bt gh" data-a="r" data-s="A">Reset</button>
+        <span class="meter">C <b id="A-c">0</b></span>
+        <span class="cnt" id="A-cnt">1 / 13</span>
+      </div>
+      <p class="fitnote ok" id="A-fit">measuring…</p>
+    </div>
+  </div>
+
+  <!-- ============ DIRECTION B ============ -->
+  <div class="dir" id="dirB">
+    <div class="dh">
+      <div class="dt"><p class="lab">Direction B</p><h3>Deck — the drawing gets the room</h3>
+        <p>Full-width stage on top, then one instrument row: code, watches, narration. The picture gets roughly twice
+          the width it has today, which is the direct answer to "from far, students cannot read it".</p></div>
+      <div class="verd">
+        <div class="v"><span class="dot g"></span>Drawing ~2× wider, no shrink-to-fit <b>+</b></div>
+        <div class="v"><span class="dot a"></span>Code pane is short — needs an expander <b>—</b></div>
+        <div class="v"><span class="dot a"></span>Every Segment 3 config needs re-fitting <b>3×</b></div>
+      </div>
+    </div>
+    <div class="body">
+      <div class="rail" id="B-rail"></div>
+      <div class="rigB">
+        <div class="board" style="min-height:250px;--cw:104px"><span class="plate">Array &mdash; DATA[1:6], ITEM = 7</span><div id="B-stage"></div></div>
+        <div class="row">
+          <div class="col"><span class="ttl">Algorithm</span><div class="code" id="B-code"></div></div>
+          <div class="col"><span class="ttl">Watches</span>
+            <div class="watch" id="B-watch" style="align-content:flex-start"></div>
+            <span class="meter" style="align-self:flex-start">C <b id="B-c">0</b></span></div>
+          <div class="col"><span class="ttl">What just happened</span>
+            <div class="narr" style="flex:1;align-items:flex-start"><span class="num" id="B-num">1</span><p id="B-msg"></p></div>
+            <div class="ctl">
+              <button class="bt" data-a="n" data-s="B">Next &#9656;</button>
+              <button class="bt gh" data-a="b" data-s="B">&#9666;</button>
+              <button class="bt gh" data-a="r" data-s="B">Reset</button>
+              <span class="cnt" id="B-cnt">1 / 13</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="fitnote ok" id="B-fit">measuring…</p>
+    </div>
+  </div>
+
+  <!-- ============ DIRECTION C ============ -->
+  <div class="dir" id="dirC">
+    <div class="dh">
+      <div class="dt"><p class="lab">Direction C</p><h3>Bench — one instrument, code and picture on the same ground</h3>
+        <p>No card seams. The listing and the drawing share one dark surface, the narration is a status line along the
+          bottom. Highest contrast in a bright room — but a projector cannot draw true black, so the honest proposal
+          is: <b>the page stays light, and Focus opens the bench.</b></p></div>
+      <div class="verd">
+        <div class="v"><span class="dot g"></span>Eye stops jumping between two surfaces <b>+</b></div>
+        <div class="v"><span class="dot g"></span>Best contrast for projected code <b>+</b></div>
+        <div class="v"><span class="dot r"></span>Dark on a weak projector greys out <b>risk</b></div>
+      </div>
+    </div>
+    <div class="body dk">
+      <div class="rail" id="C-rail"></div>
+      <div class="rigC">
+        <div class="tb"><span class="nm">Linear search &mdash; DATA[1:6], ITEM = 7</span>
+          <span class="cnt" id="C-cnt" style="margin-left:auto">1 / 13</span></div>
+        <div class="mn">
+          <div class="cw"><div class="code" id="C-code"></div></div>
+          <div class="sw"><div class="board dk" style="--cw:72px"><div id="C-stage"></div></div></div>
+        </div>
+        <div class="wr" id="C-watch"></div>
+        <div class="sl"><span class="num" id="C-num">1</span><p id="C-msg"></p>
+          <span class="meter" style="margin-left:auto">C <b id="C-c">0</b></span></div>
+      </div>
+      <div class="ctl" style="margin-top:.7rem">
+        <button class="bt" data-a="n" data-s="C">Next &#9656;</button>
+        <button class="bt gh" data-a="b" data-s="C">&#9666; Back</button>
+        <button class="bt gh" data-a="r" data-s="C">Reset</button>
+      </div>
+      <p class="fitnote ok" id="C-fit">measuring…</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="parts"><div class="wrap">
+  <div class="hd"><p class="n">Section 4</p><h2>Four parts that go into whichever shell wins</h2>
+    <p class="lede">Each one fixes a specific thing you reported. They are independent of the layout choice.</p></div>
+
+  <div class="cmp">
+    <div class="cc"><span class="fix">fixes · loop passes not visible</span>
+      <h4>The step rail, grouped by pass</h4>
+      <p>Replaces <span class="mono">3 / 13</span>. Every step is a segment; segments are grouped and labelled by loop
+        pass; a condition step is tinted green or red. A student can see at a glance that the loop ran four times, and
+        click straight into pass 3.</p>
+      <div class="demo"><div style="width:100%"><div class="rail" id="D-rail"></div></div></div></div>
+
+    <div class="cc"><span class="fix">fixes · variable updates not visible</span>
+      <h4>The watch strip</h4>
+      <p>Every variable the code touches gets a chip. The chip flashes amber on the step where it changes, so nothing
+        moves silently. Today only the nodes animate; <span class="mono">LOC</span>, <span class="mono">C</span> and
+        the pointers change with no signal.</p>
+      <div class="demo"><div class="watch">
+        <span class="wc"><span class="n">LOC</span><span class="v">4</span></span>
+        <span class="wc chg"><span class="n">C</span><span class="v">4</span></span>
+        <span class="wc"><span class="n">ITEM</span><span class="v">7</span></span></div></div></div>
+
+    <div class="cc"><span class="fix">fixes · code highlight not uniform</span>
+      <h4>Landing on the condition, every pass</h4>
+      <p>The <span class="mono">while</span> and <span class="mono">if</span> lines get their own step each pass, tinted
+        by the answer with a TRUE/FALSE tag. Currently 30 loop listings in Segment 1 and three of four Segment 2 pages
+        never land on a condition at all.</p>
+      <div class="demo"><div class="code" style="width:100%">
+        <div class="cl on tr"><span class="g">2</span><span><span class="k">while</span> LOC &lt;= N:</span><span class="vd tr">TRUE</span></div>
+        <div class="cl on fl" style="margin-top:.25rem"><span class="g">3</span><span><span class="k">if</span> DATA[LOC] = ITEM:</span><span class="vd fl">FALSE</span></div>
+      </div></div></div>
+
+    <div class="cc"><span class="fix">fixes · too small far away / too big to fit</span>
+      <h4>Focus that enlarges type, not just the box</h4>
+      <p>Focus today caps the drawing at 62% of screen height, so on a 768px projector many drawings come out
+        <b>smaller</b> than on the laptop, while the code stays at 15px. The proposal: two columns above 1100px, code
+        raised to 19px, and the height cap lifted because the stage no longer fights the listing for height.</p>
+      <div class="demo"><div style="display:flex;gap:.6rem;align-items:flex-end;font-family:var(--mono);font-size:.62rem;color:var(--mute)">
+        <div style="text-align:center"><div style="font-size:15px;font-weight:800;color:var(--ink)">15px</div>now</div>
+        <div style="font-size:1rem;color:var(--acc-b)">&#8594;</div>
+        <div style="text-align:center"><div style="font-size:19px;font-weight:800;color:var(--acc)">19px</div>proposed</div>
+        <div style="margin-left:.8rem;text-align:center"><div style="font-size:15px;font-weight:800;color:var(--ink)">0.85&times;</div>drawing now</div>
+        <div style="font-size:1rem;color:var(--acc-b)">&#8594;</div>
+        <div style="text-align:center"><div style="font-size:19px;font-weight:800;color:var(--acc)">1.4&times;</div>proposed</div>
+      </div></div></div>
+  </div>
+</div></section>
+
+<section id="pick"><div class="wrap">
+  <div class="hd"><p class="n">Section 5</p><h2>What each choice costs</h2></div>
+  <div class="scrollx"><table class="grid">
+    <thead><tr><th>&nbsp;</th><th>A · Split rig</th><th>B · Deck</th><th>C · Bench</th></tr></thead>
+    <tbody>
+      <tr><td><b>Drawing width on a 1366 projector</b></td><td>~640px</td><td class="full">~1240px</td><td>~740px</td></tr>
+      <tr><td><b>Code lines visible at once</b></td><td class="full">14</td><td>8 + expander</td><td class="full">16</td></tr>
+      <tr><td><b>Segment 3 configs needing new natW/natH</b></td><td class="full">0</td><td>50</td><td>~20</td></tr>
+      <tr><td><b>Segment 1 rebuild</b></td><td>27 widgets</td><td>27 widgets</td><td>27 widgets</td></tr>
+      <tr><td><b>Works on a phone</b></td><td class="full">stacks cleanly</td><td class="full">stacks cleanly</td><td class="part">dark + narrow is tight</td></tr>
+      <tr><td><b>Projector contrast</b></td><td>good</td><td>good</td><td class="part">excellent, or bad — depends on the room</td></tr>
+      <tr><td><b>Risk</b></td><td class="full">low</td><td class="part">medium</td><td class="part">medium</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout"><p class="t">My recommendation</p>
+    <p><b>B on the page, C in Focus.</b> The deck gives the drawing the width it needs while you are teaching from the
+      laptop, and Focus — which only ever runs on the projector — switches to the bench, where one dark surface at 19px
+      is the most readable thing in a lit room. A is the fallback if you want the smallest possible change.</p>
+    <p>Whichever you pick, the four parts in Section 4 and the single shared engine file go in regardless.</p></div>
+</div></section>
+
+<footer><div class="wrap">
+  Built for CSE-2321 · Dept. of CSE, IIUC · design review, not a lesson page.
+  Numbers are measured from the 21 live pages, not estimated.
+</div></footer>
+
+<script>
+(function(){
+'use strict';
+var $=function(s,r){return (r||document).querySelector(s)};
+
+/* ---------- the shared run: linear search for 7 in [12,45,30,7,28,63] ---------- */
+var DATA=[12,45,30,7,28,63], ITEM=7, N=6;
+var CODE=[
+ {t:'LOC = 1',k:[]},
+ {t:'while LOC <= N:',k:['while']},
+ {t:'    if DATA[LOC] = ITEM:',k:['if']},
+ {t:'        return LOC',k:['return']},
+ {t:'    LOC = LOC + 1',k:[]},
+ {t:'return 0',k:['return']}
+];
+/* ln is 1-based; pass groups the steps for the rail */
+var SEQ=[
+ {ln:1,loc:0,c:0,pass:0,msg:'<b>LOC = 1</b>. Start at the first cell. Nothing has been compared yet.'},
+ {ln:2,loc:1,c:0,pass:1,cond:true, msg:'<b>1 &le; 6</b> — there is still an element to look at, so we enter the loop.'},
+ {ln:3,loc:1,c:1,pass:1,cond:false,look:1,msg:'Compare <b>DATA[1] = 12</b> with <b>7</b>. Not equal. That is comparison <b>C = 1</b>.'},
+ {ln:5,loc:2,c:1,pass:1,msg:'<b>LOC</b> moves to <b>2</b>. The pointer under the row steps right.'},
+ {ln:2,loc:2,c:1,pass:2,cond:true, msg:'<b>2 &le; 6</b> — still inside the array. Second pass.'},
+ {ln:3,loc:2,c:2,pass:2,cond:false,look:2,msg:'Compare <b>DATA[2] = 45</b> with <b>7</b>. Not equal. <b>C = 2</b>.'},
+ {ln:5,loc:3,c:2,pass:2,msg:'<b>LOC</b> moves to <b>3</b>.'},
+ {ln:2,loc:3,c:2,pass:3,cond:true, msg:'<b>3 &le; 6</b> — third pass.'},
+ {ln:3,loc:3,c:3,pass:3,cond:false,look:3,msg:'Compare <b>DATA[3] = 30</b> with <b>7</b>. Not equal. <b>C = 3</b>.'},
+ {ln:5,loc:4,c:3,pass:3,msg:'<b>LOC</b> moves to <b>4</b>.'},
+ {ln:2,loc:4,c:3,pass:4,cond:true, msg:'<b>4 &le; 6</b> — fourth pass.'},
+ {ln:3,loc:4,c:4,pass:4,cond:true, look:4,hit:true,msg:'Compare <b>DATA[4] = 7</b> with <b>7</b>. <b>Equal</b> — the search stops here. <b>C = 4</b>.'},
+ {ln:4,loc:4,c:4,pass:4,hit:true,msg:'<b>return 4</b>. The item is at position 4, found after 4 comparisons.'}
+];
+
+function passLabel(p){ return p===0?'init':'pass '+p; }
+
+/* ---------- renderers ---------- */
+function drawStage(el,s){
+  var h='<div class="strip">';
+  for(var i=1;i<=N;i++){
+    var c='cel';
+    if(s.hit && i===s.loc) c+=' hit';
+    else if(s.look===i) c+=' look';
+    else if(s.loc>i) c+=' miss';
+    h+='<div class="'+c+'"><div class="ix">'+i+'</div><div class="bx">'+DATA[i-1]+'</div><div class="ad">'+(2000+(i-1)*4)+'</div></div>';
+  }
+  h+='</div><div class="strip lane">';
+  for(var j=1;j<=N;j++){
+    h+='<div class="pcel">'+(j===s.loc?'<span class="chip hot">LOC</span>':'')+'</div>';
+  }
+  h+='</div>';
+  el.innerHTML=h;
+}
+function drawCode(el,s){
+  var h='';
+  for(var i=0;i<CODE.length;i++){
+    var on=(i+1)===s.ln, cls='cl'+(on?' on':'');
+    if(on && typeof s.cond!=='undefined') cls+=s.cond?' tr':' fl';
+    var txt=CODE[i].t.replace(/\b(while|if|return)\b/g,'<span class="k">$1</span>')
+                     .replace(/\b(LOC|N|ITEM|DATA)\b/g,'<span class="t">$1</span>')
+                     .replace(/\b(\d+)\b/g,'<span class="n">$1</span>');
+    var vd='';
+    if(on && typeof s.cond!=='undefined') vd='<span class="vd '+(s.cond?'tr':'fl')+'">'+(s.cond?'TRUE':'FALSE')+'</span>';
+    h+='<div class="'+cls+'"><span class="g">'+(i+1)+'</span><span>'+txt+'</span>'+vd+'</div>';
+  }
+  el.innerHTML=h;
+}
+function drawWatch(el,s,prev){
+  var vars=[['LOC',s.loc||'—'],['C',s.c],['ITEM',ITEM],['N',N]];
+  var h='';
+  for(var i=0;i<vars.length;i++){
+    var chg = prev && String(vars[i][1])!==String(i===0?(prev.loc||'—'):i===1?prev.c:i===2?ITEM:N);
+    h+='<span class="wc'+(chg?' chg':'')+'"><span class="n">'+vars[i][0]+'</span><span class="v">'+vars[i][1]+'</span></span>';
+  }
+  el.innerHTML=h;
+}
+function drawRail(el,idx,onJump){
+  var groups=[],cur=-1;
+  for(var i=0;i<SEQ.length;i++){
+    if(SEQ[i].pass!==cur){cur=SEQ[i].pass;groups.push({p:cur,items:[]});}
+    groups[groups.length-1].items.push(i);
+  }
+  var h='';
+  for(var g=0;g<groups.length;g++){
+    h+='<div class="grp" data-l="'+passLabel(groups[g].p)+'" style="--f:'+groups[g].items.length+'">';
+    for(var j=0;j<groups[g].items.length;j++){
+      var k=groups[g].items[j], st=SEQ[k], c='sg';
+      if(k<idx) c+=' done';
+      if(k===idx) c+=' now';
+      else if(typeof st.cond!=='undefined') c+= st.cond?' tr':' fl';
+      h+='<button class="'+c+'" data-i="'+k+'" title="step '+(k+1)+'"></button>';
+    }
+    h+='</div>';
+  }
+  el.innerHTML=h;
+  if(onJump){
+    el.onclick=function(e){ var b=e.target.closest('.sg'); if(b) onJump(+b.getAttribute('data-i')); };
+  }
+}
+
+/* ---------- wire up the three directions ---------- */
+function mount(id){
+  var i=0;
+  function paint(){
+    var s=SEQ[i], prev=i>0?SEQ[i-1]:null;
+    drawStage($('#'+id+'-stage'),s);
+    drawCode($('#'+id+'-code'),s);
+    drawWatch($('#'+id+'-watch'),s,prev);
+    drawRail($('#'+id+'-rail'),i,function(k){i=k;paint();});
+    $('#'+id+'-msg').innerHTML=s.msg;
+    $('#'+id+'-num').textContent=i+1;
+    $('#'+id+'-cnt').textContent=(i+1)+' / '+SEQ.length;
+    $('#'+id+'-c').textContent=s.c;
+    var nb=document.querySelector('[data-s="'+id+'"][data-a="n"]'),
+        bb=document.querySelector('[data-s="'+id+'"][data-a="b"]');
+    if(nb) nb.disabled = i>=SEQ.length-1;
+    if(bb) bb.disabled = i<=0;
+    /* bring the live line into view inside its own pane */
+    var lit=$('#'+id+'-code .cl.on');
+    if(lit && lit.scrollIntoView) lit.scrollIntoView({block:'nearest'});
+  }
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('[data-s="'+id+'"]'); if(!b) return;
+    var a=b.getAttribute('data-a');
+    if(a==='n'&&i<SEQ.length-1) i++;
+    else if(a==='b'&&i>0) i--;
+    else if(a==='r') i=0;
+    paint();
+  });
+  paint();
+}
+mount('A'); mount('B'); mount('C');
+
+/* the standalone rail demo in section 4 */
+drawRail(document.getElementById('D-rail'),8,null);
+
+/* ---------- projector toggle + fit measurement ---------- */
+var LIMIT=728; /* what a Focus overlay really gets on a 768-high screen */
+function measure(){
+  ['A','B','C'].forEach(function(id){
+    var panel=document.querySelector('#dir'+id+' .body'), note=document.getElementById(id+'-fit');
+    if(!panel||!note) return;
+    var h=Math.round(panel.getBoundingClientRect().height)-Math.round(note.getBoundingClientRect().height)-10;
+    var fits=h<=LIMIT;
+    note.className='fitnote '+(fits?'ok':'no');
+    note.textContent = fits
+      ? 'Fits a 1366×768 projector in Focus with '+(LIMIT-h)+'px to spare. (simulator '+h+'px, overlay gives '+LIMIT+'px)'
+      : 'Overflows a 1366×768 Focus overlay by '+(h-LIMIT)+'px — the class would have to scroll. (simulator '+h+'px, overlay gives '+LIMIT+'px)';
+  });
+}
+var pv=document.getElementById('pv');
+pv.addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(!b) return;
+  Array.prototype.forEach.call(pv.querySelectorAll('button'),function(x){x.classList.remove('on')});
+  b.classList.add('on');
+  document.body.classList.toggle('proj', b.getAttribute('data-v')==='proj');
+  setTimeout(measure,60);
+});
+window.addEventListener('resize',measure);
+setTimeout(measure,120);
+
+/* keyboard: n / b / r drive the simulator nearest the middle of the view */
+document.addEventListener('keydown',function(e){
+  if(/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
+  if(e.metaKey||e.ctrlKey||e.altKey) return;
+  var k=e.key.toLowerCase(); if(k!=='n'&&k!=='b'&&k!=='r') return;
+  var mid=window.innerHeight/2, best=null, bd=1e9;
+  ['A','B','C'].forEach(function(id){
+    var el=document.getElementById('dir'+id); if(!el) return;
+    var r=el.getBoundingClientRect(), d=Math.abs((r.top+r.bottom)/2-mid);
+    if(r.bottom>0&&r.top<window.innerHeight&&d<bd){bd=d;best=id;}
+  });
+  if(!best) return;
+  var b=document.querySelector('[data-s="'+best+'"][data-a="'+k+'"]');
+  if(b&&!b.disabled){b.click();e.preventDefault();}
+});
+})();
+</script>
+</body>
+</html>

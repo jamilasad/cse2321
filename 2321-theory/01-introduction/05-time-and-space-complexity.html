@@ -138,7 +138,11 @@ pre.code{font-family:var(--mono);font-size:.78rem;line-height:1.75;background:#0
 
 /* ============ BUTTONS ============ */
 .btn{appearance:none;font-family:inherit;font-weight:800;font-size:.82rem;padding:.6rem 1.15rem;border-radius:.55rem;
-     cursor:pointer;border:none;background:var(--accent);color:#fff;box-shadow:var(--sh-sm);
+     cursor:pointer;background:var(--accent);color:#fff;box-shadow:var(--sh-sm);
+     /* a transparent border of the same width .btn.ghost uses, so that
+        lighting a button in a toggle group does not change its box and
+        shift the whole control row by 2px under the cursor */
+     border:2px solid transparent;
      transition:filter .15s,transform .1s}
 .btn:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px)}
 .btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
@@ -705,6 +709,276 @@ body.codelight .exactbox .lo{color:#94a3b8}
          white-space:nowrap;transition:.15s;flex:0 0 auto}
 .codetog:hover{color:#e2e8f0;border-color:#64748b}
 
+/* ============ THE VERDICT \u2014 WHAT THIS ALGORITHM IS CALLED ============
+   Every time a complexity is earned, it is said out loud in a block nobody
+   can skim past: the name in large mono type, and one or two lines saying
+   what it means in terms of the count of operations. Colour carries the
+   judgement, and it is the same colour the hierarchy bars use further down,
+   so O(N\u00b2) is the same red everywhere on the page.
+
+   --oc  the ink and the rules      --ob  the wash behind it
+   A .bopair may override --oc for itself, which is how \u00a77 shows an amber
+   time and a red space inside one red-bordered block. */
+.bigo{display:flex;flex-wrap:wrap;align-items:center;gap:.55rem 1.2rem;
+  margin:1.25rem 0;padding:.9rem 1.15rem;border-radius:.85rem;
+  border:1.5px solid var(--oc,#94a3b8);border-left-width:6px;
+  background:linear-gradient(100deg,var(--ob,#f8fafc),#fff 66%);
+  box-shadow:0 12px 28px -22px rgba(15,23,42,.65)}
+.bigo .bopair{flex:0 0 auto}
+.bigo .bok{margin:0;font-size:.55rem;font-weight:800;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--oc,#64748b);opacity:.85}
+.bigo .bov{margin:.05rem 0 0;font-family:var(--mono);font-weight:800;line-height:1.02;
+  font-size:clamp(1.65rem,5.6vw,2.35rem);color:var(--oc,#0f172a);white-space:nowrap;
+  font-variant-numeric:tabular-nums}
+.bigo .bod{flex:1 1 15rem;min-width:0;margin:0;font-size:.91rem;line-height:1.62;color:var(--ink-soft)}
+.bigo .bod b{color:var(--ink)}
+.bigo .bod .mono{font-size:.95em}
+/* a second pair gets a hairline in front of it, so "time" and "space" read as
+   two readings of the same run rather than one long label */
+.bigo .bopair + .bopair{border-left:1px solid var(--line);padding-left:1.2rem}
+@media(max-width:520px){
+  .bigo{padding:.8rem .9rem;gap:.45rem .9rem}
+  .bigo .bopair + .bopair{border-left:0;padding-left:0}
+  .bigo .bod{flex-basis:100%}
+}
+/* on the projector it is the thing being read out, so it grows with everything else */
+.fsbody .bigo .bov{font-size:clamp(2rem,6vw,3rem)}
+.fsbody .bigo .bod{font-size:1.05rem}
+
+/* ============ A CONDITION, COLOURED BY ITS ANSWER ============
+   The scan's `if` is the one line on this page that tests something once per
+   pass, so the shell marks it simtrue/simfalse and these give it a colour.
+   Written after .cln.cur on purpose: same specificity, and these must win. */
+pre.code .cln{display:block;white-space:pre;border-radius:3px;padding:0 .5rem;margin:0 -.5rem;
+  transition:background .22s}
+pre.code .cln.cur{background:rgba(124,58,237,.26);box-shadow:inset 3px 0 0 #a78bfa}
+pre.code .cln.simtrue{background:rgba(22,163,74,.26);box-shadow:inset 3px 0 0 #22c55e}
+pre.code .cln.simfalse{background:rgba(225,29,72,.24);box-shadow:inset 3px 0 0 #f43f5e}
+body.codelight pre.code .cln.cur{background:rgba(124,58,237,.13);box-shadow:inset 3px 0 0 #7c3aed}
+body.codelight pre.code .cln.simtrue{background:rgba(22,163,74,.15);box-shadow:inset 3px 0 0 #16a34a}
+body.codelight pre.code .cln.simfalse{background:rgba(225,29,72,.13);box-shadow:inset 3px 0 0 #e11d48}
+.bitln.simtrue{background:rgba(22,163,74,.26);box-shadow:inset 3px 0 0 #22c55e}
+.bitln.simfalse{background:rgba(225,29,72,.24);box-shadow:inset 3px 0 0 #f43f5e}
+
+/* ============ THE PICTURES, INSIDE THE SHELL ============
+   Scoped to .sim so the same classes used elsewhere on the page as static
+   illustrations keep the margins they have. Inside a simulator the shell's
+   own gap is the only spacing, or the two stack up into a seam. */
+.sim .bitsim,.sim .bitcode,.sim .slidebox,.sim .lgw,.sim .mvz,
+.sim .simbox,.sim .calcgrid,.sim .verdictbox,.sim pre.code{margin:0}
+/* .pairlist centres itself with auto side margins, and a blanket margin:0
+   left it hugging the left edge of the frame. Zero the vertical only. */
+.sim .pairlist{margin:0 auto}
+/* the private frames come off: the shell is the frame now */
+.sim .bitsim,.sim .lgw,.sim .mvz,.sim .simbox{border:0;padding:0;background:none;box-shadow:none}
+.sim .lgtrack{margin:0}
+/* This picture is a stack that grows downward, one row per press, from one
+   row to six. Reserving all six (\u00a747) fixed the moving buttons but left a
+   200px void under the bracket for the first half of the run, so this one
+   takes the other way out of \u00a735 instead: the controls and the listing go
+   ABOVE the drawing. Nothing you press moves, the rows can appear and
+   disappear freely, and pressing Next now reads as "the line runs, and the
+   picture below it grows". */
+#bit-sim .simrail{order:-3}
+#bit-sim .simctl{order:-2}
+#bit-sim .bitcode{order:-1;margin-top:0}
+#bit-sim .bitsim{order:0}
+.sim .mvz .mvk:first-child{margin-top:0}
+#mv-sim .mvrow > span.void,#mv-sim .mvc.void{visibility:hidden}
+/* two control rows in a row need the gap closed between them */
+#lg-sim .simctl#lgmodes{order:1;margin-bottom:-.35rem}
+#lg-sim .simctl:not(#lgmodes){order:1}
+/* the mode pair for the bit grid rides in the control row */
+.sim .bitmode{display:inline-flex;gap:.35rem;flex-wrap:wrap}
+
+/* Every reserve below is measured, not guessed: each stage was walked through
+   every state it can take at seventeen widths and the tallest one is what is
+   reserved. The rule underneath them all is \u00a735 \u2014 nothing that changes size
+   may sit above a button.
+
+   The divisor list runs one pair per line, so nine rows is 389px at every
+   width; N = 97 gives two rows, and without the reserve the buttons walked
+   113px up the page. */
+#fn-sim .pairlist{min-height:24.8rem}
+/* "Time Limit Exceeded" wraps to two lines under 520px, "Passes" never does */
+#calc-sim .verdictbox{min-height:6.3rem}
+@media(max-width:520px){#calc-sim .verdictbox{min-height:9.1rem}}
+/* the string preview goes from "" to 1,389 characters, which is another line
+   of text on a narrow phone */
+@media(max-width:344px){#cp-sim .simbox{min-height:11.5rem}}
+/* the two verdict cards read "1,000 ops" at one end of the slider and
+   "1,000,000,000 ops" at the other, and that wraps at four widths */
+@media(max-width:600px){#n-sim .slidebox{min-height:17.6rem}}
+@media(max-width:520px){#n-sim .slidebox{min-height:25rem}}
+@media(max-width:400px){#n-sim .slidebox{min-height:27.4rem}}
+@media(max-width:344px){#n-sim .slidebox{min-height:28.7rem}}
+
+/* ============ THESE PICTURES ON THE FOCUS BENCH ============
+   Focus is the projector, so everything grows. Sizes once, for both skins;
+   only colour is skinned below. */
+.fsbody .bitc{font-size:.62rem}
+.fsbody .bitname{font-size:.92rem}
+.fsbody .bitwhat{font-size:.74rem}
+.fsbody .bitdec{font-size:.92rem}
+.fsbody .bitcode{font-size:clamp(.9rem,2.3vw,1.14rem);line-height:2.1;padding:1rem 1.1rem}
+.fsbody .lgc{height:34px}
+.fsbody .sldhead .sll{font-size:.74rem}
+.fsbody .sldhead .sldp,.fsbody .sldhead .sldn{font-size:1.15rem}
+.fsbody .vcard .vk{font-size:.74rem}
+.fsbody .vcard .vv{font-size:clamp(1.7rem,4.6vw,2.6rem)}
+.fsbody .vcard .vd,.fsbody .vcard .vf{font-size:.84rem}
+.fsbody .pl .plx{font-size:1.12rem}
+.fsbody .pl .pln{font-size:.76rem}
+.fsbody .verdictbox .vbig{font-size:clamp(1.7rem,4.6vw,2.7rem)}
+.fsbody .verdictbox .vsub{font-size:1rem}
+.fsbody .arrname{font-size:.86rem}
+.fsbody .mvk{font-size:.86rem}
+.fsbody .acell .ai{font-size:.72rem}
+.fsbody .acell .av{font-size:1.6rem}
+.fsbody .mvrow > span{font-size:.82rem}
+.fsbody .mvc span{font-size:.8rem}
+.fsbody .mvc b{font-size:1rem}
+.fsbody pre.code{font-size:clamp(.9rem,2.3vw,1.12rem);line-height:2.05}
+/* Measured: the missing-number simulator needed 1011px of a 830px bench, so
+   181px had to come out of it without shrinking anything anyone reads from
+   the back. All of it came from air \u2014 the blank lines in the listing, the
+   line spacing, and the padding round the two captions. */
+.fsbody #mv-code{line-height:1.75}
+.fsbody #mv-code .cln:not([data-l]){line-height:.5}
+.fsbody #mv-sim .mvk{margin:.15rem 0 .2rem}
+.fsbody #mv-sim .mvmeta{margin-top:.5rem}
+.fsbody #mv-sim .mvc{padding:.5rem .85rem}
+/* the bit cells are the thing being pointed at, so they get taller \u2014 paid
+   for by closing the gap between the six rows */
+.fsbody .bitgrid{height:32px}
+.fsbody .bitrow{margin-bottom:.3rem}
+.fsbody .bitmark{min-height:20px}
+.fsbody .bitc{font-size:.7rem}
+.fsbody .bithead{margin-bottom:.12rem}
+.fsbody #bit-sim .bitcode{line-height:1.85}
+.fsbody .cprow .cpl{font-size:.86rem}
+.fsbody .cprow .cpv{font-size:1.05rem}
+.fsbody .meter{height:16px}
+.fsbody #fn-sim .pairlist,.fsbody #calc-sim .verdictbox{min-height:0}
+
+/* ---- colour: the dark bench ---- */
+.fsov:not(.lit) .fsbody .bitc{background:#1b2238;color:#8f9ac2}
+.fsov:not(.lit) .fsbody .bitc.on{background:#6f79d8;color:#fff}
+.fsov:not(.lit) .fsbody .bitc.pad{background:transparent}
+.fsov:not(.lit) .fsbody .bitc.cut{background:#3b0d1c;color:#fda4af}
+.fsov:not(.lit) .fsbody .bitc.cut.on{background:#c2295a;color:#fff}
+.fsov:not(.lit) .fsbody .bitname{color:#e6e9f7}
+.fsov:not(.lit) .fsbody .bitwhat{color:#8f9ac2}
+.fsov:not(.lit) .fsbody .bitdec{color:#c3cbe4}
+.fsov:not(.lit) .fsbody .bitsep i{background:#2b3554}
+.fsov:not(.lit) .fsbody .bitsep b{color:#8f9ac2}
+.fsov:not(.lit) .fsbody .bitmode button{background:#1b2238;border-color:#2b3554;color:#c3cbe4}
+.fsov:not(.lit) .fsbody .bitmode button.on{background:#3a2a10;border-color:#b45309;color:#fcd34d}
+.fsov:not(.lit) .fsbody .lgtrack{background:#151c30;border-color:#232b45}
+.fsov:not(.lit) .fsbody .lgc.gone{background:#232b45}
+.fsov:not(.lit) .fsbody .slidebox{background:#131a2e;border-color:#232b45}
+.fsov:not(.lit) .fsbody .sldhead .sll{color:#8f9ac2}
+.fsov:not(.lit) .fsbody .sldhead .sldn{color:#e6e9f7}
+.fsov:not(.lit) .fsbody .sldticks span{color:#5b678f}
+.fsov:not(.lit) .fsbody .vcard{background:#1b2238;border-color:#2b3554}
+.fsov:not(.lit) .fsbody .vcard .vk{color:#8f9ac2}
+.fsov:not(.lit) .fsbody .vcard .vf{color:#6b769c}
+.fsov:not(.lit) .fsbody .vcard.pass{background:#0d2b24;border-color:#0f8a67}
+.fsov:not(.lit) .fsbody .vcard.pass .vv{color:#6ee7b7}
+.fsov:not(.lit) .fsbody .vcard.fail{background:#3b0d1c;border-color:#c2295a}
+.fsov:not(.lit) .fsbody .vcard.fail .vv{color:#fda4af}
+.fsov:not(.lit) .fsbody .pl{background:#1b2238;border-color:#2b3554}
+.fsov:not(.lit) .fsbody .pl .plx{color:#e6e9f7}
+.fsov:not(.lit) .fsbody .pl .pln{color:#8f9ac2}
+.fsov:not(.lit) .fsbody .pl.dup{background:#151c30}
+.fsov:not(.lit) .fsbody .pl.dup .plx{color:#5b678f}
+.fsov:not(.lit) .fsbody .verdictbox{background:#131a2e;border-color:#232b45}
+.fsov:not(.lit) .fsbody .verdictbox.pass{background:#0d2b24;border-color:#0f8a67}
+.fsov:not(.lit) .fsbody .verdictbox.fail{background:#3b0d1c;border-color:#c2295a}
+.fsov:not(.lit) .fsbody .arrname{color:#8f9ac2}
+.fsov:not(.lit) .fsbody .mvk{color:#8f9ac2}
+.fsov:not(.lit) .fsbody .mvk b{color:#e6e9f7}
+.fsov:not(.lit) .fsbody .acell{background:#1b2238;border-color:#3d4670}
+.fsov:not(.lit) .fsbody .acell .ai{color:#5b678f}
+.fsov:not(.lit) .fsbody .acell .av{color:#e6e9f7}
+.fsov:not(.lit) .fsbody .acell.look{background:#3a2a10;border-color:#b45309}
+.fsov:not(.lit) .fsbody .acell.look .av{color:#fcd34d}
+.fsov:not(.lit) .fsbody .acell.done{background:#151c30}
+.fsov:not(.lit) .fsbody .mvrow > span{background:#1b2238;border-color:#2b3554;color:#6b769c}
+.fsov:not(.lit) .fsbody .mvrow > span.tick{background:#0d2b24;border-color:#0f8a67;color:#6ee7b7}
+.fsov:not(.lit) .fsbody .mvrow > span.gap{background:#3b0d1c;border-color:#c2295a;color:#fda4af}
+.fsov:not(.lit) .fsbody .mvc{background:#3b0d1c;border-color:#c2295a}
+.fsov:not(.lit) .fsbody .mvc span{color:#fda4af}
+.fsov:not(.lit) .fsbody .mvc b{color:#fff}
+.fsov:not(.lit) .fsbody .cprow{background:#1b2238;border-color:#2b3554}
+.fsov:not(.lit) .fsbody .cprow .cpl{color:#8f9ac2}
+.fsov:not(.lit) .fsbody .cprow .cpv{color:#e6e9f7}
+.fsov:not(.lit) .fsbody .meter{background:#1b2238;border-color:#2b3554}
+.fsov:not(.lit) .fsbody .sld{background:#2b3554}
+/* the light code theme turns every listing white, which on the dark bench is
+   the slab we keep having to fix \u2014 the bit grid's pane included */
+body.codelight .fsov:not(.lit) .fsbody .bitcode{background:#0f172a;color:#e2e8f0;border-color:#232b45}
+body.codelight .fsov:not(.lit) .fsbody .bitcode .k{color:#c4b5fd}
+body.codelight .fsov:not(.lit) .fsbody .bitcode .t{color:#7dd3fc}
+body.codelight .fsov:not(.lit) .fsbody .bitcode .n{color:#fcd34d}
+body.codelight .fsov:not(.lit) .fsbody .bitln.cur{background:rgba(167,139,250,.3);box-shadow:inset 3px 0 0 #a78bfa}
+
+/* ============ YOUR TURN \u2014 the rest of the site furniture ============ */
+/* ---- a question from a real paper ---- */
+.pastq{border:1.5px solid #fecdd3;border-left:4px solid #e11d48;border-radius:.7rem;
+  background:linear-gradient(180deg,#fff7f8,#fff);padding:.9rem 1rem;margin:1.1rem 0}
+.pastq .pqh{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;margin:0 0 .55rem}
+.pastq .pqs{font-size:.58rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  background:#e11d48;color:#fff;border-radius:.3rem;padding:.16rem .45rem}
+.pastq .pqw{font-size:.68rem;font-weight:700;color:#9f1239}
+.pastq .pqm{margin-left:auto;font-family:var(--mono);font-size:.66rem;font-weight:800;color:#be123c;
+  background:#ffe4e6;border-radius:999px;padding:.14rem .55rem;white-space:nowrap}
+.pastq .pqt{margin:0;font-size:.93rem;line-height:1.68;color:#4c0519;font-style:italic}
+.pastq .pqt b{font-style:normal;color:#881337}
+
+/* ---- quiz progress ribbon ---- */
+.prog{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;
+  border:1px solid #e8ebfa;border-radius:.7rem;background:#fff;
+  padding:.55rem .8rem;margin:1.1rem 0 1.8rem;box-shadow:0 8px 22px -18px rgba(30,27,75,.5)}
+.prog .pk{font-size:.55rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#b4bcd8}
+.prog .pbar{flex:1;min-width:120px;height:8px;border-radius:99px;background:#eef2ff;overflow:hidden}
+.prog .pbar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#818cf8,#4f46e5);
+  transition:width .5s cubic-bezier(.32,1.1,.4,1)}
+.prog .pn{font-family:var(--mono);font-size:.78rem;font-weight:800;color:#4f46e5}
+.prog button{appearance:none;font-family:inherit;font-size:.68rem;font-weight:700;padding:.28rem .6rem;
+  border-radius:.4rem;border:1px solid var(--line);background:#fff;color:var(--ink-mute);cursor:pointer}
+.prog button:hover{border-color:#4f46e5;color:#1e1b4b}
+
+/* ---- the takeaway rail ---- */
+.keyrail{position:fixed;right:1rem;top:5.6rem;bottom:10.6rem;width:290px;z-index:40;
+  display:none;flex-direction:column;pointer-events:none}
+/* 1080px column + 290px rail + gutters: below this the rail sits on the text */
+@media(min-width:1720px){.keyrail{display:flex}}
+.keyrail.hid .kbody{display:none}
+.krhd{pointer-events:auto;display:flex;align-items:center;gap:.55rem;align-self:flex-end;
+  background:linear-gradient(180deg,#fff,#fbfcff);border:1px solid #dfe3f2;border-radius:.7rem;
+  padding:.42rem .7rem;box-shadow:0 10px 26px -18px rgba(30,27,75,.55);cursor:pointer;transition:.15s}
+.krhd:hover{border-color:#a5b4fc;box-shadow:0 12px 30px -18px rgba(79,70,229,.6)}
+.krhd .kt{font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#7b8199}
+.krhd .kn{font-family:var(--mono);font-size:.66rem;font-weight:800;color:#fff;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:.35rem;padding:.06rem .38rem}
+.krhd .kv{color:#b4bcd8;font-size:.66rem;transition:transform .22s}
+.keyrail.hid .krhd .kv{transform:rotate(-90deg)}
+.kbody{pointer-events:auto;margin-top:.5rem;overflow-y:auto;display:flex;flex-direction:column;gap:.45rem;
+  padding:.2rem .2rem .5rem;scrollbar-width:thin;mask-image:linear-gradient(180deg,transparent 0,#000 12px)}
+.kitem{position:relative;background:#fff;border:1px solid #e6e9f7;border-radius:.6rem;
+  padding:.6rem .75rem .6rem 2.5rem;font-size:.82rem;line-height:1.5;color:#4c5480;
+  box-shadow:0 10px 24px -20px rgba(30,27,75,.6);animation:kin .38s cubic-bezier(.32,1.1,.4,1) both}
+.kitem b{color:#1e1b4b;font-weight:700}
+.kitem .kx{position:absolute;left:.6rem;top:.62rem;width:1.45rem;height:1.45rem;border-radius:.35rem;
+  display:grid;place-items:center;font-family:var(--mono);font-size:.62rem;font-weight:800;
+  background:#eef1ff;color:#4f46e5}
+.kitem.new{border-color:#c4b5fd;box-shadow:0 12px 28px -18px rgba(124,58,237,.6)}
+.kitem.new .kx{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff}
+@keyframes kin{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.kitem{animation:none}}
+body.fsopen .keyrail{display:none}
+
 /* ---- the bar gets out of the way ----
    Vertical space is the scarce thing in a lecture room, so the bar slides
    away as you read down and comes back the moment you scroll up. It is
@@ -1090,7 +1364,13 @@ body.codelight pre.code .olit{background:rgba(22,163,74,.14);
 @media(prefers-reduced-motion:reduce){.bitc,.bitc.fresh{transition:none;animation:none}}
 
 /* the bracket under a row that says which columns actually exist */
-.bitmark{display:grid;grid-template-columns:repeat(64,1fr);gap:1px;height:15px;margin-top:3px}
+/* display:grid beats the [hidden] attribute, so hiding it has to be done with
+   visibility \u2014 which is what we want anyway: the bracket holds its place from
+   step 1 (\u00a747) and says nothing until the step that earns it (\u00a743).
+   height:auto because the label wraps to two lines on the projector, and a
+   fixed 15px clipped the second one. */
+.bitmark{display:grid;grid-template-columns:repeat(64,1fr);gap:1px;min-height:15px;margin-top:3px}
+.bitmark[hidden]{visibility:hidden}
 .bitmark span{display:grid;place-items:center;border-radius:3px;font-size:.55rem;font-weight:800;
   letter-spacing:.05em;white-space:nowrap;overflow:hidden;padding:0 .3rem}
 .bitmark i{font-style:normal}
@@ -1215,6 +1495,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 .revtog.solo:hover{color:var(--ink);border-color:var(--line-strong)}
 .revtog.solo.on{background:#6d28d9;border-color:#7c3aed;color:#fff}
 </style>
+<link rel="stylesheet" href="../assets/sim.css">
 </head>
 <body>
 <div class="topbar">
@@ -1268,8 +1549,15 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
   </ol>
 </div>
 
+<div class="prog" id="prog">
+  <span class="pk">Your progress</span>
+  <span class="pbar"><i id="pbar"></i></span>
+  <span class="pn" id="pnum">0 / 4</span>
+  <button id="preset" type="button">Clear</button>
+</div>
+
 <!-- ============ 1 · WHY NOT SECONDS ============ -->
-<article class="card numbered" id="s1" style="--accent:#e11d48">
+<article class="card numbered" id="s1" data-key="We never time the clock. We <b>count operations</b> and watch how that count grows &mdash; a number that belongs to the algorithm, not to the machine." style="--accent:#e11d48">
   <span class="badge">1</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 1</p><h2>Why we cannot measure in seconds</h2></div>
@@ -1293,6 +1581,12 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
       <p>Put both programs on <em>one</em> machine and give them a large enough input, and the gap stops being half a second. It becomes seconds against microseconds. The 0.9 against 1.4 was measuring the two <b>machines</b>, not the two ideas.</p>
       <p>So we never time the clock. We <b>count operations</b>, and we watch how that count grows as the input grows. That count belongs to the algorithm, and it is the same on every machine on earth.</p>
     </div>
+  </div>
+
+  <div class="pastq">
+    <div class="pqh"><span class="pqs">Past exam</span><span class="pqw">Mid-term Autumn 2025 &middot; Q1(a)</span><span class="pqm">1 + 2 marks</span></div>
+    <p class="pqt">"Explain <b>why Big O notation is preferred</b> over measuring algorithm time in seconds. Find the time complexity of (i) and (ii) on the following graph."</p>
+    <p style="margin:.7rem 0 0;font-size:.82rem;color:#9f1239">The three reasons below are the answer to the first half, and they are worth writing out as three named reasons rather than one sentence.</p>
   </div>
 
   <p>The clock is unreliable for three reasons:</p>
@@ -1326,7 +1620,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 </article>
 
 <!-- ============ 2 · SUM 1..N ============ -->
-<article class="card numbered" id="s2" style="--accent:#e11d48">
+<article class="card numbered" id="s2" data-key="<b>O(1)</b> does not mean fast, it means <b>does not grow</b>. And in C++ the type of a calculation is fixed by its <b>operands</b>, never by where the answer is stored." style="--accent:#e11d48">
   <span class="badge">2</span>
   <div class="hdr-row">
     <div><p class="kicker">Case study 1</p><h2>Sum of 1 to N &mdash; O(N) versus O(1)</h2></div>
@@ -1369,6 +1663,11 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 }</pre>
 
   <p><b>Count the operations.</b> The loop body runs once for every value from 1 to N. Everything else in the program is a handful of lines that run once. So the whole cost is the loop: <b>N operations</b>, which is <b>O(N)</b>. At the worst the constraint allows, that is <b>1,000,000,000</b> additions.</p>
+
+  <div class="bigo" style="--oc:#b45309;--ob:#fffbeb">
+    <div class="bopair"><p class="bok">Time complexity</p><p class="bov">O(N)</p></div>
+    <p class="bod">The loop body runs once for every value from 1 to N, so the count is <b>c &times; N</b> &mdash; <b>proportional to N</b>. Double the input and you double the work. That, and nothing more, is what O(N) names.</p>
+  </div>
 
   <div class="opsbox">
     <p class="obt">The one sum to do before you write any code</p>
@@ -1490,6 +1789,11 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 
   </div>
 
+  <div class="bigo" style="--oc:#15803d;--ob:#f0fdf4">
+    <div class="bopair"><p class="bok">Time complexity</p><p class="bov">O(1)</p></div>
+    <p class="bod">Four operations — one add, one multiply, one divide, one assignment — <b>whatever N is</b>. O(1) does not mean <em>fast</em>; it means <b>the work does not grow at all</b>.<br><span class="subtle">All three attempts above are O(1). Only one of them is also correct — speed and correctness are separate questions.</span></p>
+  </div>
+
   <div class="bridge" style="--accent:#e11d48">
     <p class="say">In C++ the type of a calculation is decided by <b>its operands</b> &mdash; never by where the answer is going to be stored.</p>
     <p style="margin-top:.8rem">That one sentence explains all three attempts, and it is why the cast has to be on the left of the <span class="mono">*</span>.</p>
@@ -1501,25 +1805,30 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 
   <p>Step through it. The two operands, the product and <span class="mono">sum</span> are all drawn on the <b>same 64 columns</b>, so a 32-bit value simply takes the right-hand half &mdash; which is where the whole problem lives.</p>
 
-  <div class="bitsim" id="bitsim">
-    <div class="bithd">
-      <span class="bt2">Where the digits actually go</span>
-      <div class="bitmode">
-        <button type="button" data-m="bad">&#10007; <span class="mono">n * (n + 1)</span></button>
-        <button type="button" data-m="ok">&#10003; <span class="mono">(long long)n * (n + 1)</span></button>
-      </div>
+  <div class="sim" id="bit-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Where the digits actually go</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
     </div>
-
-    <div id="bitstage"></div>
-
-    <div class="bitmsg"><span id="bitmsg"></span><span class="bitstep" id="bitstep"></span></div>
-
-    <div class="bitcode" id="bitcode"></div>
-
-    <div class="btnrow" style="justify-content:center;margin-bottom:0">
-      <button class="btn" id="bit-next" style="background:#7c3aed">Next &#9656;</button>
-      <button class="btn ghost sm" id="bit-back">&#9666; Back</button>
-      <button class="btn ghost sm" id="bit-reset">Reset</button>
+    <div class="simbd">
+  <div class="simrail"></div>
+      <div class="bitsim" id="bitsim"><div id="bitstage"></div></div>
+      <div class="bitcode" id="bitcode"></div>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#7c3aed">Next &#9656;</button>
+        <button class="btn ghost sm" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="bitmode">
+          <button type="button" data-m="bad">&#10007; <span class="mono">n * (n + 1)</span></button>
+          <button type="button" data-m="ok">&#10003; <span class="mono">(long long)n * (n + 1)</span></button>
+        </span>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 8</span>
+      </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">1</span><p id="bitmsg"></p></div>
     </div>
   </div>
 
@@ -1533,17 +1842,32 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 
   <p>Both programs are correct now. Drag the handle and watch the only thing that separates them: <b>how the work grows</b>.</p>
 
-  <div class="slidebox">
-    <div class="sldhead">
-      <span class="sll">Input size N</span>
-      <span class="sldp" id="npow">10<sup>9</sup></span>
-      <span class="sldn" id="nval">1,000,000,000</span>
+  <div class="sim" id="n-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">The same two programs, at every input size</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
     </div>
-    <input type="range" class="sld" id="nslider" min="1" max="9" step="1" value="9" aria-label="Input size N, as a power of ten">
-    <div class="sldticks"><span>10</span><span>10&sup2;</span><span>10&sup3;</span><span>10&#8308;</span><span>10&#8309;</span><span>10&#8310;</span><span>10&#8311;</span><span>10&#8312;</span><span>10&#8313;</span></div>
-    <div class="verdictgrid">
-      <div class="vcard" id="vA"><p class="vk">Approach A &middot; O(N)</p><p class="vv">&mdash;</p><p class="vd">&mdash;</p><p class="vf">&mdash;</p></div>
-      <div class="vcard" id="vB"><p class="vk">Approach B &middot; O(1)</p><p class="vv">&mdash;</p><p class="vd">&mdash;</p><p class="vf">&mdash;</p></div>
+    <div class="simbd">
+  <div class="slidebox">
+        <div class="sldhead">
+          <span class="sll">Input size N</span>
+          <span class="sldp" id="npow">10<sup>9</sup></span>
+          <span class="sldn" id="nval">1,000,000,000</span>
+        </div>
+        <input type="range" class="sld" id="nslider" min="1" max="9" step="1" value="9" aria-label="Input size N, as a power of ten">
+        <div class="sldticks"><span>10</span><span>10&sup2;</span><span>10&sup3;</span><span>10&#8308;</span><span>10&#8309;</span><span>10&#8310;</span><span>10&#8311;</span><span>10&#8312;</span><span>10&#8313;</span></div>
+        <div class="verdictgrid">
+          <div class="vcard" id="vA"><p class="vk">Approach A &middot; O(N)</p><p class="vv">&mdash;</p><p class="vd">&mdash;</p><p class="vf">&mdash;</p></div>
+          <div class="vcard" id="vB"><p class="vk">Approach B &middot; O(1)</p><p class="vv">&mdash;</p><p class="vd">&mdash;</p><p class="vf">&mdash;</p></div>
+        </div>
+      </div>
+      <div class="simctl">
+        <button class="btn ghost sm" data-k="reset">Back to 10&#8313;</button>
+        <span class="simkeys">drag the handle, or use the arrow keys</span>
+      </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">N</span><p id="n-msg"></p></div>
     </div>
   </div>
 
@@ -1554,7 +1878,7 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 </article>
 
 <!-- ============ 3 · PRIME / SQRT N ============ -->
-<article class="card numbered" id="s3" style="--accent:#ea580c">
+<article class="card numbered" id="s3" data-key="Divisors come in pairs, so one of every pair sits at or below <b>&radic;N</b>. Test that far and you are certain &mdash; and write <b>i * i &lt;= n</b>, never <b>sqrt(n)</b>." style="--accent:#ea580c">
   <span class="badge">3</span>
   <div class="hdr-row">
     <div><p class="kicker">Case study 2</p><h2>Prime checking &mdash; and the &radic;N idea</h2></div>
@@ -1602,6 +1926,11 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 
   <p><b>Count the operations.</b> The worst case is a number that <em>is</em> prime, because then the loop never returns early &mdash; it runs all the way, about <b>N</b> times. And the constraint allows N to be 10<sup>12</sup>.</p>
 
+  <div class="bigo" style="--oc:#b45309;--ob:#fffbeb">
+    <div class="bopair"><p class="bok">Time complexity</p><p class="bov">O(N)</p></div>
+    <p class="bod">One test for every candidate divisor, all the way up to N, so the count is again <b>proportional to N</b> — and here the constraint lets N reach <b>10<sup>12</sup></b>.</p>
+  </div>
+
   <div class="opsbox">
     <span class="opslbl">approach A, worst case</span>
     <div class="opsf">
@@ -1634,16 +1963,27 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 
   <p>Every divisor pair of N, written out. The pairs approach each other from both ends and meet at &radic;N &mdash; and everything to the right of the meeting point is a repeat of something on the left.</p>
 
-  <div class="btnrow" id="fnbtns">
-    <span class="subtle" style="font-weight:700;align-self:center">N =</span>
-    <button class="btn sm" data-fn="36" style="background:#ea580c">36</button>
-    <button class="btn sm ghost" data-fn="50">50</button>
-    <button class="btn sm ghost" data-fn="64">64</button>
-    <button class="btn sm ghost" data-fn="100">100</button>
-    <button class="btn sm ghost" data-fn="97">97</button>
-  </div>
+  <div class="sim" id="fn-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Every divisor pair, and where they meet</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
   <div class="pairlist" id="pairs"></div>
-  <p class="opdesc" id="pairmsg" style="text-align:center"></p>
+      <div class="simctl" id="fnbtns">
+        <span class="subtle" style="font-weight:700;align-self:center">N =</span>
+        <button class="btn sm" data-fn="36" style="background:#ea580c">36</button>
+        <button class="btn sm ghost" data-fn="50">50</button>
+        <button class="btn sm ghost" data-fn="64">64</button>
+        <button class="btn sm ghost" data-fn="100">100</button>
+        <button class="btn sm ghost" data-fn="97">97</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+      </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">&#8730;</span><p id="pairmsg"></p></div>
+    </div>
+  </div>
 
   <h3>Approach B &middot; stop at &radic;N</h3>
 
@@ -1690,9 +2030,14 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
     </div>
     <p class="opsnote"><b>Just under three hours becomes a hundredth of a second &mdash; one million times faster, for one changed character.</b> Nothing about the machine changed. Only the number of operations did.</p>
   </div>
+
+  <div class="bigo" style="--oc:#4d7c0f;--ob:#f7fee7">
+    <div class="bopair"><p class="bok">Time complexity</p><p class="bov">O(&radic;N)</p></div>
+    <p class="bod">The loop stops as soon as <span class="mono">i * i</span> passes N, so the count is <b>proportional to &radic;N</b>. A million million candidates becomes a million.</p>
+  </div>
 </article>
 <!-- ============ 4 · LOG N ============ -->
-<article class="card numbered" id="s4" style="--accent:#0891b2">
+<article class="card numbered" id="s4" data-key="<b>log&#8322; N is how many times you can halve N</b> &mdash; or how many times you double 1 to reach it. A billion takes <b>30</b>." style="--accent:#0891b2">
   <span class="badge">4</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 4</p><h2>Logarithmic time &mdash; O(log N)</h2></div>
@@ -1719,22 +2064,33 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 
   <p>Same array, same answer, opposite directions. Press <b>Next</b> and count the presses.</p>
 
-  <div class="lgw" id="lg1">
-    <div class="btnrow" style="justify-content:center;margin-top:0" id="lgmodes">
-      <button class="btn sm" type="button" data-lg="div" style="background:#0891b2">Halve N until it reaches 1</button>
-      <button class="btn sm ghost" type="button" data-lg="mul">Double 1 until it reaches N</button>
+  <div class="sim" id="lg-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Halve it down, or double up &mdash; the same count</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
     </div>
-    <div class="lgtrack" id="lg-track"></div>
-    <div class="lgmsg"><span class="lgn" id="lg-step">0 / 5</span><p id="lg-msg" style="margin:0">&nbsp;</p></div>
-    <div class="btnrow" style="justify-content:center;margin-bottom:0">
-      <button class="btn ghost sm" type="button" id="lg-back">&#9666; Back</button>
-      <button class="btn" type="button" id="lg-next" style="background:#0891b2">Next &#9656;</button>
-      <button class="btn ghost sm" type="button" id="lg-reset">Reset</button>
-      <select class="btn ghost sm" id="lg-n" style="font-family:var(--mono)" aria-label="array size">
-        <option value="16">N = 16</option>
-        <option value="32" selected>N = 32</option>
-        <option value="64">N = 64</option>
-      </select>
+    <div class="simbd">
+  <div class="simrail"></div>
+      <div class="lgw" id="lg1"><div class="lgtrack" id="lg-track"></div></div>
+      <div class="simctl" id="lgmodes">
+        <button class="btn sm" type="button" data-lg="div" style="background:#0891b2">Halve N until it reaches 1</button>
+        <button class="btn sm ghost" type="button" data-lg="mul">Double 1 until it reaches N</button>
+      </div>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#0891b2">Next &#9656;</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <select class="btn ghost sm" id="lg-n" style="font-family:var(--mono)" aria-label="array size">
+          <option value="16">N = 16</option>
+          <option value="32" selected>N = 32</option>
+          <option value="64">N = 64</option>
+        </select>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 6</span>
+      </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">1</span><p id="lg-msg"></p></div>
     </div>
   </div>
 
@@ -1762,9 +2118,21 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
   </div>
   <p class="lscap">N on the left, <b>log<sub>2</sub> N</b> on the right &mdash; and the pattern is worth more than the numbers: <b>every thousand-fold jump in N adds ten steps</b>. Not ten times more work. Ten more steps.</p>
 
+  <div class="bigo" style="--oc:#15803d;--ob:#f0fdf4">
+    <div class="bopair"><p class="bok">Time complexity</p><p class="bov">O(log N)</p></div>
+    <p class="bod">Each step throws away half of what is left, so the count is <b>how many times you can halve N</b> — and that count stays tiny. A billion items take <b>30</b> steps; a million million take <b>40</b>.</p>
+  </div>
+
   <div class="box good">
     <p class="bt">What that buys you</p>
     <p>A billion items, searched in <b>30</b> steps. A million million, in <b>40</b>. At 10<sup>8</sup> operations a second, forty operations is <b>0.0000004 seconds</b> &mdash; and it would still be forty if the input were a thousand times larger.</p><p style="margin:0">This is why <span class="mono">O(log N)</span> is treated as <em>free</em> in practice, and why the first question about any large constraint is <b>&ldquo;can I halve something?&rdquo;</b></p>
+  </div>
+
+  <div class="pastq">
+    <div class="pqh"><span class="pqs">Past exam</span><span class="pqw">Final Spring 2025 &middot; Q1(c)</span><span class="pqm">2 marks</span></div>
+    <p class="pqt">"Find the time complexity of the following function."</p>
+    <p class="mono" style="margin:.6rem 0 0;font-size:.84rem;color:#881337">int i = n, cnt = 0;<br>while (i &gt; 0) { i = i / 2; cnt++; }</p>
+    <p style="margin:.7rem 0 0;font-size:.82rem;color:#9f1239">This is the halving picture above, written as code: <span class="mono">i</span> is halved every round, so the loop runs <b>log&#8322; n</b> times. The exam tab carries part (ii), where the counter is multiplied instead.</p>
   </div>
 
   <div class="bridge" style="--accent:#0891b2">
@@ -1775,63 +2143,12 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 </article>
 
 <!-- ============ 5 · N SQUARED ============ -->
-<article class="card numbered" id="s5" style="--accent:#be123c">
+<article class="card numbered" id="s5" data-key="Read the constraint first: <b>N &ge; 10<sup>5</sup> means a nested loop is already out</b>. Halving the work does not change the shape of the growth." style="--accent:#be123c">
   <span class="badge">5</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 5</p><h2>Nested loops and O(N²)</h2></div>
     <span class="timechip">⏱ 12 min</span>
   </div>
-
-  <div class="box bad">
-    <p class="bt">Read the constraint. It is telling you the answer.</p>
-    <p>Almost every problem gives you a line like <span class="mono">N &le; 100,000</span>. That single line already decides which solutions are allowed:</p><p><b>O(N)</b> → 100,000 operations → <span class="hl-good">✅ very fast</span><br>
-    <b>O(N²)</b> → (10<sup>5</sup>)² = <b>10<sup>10</sup></b> operations → <span class="hl-bad">❌ impossible</span></p><p style="margin:0">At 10<sup>8</sup> operations per second, 10<sup>10</sup> ÷ 10<sup>8</sup> = <b>100 seconds</b>. The limit is 1–2 seconds.</p>
-  </div>
-
-  <h3>The constraint, read backwards</h3>
-
-  <p>Turn it around and the constraint stops being a limit and becomes a hint. For each size, this is <b>the slowest shape that still finishes in about a second</b> &mdash; anything faster is fine, anything slower is not.</p>
-
-  <div class="cmap">
-    <div class="cm"><span class="cmn">N &le; 10<sup>18</sup></span><span class="cmc c-log">O(log N)</span><span class="cmw">about 60 steps</span></div>
-    <div class="cm"><span class="cmn">N &le; 10<sup>12</sup></span><span class="cmc c-sq">O(&radic;N)</span><span class="cmw">10<sup>6</sup> steps &mdash; &sect;3&rsquo;s problem</span></div>
-    <div class="cm"><span class="cmn">N &le; 10<sup>8</sup></span><span class="cmc c-n">O(N)</span><span class="cmw">one pass, and no more</span></div>
-    <div class="cm"><span class="cmn">N &le; 10<sup>6</sup></span><span class="cmc c-nl">O(N log N)</span><span class="cmw">2 &times; 10<sup>7</sup> &mdash; sorting fits here</span></div>
-    <div class="cm"><span class="cmn">N &le; 10<sup>4</sup></span><span class="cmc c-n2">O(N&sup2;)</span><span class="cmw">10<sup>8</sup> &mdash; the last size a nested loop survives</span></div>
-  </div>
-
-  <div class="note13">
-    <span class="ic">&#128204;</span>
-    <div><p><b>The reflex to build today.</b></p>
-    <p style="margin-top:.5rem">The moment you see <b>N &ge; 10<sup>5</sup></b>, think: <em>&ldquo;a nested loop is already out.&rdquo;</em> Read the constraint <b>before</b> you start designing, not after your submission times out.</p></div>
-  </div>
-
-  <h3>Try it yourself — will this pass?</h3>
-  <p>Pick a constraint and a complexity, and see the verdict before writing any code.</p>
-
-  <div class="calcgrid">
-    <div>
-      <p class="fclbl">Constraint N</p>
-      <div class="btnrow" id="nbtns" style="margin-top:0">
-        <button class="btn sm ghost" data-n="1000">10³</button>
-        <button class="btn sm ghost" data-n="100000">10⁵</button>
-        <button class="btn sm ghost" data-n="1000000">10⁶</button>
-        <button class="btn sm ghost" data-n="1000000000">10⁹</button>
-      </div>
-    </div>
-    <div>
-      <p class="fclbl">Your algorithm</p>
-      <div class="btnrow" id="cbtns" style="margin-top:0">
-        <button class="btn sm ghost" data-c="1">O(1)</button>
-        <button class="btn sm ghost" data-c="log">O(log N)</button>
-        <button class="btn sm ghost" data-c="sqrt">O(&radic;N)</button>
-        <button class="btn sm ghost" data-c="n">O(N)</button>
-        <button class="btn sm ghost" data-c="nlogn">O(N log N)</button>
-        <button class="btn sm ghost" data-c="n2">O(N²)</button>
-      </div>
-    </div>
-  </div>
-  <div class="verdictbox" id="verdict"><p class="subtle" style="margin:0">Pick a constraint and a complexity.</p></div>
 
   <h3>The Two Sum trap</h3>
   <details class="prob lc">
@@ -1885,6 +2202,11 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
     <p style="margin:.7rem 0 0">Half of N&sup2; is still N&sup2;. Cutting the work in two does not change the <em>shape</em> of the growth, and the shape is the only thing Big-O reports.</p>
   </div>
 
+  <div class="bigo" style="--oc:#be123c;--ob:#fff1f2">
+    <div class="bopair"><p class="bok">Time complexity</p><p class="bov">O(N&sup2;)</p></div>
+    <p class="bod">Two loops over the same N, one inside the other, so the count is <b>proportional to N&sup2;</b> — N(N&minus;1)/2 comparisons, and halving that does not change the shape. Double the input and the work goes up <b>four times</b>.</p>
+  </div>
+
   <h3>Why &ldquo;/2&rdquo; and &ldquo;&minus;N&rdquo; disappear</h3>
 
   <p>Multiply the brackets out and the exact count has three parts:</p>
@@ -1928,11 +2250,80 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
     <p style="margin-top:.8rem">It deliberately ignores constants (÷2, ×5) and lower terms (+N, +100), because they do not change whether your solution <b>scales</b>.</p>
   </div>
 
+  <h3>Now get the same answer without counting</h3>
+
+  <p>That was one algorithm, counted by hand, one line at a time. You will not do that for every problem you meet — and you do not have to. The constraint at the bottom of the problem statement has already done it for you.</p>
+
+  <div class="box bad">
+    <p class="bt">Read the constraint. It is telling you the answer.</p>
+    <p>Almost every problem gives you a line like <span class="mono">N &le; 100,000</span>. That single line already decides which solutions are allowed:</p><p><b>O(N)</b> → 100,000 operations → <span class="hl-good">✅ very fast</span><br>
+    <b>O(N²)</b> → (10<sup>5</sup>)² = <b>10<sup>10</sup></b> operations → <span class="hl-bad">❌ impossible</span></p><p style="margin:0">At 10<sup>8</sup> operations per second, 10<sup>10</sup> ÷ 10<sup>8</sup> = <b>100 seconds</b>. The limit is 1–2 seconds.</p>
+  </div>
+
+  <h3>The constraint, read backwards</h3>
+
+  <p>Turn it around and the constraint stops being a limit and becomes a hint. For each size, this is <b>the slowest shape that still finishes in about a second</b> &mdash; anything faster is fine, anything slower is not.</p>
+
+  <div class="cmap">
+    <div class="cm"><span class="cmn">N &le; 10<sup>18</sup></span><span class="cmc c-log">O(log N)</span><span class="cmw">about 60 steps</span></div>
+    <div class="cm"><span class="cmn">N &le; 10<sup>12</sup></span><span class="cmc c-sq">O(&radic;N)</span><span class="cmw">10<sup>6</sup> steps &mdash; &sect;3&rsquo;s problem</span></div>
+    <div class="cm"><span class="cmn">N &le; 10<sup>8</sup></span><span class="cmc c-n">O(N)</span><span class="cmw">one pass, and no more</span></div>
+    <div class="cm"><span class="cmn">N &le; 10<sup>6</sup></span><span class="cmc c-nl">O(N log N)</span><span class="cmw">2 &times; 10<sup>7</sup> &mdash; sorting fits here</span></div>
+    <div class="cm"><span class="cmn">N &le; 10<sup>4</sup></span><span class="cmc c-n2">O(N&sup2;)</span><span class="cmw">10<sup>8</sup> &mdash; the last size a nested loop survives</span></div>
+  </div>
+
+  <div class="note13">
+    <span class="ic">&#128204;</span>
+    <div><p><b>The reflex to build today.</b></p>
+    <p style="margin-top:.5rem">The moment you see <b>N &ge; 10<sup>5</sup></b>, think: <em>&ldquo;a nested loop is already out.&rdquo;</em> Read the constraint <b>before</b> you start designing, not after your submission times out.</p></div>
+  </div>
+
+  <h3>Try it yourself — will this pass?</h3>
+  <p>Pick a constraint and a complexity, and see the verdict before writing any code.</p>
+
+  <div class="sim" id="calc-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Pick a constraint and a complexity</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+  <div class="verdictbox" id="verdict"></div>
+      <div class="calcgrid">
+        <div>
+          <p class="fclbl">Constraint N</p>
+          <div class="btnrow" id="nbtns" style="margin-top:0;margin-bottom:0">
+            <button class="btn sm ghost" data-n="1000">10³</button>
+            <button class="btn sm ghost" data-n="100000">10⁵</button>
+            <button class="btn sm ghost" data-n="1000000">10⁶</button>
+            <button class="btn sm ghost" data-n="1000000000">10⁹</button>
+          </div>
+        </div>
+        <div>
+          <p class="fclbl">Your algorithm</p>
+          <div class="btnrow" id="cbtns" style="margin-top:0;margin-bottom:0">
+            <button class="btn sm ghost" data-c="1">O(1)</button>
+            <button class="btn sm ghost" data-c="log">O(log N)</button>
+            <button class="btn sm ghost" data-c="sqrt">O(&radic;N)</button>
+            <button class="btn sm ghost" data-c="n">O(N)</button>
+            <button class="btn sm ghost" data-c="nlogn">O(N log N)</button>
+            <button class="btn sm ghost" data-c="n2">O(N²)</button>
+          </div>
+        </div>
+      </div>
+      <div class="simctl">
+        <button class="btn ghost sm" data-k="reset">Back to 10&#8309; and O(N&sup2;)</button>
+      </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">?</span><p id="calc-msg"></p></div>
+    </div>
+  </div>
+
   <h3>The hierarchy — memorise this order</h3>
   <div class="hier" id="hier"></div>
 </article>
 <!-- ============ 6 · STRING TRAP ============ -->
-<article class="card numbered" id="s6" style="--accent:#7c3aed">
+<article class="card numbered" id="s6" data-key="<b>s = s + x</b> copies the whole string every round, so it is <b>O(N&sup2;) with no nested loop in sight</b>. <b>s += x</b> is O(N)." style="--accent:#7c3aed">
   <span class="badge">6</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 6 · the hidden trap</p><h2>The line that is secretly O(N²)</h2></div>
@@ -1981,32 +2372,40 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 
   <p>The copying is the cost, and it grows every round. Run it and watch the <b>total</b>, not the string.</p>
 
+  <div class="sim" id="cp-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">One round of s = s + to_string(i)</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
   <div class="simbox">
-    <p class="sbt">One round of <span class="mono">s = s + to_string(i)</span></p>
-    <div class="copybar">
-      <div class="cprow"><span class="cpl">i</span><span class="cpv mono" id="cp-i">1</span></div>
-      <div class="cprow"><span class="cpl">string so far</span><span class="cpv mono" id="cp-s" style="font-size:.72rem">""</span></div>
-      <div class="cprow"><span class="cpl">characters copied this round</span><span class="cpv mono" id="cp-c" style="color:#be123c">0</span></div>
-      <div class="cprow"><span class="cpl">total copied so far</span><span class="cpv mono" id="cp-t" style="color:#be123c">0</span></div>
-      <div class="cprow" style="border-color:#c7d2fe;background:#f5f7ff"><span class="cpl" style="color:#4338ca">i &times; i &nbsp;&mdash;&nbsp; for comparison</span><span class="cpv mono" id="cp-q" style="color:#4338ca">0</span></div>
+        <div class="cprow"><span class="cpl">string so far</span><span class="cpv mono" id="cp-s" style="font-size:.72rem">""</span></div>
+        <div class="meter" style="margin-top:.75rem"><i id="cp-bar"></i></div>
+        <p class="subtle" style="margin:.25rem 0 0;text-align:center">the copying done so far, out of the <b>325,245</b> characters a full run to <span class="mono">i = 500</span> costs &mdash; <b>at i = 250 it is only 22% full</b></p>
+      </div>
+      <div class="simctl">
+        <button class="btn" id="cp-next" style="background:#7c3aed;touch-action:none" title="Hold to run — it speeds up">Next i &#9656;</button>
+        <button class="btn ghost sm" id="cp-jump">Jump to i = 500</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="simkeys"><b>hold</b> Next i and it accelerates &mdash; eight seconds to i = 500</span>
+      </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">i</span><p id="cp-msg"></p></div>
     </div>
-    <p class="subtle" style="margin:.1rem 0 0;text-align:center">Watch the <b>bottom two rows together</b>. The total copied does not follow <span class="mono">i</span> &mdash; it follows <span class="mono">i &times; i</span>.</p>
-    <div class="meter" style="margin-top:.75rem"><i id="cp-bar"></i></div>
-    <p class="subtle" style="margin:.25rem 0 0;text-align:center">the copying done so far, out of the <b>325,245</b> characters a full run to <span class="mono">i = 500</span> costs &mdash; <b>at i = 250 it is only 22% full</b></p>
-    <div class="sbmsg"><p class="opdesc" id="cp-msg" style="margin:0">Each round copies the <b>whole</b> string again, just to add two or three characters.</p></div>
-    <div class="btnrow" style="justify-content:center;margin-bottom:0">
-      <button class="btn" id="cp-next" style="background:#7c3aed;touch-action:none" title="Hold to run — it speeds up">Next i &#9656;</button>
-      <button class="btn ghost sm" id="cp-jump">Jump to i = 500</button>
-      <button class="btn ghost sm" id="cp-reset">Reset</button>
-    </div>
-    <p class="subtle" style="text-align:center;margin:.5rem 0 0"><b>Hold</b> <span class="mono">Next i</span> and it accelerates &mdash; about eight seconds from i = 1 to i = 500. Watch the bar, not the string.</p>
   </div>
+  <p class="subtle" style="text-align:center;margin:.6rem 0 0">Watch the last two chips <b>together</b>: <b>total copied</b> does not follow <span class="mono">i</span> &mdash; it follows <span class="mono">i &times; i</span>.</p>
 
   <p>Round 1 copies almost nothing, round 2 copies a little more, and round N copies everything. If each number adds about <b>c</b> characters, the copying across the whole loop adds up to</p>
 
   <p class="bigeq"><span class="eqp drop">c</span><span class="eqop">&times;</span><span class="eqp keep">(1 + 2 + 3 + &hellip; + N)</span><span class="eqop">=</span><span class="eqp drop">c</span><span class="eqop">&times;</span><span class="eqp keep">N(N+1)/2</span></p>
 
   <p>The <b>c</b> is a constant, so Big-O drops it exactly as &sect;5 dropped the <span class="mono">/2</span>. What is left is <span class="mono">1 + 2 + 3 + &hellip; + N</span> &mdash; the same sum as &sect;2, and the same shape as the nested loop in &sect;5. <b>O(N&sup2;), with no nested loop in sight.</b></p>
+
+  <div class="bigo" style="--oc:#be123c;--ob:#fff1f2">
+    <div class="bopair"><p class="bok">Time complexity</p><p class="bov">O(N&sup2;)</p></div>
+    <p class="bod">Every round copies the whole string again, so the copying adds up to <span class="mono">1 + 2 + 3 + &hellip; + N</span> — <b>proportional to N&sup2;</b>, and there is <b>no nested loop anywhere in the code</b>.</p>
+  </div>
 
   <details class="dig"><summary><span class="dicon">?</span>What is <span class="mono">c</span>, really &mdash; how long does the string get?</summary><div>
     <div class="tw" style="margin:0">
@@ -2034,10 +2433,15 @@ s.<span class="f">reserve</span>(N * <span class="n">6</span>);          <span c
     <p style="margin:0"><b>Memory is allocated once</b> · <b>nothing is copied repeatedly</b> · appends are O(1) amortised.</p>
     <p style="margin:0"><span class="mono">s = s + x</span> and <span class="mono">s += x</span> look almost identical. One is O(N&sup2;) and one is O(N).</p>
   </div>
+
+  <div class="bigo" style="--oc:#b45309;--ob:#fffbeb">
+    <div class="bopair"><p class="bok">Time complexity</p><p class="bov">O(N)</p></div>
+    <p class="bod">The memory is asked for <b>once</b> and nothing is re-copied, so each character is written a fixed number of times. The work is <b>proportional to N</b> — the same loop, one operator apart.</p>
+  </div>
 </article>
 
 <!-- ============ 7 · SPACE ============ -->
-<article class="card numbered" id="s7" style="--accent:#16a34a">
+<article class="card numbered" id="s7" data-key="Space complexity counts <b>memory against input size</b>. A box per possible value is O(N); two variables is O(1) &mdash; and the better idea usually costs nothing." style="--accent:#16a34a">
   <span class="badge">7</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 7</p><h2>Space complexity</h2></div>
@@ -2047,6 +2451,12 @@ s.<span class="f">reserve</span>(N * <span class="n">6</span>);          <span c
   <div class="box info">
     <p class="bt">Same idea, different resource</p>
     <p style="margin:0">Time complexity counts <b>operations</b>. Space complexity counts <b>memory</b> — variables and arrays — relative to the input size.</p>
+  </div>
+
+  <div class="pastq">
+    <div class="pqh"><span class="pqs">Past exam</span><span class="pqw">Spring 2024 &amp; Spring 2023 &middot; Q1(c)</span><span class="pqm">2 marks each</span></div>
+    <p class="pqt">"<b>What do you mean by space complexity?</b> What is the space complexity of the following functions? Explain."</p>
+    <p style="margin:.7rem 0 0;font-size:.82rem;color:#9f1239">Two papers, the same question. The sentence above is the definition it wants; the "Explain" is where the marks are, and both functions in that question answer <b>O(1)</b>.</p>
   </div>
 
   <h3>Case study: find the missing number</h3>
@@ -2070,34 +2480,43 @@ s.<span class="f">reserve</span>(N * <span class="n">6</span>);          <span c
 
   <p>The first idea almost everyone has, and it is a good one: keep a box for every possible value, tick the ones that turn up, then look for the box nobody ticked.</p>
 
-<pre class="code"><span class="t">int</span> <span class="f">missingNumber</span>(<span class="t">vector</span>&lt;<span class="t">int</span>&gt;&amp; nums) {
-    <span class="t">int</span> n = nums.<span class="f">size</span>();
-    <span class="t">vector</span>&lt;<span class="t">bool</span>&gt; seen(n + <span class="n">1</span>, <span class="k">false</span>);
+  <p>Step through it and <b>watch the second row, not the first</b>.</p>
 
-    <span class="k">for</span> (<span class="t">int</span> x : nums) seen[x] = <span class="k">true</span>;
-
-    <span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt;= n; i++)
-        <span class="k">if</span> (!seen[i]) <span class="k">return</span> i;
-
-    <span class="k">return</span> -<span class="n">1</span>;
-}</pre>
-
-  <p>Time <b>O(N)</b> &mdash; two passes, both linear. Space <b class="hl-bad">O(N)</b> &mdash; and that is the half nobody counts. Step through it with a small case and watch the second row, not the first.</p>
-
-  <div class="mvz" id="mv1">
-    <p class="mvk">the array you were given, read one element at a time</p>
-    <div class="arrline"><span class="arrname">nums</span><div class="arr" id="mv-in"></div></div>
-    <p class="mvk"><b>one box for every value from 0 to n</b>, all <span class="mono">false</span> before a single number has been read</p>
-    <div class="arrline"><span class="arrname">seen</span><div class="mvrow ix" id="mv-seen"></div></div>
-    <div class="mvmeta">
-      <div class="mvc bad"><span>memory held, whatever the input</span><b id="mv-ma">9 boxes &mdash; one per possible value</b></div>
+  <div class="sim" id="mv-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Nine boxes of memory, for one missing number</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
     </div>
-    <div class="mvmsg"><span class="mvn" id="mv-n">&mdash;</span><p id="mv-msg" style="margin:0">Nine boxes exist before the loop starts. Press <b>Next</b>.</p></div>
-    <div class="btnrow" style="justify-content:center;margin-bottom:0">
-      <button class="btn ghost sm" type="button" id="mv-back">&#9666; Back</button>
-      <button class="btn" type="button" id="mv-next" style="background:#16a34a">Next &#9656;</button>
-      <button class="btn ghost sm" type="button" id="mv-reset">Reset</button>
+    <div class="simbd">
+  <div class="simrail"></div>
+      <div class="mvz" id="mv1">
+        <p class="mvk">the array you were given, read one element at a time</p>
+        <div class="arrline"><span class="arrname">nums</span><div class="arr" id="mv-in"></div></div>
+        <p class="mvk"><b>one box for every value from 0 to n</b>, all <span class="mono">false</span> before a single number has been read</p>
+        <div class="arrline"><span class="arrname">seen</span><div class="mvrow ix" id="mv-seen"></div></div>
+        <div class="mvmeta">
+          <div class="mvc bad"><span>memory held, whatever the input</span><b id="mv-ma">9 boxes &mdash; one per possible value</b></div>
+        </div>
+      </div>
+<pre class="code" id="mv-code"><span class="cln" data-l="0"><span class="t">int</span> <span class="f">missingNumber</span>(<span class="t">vector</span>&lt;<span class="t">int</span>&gt;&amp; nums) {</span><span class="cln" data-l="1">    <span class="t">int</span> n = nums.<span class="f">size</span>();</span><span class="cln" data-l="2">    <span class="t">vector</span>&lt;<span class="t">bool</span>&gt; seen(n + <span class="n">1</span>, <span class="k">false</span>);</span><span class="cln"> </span><span class="cln" data-l="3">    <span class="k">for</span> (<span class="t">int</span> x : nums) seen[x] = <span class="k">true</span>;</span><span class="cln"> </span><span class="cln" data-l="4">    <span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt;= n; i++)</span><span class="cln" data-l="5">        <span class="k">if</span> (!seen[i]) <span class="k">return</span> i;</span><span class="cln"> </span><span class="cln" data-l="6">    <span class="k">return</span> -<span class="n">1</span>;</span><span class="cln">}</span></pre>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#16a34a">Next &#9656;</button>
+        <button class="btn ghost sm" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 18</span>
+      </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">1</span><p id="mv-msg"></p></div>
     </div>
+  </div>
+
+  <div class="bigo" style="--oc:#be123c;--ob:#fff1f2">
+    <div class="bopair" style="--oc:#b45309"><p class="bok">Time</p><p class="bov">O(N)</p></div>
+    <div class="bopair"><p class="bok">Space</p><p class="bov">O(N)</p></div>
+    <p class="bod">Two linear passes, so the <b>time</b> is fine. But <b>one box for every possible value</b> is allocated before a single number is read, so the <b>memory</b> grows with N as well. That is the half nobody counts.</p>
   </div>
 
   <div class="box bad">
@@ -2131,7 +2550,11 @@ s.<span class="f">reserve</span>(N * <span class="n">6</span>);          <span c
 }</pre>
     <p class="hicap"><span class="hidot"></span><b>These two lines are the whole memory footprint.</b> Two <span class="mono">long long</span>s &mdash; sixteen bytes &mdash; and the loop below them adds nothing: <span class="mono">x</span> is one <span class="mono">int</span> reused every round. Whether <span class="mono">n</span> is 8 or a billion, the program holds the same two numbers. <b>That is O(1) space.</b></p>
 
-    <p>Time <b>O(N)</b> &mdash; one pass. Space <b class="hl-good">O(1)</b> &mdash; two <span class="mono">long long</span>s, and that is the entire memory footprint whatever <span class="mono">n</span> is.</p>
+  <div class="bigo" style="--oc:#15803d;--ob:#f0fdf4">
+    <div class="bopair" style="--oc:#b45309"><p class="bok">Time</p><p class="bov">O(N)</p></div>
+    <div class="bopair"><p class="bok">Space</p><p class="bov">O(1)</p></div>
+      <p class="bod">One pass, and <b>two variables</b> — the same two whether <span class="mono">n</span> is 8 or a billion. Nothing was traded away to get it: same time, far less memory, <b>a better idea</b>.</p>
+  </div>
 
     <div class="box info">
       <p class="bt">Two things worth noticing</p>
@@ -2146,7 +2569,7 @@ s.<span class="f">reserve</span>(N * <span class="n">6</span>);          <span c
 </article>
 
 <!-- ============ 8 · POP QUIZ ============ -->
-<article class="card numbered" id="s8" style="--accent:#d97706">
+<article class="card numbered" id="s8" data-key="Read how the counter <b>changes</b>, not how many loops there are. <b>j *= 2</b> runs log N times, not N times." style="--accent:#d97706">
   <span class="badge">8</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 8</p><h2>🛑 Pop quiz — name the complexity</h2></div>
@@ -2210,7 +2633,7 @@ s.<span class="f">reserve</span>(N * <span class="n">6</span>);          <span c
 </article>
 
 <!-- ============ CLOSING ============ -->
-<article class="card numbered" id="s9" style="--accent:#e11d48">
+<article class="card numbered" id="s9" data-key="Every constraint is a hint. Divide the worst-case operation count by <b>10<sup>8</sup></b> and you have the verdict before you write a line." style="--accent:#e11d48">
   <span class="badge">9</span>
   <div class="hdr-row">
     <div><p class="kicker">Before you go</p><h2>Take these home</h2></div>
@@ -2416,6 +2839,7 @@ s.<span class="f">reserve</span>(N * <span class="n">6</span>);          <span c
   </div>
 </footer>
 
+<script src="../assets/sim.js"></script>
 <script>
 
 (function(){
@@ -2447,16 +2871,23 @@ function jump(d){
   if(t>s.length-1)t=s.length-1;
   window.scrollTo({top:Math.max(s[t].offsetTop-80,0),behavior:'smooth'});
 }
+/* the floating drawer is a separate IIFE, so it cannot see jump() unless we
+   hand it over. Without this its up and down arrows throw on every press. */
+window.cardJump=jump;
 
-/* ---------- 2 · SUM 1..N SLIDER ---------- */
+/* ---------- 2 · SUM 1..N SLIDER ----------
+   Free play: dragging IS the lesson, so there is no walk to step through. The
+   two cards carry the operation counts and the times; the watch strip carries
+   the one number they do not \u2014 how many times worse A is than B, which is
+   what "does not grow" actually buys. */
 var OPS=1e8;
 function fmtOps(n){
-  if(n>=1e15) return n.toExponential(2).replace('e+',' × 10^');
+  if(n>=1e15) return n.toExponential(2).replace('e+',' \u00d7 10^');
   return Math.round(n).toLocaleString('en-US');
 }
 function fmtT(s){
   if(s<1e-6) return (s*1e9).toFixed(0)+' ns';
-  if(s<1e-3) return (s*1e6).toFixed(0)+' µs';
+  if(s<1e-3) return (s*1e6).toFixed(0)+' \u00b5s';
   if(s<1)    return (s*1e3).toFixed(1)+' ms';
   if(s<90)   return s.toFixed(1)+' s';
   if(s<86400)return (s/60).toFixed(1)+' min';
@@ -2470,14 +2901,37 @@ function setCard(id,ops,t){
   /* the arithmetic from the box above, done live */
   c.querySelector('.vf').innerHTML=fmtOps(ops)+' \u00f7 10<sup>8</sup>';
 }
-function paintSum(){
-  var e=+$('#nslider').value, N=Math.pow(10,e);
-  $('#nval').textContent=N.toLocaleString('en-US');
-  $('#npow').innerHTML='10<sup>'+e+'</sup>';
-  setCard('#vA',N,N/OPS);
-  setCard('#vB',4,4/OPS);
-}
-$('#nslider').addEventListener('input',paintSum); paintSum();
+(function(){
+  var api=null;
+  function paintSum(){
+    var ex=+$('#nslider').value, N=Math.pow(10,ex);
+    $('#nval').textContent=N.toLocaleString('en-US');
+    $('#npow').innerHTML='10<sup>'+ex+'</sup>';
+    setCard('#vA',N,N/OPS);
+    setCard('#vB',4,4/OPS);
+    var m = (N/OPS<=1)
+      ? 'At N = 10<sup>'+ex+'</sup> <b>both approaches pass</b>. The loop is still doing '+fmtOps(N)+
+        ' operations to B&rsquo;s four \u2014 it simply has not run out of time <em>yet</em>.'
+      : 'At N = 10<sup>'+ex+'</sup> the loop needs <b>'+fmtT(N/OPS)+'</b> and the limit is 1 second. '+
+        'Approach B still needs <b>40 nanoseconds</b>, because it needed 40 nanoseconds at N = 10 as well.';
+    if(api){
+      api.msg(m);
+      api.watch([
+        ['N', fmtOps(N)],
+        ['A ops', fmtOps(N)],
+        ['B ops', '4'],
+        ['A is worse by', fmtOps(N/4)+'\u00d7']
+      ]);
+    } else $('#n-msg').innerHTML=m;
+  }
+  $('#nslider').addEventListener('input',paintSum);
+  api=Sim.make({
+    el:'#n-sim',
+    name:'The same two programs, at every input size',
+    render:function(st,i,a){ api=a; paintSum(); },
+    onReset:function(){ $('#nslider').value='9'; paintSum(); }
+  });
+})();
 
 /* ---------- ASK BEFORE SHOWING ----------
    The question is on screen, the answer is one button away, and pressing the
@@ -2511,34 +2965,53 @@ $$('.ovc').forEach(function(box){
 });
 
 
-/* ---------- 3 · FACTOR PAIRS ---------- */
-var FN=36;
-function paintPairs(){
-  var N=FN, rows='', root=Math.sqrt(N);
-  for(var i=1;i<=N;i++){
-    if(N%i) continue;
-    var j=N/i;
-    var cls='pl', tag='';
-    /* .tpt, not .turn: on this page .turn is the Your turn component */
-    if(i===j){ cls+=' tpt'; tag='<span class="pln">turning point = \u221a'+N+'</span>'; }
-    else if(i>j){ cls+=' dup'; tag='<span class="pln">already seen</span>'; }
-    else { cls+=' pre'; tag='<span class="pln">below \u221a'+N+'</span>'; }
-    rows+='<div class="'+cls+'"><span class="plx">'+i+' \u00d7 '+j+'</span>'+tag+'</div>';
+/* ---------- 3 · FACTOR PAIRS ----------
+   The list is above the buttons, and it is a different length for every N, so
+   the tallest run reserves the height (\u00a736) and nothing walks away from the
+   cursor when you change N. */
+(function(){
+  var api=null, FN=36;
+  function divisors(N){ var d=[]; for(var i=1;i<=N;i++) if(N%i===0) d.push(i); return d; }
+  function paintPairs(){
+    var N=FN, rows='', root=Math.sqrt(N), D=divisors(N), below=0;
+    for(var q=0;q<D.length;q++){
+      var i=D[q], j=N/i, cls='pl', tag='';
+      /* .tpt, not .turn: on this page .turn is the Your turn component */
+      if(i===j){ cls+=' tpt'; tag='<span class="pln">turning point = \u221a'+N+'</span>'; below++; }
+      else if(i>j){ cls+=' dup'; tag='<span class="pln">already seen</span>'; }
+      else { cls+=' pre'; tag='<span class="pln">below \u221a'+N+'</span>'; below++; }
+      rows+='<div class="'+cls+'"><span class="plx">'+i+' \u00d7 '+j+'</span>'+tag+'</div>';
+    }
+    $('#pairs').innerHTML=rows;
+    $$('#fnbtns [data-fn]').forEach(function(b){
+      var on=(+b.dataset.fn===N);
+      b.classList.toggle('ghost',!on);
+      b.style.background = on ? '#ea580c' : '';
+    });
+    var isPrime = (function(){ if(N<2)return false; for(var k=2;k*k<=N;k++) if(N%k===0) return false; return true; })();
+    var m = isPrime
+      ? '<b>'+N+' is prime</b> \u2014 the only pair is 1 \u00d7 '+N+'. We still only had to test up to <b>\u221a'+N+' \u2248 '+root.toFixed(1)+'</b> before being certain.'
+      : 'Everything below <b>\u221a'+N+' \u2248 '+root.toFixed(1)+'</b> is a genuinely new pair. Everything above it is a pair we already wrote, just flipped. <b>So we can stop at \u221a'+N+'.</b>';
+    if(api){
+      api.msg(m);
+      api.watch([
+        ['N', N],
+        ['\u221aN', root.toFixed(1)],
+        ['pairs', Math.ceil(D.length/2)],
+        ['tests needed', Math.floor(root)-1]
+      ]);
+    } else $('#pairmsg').innerHTML=m;
   }
-  $('#pairs').innerHTML=rows;
-  var isPrime = (function(){ if(N<2)return false; for(var k=2;k*k<=N;k++) if(N%k===0) return false; return true; })();
-  $('#pairmsg').innerHTML = isPrime
-    ? '<b>'+N+' is prime</b> \u2014 the only pair is 1 \u00d7 '+N+'. We still only had to test up to <b>\u221a'+N+' \u2248 '+root.toFixed(1)+'</b> before being certain.'
-    : 'Everything below <b>\u221a'+N+' \u2248 '+root.toFixed(1)+'</b> is a genuinely new pair. Everything above it is a pair we already wrote, just flipped. <b>So we can stop at \u221a'+N+'.</b>';
-}
-$$('#fnbtns .btn').forEach(function(b){
-  b.addEventListener('click',function(){
-    $$('#fnbtns .btn').forEach(function(x){x.classList.add('ghost');x.style.background='';});
-    b.classList.remove('ghost'); b.style.background='#ea580c';
-    FN=+b.dataset.fn; paintPairs();
+  $$('#fnbtns [data-fn]').forEach(function(b){
+    b.addEventListener('click',function(){ FN=+b.dataset.fn; paintPairs(); });
   });
-});
-paintPairs();
+  api=Sim.make({
+    el:'#fn-sim',
+    name:'Every divisor pair, and where they meet',
+    render:function(st,i,a){ api=a; paintPairs(); },
+    onReset:function(){ FN=36; paintPairs(); }
+  });
+})();
 
 /* ---------- REVEAL THE OPTIMISATION ----------
    The answer sits outside the card it belongs to, so it toggles from here
@@ -2556,77 +3029,117 @@ paintPairs();
 
 /* ---------- 4 · DIVIDE DOWN, DOUBLE UP ----------
    The same array and the same answer, read in both directions: halve it until
-   one cell is left, or merge pairs until one block covers everything. Both
-   take log2(N) presses, which is the whole point of showing them together. */
+   one cell is left, or double 1 until it covers everything. Both take
+   log2(N) presses, which is the whole point of showing them together.
+
+   The count is the answer the walk exists to produce, so the log chip holds a
+   question mark until the last press lands. */
 (function(){
   var W=document.getElementById('lg1'); if(!W) return;
-  var N=32, mode='div', k=0;
-  function maxK(){ return Math.round(Math.log2(N)); }
-  function draw(){
-    var t=$('#lg-track'), h='', msg;
+  var api=null, N=32, mode='div', STEPS=[];
+
+  function build(){
+    var maxK=Math.round(Math.log2(N));
+    STEPS.length=0;
+    for(var k=0;k<=maxK;k++) STEPS.push({k:k, g:k===0?'start':(mode==='div'?'halvings':'doublings')});
+  }
+
+  function draw(st,idx,a){
+    var k=st.k, maxK=STEPS.length-1, t=$('#lg-track'), h='', msg, live;
     if(mode==='div'){
-      var live=N/Math.pow(2,k);
+      live=N/Math.pow(2,k);
       for(var i=0;i<N;i++) h+='<span class="lgc'+(i<live?' live':' gone')+'"></span>';
       msg = k===0
         ? 'The whole array &mdash; <b>'+N+'</b> cells. Press <b>Next</b> to throw away the right-hand half.'
         : 'Halved <b>'+k+'</b> time'+(k>1?'s':'')+'. <b>'+live+'</b> cell'+(live>1?'s':'')+' left.'+
           (live===1 ? ' You cannot halve it again &mdash; and it took <b>'+k+'</b> presses. That is log<sub>2</sub>('+N+') = <b>'+k+'</b>.' : '');
     } else {
-      var have=Math.pow(2,k);
-      for(var i2=0;i2<N;i2++) h+='<span class="lgc'+(i2<have?' live':' gone')+'"></span>';
+      live=Math.pow(2,k);
+      for(var i2=0;i2<N;i2++) h+='<span class="lgc'+(i2<live?' live':' gone')+'"></span>';
       msg = k===0
         ? 'Start at <b>1</b>. Press <b>Next</b> to double it.'
-        : '1 doubled <b>'+k+'</b> time'+(k>1?'s':'')+' is <b>'+have+'</b>.'+
-          (have===N ? ' It has reached <b>'+N+'</b>, in <b>'+k+'</b> presses &mdash; the same number the halving took. log<sub>2</sub>('+N+') = <b>'+k+'</b>.' : '');
+        : '1 doubled <b>'+k+'</b> time'+(k>1?'s':'')+' is <b>'+live+'</b>.'+
+          (live===N ? ' It has reached <b>'+N+'</b>, in <b>'+k+'</b> presses &mdash; the same number the halving took. log<sub>2</sub>('+N+') = <b>'+k+'</b>.' : '');
     }
     t.className='lgtrack '+mode;
     t.innerHTML=h;
-    $('#lg-msg').innerHTML=msg;
-    $('#lg-step').textContent=k+' / '+maxK();
-    $('#lg-next').disabled = k>=maxK();
-    $('#lg-back').disabled = k<=0;
+    a.msg(msg);
+    a.watch([
+      ['N', N],
+      [mode==='div'?'cells left':'reached', live],
+      ['presses', k],
+      ['log\u2082 '+N, k>=maxK ? k : '?']
+    ]);
   }
-  $('#lg-next').onclick=function(){ if(k<maxK()){k++;draw();} };
-  $('#lg-back').onclick=function(){ if(k>0){k--;draw();} };
-  $('#lg-reset').onclick=function(){ k=0; draw(); };
-  $('#lg-n').addEventListener('change',function(){ N=+this.value; k=0; draw(); });
-  $$('#lgmodes .btn').forEach(function(b){ b.addEventListener('click',function(){
+
+  build();
+  api=Sim.make({
+    el:'#lg-sim',
+    name:'Halve it down, or double up \u2014 the same count',
+    steps:STEPS,
+    group:function(st){ return st.g; },
+    render:draw
+  });
+
+  $('#lg-n').addEventListener('change',function(){ N=+this.value; build(); api.reset(); });
+  $$('#lgmodes [data-lg]').forEach(function(b){ b.addEventListener('click',function(){
     if(b.dataset.lg===mode) return;
-    $$('#lgmodes .btn').forEach(function(x){x.classList.add('ghost');x.style.background='';});
+    $$('#lgmodes [data-lg]').forEach(function(x){x.classList.add('ghost');x.style.background='';});
     b.classList.remove('ghost'); b.style.background='#0891b2';
-    mode=b.dataset.lg; k=0; draw();
+    mode=b.dataset.lg; build(); api.reset();
   });});
-  draw();
 })();
 
-/* ---------- 5 · WILL IT PASS ---------- */
-var selN=null, selC=null;
-var CN={'1':'O(1)','log':'O(log N)','sqrt':'O(√N)','n':'O(N)','nlogn':'O(N log N)','n2':'O(N²)'};
-function opsFor(c,N){
-  if(c==='1')return 1;
-  if(c==='log')return Math.log2(N);
-  if(c==='sqrt')return Math.sqrt(N);
-  if(c==='n')return N;
-  if(c==='nlogn')return N*Math.log2(N);
-  return N*N;
-}
-function paintVerdict(){
-  if(selN===null||selC===null){ $('#verdict').className='verdictbox';
-    $('#verdict').innerHTML='<p class="subtle" style="margin:0">Pick a constraint and a complexity.</p>'; return; }
-  var ops=opsFor(selC,selN), t=ops/OPS, ok=t<=1;
-  $('#verdict').className='verdictbox '+(ok?'pass':'fail');
-  $('#verdict').innerHTML='<p class="vbig">'+fmtOps(ops)+' operations</p>'+
-    '<p class="vsub" style="color:'+(ok?'#15803d':'#be123c')+'">'+(ok?'✅ Passes':'❌ Time Limit Exceeded')+' — about '+fmtT(t)+' at 10⁸ ops/sec</p>'+
-    '<p class="subtle" style="margin:.4rem 0 0">'+CN[selC]+' with N = '+selN.toLocaleString('en-US')+'</p>';
-}
-$$('#nbtns .btn').forEach(function(b){b.addEventListener('click',function(){
-  $$('#nbtns .btn').forEach(function(x){x.classList.add('ghost');}); b.classList.remove('ghost');
-  selN=+b.dataset.n; paintVerdict();
-});});
-$$('#cbtns .btn').forEach(function(b){b.addEventListener('click',function(){
-  $$('#cbtns .btn').forEach(function(x){x.classList.add('ghost');}); b.classList.remove('ghost');
-  selC=b.dataset.c; paintVerdict();
-});});
+/* ---------- 5 · WILL IT PASS ----------
+   It used to boot blank, asking to be told two things before it would say
+   anything. It now boots on the pairing this section is about \u2014 N = 10^5
+   with a nested loop \u2014 and both buttons are lit, so the default selection
+   shows what it selected. */
+(function(){
+  var api=null, selN=100000, selC='n2';
+  var CN={'1':'O(1)','log':'O(log N)','sqrt':'O(\u221aN)','n':'O(N)','nlogn':'O(N log N)','n2':'O(N\u00b2)'};
+  function opsFor(c,N){
+    if(c==='1')return 1;
+    if(c==='log')return Math.log2(N);
+    if(c==='sqrt')return Math.sqrt(N);
+    if(c==='n')return N;
+    if(c==='nlogn')return N*Math.log2(N);
+    return N*N;
+  }
+  function lightUp(){
+    $$('#nbtns [data-n]').forEach(function(x){ x.classList.toggle('ghost', +x.dataset.n!==selN); });
+    $$('#cbtns [data-c]').forEach(function(x){ x.classList.toggle('ghost', x.dataset.c!==selC); });
+  }
+  function paintVerdict(){
+    lightUp();
+    var ops=opsFor(selC,selN), t=ops/OPS, ok=t<=1;
+    $('#verdict').className='verdictbox '+(ok?'pass':'fail');
+    $('#verdict').innerHTML='<p class="vbig">'+fmtOps(ops)+' operations</p>'+
+      '<p class="vsub" style="color:'+(ok?'#15803d':'#be123c')+'">'+(ok?'\u2705 Passes':'\u274c Time Limit Exceeded')+'</p>';
+    var m = ok
+      ? '<b>'+CN[selC]+'</b> at N = '+selN.toLocaleString('en-US')+' is about <b>'+fmtT(t)+'</b> at 10<sup>8</sup> operations a second. Comfortably inside a 1-second limit.'
+      : '<b>'+CN[selC]+'</b> at N = '+selN.toLocaleString('en-US')+' is about <b>'+fmtT(t)+'</b>, and the limit is 1 to 2 seconds. <b>The constraint decided this, not the code.</b>';
+    if(api){
+      api.msg(m);
+      api.watch([
+        ['N', selN.toLocaleString('en-US')],
+        ['shape', CN[selC]],
+        ['operations', fmtOps(ops)],
+        ['verdict', ok?'passes':'TLE']
+      ]);
+    } else $('#calc-msg').innerHTML=m;
+  }
+  $$('#nbtns [data-n]').forEach(function(b){b.addEventListener('click',function(){
+    selN=+b.dataset.n; paintVerdict(); });});
+  $$('#cbtns [data-c]').forEach(function(b){b.addEventListener('click',function(){
+    selC=b.dataset.c; paintVerdict(); });});
+  api=Sim.make({
+    el:'#calc-sim',
+    name:'Pick a constraint and a complexity',
+    render:function(st,i,a){ api=a; paintVerdict(); },
+    onReset:function(){ selN=100000; selC='n2'; paintVerdict(); }
+  });
+})();
 
 /* ---------- 5b · DOMINANCE TABLE + HIERARCHY ---------- */
 (function(){
@@ -2740,7 +3253,7 @@ $$('#cbtns .btn').forEach(function(b){b.addEventListener('click',function(){
         '<span class="bitln" data-l="2">cout &lt;&lt; sum;</span>'
   };
 
-  var mode='bad', at=0, cells={};
+  var mode='bad', cells={}, api=null, STEPS_A=[];
 
   function build(){
     var html='';
@@ -2767,10 +3280,12 @@ $$('#cbtns .btn').forEach(function(b){b.addEventListener('click',function(){
     $$('#bitstage .bitrow').forEach(function(el){ cells[el.dataset.r]=el; });
     host.classList.toggle('ok', mode==='ok');
     $$('.bitmode button').forEach(function(b){ b.classList.toggle('on', b.dataset.m===mode); });
+    /* the shell looks the listing up fresh, so rebuilding it is safe */
+    STEPS_A.length=0;
+    for(var q=0;q<STEPS[mode].length;q++) STEPS_A.push(STEPS[mode][q]);
   }
 
-  function paint(){
-    var S=STEPS[mode], s=S[at];
+  function paint(s,at,a){
     var sep=$('#bitstage .bitsep');
     ROWS[mode].forEach(function(r){
       var el=cells[r.k], on=s.show.indexOf(r.k)>=0;
@@ -2787,151 +3302,245 @@ $$('#cbtns .btn').forEach(function(b){b.addEventListener('click',function(){
     });
     if(sep) sep.style.visibility = s.show.indexOf('n1')>=0 ? 'visible' : 'hidden';
 
-    $$('#bitcode .bitln').forEach(function(l){ l.classList.toggle('cur', +l.dataset.l===s.ln); });
-    $$('#bitcode [data-p]').forEach(function(p){ p.classList.toggle('hot', s.hot.indexOf(p.dataset.p)>=0); });
+    $$('#bitcode [data-p]').forEach(function(pp){ pp.classList.toggle('hot', s.hot.indexOf(pp.dataset.p)>=0); });
 
-    $('#bitmsg').innerHTML=s.msg;
-    $('#bitstep').textContent=(at+1)+' / '+S.length;
-    $('#bit-next').disabled = at>=S.length-1;
-    $('#bit-back').disabled = at<=0;
-    $('#bit-next').textContent = at>=S.length-1 ? 'Done ✓' : 'Next ▸';
+    a.msg(s.msg);
+    /* The first two chips describe the run and hold still; the last two are
+       the verdict and they arrive when the step earns them, so the moment
+       `fits` flips to `no` is the step where the digits are lost. */
+    var bad=(mode==='bad'), pst=(s.st&&s.st.prod)||{};
+    var seenProd=s.show.indexOf('prod')>=0;
+    var decided = bad ? (s.show.indexOf('kept')>=0 || !!pst.cut) : !!pst.mark;
+    a.watch([
+      ['left operand', bad?'int':'long long'],
+      ['multiply in',  bad?'32 bits':'64 bits'],
+      ['product needs', seenProd?'60 bits':'\u2014'],
+      ['fits',          decided?(bad?'no':'yes'):'\u2014']
+    ]);
   }
 
-  function go(m){ mode=m; at=0; build(); paint(); }
-  $$('.bitmode button').forEach(function(b){ b.addEventListener('click',function(){ go(b.dataset.m); }); });
-  $('#bit-next').onclick=function(){ if(at<STEPS[mode].length-1){ at++; paint(); } };
-  $('#bit-back').onclick=function(){ if(at>0){ at--; paint(); } };
-  $('#bit-reset').onclick=function(){ at=0; paint(); };
-  go('bad');
+  /* build() fills STEPS_A, and the shell paints step 0 the moment it is made \u2014
+     so the rows have to exist first or render() is handed an undefined step */
+  build();
+  api=Sim.make({
+    el:'#bit-sim',
+    name:'Where the digits actually go',
+    steps:STEPS_A,
+    play:1500,
+    lines:'#bitcode .bitln',
+    render:paint
+  });
+
+  function go(m){ mode=m; build(); api.reset(); }
+  $$('.bitmode button').forEach(function(b){ b.addEventListener('click',function(){
+    if(b.dataset.m===mode) return; go(b.dataset.m); }); });
 })();
 
-/* ---------- 6 · STRING COPY COST ---------- */
-var ci=0, ctot=0, clen=0;
-function paintCopy(){
-  var s='';
-  if(ci===0){ $('#cp-i').textContent='1'; $('#cp-s').textContent='""'; $('#cp-c').textContent='0'; $('#cp-t').textContent='0'; $('#cp-q').textContent='0';
-    $('#cp-bar').style.width='0'; $('#cp-msg').innerHTML='Each round copies the <b>whole</b> string again, just to add two or three characters.'; return; }
-  var add=String(ci).length, before=clen-add;      /* what this round had to copy */
-  var shown = before>46 ? '"1234…'+String(ci-1).slice(-4)+'" ('+before+' chars)' : '"'+Array.from({length:ci-1},function(_,k){return k+1;}).join('')+'"';
-  $('#cp-i').textContent=ci;
-  $('#cp-s').textContent=shown;
-  $('#cp-c').textContent=before.toLocaleString('en-US');
-  $('#cp-t').textContent=ctot.toLocaleString('en-US');
-  $('#cp-q').textContent=(ci*ci).toLocaleString('en-US');
-  $('#cp-bar').style.width=Math.min(100, ctot/325245*100)+'%';   /* 325,245 = the whole run to i = 500 */
-  $('#cp-msg').innerHTML='Adding <b>"'+ci+'"</b> is only <b>'+add+' character'+(add>1?'s':'')+'</b> — but the whole <b>'+before.toLocaleString('en-US')+'</b> characters already there had to be copied first.';
-}
-function stepCopy(){ ci++; ctot+=clen; clen+=String(ci).length; }
-/* Click steps one round. HOLD and it accelerates: the number of rounds run is
-   (500/64)·t², so it crawls for the first second and arrives at i = 500 after
-   about eight — which is exactly the shape the lesson is about. Nothing is
-   skipped; every round still runs, so the totals stay honest. */
+/* ---------- 6 · STRING COPY COST ----------
+   Five hand-built readout rows became four watch chips, and the last two are
+   the pair the lesson is about: `total copied` against `i \u00d7 i`. Still free
+   play rather than a walk \u2014 500 rounds is not a rail, and the accelerating
+   hold IS the quadratic, so it stays exactly as it was. */
 (function(){
+  var api=null, ci=0, ctot=0, clen=0, FULL=325245;   /* the whole run to i = 500 */
+
+  function paintCopy(){
+    if(ci===0){
+      $('#cp-s').textContent='""';
+      $('#cp-bar').style.width='0';
+      if(api){
+        api.resetWatch();
+        api.watch([['i','1'],['copied this round','0'],['total copied','0'],['i \u00d7 i','0']]);
+        api.msg('Each round copies the <b>whole</b> string again, just to add two or three characters.');
+      }
+      return;
+    }
+    var add=String(ci).length, before=clen-add;      /* what this round had to copy */
+    var shown = before>46 ? '"1234\u2026'+String(ci-1).slice(-4)+'" ('+before+' chars)'
+                          : '"'+Array.from({length:ci-1},function(_,k){return k+1;}).join('')+'"';
+    $('#cp-s').textContent=shown;
+    $('#cp-bar').style.width=Math.min(100, ctot/FULL*100)+'%';
+    if(!api) return;
+    api.watch([
+      ['i', ci],
+      ['copied this round', before.toLocaleString('en-US')],
+      ['total copied', ctot.toLocaleString('en-US')],
+      ['i \u00d7 i', (ci*ci).toLocaleString('en-US')]
+    ]);
+    api.msg(ci>=500
+      ? 'At <b>i = 500</b> the program has copied <b>'+ctot.toLocaleString('en-US')+' characters</b> in total &mdash; to build a string only '+clen.toLocaleString('en-US')+' characters long. Beside it, <b>i \u00d7 i = 250,000</b>. <b>The total is not 500-ish. It is 500&sup2;-ish, and that is the O(N&sup2;).</b>'
+      : 'Adding <b>"'+ci+'"</b> is only <b>'+add+' character'+(add>1?'s':'')+'</b> &mdash; but the whole <b>'+before.toLocaleString('en-US')+'</b> characters already there had to be copied first.');
+  }
+  function stepCopy(){ ci++; ctot+=clen; clen+=String(ci).length; }
+
+  /* Click steps one round. HOLD and it accelerates: the number of rounds run
+     is (500/64)\u00b7t\u00b2, so it crawls for the first second and arrives at i = 500
+     after about eight \u2014 which is exactly the shape the lesson is about.
+     Nothing is skipped; every round still runs, so the totals stay honest. */
   var held=false, raf=null, t0=0, i0=0;
   var K=500/64;                                  /* 500 rounds in 8 seconds */
   function tick(){
     var el=(performance.now()-t0)/1000;
     var want=Math.min(500, i0+Math.round(K*el*el));
     if(want>ci){ held=true; while(ci<want) stepCopy(); paintCopy(); }
-    if(ci>=500){ stop(); jumpMsg(); return; }
+    if(ci>=500){ stop(); return; }
     raf=requestAnimationFrame(tick);
   }
-  function start(e){
-    if(e.button) return;
+  function start(ev){
+    if(ev.button) return;
     t0=performance.now(); i0=ci; held=false;
     cancelAnimationFrame(raf); raf=requestAnimationFrame(tick);
   }
   function stop(){ if(raf){ cancelAnimationFrame(raf); raf=null; } }
+
   var b=$('#cp-next');
   b.addEventListener('pointerdown',start);
-  ['pointerup','pointerleave','pointercancel'].forEach(function(ev){
-    b.addEventListener(ev,stop);
-  });
+  ['pointerup','pointerleave','pointercancel'].forEach(function(ev){ b.addEventListener(ev,stop); });
   b.addEventListener('click',function(){
     if(held){ held=false; return; }              /* the hold already moved it */
     stepCopy(); paintCopy();
   });
+  $('#cp-jump').onclick=function(){ while(ci<500) stepCopy(); paintCopy(); };
+
+  api=Sim.make({
+    el:'#cp-sim',
+    name:'One round of s = s + to_string(i)',
+    render:function(st,i,a){ api=a; paintCopy(); },
+    onReset:function(){ stop(); ci=0; ctot=0; clen=0; paintCopy(); }
+  });
 })();
-function jumpMsg(){
-  $('#cp-msg').innerHTML='At <b>i = 500</b> the program has copied <b>'+ctot.toLocaleString('en-US')+' characters</b> in total — to build a string only '+clen.toLocaleString('en-US')+' characters long. Next to it, <b>i × i = 250,000</b>. <b>The total is not 500-ish. It is 500²-ish, and that is the O(N²).</b>';
-}
-$('#cp-jump').onclick=function(){ while(ci<500) stepCopy(); paintCopy(); jumpMsg(); };
-$('#cp-reset').onclick=function(){ ci=0; ctot=0; clen=0; paintCopy(); };
-paintCopy();
-
-
 
 /* ---------- 7 · WHAT O(N) SPACE LOOKS LIKE ----------
    Eight numbers read one at a time, then a left-to-right scan for the first
    box nobody ticked. The point of the picture is the second row: it exists at
-   full size before anything is read, and it is the row that grows with N. */
+   full size before anything is read, and it is the row that grows with N.
+
+   The listing beside it is the one that used to sit above this widget as a
+   dead `pre` \u2014 now it is the live panel, and the scan's `if` is the one line
+   on this page that tests something once per pass, so it carries `cond` and
+   the shell colours it by the answer. */
 (function(){
   var W=document.getElementById('mv1'); if(!W) return;
   var NUMS=[3,0,1,4,6,2,7,8], N=8, MISS=5;
-  var MARK=NUMS.length;            /* steps 0..7 read the array           */
-  var LAST=MARK;                   /* step 8 is the scan, and it runs itself */
-  var cur=-1, scanAt=-1, timer=null;
-  function stopScan(){ if(timer){clearInterval(timer);timer=null;} }
-  function draw(){
-    var reading = cur>=0 && cur<MARK;
-    var scanning = cur>=MARK;
-    var marked={};
-    for(var k=0;k<Math.min(cur+1,MARK);k++) marked[NUMS[k]]=true;
+  var STEPS=[];
 
-    var ih='';
-    NUMS.forEach(function(v,i){
-      var c = (reading && i===cur) ? 'look' : ((cur>=0 && i<Math.min(cur,MARK)) || scanning ? 'done' : '');
-      ih+='<span class="acell '+c+'"><span class="ai">'+i+'</span><span class="av">'+v+'</span></span>';
-    });
-    document.getElementById('mv-in').innerHTML=ih;
-
-    var sh='';
-    for(var i=0;i<=N;i++){
-      var on=!!marked[i], c=on?'tick':'';
-      if(scanning && i<scanAt) c+=' past';
-      if(scanning && i===scanAt) c+=on?' look':' gap';
-      sh+='<span class="'+c.trim()+'" data-i="'+i+'"><b><i class="lgw2">'+(on?'true':'false')+
-          '</i><i class="smw2">'+(on?'T':'F')+'</i></b></span>';
+  (function buildSteps(){
+    STEPS.push({l:0, ph:'call',  g:'setup'});
+    STEPS.push({l:1, ph:'n',     g:'setup'});
+    STEPS.push({l:2, ph:'alloc', g:'setup'});
+    for(var r=0;r<NUMS.length;r++) STEPS.push({l:3, ph:'read', r:r, g:'read'});
+    STEPS.push({l:4, ph:'scan0', g:'scan'});
+    /* the scan stops the moment the gap is found, so it never walks past MISS */
+    for(var i=0;i<=MISS;i++){
+      var ticked = NUMS.indexOf(i)>=0;
+      STEPS.push({l:5, ph:'scan', at:i, g:'scan', cond:{ok:!ticked}});
     }
-    document.getElementById('mv-seen').innerHTML=sh;
+  })();
 
-    var m;
-    if(cur<0) m='All nine boxes exist <b>before the loop starts</b> &mdash; <span class="mono">vector&lt;bool&gt; seen(n + 1, false)</span> asks for every one of them at once. Press <b>Next</b>.';
-    else if(reading) m='Read <span class="mono">nums['+cur+']</span>, which is <b>'+NUMS[cur]+'</b>, and set <span class="mono">seen['+NUMS[cur]+'] = true</span>. One box flips; the row does not change size, because it never does.';
-    else if(scanAt<MISS) m='Scanning left to right &mdash; <span class="mono">seen['+Math.max(scanAt,0)+']</span> is <b>true</b>, so that value turned up. Keep going.';
-    else m='<span class="mono">seen['+MISS+']</span> is <b>false</b>. Nothing ever set it, so <b>'+MISS+' is the missing number</b>. One pass to fill the row, one pass to scan it &mdash; and <b>nine boxes of memory</b> the whole time.';
-    document.getElementById('mv-msg').innerHTML=m;
-    document.getElementById('mv-n').textContent = cur<0 ? '\u2014' : (cur+1)+' / '+(LAST+1);
-    document.getElementById('mv-back').disabled = cur<0;
-    document.getElementById('mv-next').disabled = cur>=LAST;
+  function readCount(st){
+    if(st.ph==='read') return st.r+1;
+    return (st.ph==='scan0'||st.ph==='scan') ? NUMS.length : 0;
   }
-  /* the scan is one press: the highlight walks itself from 0 to the gap */
-  function runScan(){
-    stopScan(); scanAt=0; draw();
-    timer=setInterval(function(){
-      if(scanAt>=MISS){ stopScan(); return; }
-      scanAt++; draw();
-    }, 480);
-  }
-  document.getElementById('mv-next').onclick=function(){
-    if(cur>=LAST) return;
-    cur++;
-    if(cur===MARK) runScan(); else { stopScan(); scanAt=-1; draw(); }
-  };
-  document.getElementById('mv-back').onclick=function(){
-    if(cur<0) return; stopScan(); scanAt=-1; cur--; draw(); };
-  document.getElementById('mv-reset').onclick=function(){ stopScan(); scanAt=-1; cur=-1; draw(); };
-  draw();
+
+  Sim.make({
+    el:'#mv-sim',
+    name:'Nine boxes of memory, for one missing number',
+    steps:STEPS,
+    play:900,
+    lines:'#mv-code .cln[data-l]',
+    group:function(st){ return st.g; },
+    render:function(st,idx,a){
+      var read=readCount(st), allocated=(st.ph!=='call' && st.ph!=='n');
+      var marked={}, t;
+      for(var k=0;k<read;k++) marked[NUMS[k]]=true;
+
+      var ih='';
+      NUMS.forEach(function(v,i){
+        var c='';
+        if(st.ph==='read' && i===st.r) c='look';
+        else if(i<read) c='done';
+        ih+='<span class="acell '+c+'"><span class="ai">'+i+'</span><span class="av">'+v+'</span></span>';
+      });
+      document.getElementById('mv-in').innerHTML=ih;
+
+      var sh='';
+      for(var i2=0;i2<=N;i2++){
+        var on=!!marked[i2], c=on?'tick':'';
+        if(st.ph==='scan'){
+          if(i2<st.at) c+=' past';
+          else if(i2===st.at) c+= on?' look':' gap';
+        }
+        /* before the vector exists the boxes are drawn at full size and hidden:
+           the row must not change height when line 3 finally allocates it,
+           and an unallocated box must not show a value it does not have */
+        if(!allocated) c+=' void';
+        sh+='<span class="'+c.trim()+'" data-i="'+i2+'"><b><i class="lgw2">'+
+            (on?'true':'false')+'</i><i class="smw2">'+(on?'T':'F')+'</i></b></span>';
+      }
+      document.getElementById('mv-seen').innerHTML=sh;
+      /* the card keeps its full text, and its full height, from step 1 \u2014 it is
+         simply not shown until line 3 has actually asked for the memory */
+      document.querySelector('#mv1 .mvc').classList.toggle('void', !allocated);
+
+      var m;
+      if(st.ph==='call')  m='<span class="mono">missingNumber</span> is called with <b>[3, 0, 1, 4, 6, 2, 7, 8]</b>. Eight numbers, taken from 0&hellip;8, with exactly one of the nine gone.';
+      else if(st.ph==='n')     m='<span class="mono">n = nums.size()</span> is <b>8</b>. So the values that <em>could</em> be there are 0 to 8 &mdash; <b>nine</b> of them.';
+      else if(st.ph==='alloc') m='<span class="mono">vector&lt;bool&gt; seen(n + 1, false)</span> asks for <b>all nine boxes at once</b>, before a single number has been read. <b>This line is the O(N) space</b>, and it is the whole cost of the approach.';
+      else if(st.ph==='read')  m='Read <span class="mono">nums['+st.r+']</span>, which is <b>'+NUMS[st.r]+'</b>, and set <span class="mono">seen['+NUMS[st.r]+'] = true</span>. One box flips. <b>The row does not change size</b>, because it never does.';
+      else if(st.ph==='scan0') m='Every number has been read. The second pass starts at <span class="mono">i = 0</span> and walks right, looking for the one box nobody ticked.';
+      else {
+        t = NUMS.indexOf(st.at)>=0;
+        m = t
+          ? '<span class="mono">seen['+st.at+']</span> is <b>true</b>, so <b>'+st.at+'</b> did turn up. Not the one &mdash; keep walking.'
+          : '<span class="mono">seen['+st.at+']</span> is <b>false</b>. Nothing ever set it, so <b>'+st.at+' is the missing number</b> and the function returns it. One pass to fill the row, one pass to scan it &mdash; and <b>nine boxes of memory the whole time</b>.';
+      }
+      a.msg(m);
+
+      a.watch([
+        ['n', st.ph==='call' ? '\u2014' : N],
+        ['seen boxes', allocated ? N+1 : '\u2014'],
+        ['ticked', Object.keys(marked).length],
+        ['i', st.ph==='scan' ? st.at : '\u2014']
+      ]);
+    }
+  });
 })();
 
-/* ---------- QUIZZES ---------- */
-$$('.quiz').forEach(function(q){
-  var o=$$('.qopt',q),e=$('.qexp',q);
-  o.forEach(function(b){b.addEventListener('click',function(){
-    o.forEach(function(x){x.disabled=true;if(x.dataset.ok)x.classList.add('ok');});
-    if(!b.dataset.ok)b.classList.add('no'); e.classList.add('show');
-  });});
-});
+/* ---------- QUIZZES, and the ribbon that counts them ----------
+   Answers are remembered, so coming back to the page does not wipe the record
+   of what was already worked through. */
+(function(){
+  var KEY='cse2321-s1c5-quiz';
+  var done={}; try{done=JSON.parse(localStorage.getItem(KEY)||'{}');}catch(err){done={};}
+  var quizzes=$$('.quiz'), total=quizzes.length;
+  function save(){ try{localStorage.setItem(KEY,JSON.stringify(done));}catch(err){} }
+  function show(){
+    var k=Object.keys(done).length;
+    if($('#pbar')) $('#pbar').style.width=(total?Math.round(k/total*100):0)+'%';
+    if($('#pnum')) $('#pnum').textContent=k+' / '+total;
+  }
+  quizzes.forEach(function(q,qi){
+    var id=q.dataset.q||('q'+qi), o=$$('.qopt',q), ex=$('.qexp',q);
+    function lock(picked){
+      o.forEach(function(x){ x.disabled=true; if(x.dataset.ok) x.classList.add('ok'); });
+      if(picked>=0 && o[picked] && !o[picked].dataset.ok) o[picked].classList.add('no');
+      if(ex) ex.classList.add('show');
+    }
+    if(done[id]) lock(done[id].p===undefined?-1:done[id].p);
+    o.forEach(function(b,i){ b.addEventListener('click',function(){
+      done[id]={ok:!!b.dataset.ok,p:i}; save(); show(); lock(i);
+    });});
+  });
+  if($('#preset')) $('#preset').onclick=function(){
+    done={}; save(); show();
+    quizzes.forEach(function(q){
+      $$('.qopt',q).forEach(function(x){ x.disabled=false; x.classList.remove('ok','no'); });
+      if($('.qexp',q)) $('.qexp',q).classList.remove('show');
+    });
+  };
+  show();
+})();
+
 document.addEventListener('keydown',function(e){
   if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
   if(e.key==='j'||e.key==='ArrowDown'){e.preventDefault();jump(1);}
@@ -2992,8 +3601,8 @@ document.addEventListener('keydown',function(e){
     document.body.style.overflow = v?'hidden':'';
   }
   fab.querySelector('.fmenu').onclick=function(){open(!dr.classList.contains('on'));};
-  fab.querySelector('.fup').onclick=function(){jump(-1);};
-  fab.querySelector('.fdn').onclick=function(){jump(1);};
+  fab.querySelector('.fup').onclick=function(){window.cardJump(-1);};
+  fab.querySelector('.fdn').onclick=function(){window.cardJump(1);};
   dr.querySelector('.dx').onclick=function(){open(false);};
   scrim.onclick=function(){open(false);};
   dr.addEventListener('click',function(e){
@@ -3056,6 +3665,68 @@ document.addEventListener('keydown',function(e){
   if(solo) host.insertBefore(b, host.firstChild); else host.appendChild(b);
 })();
 
+
+/* ---------- THE TAKEAWAY RAIL ----------
+   Each section carries one sentence in data-key. As you reach the section the
+   sentence is added to a rail on the right \u2014 forward only, so scrolling back
+   to re-read something never takes it away. By the last card it is the
+   revision list for the whole class. */
+(function(){
+  var cards=Array.prototype.slice.call(document.querySelectorAll('#p-lesson .card[data-key]'));
+  if(!cards.length) return;
+  var KEY='cse2321-s1c5-keys';
+  var rail=document.createElement('div'); rail.className='keyrail';
+  rail.innerHTML='<div class="krhd" role="button" tabindex="0" aria-expanded="true">'+
+      '<span class="kt">So far</span><span class="kn" id="kr-n">0</span><span class="kv">\u25be</span></div>'+
+    '<div class="kbody" id="kr-body"></div>';
+  document.body.appendChild(rail);
+  var body=rail.querySelector('#kr-body'), num=rail.querySelector('#kr-n'), hd=rail.querySelector('.krhd');
+  var shown=0;
+  try{ if(localStorage.getItem(KEY)==='hid') rail.classList.add('hid'); }catch(err){}
+
+  function add(upto){
+    if(upto<=shown) return;
+    for(var i=shown;i<upto;i++){
+      var c=cards[i];
+      var b=(c.querySelector('.badge')||{}).textContent||String(i+1);
+      var d=document.createElement('div'); d.className='kitem new';
+      d.innerHTML='<span class="kx">'+b+'</span>'+c.getAttribute('data-key');
+      body.appendChild(d);
+    }
+    shown=upto; num.textContent=shown;
+    Array.prototype.forEach.call(body.querySelectorAll('.kitem'),function(k,i){
+      k.classList.toggle('new', i===shown-1);
+    });
+    body.scrollTop=body.scrollHeight;
+  }
+  hd.addEventListener('click',function(){
+    rail.classList.toggle('hid');
+    hd.setAttribute('aria-expanded', rail.classList.contains('hid')?'false':'true');
+    try{ localStorage.setItem(KEY, rail.classList.contains('hid')?'hid':'open'); }catch(err){}
+  });
+  hd.addEventListener('keydown',function(ev){
+    if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); hd.click(); }
+  });
+
+  /* A card's takeaway IS its answer. Where a card carries a Your turn, hold
+     the takeaway back until the reader has scrolled past the question \u2014
+     otherwise the rail answers it before anyone has had a chance to think. */
+  function trigger(c){
+    var t=c.querySelector('.turn'), r=(t||c).getBoundingClientRect();
+    return t ? r.bottom : r.top;
+  }
+  var tick=null;
+  function scan(){
+    var y=window.innerHeight*0.55, k=0;
+    for(var i=0;i<cards.length;i++) if(trigger(cards[i])<=y) k=i+1;
+    add(k);
+  }
+  window.addEventListener('scroll',function(){
+    if(tick) return;
+    tick=setTimeout(function(){ tick=null; scan(); },180);
+  },{passive:true});
+  scan();
+})();
 
 /* ---------- HIDE THE BAR ON THE WAY DOWN ---------- */
 (function(){
