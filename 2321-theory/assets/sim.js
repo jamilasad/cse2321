@@ -27,6 +27,11 @@
 
    ES5 on purpose: it has to match the rest of the site, and it has to run
    from file:// on a classroom laptop with no build step.
+
+   VERSION. Every page links this file as `sim.js?v=N`. GitHub Pages lets a
+   browser cache it, so a laptop that has already opened the site can keep
+   serving an old copy after a change. BUMP THE ?v= ON EVERY PAGE whenever
+   this file or sim.css changes, or the change will not reach the room.
    ========================================================================== */
 window.Sim = (function(){
 "use strict";
