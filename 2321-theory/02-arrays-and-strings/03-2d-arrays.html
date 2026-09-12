@@ -1077,7 +1077,7 @@ body.fsopen{overflow:hidden}
    only, so it records what has been said rather than previewing it. */
 .keyrail{position:fixed;right:1rem;top:5.6rem;bottom:9.6rem;width:280px;z-index:40;
   display:none;flex-direction:column;pointer-events:none}
-@media(min-width:1240px){.keyrail{display:flex}}
+@media(min-width:1680px){.keyrail{display:flex}}
 .keyrail.hid .kbody{display:none}
 .krhd{pointer-events:auto;display:flex;align-items:center;gap:.55rem;align-self:flex-end;
   background:linear-gradient(180deg,#fff,#fbfcff);border:1px solid #dfe3f2;border-radius:.7rem;
@@ -1179,7 +1179,7 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 .stepmsg.tt{border-left-color:#16a34a;background:#f2fdf5}
 .stepmsg.tt .smic{background:#16a34a}
 .simbox .opdesc,.simbox .stepmsg{min-height:5.2rem;display:flex;align-items:center;
-  justify-content:center;text-align:center;margin:.55rem .9rem 0}
+  justify-content:center;text-align:center;margin:.55rem 0 0}
 @media(min-width:700px){.simbox .opdesc,.simbox .stepmsg{min-height:4.2rem}}
 @media(min-width:1000px){.simbox .opdesc,.simbox .stepmsg{min-height:3.7rem}}
 .simbox .stepmsg{text-align:left;justify-content:flex-start}
@@ -1196,6 +1196,18 @@ body.fsopen .simbox.kbdon{box-shadow:none}
   background:#fff;border:1px solid var(--line);border-radius:999px;padding:.05rem .45rem;
   letter-spacing:0;flex:0 0 auto}
 .simbox .gridwrap{margin:.2rem 0 .6rem}
+
+/* ---- what the exams actually asked, as a compact table ---- */
+.freqt{display:grid;gap:.4rem;margin:1rem 0}
+.freqr{display:grid;grid-template-columns:1fr auto;gap:.4rem .8rem;align-items:center;
+  border:1px solid var(--line);border-radius:.55rem;background:#fff;padding:.55rem .75rem}
+.freqr.top{border-color:#fda4af;background:#fff7f8}
+.freqr .fqn{font-size:.87rem;font-weight:700;color:var(--ink);line-height:1.45}
+.freqr .fqc{font-family:var(--mono);font-size:.7rem;font-weight:800;white-space:nowrap;
+  background:#f1f5f9;color:#475569;border-radius:999px;padding:.16rem .55rem}
+.freqr.top .fqc{background:#ffe4e6;color:#be123c}
+.freqr .fqw{grid-column:1/-1;font-size:.74rem;color:var(--ink-mute);line-height:1.5;
+  border-top:1px dashed var(--line);padding-top:.35rem}
 </style>
 </head>
 <body>
@@ -1240,16 +1252,32 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 
 <main class="wrap">
 
-<div class="box bad" style="margin-bottom:2.2rem">
+<div class="prog" id="prog">
+  <span class="pk">Your progress</span>
+  <span class="pbar"><i id="pbar"></i></span>
+  <span class="pn" id="pnum">0 / 3</span>
+  <button id="preset" type="button">Clear</button>
+</div>
+
+<div class="box bad" style="margin-bottom:1.5rem">
   <p class="bt">🎓 Read this before anything else</p>
-  <p style="margin:0">This question has appeared on <b>every single Mid Term paper</b> we have:<br><br>
-  <b>Autumn 2025</b> — A(4:12, 7:14), Base 300, w 8, find A[6,10] &nbsp;·&nbsp; <b>Spring 2025</b> — the same array, Base 500, w 4<br>
-  <b>Spring 2024</b> — B(1:8, &minus;5:5, &minus;10:5), find B[2,&minus;3,2] &nbsp;·&nbsp; <b>Spring 2023</b> — A(3:10, 1:10, &minus;3:10), find A[8,6,4]<br><br>
-  <b>Worth 2.5 to 3 marks, every time.</b> By the end of this class you will do it in under a minute.</p>
+  <p>This question has appeared on <b>every Mid Term and Class Test we have on file</b> — <b>eight papers, nine printings</b>, worth 2 to 5 marks every time:</p>
+  <p style="margin:0"><b>A25</b> A(4:12, 7:14) · <b>S25</b> the same array, different Base and w · <b>A24</b> two arrays at once, with a bound taken from your ID · <b>S24</b> B(1:8, &minus;5:5, &minus;10:5) · <b>A23</b> and <b>A22</b> A(5:10, 8:15) · <b>S23</b> A(3:10, 1:10, &minus;3:10) · <b>S22</b> A(5:10, 1:10, &minus;2:10), <b>row-major or column-major depending on your ID</b>.</p>
+</div>
+
+<div class="goals">
+  <p class="gh"><i>🎯</i><b>By the end of this class you will be able to</b></p>
+  <ol>
+    <li>Say why a rectangle has to be <b>flattened</b> at all, and name the two orders it can be flattened in</li>
+    <li>Work out the <b>effective indices</b> for any bounds, including ones that start below zero</li>
+    <li>Write the <b>row-major</b> address and the <b>column-major</b> one, and say which multiplies by M and which by N &mdash; without memorising either</li>
+    <li>Extend the same idea to <b>three dimensions</b> without learning a new formula</li>
+    <li>Answer the question the exam actually asks, in <b>under a minute</b>, on any of its nine printings</li>
+  </ol>
 </div>
 
 <!-- ============ 1 · WHAT IS A 2D ARRAY ============ -->
-<article class="card numbered" id="s1" style="--accent:#0284c7">
+<article class="card numbered" id="s1" style="--accent:#0284c7" data-min="7" data-key="A[J, K] is <b>row J, column K</b> — row first, always. In an m &times; n array m is rows and n is columns.">
   <span class="badge">1</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 1</p><h2>From one dimension to two</h2></div>
@@ -1258,7 +1286,8 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 
   <div class="box info">
     <p class="bt">Definition</p>
-    <p style="margin:0">A two-dimensional <b>m &times; n</b> array A is a collection of <b>m &middot; n</b> data elements such that each element is specified by a <b>pair of integers</b> (such as J, K) called <b>subscripts</b>.<br><br>
+    <p>A two-dimensional <b>m &times; n</b> array A is a collection of <b>m &middot; n</b> data elements such that each element is specified by a <b>pair of integers</b> (such as J, K) called <b>subscripts</b>.</p>
+    <p style="margin:0">
     The element with first subscript J and second subscript K is written <span class="mono">A[J, K]</span> or <span class="mono">A[J][K]</span>.</p>
   </div>
 
@@ -1272,7 +1301,8 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 
   <div class="box">
     <p class="bt">The convention — get this right or every answer is wrong</p>
-    <p style="margin:0"><span class="mono">A[J, K]</span> means <b>row J, column K</b>. <b>Row first, always.</b><br><br>
+    <p><span class="mono">A[J, K]</span> means <b>row J, column K</b>. <b>Row first, always.</b></p>
+    <p style="margin:0">
     So in an m &times; n array, <b>m is the number of rows</b> and <b>n is the number of columns</b>.</p>
   </div>
 
@@ -1280,14 +1310,33 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 
   <div class="gridwrap"><div class="mgrid" id="introgrid"></div></div>
   <p class="subtle" style="text-align:center">A 5 &times; 4 slice of it. <span class="mono">MARKS[3, 2]</span> is the 3rd student's 2nd test.</p>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>The full array is <span class="mono">MARKS(1:25, 1:4)</span> — 25 students, 4 tests each.</p>
+      <ol>
+        <li>Is it a <b>25 &times; 4</b> array or a <b>4 &times; 25</b> one? What are <b>m</b> and <b>n</b>?</li>
+        <li>Which mark is <span class="mono">MARKS[2, 4]</span>?</li>
+        <li>Does <span class="mono">MARKS[4, 2]</span> mean the same thing?</li>
+      </ol>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p><b>1. 25 &times; 4</b> — <b>m = 25 rows</b>, <b>n = 4 columns</b>. Rows come first in the size, and a row is one student.</p>
+      <p><b>2.</b> Student <b>2</b>'s <b>4th</b> test. Row first: the 2 is the student, the 4 is the test.</p>
+      <p><b>3. No — and this is where marks go.</b> <span class="mono">MARKS[4, 2]</span> is student <b>4</b>'s <b>2nd</b> test: a different person, a different test. On a 25 &times; 4 array <span class="mono">MARKS[4, 2]</span> exists, but <span class="mono">MARKS[2, 4]</span>'s mirror <span class="mono">MARKS[4, 2]</span> only happens to exist because 4 &le; 25. Ask for <span class="mono">MARKS[2, 26]</span> and there is no such column at all.</p>
+      <p><b>Row, then column. Every time.</b> Both address formulas in this class start by deciding how many complete <em>rows</em> you skip — get the order wrong and everything after it is wrong too.</p>
+    </div>
+  </div>
 </article>
 
 <!-- ============ 2 · FLATTENING ============ -->
-<article class="card numbered" id="s2" style="--accent:#7c3aed">
+<article class="card numbered" id="s2" style="--accent:#7c3aed" data-min="11" data-key="Memory is a line, so a rectangle has to be read in some order. Row-major and column-major are the same table written down two ways.">
   <span class="badge">2</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 2 · the whole problem</p><h2>Memory is a line. A table is not.</h2></div>
-    <span class="timechip">⏱ 12 min</span>
+    <span class="timechip">⏱ 11 min</span>
   </div>
 
   <p>Go back to Segment 1. RAM is <b>one long strip of numbered boxes</b> — there is no such thing as "up" or "down" in it. But a 2D array has rows and columns.</p>
@@ -1298,15 +1347,33 @@ body.fsopen .simbox.kbdon{box-shadow:none}
     <p style="margin-top:.9rem">There are exactly two sensible answers, and every language picks one.</p>
   </div>
 
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>You have a <b>3 &times; 4</b> table and twelve consecutive memory cells to put it in. Nothing else — no gaps, no second array, no pointers.</p>
+      <p><b>Which cell does <span class="mono">A[2, 3]</span> go in?</b></p>
+      <p class="hint">There is more than one defensible answer. Find <b>both</b> of them, and say what you assumed each time.</p>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p><b>Cell 6, or cell 7 — and both are right.</b> It depends on the order you decided to write the table down in, and there are exactly two sensible ones.</p>
+      <p><b>Row by row:</b> row 1 fills cells 0&ndash;3, row 2 fills 4&ndash;7. <span class="mono">A[2,3]</span> is the third element of row 2, so <b>offset 6</b>.</p>
+      <p><b>Column by column:</b> column 1 fills 0&ndash;2, column 2 fills 3&ndash;5, column 3 fills 6&ndash;8. <span class="mono">A[2,3]</span> is the second element of column 3, so <b>offset 7</b>.</p>
+      <p><b>That is the whole section.</b> The two answers have names — <b>row-major</b> and <b>column-major</b> — and every language picks one and never mentions it again.</p>
+    </div>
+  </div>
+
   <div class="grid2">
     <div class="box info" style="margin:0">
       <p class="bt">Row-major order</p>
-      <p style="margin:0">Store <b>row 1 completely</b>, then row 2, then row 3 …<br><br>
+      <p>Store <b>row 1 completely</b>, then row 2, then row 3 …</p>
+    <p style="margin:0">
       Used by <b>C, C++, Java, Python</b>.</p>
     </div>
     <div class="box warn" style="margin:0">
       <p class="bt">Column-major order</p>
-      <p style="margin:0">Store <b>column 1 completely</b>, then column 2, then column 3 …<br><br>
+      <p>Store <b>column 1 completely</b>, then column 2, then column 3 …</p>
+    <p style="margin:0">
       Used by <b>FORTRAN, MATLAB, R</b>.</p>
     </div>
   </div>
@@ -1354,15 +1421,27 @@ body.fsopen .simbox.kbdon{box-shadow:none}
     </div>
   </div>
 
+  <div class="quiz" data-q="q2">
+    <div class="qh">Quick check</div>
+    <div class="qq">A <b>4 &times; 5</b> array stored <b>column-major</b>. At what offset does <span class="mono">A[2, 3]</span> sit?</div>
+    <div class="qopts">
+      <button class="qopt" data-a="0">8</button>
+      <button class="qopt" data-a="1" data-ok="1">9</button>
+      <button class="qopt" data-a="2">7</button>
+    </div>
+    <div class="qexp"><b>9.</b> Column-major skips whole <b>columns</b>, and a column is <b>M = 4</b> elements long. Two complete columns come before column 3, so 4 &times; 2 = 8 elements; then one more to reach row 2. <span class="mono">8 + 1 = 9</span>.<br><br><b>7</b> is the row-major answer (5&times;1 + 2), which is the mistake worth knowing you can make. <b>8</b> forgets to step down to row 2.</div>
+  </div>
+
   <div class="box good">
     <p class="bt">Look at what changed and what did not</p>
-    <p style="margin:0"><b>The grid is identical.</b> Same 12 values, same rows, same columns. Only the <b>order they were written into memory</b> differs.<br><br>
+    <p><b>The grid is identical.</b> Same 12 values, same rows, same columns. Only the <b>order they were written into memory</b> differs.</p>
+    <p style="margin:0">
     That is the entire idea. <b>Row-major and column-major are not two data structures — they are two ways of writing down the same one.</b></p>
   </div>
 </article>
 
 <!-- ============ 3 · DERIVING THE FORMULA ============ -->
-<article class="card numbered" id="s3" style="--accent:#0284c7">
+<article class="card numbered" id="s3" style="--accent:#0284c7" data-min="10" data-key="You multiply by the length of the thing you are skipping over: a row is N long, a column is M long.">
   <span class="badge">3</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 3</p><h2>Deriving the address formula</h2></div>
@@ -1380,10 +1459,32 @@ body.fsopen .simbox.kbdon{box-shadow:none}
   </p>
   <p class="subtle" style="text-align:center;margin:-.6rem 0 1.1rem">Same five colours as Class 1 &mdash; same five symbols.</p>
 
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>You are storing an <b>m &times; n</b> table row by row, and you want the address of <span class="mono">A[J, K]</span>.</p>
+      <p><b>How many elements do you have to skip to get there?</b> Build it in two parts:</p>
+      <ul>
+        <li>How many <b>complete rows</b> come before row J, and how many elements is each of them?</li>
+        <li>Once you are at the start of row J, how many more to reach column K?</li>
+      </ul>
+      <p class="hint">This is Class 1's <span class="mono">w (K &minus; LB)</span> with one extra term. You already know the shape.</p>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p><b>(J &minus; 1) complete rows</b> come before row J, and each is <b>n</b> elements long — so that is <b>n(J &minus; 1)</b> elements skipped.</p>
+      <p>Then inside row J you skip <b>(K &minus; 1)</b> more.</p>
+      <p><b>Total skipped = n(J &minus; 1) + (K &minus; 1)</b>, each costing w bytes. That is the whole formula, and you just derived it.</p>
+      <p><b>Column-major is the same sentence with the words swapped:</b> skip <b>(K &minus; 1)</b> complete columns of <b>m</b> elements each, then <b>(J &minus; 1)</b> inside the column.</p>
+    </div>
+  </div>
+
   <div class="box info">
     <p class="bt">Row-major — count the skipping</p>
-    <p style="margin:0">To reach row J, you must skip <b>all the complete rows before it</b>. There are <b>(J &minus; 1)</b> of them, and each holds <b>N</b> elements (N = number of columns).<br><br>
-    Then, inside row J, you skip <b>(K &minus; 1)</b> more to reach column K.<br><br>
+    <p>To reach row J, you must skip <b>all the complete rows before it</b>. There are <b>(J &minus; 1)</b> of them, and each holds <b>N</b> elements (N = number of columns).</p>
+    <p>
+    Then, inside row J, you skip <b>(K &minus; 1)</b> more to reach column K.</p>
+    <p style="margin:0">
     <b>Total skipped = N(J &minus; 1) + (K &minus; 1)</b></p>
   </div>
 
@@ -1392,7 +1493,8 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 
   <div class="box warn">
     <p class="bt">Column-major — mirror everything</p>
-    <p style="margin:0">Now you skip whole <b>columns</b>. There are <b>(K &minus; 1)</b> complete columns before column K, and each holds <b>M</b> elements (M = number of <b>rows</b>).<br><br>
+    <p>Now you skip whole <b>columns</b>. There are <b>(K &minus; 1)</b> complete columns before column K, and each holds <b>M</b> elements (M = number of <b>rows</b>).</p>
+    <p style="margin:0">
     Then inside the column you skip <b>(J &minus; 1)</b>.</p>
   </div>
 
@@ -1401,8 +1503,9 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 
   <div class="box good">
     <p class="bt">The one-line way to remember which is which</p>
-    <p style="margin:0"><b>Row-major multiplies by N</b> (the number of columns) — because a whole <b>row</b> is N elements long.<br>
-    <b>Column-major multiplies by M</b> (the number of rows) — because a whole <b>column</b> is M elements long.<br><br>
+    <p><b>Row-major multiplies by N</b> (the number of columns) — because a whole <b>row</b> is N elements long.<br>
+    <b>Column-major multiplies by M</b> (the number of rows) — because a whole <b>column</b> is M elements long.</p>
+    <p style="margin:0">
     <b>You multiply by the length of the thing you are skipping over.</b> Get that and you never have to memorise either formula.</p>
   </div>
 
@@ -1421,26 +1524,33 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 </article>
 
 <!-- ============ 4 · EFFECTIVE INDICES ============ -->
-<article class="card numbered" id="s4" style="--accent:#e11d48">
+<article class="card numbered" id="s4" style="--accent:#e11d48" data-min="17" data-key="Subtract the lower bound first. <b>E&#8321; = J &minus; LB&#8321;</b>, <b>E&#8322; = K &minus; LB&#8322;</b> — then the formula is the one you already know.">
   <span class="badge">4</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 4 · the exam form</p><h2>When the bounds don't start at 1</h2></div>
-    <span class="timechip">⏱ 14 min</span>
+    <span class="timechip">⏱ 17 min</span>
   </div>
 
   <p>Every exam question gives you something like <span class="mono">A(4:12, 7:14)</span>. The rows start at <b>4</b>, not 1. So <span class="mono">(J &minus; 1)</span> is wrong — you must subtract the <b>real</b> lower bound.</p>
 
   <div class="box info">
     <p class="bt">Effective indices</p>
-    <p style="margin:0">The <b>effective index</b> is how far along a dimension you actually are:<br><br>
-    <span class="mono" style="font-weight:800">E<sub>1</sub> = J &minus; LB<sub>1</sub></span> &nbsp;&nbsp;&nbsp; <span class="mono" style="font-weight:800">E<sub>2</sub> = K &minus; LB<sub>2</sub></span><br><br>
-    And the lengths are the usual <span class="mono">UB &minus; LB + 1</span> from Class 1:<br><br>
-    <span class="mono" style="font-weight:800">M = UB<sub>1</sub> &minus; LB<sub>1</sub> + 1</span> &nbsp;&nbsp;&nbsp; <span class="mono" style="font-weight:800">N = UB<sub>2</sub> &minus; LB<sub>2</sub> + 1</span><br><br>
+    <p>The <b>effective index</b> is how far along a dimension you actually are:</p>
+    <p>
+    <span class="mono" style="font-weight:800">E<sub>1</sub> = J &minus; LB<sub>1</sub></span> &nbsp;&nbsp;&nbsp; <span class="mono" style="font-weight:800">E<sub>2</sub> = K &minus; LB<sub>2</sub></span></p>
+    <p>
+    And the lengths are the usual <span class="mono">UB &minus; LB + 1</span> from Class 1:</p>
+    <p>
+    <span class="mono" style="font-weight:800">M = UB<sub>1</sub> &minus; LB<sub>1</sub> + 1</span> &nbsp;&nbsp;&nbsp; <span class="mono" style="font-weight:800">N = UB<sub>2</sub> &minus; LB<sub>2</sub> + 1</span></p>
+    <p style="margin:0">
     Then the formulas become <b>Base + w [ N&middot;E<sub>1</sub> + E<sub>2</sub> ]</b> for row-major and <b>Base + w [ M&middot;E<sub>2</sub> + E<sub>1</sub> ]</b> for column-major.</p>
   </div>
 
   <p><b>Set up any exam question here.</b> It works the whole thing out, step by step, exactly as you should write it.</p>
 
+  <div class="simbox" id="e-sim" data-title="Effective indices and the address">
+    <div class="simhd"><span class="simttl">Simulator</span><button class="focusb" type="button" data-focus="e-sim">&#9974; Focus</button></div>
+    <div class="simbd">
   <div class="ctrls">
     <div class="ctrl"><label><span class="tk tk-lb">LB&#8321;</span> (rows from)</label><input id="e-lb1" type="number" value="4"></div>
     <div class="ctrl"><label><span class="tk tk-ub">UB&#8321;</span> (rows to)</label><input id="e-ub1" type="number" value="12"></div>
@@ -1455,17 +1565,82 @@ body.fsopen .simbox.kbdon{box-shadow:none}
   <div class="btnrow">
     <button class="btn sm" data-ex="4,12,7,14,300,8,6,10" style="background:#e11d48">Autumn 2025</button>
     <button class="btn sm ghost" data-ex="4,12,7,14,500,4,6,10">Spring 2025</button>
+    <button class="btn sm ghost" data-ex="5,10,8,15,200,4,7,10">Autumn 2023</button>
+    <button class="btn sm ghost" data-ex="5,10,8,15,200,4,8,12">Autumn 2022</button>
+    <button class="btn sm ghost" data-ex="-5,6,-3,31,206,4,0,12">Autumn 2024 · X = 6</button>
     <button class="btn sm ghost" data-ex="1,25,1,4,100,4,10,2">MARKS 25×4</button>
     <button class="btn sm ghost" id="e-order">Order: row-major</button>
   </div>
 
   <div class="fboard" id="eboard"></div>
+    </div>
+  </div>
+
+
+  <div class="quiz" data-q="q3">
+    <div class="qh">Quick check</div>
+    <div class="qq">In <span class="mono">A(4:12, 7:14)</span>, what is the effective index <b>E&#8321;</b> for the element <span class="mono">A[6, 10]</span>?</div>
+    <div class="qopts">
+      <button class="qopt" data-a="0">6</button>
+      <button class="qopt" data-a="1" data-ok="1">2</button>
+      <button class="qopt" data-a="2">5</button>
+    </div>
+    <div class="qexp"><b>2.</b> <span class="mono">E&#8321; = J &minus; LB&#8321; = 6 &minus; 4 = 2</span> — row 6 is the <b>third</b> row of the array, so two complete rows come before it.<br><br><b>5</b> is <span class="mono">J &minus; 1</span>, which is right only when the bounds start at 1. <b>6</b> is J itself. Both are the same slip: <b>subtract the lower bound, not one</b>.</div>
+  </div>
 
   <div class="box bad">
     <p class="bt">⚠ The three mistakes that cost marks every year</p>
     <p style="margin:0"><b>1.</b> Using <span class="mono">(J &minus; 1)</span> when LB₁ is not 1. For A(4:12, …) row 6 is the <b>3rd</b> row, so E₁ = 2, not 5.<br>
     <b>2.</b> Multiplying by M instead of N in row-major. You skip whole <b>rows</b>, and a row is <b>N</b> long.<br>
     <b>3.</b> Forgetting the <b>+1</b> in the lengths. 12 &minus; 4 = 8, but there are <b>9</b> rows.</p>
+  </div>
+
+  <h3>The array they have set twice</h3>
+
+  <div class="pastq">
+    <div class="pqh"><span class="pqs">Past exam</span><span class="pqw">Autumn 2023 Q2(b) &middot; Autumn 2022 Q2(b)</span><span class="pqm">2 marks</span></div>
+    <p class="pqt">"Consider a 2D array <b>A (5 : 10, 8 : 15)</b>. i) Find the length of each dimension and the number of elements in A. ii) Suppose <b>Base(A) = 200</b> and <b>w = 4</b> words per memory cell for A. Find the address of the element <b>A[7, 10]</b> in <b>row-major order</b>."</p>
+    <p style="margin:.55rem 0 0;font-size:.82rem;color:#9f1239"><b>Autumn 2022 is the identical array</b> with the same Base and w — only the element moves, to <b>A[8, 12]</b>.</p>
+  </div>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>Do both of them. Two minutes, on paper, before you press anything.</p>
+      <p class="hint">Lengths first, then the two effective indices, then substitute. Write the substitution line down — that is where the marks are.</p>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the working">Show the working</button>
+    <div class="ta">
+      <p><b>(i) Lengths.</b> M = 10 &minus; 5 + 1 = <b>6</b> rows, N = 15 &minus; 8 + 1 = <b>8</b> columns, total = 6 &times; 8 = <b>48</b> elements.</p>
+      <p><b>(ii) Autumn 2023 — A[7, 10].</b><br>
+      E&#8321; = 7 &minus; 5 = <b>2</b> &nbsp;·&nbsp; E&#8322; = 10 &minus; 8 = <b>2</b><br>
+      LOC = 200 + 4 [ 8&times;2 + 2 ] = 200 + 4 &times; 18 = 200 + 72 = <b>272</b></p>
+      <p><b>Autumn 2022 — A[8, 12].</b><br>
+      E&#8321; = 8 &minus; 5 = <b>3</b> &nbsp;·&nbsp; E&#8322; = 12 &minus; 8 = <b>4</b><br>
+      LOC = 200 + 4 [ 8&times;3 + 4 ] = 200 + 4 &times; 28 = 200 + 112 = <b>312</b></p>
+      <p><b>Same array, same Base, same w — two years apart.</b> Set the <b>Autumn 2023</b> preset on the calculator above and change J and K to check both.</p>
+    </div>
+  </div>
+
+  <h3>And the one that may ask for column-major</h3>
+
+  <div class="pastq">
+    <div class="pqh"><span class="pqs">Past exam</span><span class="pqw">Spring 2022 Q2(b)</span><span class="pqm">2 marks</span></div>
+    <p class="pqt">"Consider an array <b>A (5:10, 1:10, &minus;2:10)</b>. … Suppose <b>Base(A) = 20Y</b> <em>(Y is the last digit of your ID)</em> and <b>w = 4</b>. Find the effective indices and the address of <b>A[7, 5, &minus;1]</b> assuming A is stored in <b>row-major order</b> [if the last digit of your ID is even] / <b>column-major order</b> [if it is odd]."</p>
+    <p style="margin:.55rem 0 0;font-size:.82rem;color:#9f1239"><b>Half the class writes a column-major answer.</b> It is the only question on file that asks for one.</p>
+  </div>
+
+  <div class="box good">
+    <p class="bt">Column-major, worked — because no other question makes you do it</p>
+    <p>Take <b>Y = 0</b>, so Base = 200. The array is <span class="mono">A(5:10, 1:10, &minus;2:10)</span> and we want <span class="mono">A[7, 5, &minus;1]</span>.</p>
+    <p><b>Lengths:</b> L&#8321; = 10 &minus; 5 + 1 = <b>6</b>, L&#8322; = 10 &minus; 1 + 1 = <b>10</b>, L&#8323; = 10 &minus; (&minus;2) + 1 = <b>13</b>. Total = 6 &times; 10 &times; 13 = <b>780</b>.</p>
+    <p><b>Effective indices:</b> E&#8321; = 7 &minus; 5 = <b>2</b>, E&#8322; = 5 &minus; 1 = <b>4</b>, E&#8323; = &minus;1 &minus; (&minus;2) = <b>1</b>.</p>
+    <p><b>Column-major</b> counts from the <em>first</em> dimension inwards — the mirror of row-major:</p>
+    <p class="mono" style="text-align:center;font-weight:800;margin:.6rem 0;font-size:1rem">LOC = Base + w [ L&#8321;( L&#8322;&middot;E&#8323; + E&#8322; ) + E&#8321; ]</p>
+    <p class="mono" style="margin:.4rem 0 0">= 200 + 4 [ 6 ( 10&times;1 + 4 ) + 2 ]<br>
+    = 200 + 4 [ 6 &times; 14 + 2 ]<br>
+    = 200 + 4 &times; 86 = 200 + 344 = <b>544</b></p>
+    <p style="margin:.7rem 0 0"><b>The row-major answer for the same element is 1,452</b> — and the difference is the whole reason the question tells you which order to use. <span class="subtle">With Y = 6 the base is 206, so the answers are 550 and 1,458.</span></p>
   </div>
 
   <div class="quiz" data-q="q1">
@@ -1481,16 +1656,25 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 </article>
 
 <!-- ============ 5 · THREE DIMENSIONS ============ -->
-<article class="card numbered" id="s5" style="--accent:#7c3aed">
+<article class="card numbered" id="s5" style="--accent:#7c3aed" data-min="11" data-key="Three dimensions is the same idea with one more layer: skip whole planes, then whole rows, then elements.">
   <span class="badge">5</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 5</p><h2>Three dimensions — same idea, one more layer</h2></div>
-    <span class="timechip">⏱ 10 min</span>
+    <span class="timechip">⏱ 11 min</span>
+  </div>
+
+  <div class="box warn">
+    <p class="bt">⚠ When a bound is a letter, not a number</p>
+    <p>The <b>Autumn 2024 Class Test</b> set two arrays at once and made a bound depend on your ID:</p>
+    <p class="pqt" style="font-style:italic;color:#78350f;margin:.5rem 0"><span class="mono">A(&minus;5:X, &minus;3:31)</span> and <span class="mono">B(&minus;3:X, 2:15, 10:25)</span>, where <b>X is the last digit of your ID</b>, <b>Base(B) = Y</b> (the last three digits), and w = 4. Find the lengths, the effective indices and the address of <span class="mono">B[0, 12, 17]</span> in row-major order.</p>
+    <p><b>Nothing changes.</b> Substitute your own digit first, write it down once — <em>"my ID is C151206, so X = 6 and Y = 206"</em> — and then it is an ordinary question.</p>
+    <p style="margin:0">With X = 6: A is <b>12 &times; 35 = 420</b> elements. B's lengths are <b>10, 14, 16</b>, the effective indices are <b>3, 10, 7</b>, and the address is <b>206 + 4[16(14&times;3 + 10) + 7] = 3,562</b>. <b>Do the substitution in the first line of your answer</b>, or you will carry a letter through four lines of arithmetic.</p>
   </div>
 
   <div class="box bad">
-    <p class="bt">🎓 Two of the four papers use a 3D array</p>
-    <p style="margin:0"><b>Spring 2024:</b> <em>"Consider an array B(1:8, &minus;5:5, &minus;10:5). Find the length of each dimension and the number of elements. Suppose Base(B) = 150 and w = 4. Find the effective indices E₁, E₂, E₃ and the address of B[2, &minus;3, 2] assuming row-major order."</em><br><br>
+    <p class="bt">🎓 Four of the eight papers use a 3D array</p>
+    <p><b>Spring 2024:</b> <em>"Consider an array B(1:8, &minus;5:5, &minus;10:5). Find the length of each dimension and the number of elements. Suppose Base(B) = 150 and w = 4. Find the effective indices E₁, E₂, E₃ and the address of B[2, &minus;3, 2] assuming row-major order."</em></p>
+    <p style="margin:0">
     <b>Spring 2023:</b> the same with <span class="mono">A(3:10, 1:10, &minus;3:10)</span> and <span class="mono">A[8, 6, 4]</span>.</p>
   </div>
 
@@ -1501,15 +1685,19 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 
   <div class="box info">
     <p class="bt">Read it from the inside out</p>
-    <p style="margin:0"><b>E₁ × L₂</b> — skip E₁ whole slabs, each L₂ rows tall<br>
+    <p><b>E₁ × L₂</b> — skip E₁ whole slabs, each L₂ rows tall<br>
     <b>+ E₂</b> — then skip E₂ more rows<br>
     <b>× L₃</b> — every one of those rows is L₃ elements long<br>
-    <b>+ E₃</b> — finally skip E₃ elements inside the row<br><br>
+    <b>+ E₃</b> — finally skip E₃ elements inside the row</p>
+    <p style="margin:0">
     <b>Same principle every time: multiply by the length of what you are skipping.</b></p>
   </div>
 
   <p><b>Try the two real questions.</b></p>
 
+  <div class="simbox" id="t-sim" data-title="Three dimensions, worked">
+    <div class="simhd"><span class="simttl">Simulator</span><button class="focusb" type="button" data-focus="t-sim">&#9974; Focus</button></div>
+    <div class="simbd">
   <div class="ctrls">
     <div class="ctrl"><label>Dim 1 · LB : UB</label><input id="t-d1" value="1:8"></div>
     <div class="ctrl"><label>Dim 2 · LB : UB</label><input id="t-d2" value="-5:5"></div>
@@ -1527,38 +1715,49 @@ body.fsopen .simbox.kbdon{box-shadow:none}
   </div>
 
   <div class="fboard" id="tboard"></div>
+    </div>
+  </div>
+
 </article>
 
 <!-- ============ 6 · SPARSE ============ -->
-<article class="card numbered" id="s6" style="--accent:#16a34a">
+<article class="card numbered" id="s6" style="--accent:#16a34a" data-min="6" data-key="A sparse matrix is worth compressing only when the zeros far outnumber the values — below about a third full, the triplet form costs more.">
   <span class="badge">6</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 6</p><h2>Sparse matrices — when most of it is zero</h2></div>
-    <span class="timechip">⏱ 9 min</span>
+    <span class="timechip">⏱ 6 min</span>
   </div>
 
   <p>A <b>sparse matrix</b> is one where <b>most elements are zero</b>. They turn up constantly — a matrix of who-follows-whom on Facebook, or which student took which optional course.</p>
 
   <p>Drag the slider and watch the waste grow.</p>
 
-  <div class="trade" style="background:#f8fafc">
-    <label for="sp-fill" style="font-size:.82rem;font-weight:700;color:var(--ink-soft)">Non-zero elements: <b id="sp-pct" class="mono">10%</b></label>
-    <input type="range" id="sp-fill" min="2" max="60" step="2" value="10">
+  <div class="simbox" id="sp-sim" data-title="How much a sparse matrix actually saves">
+    <div class="simhd"><span class="simttl">Simulator</span><button class="focusb" type="button" data-focus="sp-sim">&#9974; Focus</button></div>
+    <div class="simbd">
+      <div class="trade" style="background:#f8fafc;margin:0">
+        <label for="sp-fill" style="font-size:.82rem;font-weight:700;color:var(--ink-soft)">Non-zero elements: <b id="sp-pct" class="mono">10%</b></label>
+        <input type="range" id="sp-fill" min="2" max="60" step="2" value="10">
+      </div>
+
+      <div class="gridwrap"><div class="spgrid" id="spgrid"></div></div>
+
+      <div class="spstats">
+        <div class="cnt2"><p class="ck2">Full 2D array</p><p class="cv3" id="sp-full">&mdash;</p></div>
+        <div class="cnt2 c-d"><p class="ck2">Triplet form</p><p class="cv3" id="sp-trip">&mdash;</p></div>
+        <div class="cnt2 c-c"><p class="ck2">Memory saved</p><p class="cv3" id="sp-save">&mdash;</p></div>
+      </div>
+      <p class="opdesc" id="sp-msg" style="text-align:center"></p>
+    </div>
   </div>
 
-  <div class="gridwrap"><div class="spgrid" id="spgrid"></div></div>
-
-  <div class="spstats">
-    <div class="cnt2"><p class="ck2">Full 2D array</p><p class="cv3" id="sp-full">—</p></div>
-    <div class="cnt2 c-d"><p class="ck2">Triplet form</p><p class="cv3" id="sp-trip">—</p></div>
-    <div class="cnt2 c-c"><p class="ck2">Memory saved</p><p class="cv3" id="sp-save">—</p></div>
-  </div>
-  <p class="opdesc" id="sp-msg" style="text-align:center"></p>
 
   <div class="box info">
     <p class="bt">The triplet representation</p>
-    <p style="margin:0">Instead of storing every cell, store <b>only the non-zero ones</b> — each as a triple:<br><br>
-    <span class="mono" style="font-weight:800">( row , column , value )</span><br><br>
+    <p>Instead of storing every cell, store <b>only the non-zero ones</b> — each as a triple:</p>
+    <p>
+    <span class="mono" style="font-weight:800">( row , column , value )</span></p>
+    <p style="margin:0">
     Plus one header row recording the dimensions and how many non-zeros there are. Everything not listed is understood to be <b>0</b>.</p>
   </div>
 
@@ -1571,7 +1770,8 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 
   <div class="box warn">
     <p class="bt">⚠ It is not free</p>
-    <p style="margin:0">Each triple stores <b>three</b> numbers instead of one. So the triplet form only wins when <b>fewer than about a third</b> of the elements are non-zero. Push the slider past 33% and watch the saving turn negative.<br><br>
+    <p>Each triple stores <b>three</b> numbers instead of one. So the triplet form only wins when <b>fewer than about a third</b> of the elements are non-zero. Push the slider past 33% and watch the saving turn negative.</p>
+    <p style="margin:0">
     You also <b>lose O(1) access</b> — to read A[J,K] you now have to <b>search</b> the triplet list instead of calculating an address. <b>Classic time&ndash;space tradeoff, once again.</b></p>
   </div>
 
@@ -1594,7 +1794,7 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 </article>
 
 <!-- ============ CLOSING ============ -->
-<article class="card numbered" id="s7" style="--accent:#0284c7">
+<article class="card numbered" id="s7" style="--accent:#0284c7" data-min="3">
   <span class="badge">7</span>
   <div class="hdr-row">
     <div><p class="kicker">Before you go</p><h2>The exam answer, in five lines</h2></div>
@@ -1655,7 +1855,41 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 <main class="wrap">
 
 <article class="card" style="--accent:#e11d48">
-  <p class="kicker">All four, worked</p>
+  <p class="kicker">Start here</p>
+  <h2>What this class is worth</h2>
+  <p class="subtle" style="margin-top:.4rem">Counted across the eight Mid Term and Class Test papers on file. Nothing here is a prediction.</p>
+
+  <div class="freqt">
+    <div class="freqr top">
+      <span class="fqn">Multi-dimensional <b>address arithmetic</b></span><span class="fqc">8 of 8</span>
+      <span class="fqw">Nine printings — every paper has one, and two papers have a 2-D and a 3-D array in the same question. Worth 2 to 5 marks each time.</span>
+    </div>
+    <div class="freqr top">
+      <span class="fqn">Part (i): <b>lengths and total elements</b></span><span class="fqc">8 of 8</span>
+      <span class="fqw">Pure <span class="mono">UB &minus; LB + 1</span> from Class 1, and it is always the first thing asked. <b>Free marks if you can count.</b></span>
+    </div>
+    <div class="freqr">
+      <span class="fqn">"Explain row-major and column-major with a diagram"</span><span class="fqc">1</span>
+      <span class="fqw">Autumn 2025 Q2(a), 3 marks — and it wants a <b>drawing</b>.</span>
+    </div>
+    <div class="freqr">
+      <span class="fqn"><b>Column-major</b> asked for directly</span><span class="fqc">1</span>
+      <span class="fqw">Spring 2022, for anyone whose ID ends in an odd digit. It is the only one — which is exactly why it is worth practising.</span>
+    </div>
+    <div class="freqr">
+      <span class="fqn">Sparse matrix — define and describe the saving</span><span class="fqc">2</span>
+      <span class="fqw">Always as an <b>[OR]</b> alternative, never the only route.</span>
+    </div>
+  </div>
+
+  <div class="box info">
+    <p class="bt">Read the numbers, not the array</p>
+    <p style="margin:0"><b>Autumn 2025 and Spring 2025 set the identical array</b>, <span class="mono">A(4:12, 7:14)</span>, and changed only Base and w. <b>Autumn 2023 and Autumn 2022 did the same</b> with <span class="mono">A(5:10, 8:15)</span> — same Base, same w, only the element moved. Part (i)'s answer is the same on both of each pair.</p>
+  </div>
+</article>
+
+<article class="card" style="--accent:#e11d48">
+  <p class="kicker">All nine, worked</p>
   <h2>Every address question we have on record</h2>
 
   <details class="dig" open><summary><span class="dicon">?</span><b>Autumn 2025 Q2(b)</b> — A(4:12, 7:14), Base 300, w 8, row-major <span class="subtle">[3 marks]</span></summary><div>
@@ -1713,6 +1947,53 @@ body.fsopen .simbox.kbdon{box-shadow:none}
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 200 + 4 [ 55 &times; 14 + 7 ]<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 200 + 4 [ 770 + 7 ]<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 200 + 4 &times; 777 = <b>3,308</b></span>
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span><b>Autumn 2023 Q2(b)</b> — A(5:10, 8:15), Base 200, w 4, A[7,10] <span class="subtle">[2 marks]</span></summary><div>
+    <em>"Consider a 2D array A (5 : 10, 8 : 15). i) Find the length of each dimension and the number of elements in A. ii) Suppose Base (A) = 200 and w = 4 words per memory cell for A. Find the address of the element A [7, 10] in row-major order."</em>
+    <p><b>(i) Lengths</b><br>
+    <span class="mono">M = 10 &minus; 5 + 1 = <b>6</b> rows &nbsp;&nbsp; N = 15 &minus; 8 + 1 = <b>8</b> columns &nbsp;&nbsp; Total = <b>48</b></span></p>
+    <p><b>(ii) Effective indices</b><br>
+    <span class="mono">E&#8321; = 7 &minus; 5 = <b>2</b> &nbsp;&nbsp; E&#8322; = 10 &minus; 8 = <b>2</b></span></p>
+    <p><b>Address</b><br>
+    <span class="mono">LOC = 200 + 4 [ 8&times;2 + 2 ] = 200 + 4 &times; 18 = <b>272</b></span></p>
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span><b>Autumn 2022 Q2(b)</b> — the same array, A[8,12] <span class="subtle">[2 marks]</span></summary><div>
+    <em>"Consider a 2D array A (5 : 10, 8 : 15). … Find the address of the element A [8, 12] in row-major order."</em>
+    <p><b>Identical to Autumn 2023</b> — same bounds, same Base, same w. Only the element moves.</p>
+    <p><span class="mono">E&#8321; = 8 &minus; 5 = <b>3</b> &nbsp;&nbsp; E&#8322; = 12 &minus; 8 = <b>4</b><br>
+    LOC = 200 + 4 [ 8&times;3 + 4 ] = 200 + 4 &times; 28 = <b>312</b></span></p>
+    <p><b>Two years apart, the same question.</b> If you have done one you have done the other.</p>
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span><b>Spring 2022 Q2(b)</b> — 3D, and it may want <b>column-major</b> <span class="subtle">[2 marks]</span></summary><div>
+    <em>"Consider an array A (5:10, 1:10, &minus;2:10). … Suppose Base (A) = 20Y (Y is the last digit of our ID) and w = 4 words per memory cell for A. Find the effective indices E₁, E₂, E₃ and the address of the element A [7, 5, &minus;1] assuming A is stored in row-major order [if last digit of your ID is even] / column-major order [if odd]."</em>
+    <p><b>Lengths</b><br>
+    <span class="mono">L&#8321; = <b>6</b> &nbsp; L&#8322; = <b>10</b> &nbsp; L&#8323; = 10 &minus; (&minus;2) + 1 = <b>13</b> &nbsp;&nbsp; Total = <b>780</b></span></p>
+    <p><b>Effective indices</b><br>
+    <span class="mono">E&#8321; = 7 &minus; 5 = <b>2</b> &nbsp; E&#8322; = 5 &minus; 1 = <b>4</b> &nbsp; E&#8323; = &minus;1 &minus; (&minus;2) = <b>1</b></span></p>
+    <p><b>Row-major</b> (even ID), taking Y = 0 so Base = 200<br>
+    <span class="mono">LOC = 200 + 4 [ L&#8323;( L&#8322;&middot;E&#8321; + E&#8322; ) + E&#8323; ]<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 200 + 4 [ 13(10&times;2 + 4) + 1 ] = 200 + 4 &times; 313 = <b>1,452</b></span></p>
+    <p><b>Column-major</b> (odd ID)<br>
+    <span class="mono">LOC = 200 + 4 [ L&#8321;( L&#8322;&middot;E&#8323; + E&#8322; ) + E&#8321; ]<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 200 + 4 [ 6(10&times;1 + 4) + 2 ] = 200 + 4 &times; 86 = <b>544</b></span></p>
+    <p><b>⚠ Substitute your own Y in the first line.</b> With Y = 6 the base is 206 and the answers are <b>1,458</b> and <b>550</b>.</p>
+  </div></details>
+
+  <details class="dig"><summary><span class="dicon">?</span><b>Autumn 2024 Class Test Q2</b> — two arrays, and a bound from your ID <span class="subtle">[5 marks]</span></summary><div>
+    <em>"Consider the following multidimensional arrays: A(-5:X , -3:31) and B(-3:X, 2:15, 10:25) (X is the last digit of our ID). i. Find the length of each dimension and number of elements in A and B. ii. Suppose Base(B)=Y (the last three digits of your ID) and there are w=4 words per memory location. Find the effective indices E₁, E₂, E₃ and the address of B[0,12,17] assuming B is stored in row major order."</em>
+    <p><b>Substitute first, before anything else.</b> Taking the paper's own example, ID C151206 → <b>X = 6</b> and <b>Y = 206</b>.</p>
+    <p><b>(i) Lengths</b><br>
+    <span class="mono">A: 6 &minus; (&minus;5) + 1 = <b>12</b> &nbsp;·&nbsp; 31 &minus; (&minus;3) + 1 = <b>35</b> &nbsp;→&nbsp; <b>420</b> elements<br>
+    B: 6 &minus; (&minus;3) + 1 = <b>10</b> &nbsp;·&nbsp; 15 &minus; 2 + 1 = <b>14</b> &nbsp;·&nbsp; 25 &minus; 10 + 1 = <b>16</b> &nbsp;→&nbsp; <b>2,240</b> elements</span></p>
+    <p><b>(ii) Effective indices for B[0, 12, 17]</b><br>
+    <span class="mono">E&#8321; = 0 &minus; (&minus;3) = <b>3</b> &nbsp; E&#8322; = 12 &minus; 2 = <b>10</b> &nbsp; E&#8323; = 17 &minus; 10 = <b>7</b></span></p>
+    <p><b>Address, row-major</b><br>
+    <span class="mono">LOC = 206 + 4 [ 16( 14&times;3 + 10 ) + 7 ]<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 206 + 4 [ 16 &times; 52 + 7 ] = 206 + 4 &times; 839 = <b>3,562</b></span></p>
+    <p><b>The only new skill here is bookkeeping.</b> Write <em>"X = 6, Y = 206"</em> on its own line and the rest is an ordinary question.</p>
   </div></details>
 
   <details class="dig"><summary><span class="dicon">?</span><b>Explain row-major and column-major</b> — Autumn 2025 Q2(a) <span class="subtle">[3 marks]</span></summary><div>
@@ -1794,7 +2075,8 @@ $$('.tab').forEach(function(t){t.addEventListener('click',function(){
   $$('.tab').forEach(function(x){x.setAttribute('aria-selected','false');});
   t.setAttribute('aria-selected','true');
   $$('.panel').forEach(function(p){p.hidden=true;});
-  $('#p-'+t.dataset.tab).hidden=false; window.scrollTo({top:0,behavior:'instant'});
+  $('#p-'+t.dataset.tab).hidden=false;
+  document.body.classList.toggle('onexam', t.dataset.tab!=='lesson'); window.scrollTo({top:0,behavior:'instant'});
 });});
 
 /* RAIL */

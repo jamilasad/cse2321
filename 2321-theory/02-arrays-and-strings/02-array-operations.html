@@ -1148,7 +1148,7 @@ body.fsopen{overflow:hidden}
    only, so it records what has been said rather than previewing it. */
 .keyrail{position:fixed;right:1rem;top:5.6rem;bottom:9.6rem;width:280px;z-index:40;
   display:none;flex-direction:column;pointer-events:none}
-@media(min-width:1240px){.keyrail{display:flex}}
+@media(min-width:1680px){.keyrail{display:flex}}
 .keyrail.hid .kbody{display:none}
 .krhd{pointer-events:auto;display:flex;align-items:center;gap:.55rem;align-self:flex-end;
   background:linear-gradient(180deg,#fff,#fbfcff);border:1px solid #dfe3f2;border-radius:.7rem;
@@ -2333,7 +2333,8 @@ $$('.tab').forEach(function(t){t.addEventListener('click',function(){
   $$('.tab').forEach(function(x){x.setAttribute('aria-selected','false');});
   t.setAttribute('aria-selected','true');
   $$('.panel').forEach(function(p){p.hidden=true;});
-  $('#p-'+t.dataset.tab).hidden=false; window.scrollTo({top:0,behavior:'instant'});
+  $('#p-'+t.dataset.tab).hidden=false;
+  document.body.classList.toggle('onexam', t.dataset.tab!=='lesson'); window.scrollTo({top:0,behavior:'instant'});
 });});
 
 /* RAIL */
