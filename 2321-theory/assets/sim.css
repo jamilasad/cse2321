@@ -37,6 +37,15 @@
    inside a .sim — which clips its own overflow — is content nobody can reach */
 .sim .simbd > *{flex-shrink:0}
 
+/* ---------- the block the keyboard is pointing at ----------
+   Quiet on purpose: it answers "will n drive this one?" at a glance without
+   competing with anything inside the frame. Never shown while Focus is open,
+   because then there is only one thing on the screen anyway. */
+.sim.simon{border-color:#c7d2fe;box-shadow:0 0 0 2px rgba(79,70,229,.16),
+     0 14px 32px -26px rgba(30,27,75,.45),inset 0 1px 0 #fff}
+body.fsopen .sim.simon{box-shadow:none}
+.fsbody .sim.simon{border:0;box-shadow:none}
+
 /* ---------- the step rail: every step a segment, grouped by loop pass ---------- */
 .simrail{display:flex;gap:2px;align-items:stretch;margin:0;border-radius:.35rem;
      overflow:hidden;background:#eef2ff;padding:2px}
@@ -163,7 +172,12 @@ body.fsopen{overflow:hidden}
 .fsbody .sim{margin:0;border:0;border-radius:.6rem;box-shadow:none;
      flex:1 0 auto;display:flex;flex-direction:column;min-height:0}
 .fsbody .simhd{display:none}
-.fsbody .simbd{flex:1 0 auto;display:flex;flex-direction:column;min-height:0;padding:.7rem}
+/* `safe center` and not plain `center`: a widget shorter than the bench is
+   centred on it, but one TALLER than the bench falls back to flex-start so
+   its top cannot escape above the scrollable area. Plain centring loses the
+   first rows of a zoomed-in simulator with no way to scroll back to them. */
+.fsbody .simbd{flex:1 0 auto;display:flex;flex-direction:column;min-height:0;padding:.7rem;
+     justify-content:safe center}
 .fsbody .simboard{flex:1 0 auto;min-height:0}
 .fsbody .simrow{flex:0 0 auto}
 

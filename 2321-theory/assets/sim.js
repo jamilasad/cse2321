@@ -91,6 +91,7 @@ function open(sim){
   ov.classList.add('on');
   document.body.classList.add('fsopen');
   openSim=sim;
+  mark();
   /* refit after the overlay has actually laid out, not on one frame */
   sim.refit();
   void ov.offsetWidth;
@@ -104,6 +105,7 @@ function close(){
   var sim=openSim;
   if(holder && holder.parentNode) holder.parentNode.replaceChild(sim.el, holder);
   holder=null; openSim=null;
+  mark();
   ov.classList.remove('on');
   document.body.classList.remove('fsopen');
   sim.refit();
@@ -335,6 +337,41 @@ function make(cfg){
    not for hunting a Next button. The keys always mean the simulator in Focus,
    or failing that the one covering most of the view. `p` plays and pauses,
    but only where the simulator actually has a Play button.                */
+function keyTarget(){
+  if(openSim) return openSim;
+  var H=window.innerHeight, mid=H/2, bestVis=0, bestD=1e9, target=null;
+  for(var j=0;j<REG.length;j++){
+    var r=REG[j].el.getBoundingClientRect();
+    var vis=Math.min(r.bottom,H)-Math.max(r.top,0);
+    if(vis<=0) continue;
+    var d=Math.abs((r.top+r.bottom)/2-mid);
+    /* most screen wins; a tie goes to the one nearer the middle */
+    if(vis>bestVis+1 || (Math.abs(vis-bestVis)<=1 && d<bestD)){
+      bestVis=vis; bestD=d; target=REG[j];
+    }
+  }
+  return target;
+}
+
+/* ---------- say which block the keys are pointing at ----------------------
+   Pressing n when you thought you were driving the other simulator is a
+   confusing half-second in front of a class. The block the keys currently
+   own carries a quiet ring, kept in step with the page as it scrolls. It
+   uses keyTarget(), so the ring and the keys cannot disagree. */
+var marked=null, markTick=null;
+function mark(){
+  markTick=null;
+  var t=keyTarget();
+  var el=(t && !openSim) ? t.el : null;
+  if(el===marked) return;
+  if(marked) marked.classList.remove('simon');
+  marked=el;
+  if(marked) marked.classList.add('simon');
+}
+function markSoon(){ if(!markTick) markTick=setTimeout(mark,120); }
+window.addEventListener('scroll',markSoon,{passive:true});
+window.addEventListener('resize',markSoon);
+
 document.addEventListener('keydown',function(e){
   var t=document.activeElement;
   if(t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;
@@ -343,20 +380,7 @@ document.addEventListener('keydown',function(e){
   var k=e.key.toLowerCase();
   if(k!=='n'&&k!=='b'&&k!=='r'&&k!=='p') return;
 
-  var target=openSim;
-  if(!target){
-    var H=window.innerHeight, mid=H/2, bestVis=0, bestD=1e9;
-    for(var j=0;j<REG.length;j++){
-      var r=REG[j].el.getBoundingClientRect();
-      var vis=Math.min(r.bottom,H)-Math.max(r.top,0);
-      if(vis<=0) continue;
-      var d=Math.abs((r.top+r.bottom)/2-mid);
-      /* most screen wins; a tie goes to the one nearer the middle */
-      if(vis>bestVis+1 || (Math.abs(vis-bestVis)<=1 && d<bestD)){
-        bestVis=vis; bestD=d; target=REG[j];
-      }
-    }
-  }
+  var target=keyTarget();
   if(!target) return;
   /* p only belongs to a simulator that has a Play button; everywhere else it
      stays a free key for the page to use. */
@@ -367,5 +391,9 @@ document.addEventListener('keydown',function(e){
   e.preventDefault();
 });
 
-return { make:make, open:open, close:close, all:function(){ return REG.slice(); } };
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mark);
+else setTimeout(mark,0);
+
+return { make:make, open:open, close:close, all:function(){ return REG.slice(); },
+         keyTarget:keyTarget };
 })();

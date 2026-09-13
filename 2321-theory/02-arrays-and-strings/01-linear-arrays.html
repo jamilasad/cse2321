@@ -760,6 +760,10 @@ details.prob.lc .plink{background:#d97706}
       border-radius:.5rem;background:#fff;padding:.5rem .8rem;opacity:.22;transform:translateY(4px);
       transition:opacity .35s,transform .35s,border-color .3s,background .3s}
 .drow.on{opacity:1;transform:none}
+/* A faded row is still a readable row, and this walk exists to make them
+   derive the formula rather than read it off. The boxes stay \u2014 they say how
+   many rows are coming \u2014 but a row that has not been reached says nothing. */
+.drow:not(.on) > span{visibility:hidden}
 @media(min-width:620px){.drow{grid-template-columns:6.5rem 6rem 8rem 1fr}}
 .drow span{font-family:var(--mono);font-size:.84rem;font-weight:700;color:var(--ink-soft)}
 .drow .dlbl{color:var(--ink-mute);font-family:var(--sans);font-size:.75rem;font-weight:700}
@@ -916,42 +920,80 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 .pastq .pqt{margin:0;font-size:.93rem;line-height:1.68;color:#4c0519;font-style:italic}
 .pastq .pqt b{font-style:normal;color:#881337}
 
-/* ---- SIMULATOR SHELL + FOCUS -------------------------------------
-   Jamil teaches from a projector. Every widget on the page can now be
-   thrown full-screen, and it is the same node that moves — never a copy,
-   so nothing can drift out of sync. */
-.simbox{border:1px solid #e6e9f7;border-radius:1rem;margin:1.2rem 0;overflow:hidden;
-  background:linear-gradient(180deg,#fff 0%,#fcfdff 55%,#f7f9ff 100%);
-  box-shadow:0 14px 32px -26px rgba(30,27,75,.4)}
-.simhd{display:flex;align-items:center;gap:.7rem;padding:.55rem .9rem;border-bottom:1px solid #eef0f8}
-.simttl{font-size:.5rem;font-weight:800;letter-spacing:.24em;text-transform:uppercase;color:#b4bcd8}
-.focusb{margin-left:auto;appearance:none;font-family:inherit;font-size:.68rem;font-weight:800;
-  border:1px solid #dfe3f2;background:#fff;color:#6d7392;border-radius:.45rem;
-  padding:.28rem .6rem;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:.35rem}
-.focusb:hover{border-color:var(--accent,#0284c7);color:var(--accent,#0284c7)}
-.simbd{padding:.95rem}
-.simbd>:first-child{margin-top:0}
-.simbd>:last-child{margin-bottom:0}
+/* ============ THE VERDICT \u2014 WHAT THIS ALGORITHM IS CALLED ============
+   Same block as class 5: the name in large mono type, one or two lines on
+   what it means as a count of operations, and colour carrying the judgement.
+   --oc the ink and the rules   --ob the wash behind it */
+.bigo{display:flex;flex-wrap:wrap;align-items:center;gap:.55rem 1.2rem;
+  margin:1.25rem 0;padding:.9rem 1.15rem;border-radius:.85rem;
+  border:1.5px solid var(--oc,#94a3b8);border-left-width:6px;
+  background:linear-gradient(100deg,var(--ob,#f8fafc),#fff 66%);
+  box-shadow:0 12px 28px -22px rgba(15,23,42,.65)}
+.bigo .bopair{flex:0 0 auto}
+.bigo .bok{margin:0;font-size:.55rem;font-weight:800;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--oc,#64748b);opacity:.85}
+.bigo .bov{margin:.05rem 0 0;font-family:var(--mono);font-weight:800;line-height:1.02;
+  font-size:clamp(1.65rem,5.6vw,2.35rem);color:var(--oc,#0f172a);white-space:nowrap;
+  font-variant-numeric:tabular-nums}
+.bigo .bod{flex:1 1 15rem;min-width:0;margin:0;font-size:.91rem;line-height:1.62;color:var(--ink-soft)}
+.bigo .bod b{color:var(--ink)}
+.bigo .bopair + .bopair{border-left:1px solid var(--line);padding-left:1.2rem}
+@media(max-width:520px){
+  .bigo{padding:.8rem .9rem;gap:.45rem .9rem}
+  .bigo .bopair + .bopair{border-left:0;padding-left:0}
+  .bigo .bod{flex-basis:100%}
+}
+.fsbody .bigo .bov{font-size:clamp(2rem,6vw,3rem)}
+.fsbody .bigo .bod{font-size:1.05rem}
 
-.fsov{position:fixed;inset:0;z-index:120;background:var(--bg);display:none;flex-direction:column}
-.fsov.on{display:flex}
-body.fsopen{overflow:hidden}
-.fshd{flex:0 0 auto;display:flex;align-items:center;gap:.8rem;padding:.7rem 1.2rem;
-  border-bottom:1px solid var(--line);background:#fff}
-.fshd b{font-size:.9rem;font-weight:800;color:var(--ink);letter-spacing:-.01em}
-.fsx{margin-left:auto;appearance:none;font-family:var(--mono);font-size:.7rem;font-weight:700;
-  color:var(--ink-mute);border:1px solid var(--line-strong);border-radius:.4rem;padding:.22rem .55rem;
-  background:#fff;cursor:pointer}
-.fsx+.fsx{margin-left:0}
-.fsx:hover{color:var(--ink);border-color:var(--ink-mute)}
-.fsbody{flex:1;min-height:0;overflow:auto;padding:clamp(.7rem,2vw,1.6rem)}
-.fsbody{display:flex;flex-direction:column;justify-content:center;justify-content:safe center}
-.fsbody .simbox{max-width:1180px;width:100%;margin:0 auto;border:0;background:transparent;box-shadow:none}
-.fsbody .simhd{display:none}
-.fsbody .simbd{padding:0}
-/* On the wall everything grows. These widgets are DOM, not canvas, so they
-   reflow on their own once the overlay is wider — only the fixed cell sizes
-   and the type have to be told to get bigger. */
+/* ---- THIS PAGE'S PICTURES, ON THE DARK BENCH ---------------------
+   The old private overlay was light only \u2014 it used the page background \u2014 so
+   none of these pictures had ever been asked to sit on a dark surface. The
+   shared bench is dark by default (highest contrast in a lit room), so every
+   white plate on this page gets a night colour. The light bench keeps the
+   page's own colours, which is the point of having two skins. */
+.fsov:not(.lit) .fsbody .acell2 .ab2{background:#1b2238;border-color:#3d4670;color:#e6e9f7}
+.fsov:not(.lit) .fsbody .acell2 .ai2{color:#5b678f}
+.fsov:not(.lit) .fsbody .acell2 .aa2{color:#4c5680}
+.fsov:not(.lit) .fsbody .acell2.sel .ab2{background:#0d2730;border-color:#0891b2;color:#67e8f9}
+.fsov:not(.lit) .fsbody .acell2.sel .ai2,.fsov:not(.lit) .fsbody .acell2.sel .aa2{color:#22d3ee}
+.fsov:not(.lit) .fsbody .acell2.lbub .ab2{background:#3a2a10;border-color:#b45309}
+.fsov:not(.lit) .fsbody .acell2.walk .ab2{background:#3a2a10;border-color:#d97706;color:#fcd34d}
+.fsov:not(.lit) .fsbody .acell2.hitc .ab2{background:#0d2b24;border-color:#0f8a67;color:#6ee7b7}
+.fsov:not(.lit) .fsbody .mc .mb{background:#1b2238;border-color:#3d4670;color:#e6e9f7}
+.fsov:not(.lit) .fsbody .mc .mi{color:#5b678f}
+.fsov:not(.lit) .fsbody .mc .ma{color:#4c5680}
+.fsov:not(.lit) .fsbody .mc.garbage .mb{color:#4c5680}
+.fsov:not(.lit) .fsbody .mc.set .mb{background:#0d2b24;border-color:#0f8a67;color:#6ee7b7}
+.fsov:not(.lit) .fsbody .mc.touch .mb{background:#3a2a10;border-color:#d97706;color:#fcd34d}
+.fsov:not(.lit) .fsbody .dhead{color:#6b769c}
+.fsov:not(.lit) .fsbody .drow{background:#1b2238;border-color:#2b3554;color:#c3cbe4}
+.fsov:not(.lit) .fsbody .drow .dlbl{color:#e6e9f7}
+.fsov:not(.lit) .fsbody .drow .dskip{color:#8f9ac2}
+.fsov:not(.lit) .fsbody .drow .daddr{color:#e6e9f7}
+.fsov:not(.lit) .fsbody .drow.final{background:#10202f;border-color:#0891b2}
+.fsov:not(.lit) .fsbody .fboard{background:#131a2e;border-color:#232b45;color:#c3cbe4}
+.fsov:not(.lit) .fsbody .fline{color:#c3cbe4}
+.fsov:not(.lit) .fsbody .fline .fc{color:#5b678f}
+.fsov:not(.lit) .fsbody .fr{color:#6ee7b7}
+.fsov:not(.lit) .fsbody .algo{background:#131a2e;border-color:#232b45}
+.fsov:not(.lit) .fsbody .algo .st{color:#c3cbe4}
+.fsov:not(.lit) .fsbody .algo.live .st.cur{background:#3a2a10;box-shadow:inset 3px 0 0 #d97706;color:#fcd34d}
+.fsov:not(.lit) .fsbody .algo.live .st.simtrue{background:#0d2b24;box-shadow:inset 3px 0 0 #0f8a67;color:#6ee7b7}
+.fsov:not(.lit) .fsbody .algo.live .st.simfalse{background:#3b0d1c;box-shadow:inset 3px 0 0 #c2295a;color:#fda4af}
+.fsov:not(.lit) .fsbody .ctrl label{color:#8f9ac2}
+.fsov:not(.lit) .fsbody .ctrl input{background:#1b2238;border-color:#2b3554;color:#e6e9f7}
+.fsov:not(.lit) .fsbody .fclbl,.fsov:not(.lit) .fsbody .opdesc,.fsov:not(.lit) .fsbody .subtle{color:#8f9ac2}
+
+/* ---- THIS PAGE'S PICTURES, ON THE SHARED BENCH -------------------
+   The frame, the Focus overlay and the control conventions used to
+   live here. They are in assets/sim.css now — and this page was the
+   prototype they were taken from, so the private shell is DELETED
+   rather than layered under the shared one, which owns the same names.
+
+   What stays below is what is genuinely this page's: how big ITS
+   pictures get on the wall. The shared overlay uses the same .fsbody,
+   so every one of these rules carries over untouched. */
 .fsbody .acell2{width:78px}
 .fsbody .acell2 .ab2{height:58px;font-size:1.3rem}
 .fsbody .acell2 .ai2{font-size:.72rem}
@@ -967,10 +1009,6 @@ body.fsopen{overflow:hidden}
 .fsbody .drow span{font-size:.98rem}
 .fsbody .drow{padding:.55rem .9rem}
 .fsbody .opdesc,.fsbody .fclbl{font-size:1rem}
-.fshint{flex:0 0 auto;display:flex;flex-wrap:wrap;gap:.5rem 1.3rem;padding:.55rem 1.2rem;
-  border-top:1px solid var(--line);background:#fff;font-size:.7rem;color:var(--ink-mute)}
-.fshint kbd{font-family:var(--mono);font-size:.66rem;border:1px solid var(--line-strong);
-  border-bottom-width:2px;border-radius:.28rem;padding:.02rem .3rem;background:#f8fafc;color:var(--ink-soft)}
 
 /* ---- THE TAKEAWAY RAIL -------------------------------------------
    One sentence per section, added as the section is reached — forward
@@ -1004,7 +1042,6 @@ body.fsopen{overflow:hidden}
   padding:.02rem .26rem;font-size:.94em;font-weight:600;color:#075985}
 @keyframes kin{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.kitem{animation:none}}
-body.fsopen .keyrail{display:none}          /* never over a projected screen */
 body.onexam .keyrail{display:none}          /* nor over the exam tab, which has no keys */
 
 /* ---- the input/output examples inside a problem block ---- */
@@ -1025,7 +1062,14 @@ body.onexam .keyrail{display:none}          /* nor over the exam tab, which has 
    Focus mode cannot grow them. */
 #tstrip .acell2{width:52px}
 #tstrip .acell2 .ab2{font-size:.82rem}
-.fsbody #tstrip .acell2{width:52px}
+/* the traversal fills the bench: twenty cells and a six-line module left
+   about 300px of a 830px bench unused, and on a projector that space is
+   better spent on the two things being read. Measured, not guessed. */
+.fsbody #tstrip .acell2{width:62px}
+.fsbody #tstrip .acell2 .ab2{height:54px;font-size:1.25rem}
+.fsbody #tstrip .acell2 .ai2{font-size:.7rem}
+.fsbody #trav-sim .algo{font-size:1.06rem}
+.fsbody #trav-sim .algo .st{padding:.3rem .85rem}
 
 /* ============ ONE COLOUR PER SYMBOL ============
    Segment 2 runs on three formulas and they share five symbols. Each symbol
@@ -1064,30 +1108,29 @@ body.codelight .fboard .fb-ub  {color:#be123c}
    The module IS the answer the exam wants written, so it is not a listing
    beside the picture — it is the thing being executed, with the line that is
    running marked and the If tinted by the answer on every single pass. */
-.simgrid2{display:grid;gap:.9rem;padding:.95rem}
-@media(min-width:900px){.simgrid2{grid-template-columns:minmax(0,332px) minmax(0,1fr);align-items:stretch}}
-.simcol{min-width:0;display:flex;flex-direction:column;gap:.75rem}
-.simcol>.algo.live{flex:1;display:flex;flex-direction:column;justify-content:center}
-.simgrid2 .astrip{margin:0}
-.simgrid2 .twatch{margin:0;grid-template-columns:repeat(3,1fr)}
-.simgrid2 .tw2 .tk2{font-size:.55rem}
-.simgrid2 .tw2 .tv2{font-size:1.1rem}
+/* the traversal's two columns: picture left, live algorithm right. Renamed
+   off .simgrid2/.simcol because assets/sim.css owns .simcol for something
+   else, and two meanings for one name is how every stylesheet collision on
+   this site has started. The padding goes too \u2014 .simbd supplies it now. */
+.tvgrid{display:grid;gap:.9rem}
+@media(min-width:900px){.tvgrid{grid-template-columns:minmax(0,332px) minmax(0,1fr);align-items:stretch}}
+.tvcol{min-width:0;display:flex;flex-direction:column;gap:.75rem}
+.tvcol>.algo.live{flex:1;display:flex;flex-direction:column;justify-content:center}
+.tvgrid .astrip{margin:0}
 .algo.live{border-color:#d9e2ec}
 .algo.live .st{cursor:default;position:relative}
 .algo.live .st.cur{background:#fef3c7;box-shadow:inset 3px 0 0 #d97706;font-weight:700;color:#78350f}
-.algo.live .st.tt{background:#dcfce7;box-shadow:inset 3px 0 0 #16a34a;color:#14532d}
-.algo.live .st.ff{background:#fee2e2;box-shadow:inset 3px 0 0 #dc2626;color:#7f1d1d}
-.verd{display:none;margin-left:.55rem;font-size:.62rem;font-weight:800;letter-spacing:.08em;
-  border-radius:.3rem;padding:.05rem .35rem;vertical-align:1px}
-.st.tt .verd,.st.ff .verd{display:inline-block}
-.st.tt .verd{background:#16a34a;color:#fff}
-.st.ff .verd{background:#dc2626;color:#fff}
+/* the same two tints under the shell's names. The TRUE/FALSE word used to be
+   an inline chip on the line; the shell prints it beside the step number
+   instead, which is where it is on every other page of the site. */
+.algo.live .st.simtrue{background:#dcfce7;box-shadow:inset 3px 0 0 #16a34a;color:#14532d}
+.algo.live .st.simfalse{background:#fee2e2;box-shadow:inset 3px 0 0 #dc2626;color:#7f1d1d}
 .tstep{margin-left:auto;align-self:center;font-size:.68rem;font-weight:800;color:var(--ink-mute);
   border:1px solid var(--line);border-radius:999px;padding:.14rem .55rem;background:#fff;white-space:nowrap}
 /* four cells to a row on the page so the strip fits beside the module;
    Focus gives it the whole width back as two decades */
 #tstrip{max-width:274px;margin-left:auto;margin-right:auto}
-.fsbody .simgrid2{grid-template-columns:minmax(0,560px) minmax(0,1fr);gap:1.4rem}
+.fsbody .tvgrid{grid-template-columns:minmax(0,560px) minmax(0,1fr);gap:1.4rem}
 .fsbody #tstrip{max-width:560px}
 .fsbody .algo.live{font-size:1rem}
 
@@ -1160,6 +1203,7 @@ body.fsopen .simbox.kbdon{box-shadow:none}
   .fsbody #bin-sim #bin-codewrap>p:first-child{margin-top:0}
 }
 </style>
+<link rel="stylesheet" href="../assets/sim.css?v=2">
 </head>
 <body>
 <div class="topbar">
@@ -1286,10 +1330,11 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 
   <p>Three lines of C++ you have written many times. <b>Run them one at a time</b> and watch the memory on the right.</p>
 
-  <div class="simbox" id="ca-sim" data-title="int arr[6] — three lines, six cells">
+  <div class="sim" id="ca-sim">
     <div class="simhd">
       <span class="simttl">Simulator</span>
-      <button class="focusb" type="button" data-focus="ca-sim">⛶ Focus</button>
+      <span class="simnm">int arr[6] &mdash; three lines, six cells</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
     </div>
     <div class="simbd">
       <div class="codearr" style="margin:0">
@@ -1299,12 +1344,16 @@ body.fsopen .simbox.kbdon{box-shadow:none}
           <div class="memcells" id="cacells"></div>
         </div>
       </div>
-      <p class="opdesc" id="camsg">Press <b>Run next line</b>.</p>
-      <div class="btnrow">
-        <button class="btn ghost sm" id="ca-back" data-k="back">&#9666; Back</button>
-        <button class="btn" id="ca-next" data-k="next" style="background:#0284c7">Run next line ▸</button>
-        <button class="btn ghost sm" id="ca-reset" data-k="reset">Reset</button>
+      <div class="simrail"></div>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#0284c7">Run next line &#9656;</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 4</span>
       </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">1</span><p id="camsg"></p></div>
     </div>
   </div>
 
@@ -1381,10 +1430,11 @@ AUTO : <span class="k">array</span> (<span class="n">2000</span>..<span class="n
 
   <p>Change the bounds and watch it. <b>The "+ 1" is the part people forget.</b></p>
 
-  <div class="simbox" id="len-sim" data-title="Length = UB − LB + 1">
+  <div class="sim" id="len-sim">
     <div class="simhd">
       <span class="simttl">Simulator</span>
-      <button class="focusb" type="button" data-focus="len-sim">⛶ Focus</button>
+      <span class="simnm">Length = UB &minus; LB + 1</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
     </div>
     <div class="simbd">
       <div class="ctrls" style="grid-template-columns:1fr 1fr;margin-top:0">
@@ -1396,12 +1446,15 @@ AUTO : <span class="k">array</span> (<span class="n">2000</span>..<span class="n
         <span class="fline">       = <span class="fb-ub" id="l-ub">8</span> <span class="fc">&minus;</span> <span class="fb-lb" id="l-lb">1</span> <span class="fc">+</span> 1</span>
         <span class="fline">       = <span class="fr" id="l-res">8</span> elements</span>
       </div>
-      <div class="btnrow" style="margin-bottom:0">
+      <div class="simctl">
         <button class="btn sm ghost" data-lbub="1,8">A(1:8)</button>
         <button class="btn sm ghost" data-lbub="2000,2019">AUTO(2000:2019)</button>
         <button class="btn sm ghost" data-lbub="23001,23099">STUCGPA(23001:23099)</button>
         <button class="btn sm ghost" data-lbub="-3,17">A(&minus;3:17)</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
       </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">=</span><p id="len-msg"></p></div>
     </div>
   </div>
 
@@ -1475,10 +1528,11 @@ AUTO : <span class="k">array</span> (<span class="n">2000</span>..<span class="n
   <h3>Do not memorise it — build it</h3>
   <p>Take an array with base address <b>200</b>, <b>4</b> bytes per element, lower bound <b>1</b>. Where does each element sit? <b>Work down the list</b>, and watch the third column.</p>
 
-  <div class="simbox" id="der-sim" data-title="Building the address formula, one row at a time">
+  <div class="sim" id="der-sim">
     <div class="simhd">
       <span class="simttl">Simulator</span>
-      <button class="focusb" type="button" data-focus="der-sim">⛶ Focus</button>
+      <span class="simnm">Building the address formula, one row at a time</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
     </div>
     <div class="simbd">
       <div class="dhead"><span>Element</span><span>Index K</span><span>Skipped</span><span>Address</span></div>
@@ -1490,12 +1544,17 @@ AUTO : <span class="k">array</span> (<span class="n">2000</span>..<span class="n
         <div class="drow"><span class="dlbl">&hellip;</span><span>&hellip;</span><span class="dskip">&hellip;</span><span class="daddr">&hellip;</span></div>
         <div class="drow final"><span class="dlbl">Kth</span><span>K</span><span class="dskip"><span class="tk tk-k">K</span> &minus; <span class="tk tk-lb">LB</span></span><span class="daddr"><span class="tk tk-base">BASE(LA)</span> + <span class="tk tk-w">w</span> (<span class="tk tk-k">K</span> &minus; <span class="tk tk-lb">LB</span>)</span></div>
       </div>
-      <div class="btnrow" style="margin-bottom:0">
-        <button class="btn ghost sm" id="der-back" data-k="back">&#9666; Back</button>
-        <button class="btn" id="der-go" data-k="next" style="background:#0284c7">Next row ▸</button>
+      <div class="simrail"></div>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#0284c7">Next row &#9656;</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
         <button class="btn ghost sm" id="der-all">Show all</button>
-        <button class="btn ghost sm" id="der-reset" data-k="reset">Reset</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 6</span>
       </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">1</span><p id="der-msg"></p></div>
     </div>
   </div>
 
@@ -1530,10 +1589,11 @@ AUTO : <span class="k">array</span> (<span class="n">2000</span>..<span class="n
 
   <p><b>Set the numbers, then click any cell.</b> Watch the formula fill in.</p>
 
-  <div class="simbox" id="loc-sim" data-title="LOC(LA[K]) — click any cell">
+  <div class="sim" id="loc-sim">
     <div class="simhd">
       <span class="simttl">Simulator</span>
-      <button class="focusb" type="button" data-focus="loc-sim">⛶ Focus</button>
+      <span class="simnm">LOC(LA[K]) &mdash; click any cell</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
     </div>
     <div class="simbd">
       <div class="ctrls" style="margin-top:0">
@@ -1543,18 +1603,26 @@ AUTO : <span class="k">array</span> (<span class="n">2000</span>..<span class="n
         <div class="ctrl"><label>N — how many</label><input id="f-n" type="number" value="8"></div>
       </div>
 
-      <div class="btnrow">
+      <div class="simctl">
         <button class="btn sm ghost" data-preset2="200,4,1,8">int LA(1:8) · base 200</button>
         <button class="btn sm ghost" data-preset2="300,8,1,8">double · w = 8</button>
         <button class="btn sm ghost" data-preset2="1000,4,23001,8">STUCGPA(23001:…)</button>
         <button class="btn sm ghost" data-preset2="300,4,-3,10">A(&minus;3:17) · the Class Test</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
       </div>
 
       <div class="astrip" id="astrip"></div>
       <p class="subtle" style="text-align:center;margin-top:-.4rem">index on top &nbsp;·&nbsp; value in the box &nbsp;·&nbsp; <b>address underneath</b></p>
 
       <div class="fboard" id="fboard" style="margin-bottom:0"></div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">K</span><p id="loc-msg"></p></div>
     </div>
+  </div>
+
+  <div class="bigo" style="--oc:#15803d;--ob:#f0fdf4">
+    <div class="bopair"><p class="bok">Time to reach any element</p><p class="bov">O(1)</p></div>
+    <p class="bod">One multiplication and two additions — <b>the same three operations</b> whether K is 1 or 1,000,000. The machine never walks along the row, so reaching the last element costs exactly what reaching the first one costs. <b>That is what makes an array an array.</b></p>
   </div>
 
   <div class="box good">
@@ -1672,41 +1740,47 @@ AUTO : <span class="k">array</span> (<span class="n">2000</span>..<span class="n
 
   <p><b>Step it line by line.</b> The module is on the right; the line being executed is marked, and the <span class="mono">If</span> is tinted <b class="hl-good">green</b> when it is true and <b class="hl-bad">red</b> when it is false — every pass, whichever way it goes.</p>
 
-  <div class="simbox" id="trav-sim" data-title="Traversing AUTO(2000:2019)">
+  <div class="sim" id="trav-sim">
     <div class="simhd">
       <span class="simttl">Simulator</span>
-      <button class="focusb" type="button" data-focus="trav-sim">⛶ Focus</button>
+      <span class="simnm">Traversing AUTO(2000:2019)</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
     </div>
-    <div class="simgrid2">
-      <div class="simcol">
+    <div class="simbd">
+      <div class="tvgrid">
+      <div class="tvcol">
         <div class="astrip" id="tstrip" style="margin-top:0"></div>
-        <div class="twatch">
-          <div class="tw2"><p class="tk2">K</p><p class="tv2" id="t-k">—</p></div>
-          <div class="tw2"><p class="tk2">AUTO[K]</p><p class="tv2" id="t-v">—</p></div>
-          <div class="tw2" id="t-numbox"><p class="tk2">NUM</p><p class="tv2" id="t-num">—</p></div>
-        </div>
       </div>
-      <div class="simcol">
+      <div class="tvcol">
         <div class="algo live" style="margin:0">
           <div class="body" id="tcode">
 <span class="st" data-l="0">1. <span class="kw">Set</span> <span class="vr">NUM</span> <span class="op">:=</span> 0.</span>
 <span class="st" data-l="1">2. <span class="kw">Repeat for</span> <span class="vr">K</span> = 2000 <span class="kw">to</span> 2019:</span>
-<span class="st" data-l="2">3.       <span class="kw">If</span> <span class="vr">AUTO</span>[<span class="vr">K</span>] &gt; 300, <span class="kw">then</span>:<span class="verd" data-v=""></span></span>
+<span class="st" data-l="2">3.       <span class="kw">If</span> <span class="vr">AUTO</span>[<span class="vr">K</span>] &gt; 300, <span class="kw">then</span>:</span>
 <span class="st" data-l="3">4.             <span class="kw">Set</span> <span class="vr">NUM</span> <span class="op">:=</span> <span class="vr">NUM</span> + 1.</span>
 <span class="st" data-l="4">   <span class="cm">[End of loop]</span></span>
 <span class="st" data-l="5">5. <span class="kw">Write</span>: <span class="vr">NUM</span>. <span class="kw">Return</span>.</span>
           </div>
         </div>
       </div>
+      </div>
+      <div class="simrail"></div>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#16a34a">Next &#9656;</button>
+        <button class="btn ghost sm" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 1</span>
+      </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">1</span><p id="t-msg"></p></div>
     </div>
-    <p class="opdesc" id="t-msg" style="margin:.85rem .9rem 0">Press <b>Next</b> to run line 1.</p>
-    <div class="btnrow" style="padding:.75rem .9rem .95rem;margin-bottom:0">
-      <button class="btn ghost sm" id="t-back" data-k="back">◂ Back</button>
-      <button class="btn" id="t-next" data-k="next" style="background:#16a34a">Next ▸</button>
-      <button class="btn ghost sm" id="t-play">▶ Play</button>
-      <button class="btn ghost sm" id="t-reset" data-k="reset">Reset</button>
-      <span class="tstep mono" id="t-step">0 / 0</span>
-    </div>
+  </div>
+
+  <div class="bigo" style="--oc:#b45309;--ob:#fffbeb">
+    <div class="bopair"><p class="bok">Time to visit every element</p><p class="bov">O(N)</p></div>
+    <p class="bod">The loop body runs <b>once per element and no more</b>, so the count is <b>proportional to N</b> — twenty years here, a million if the array held a million. Traversal is the shape every "do something to each element" question has.</p>
   </div>
 
   <h3>The same shape, on four different exams</h3>
@@ -2014,9 +2088,8 @@ AUTO : <span class="k">array</span> (<span class="n">2000</span>..<span class="n
   </div>
 </footer>
 
+<script src="../assets/sim.js?v=2"></script>
 <script>
-
-
 (function(){
 "use strict";
 var $=function(s,r){return (r||document).querySelector(s);};
@@ -2049,231 +2122,284 @@ function jump(d){
   if(t>s.length-1)t=s.length-1;
   window.scrollTo({top:Math.max(s[t].offsetTop-80,0),behavior:'smooth'});
 }
+/* the floating drawer is a separate IIFE, so it cannot see jump() unless we
+   hand it over. Without this its up and down arrows throw on every press. */
+window.cardJump=jump;
 
-/* ---------- 2 · LENGTH ---------- */
-function paintLen(which){
-  var lb=parseInt($('#lb').value,10), ub=parseInt($('#ub').value,10);
-  if(isNaN(lb))lb=1; if(isNaN(ub))ub=lb;
-  if(lb>ub){                                   // never allow an empty range
-    if(which==='lb'){ ub=lb; $('#ub').value=ub; }
-    else { lb=ub; $('#lb').value=lb; }
+/* ---------- 2 · LENGTH ----------
+   Free play: the two bounds ARE the lesson, so there is no walk to step. */
+(function(){
+  var api=null;
+  function paintLen(which){
+    var lb=parseInt($('#lb').value,10), ub=parseInt($('#ub').value,10);
+    if(isNaN(lb))lb=1; if(isNaN(ub))ub=lb;
+    if(lb>ub){                                   // never allow an empty range
+      if(which==='lb'){ ub=lb; $('#ub').value=ub; }
+      else { lb=ub; $('#lb').value=lb; }
+    }
+    var len=Math.max(0,ub-lb+1);
+    $('#l-lb').textContent=lb.toLocaleString('en-US');
+    $('#l-ub').textContent=ub.toLocaleString('en-US');
+    $('#l-res').textContent=len.toLocaleString('en-US');
+    /* the preset that is actually in the boxes is the one that looks pressed */
+    $$('[data-lbub]').forEach(function(b){
+      var q=b.dataset.lbub.split(',');
+      b.classList.toggle('ghost', !(+q[0]===lb && +q[1]===ub));
+    });
+    if(!api) return;
+    api.watch([['LB',lb.toLocaleString('en-US')],
+               ['UB',ub.toLocaleString('en-US')],
+               ['Length',len.toLocaleString('en-US')]]);
+    api.msg(lb===1
+      ? 'With <b>LB = 1</b> the count and the last index are the same number, which is why <b>UB &minus; LB + 1</b> looks like a formula you could skip. Change LB and watch that stop being true.'
+      : (lb===0
+        ? 'With <b>LB = 0</b> \u2014 the C++ case \u2014 the last index is <b>'+ub.toLocaleString('en-US')+
+          '</b> but the count is <b>'+len.toLocaleString('en-US')+'</b>. The <b>+ 1</b> is the element at index 0.'
+        : '<b>'+lb.toLocaleString('en-US')+'</b> to <b>'+ub.toLocaleString('en-US')+'</b> is <b>'+
+          len.toLocaleString('en-US')+'</b> elements, not '+(ub-lb).toLocaleString('en-US')+
+          '. Subtracting the bounds counts the <em>gaps</em>; the <b>+ 1</b> puts the first element back.'));
   }
-  $('#l-lb').textContent=lb.toLocaleString('en-US');
-  $('#l-ub').textContent=ub.toLocaleString('en-US');
-  $('#l-res').textContent=Math.max(0,ub-lb+1).toLocaleString('en-US');
-}
-$('#lb').addEventListener('change',function(){paintLen('lb');});
-$('#ub').addEventListener('change',function(){paintLen('ub');});
-$('#lb').addEventListener('input',function(){paintLen();});
-$('#ub').addEventListener('input',function(){paintLen();});
-$$('[data-lbub]').forEach(function(b){b.addEventListener('click',function(){
-  $$('[data-lbub]').forEach(function(x){x.classList.add('ghost');});
-  b.classList.remove('ghost');
-  var p=b.dataset.lbub.split(',');
-  $('#lb').value=p[0]; $('#ub').value=p[1]; paintLen();
-});});
-paintLen();
-
-/* ---------- 4 · ADDRESS FORMULA ---------- */
-var VALS=[30,50,20,70,40,90,10,60,80,25,45,75];
-var selK=null;
-function cfg(){
-  return {base:+$('#f-base').value||0, w:+$('#f-w').value||1,
-          lb:parseInt($('#f-lb').value,10)||0, n:Math.max(1,Math.min(12,+$('#f-n').value||8))};
-}
-function loc(K){ var c=cfg(); return c.base + c.w*(K-c.lb); }
-function paintArr(){
-  var c=cfg(), html='';
-  for(var i=0;i<c.n;i++){
-    var K=c.lb+i;
-    var cls='acell2'+(selK===K?' sel':'');
-    html+='<div class="'+cls+'" data-k="'+K+'"><span class="ai2">['+K.toLocaleString('en-US')+']</span>'+
-          '<div class="ab2">'+VALS[i%VALS.length]+'</div>'+
-          '<span class="aa2">'+loc(K).toLocaleString('en-US')+'</span></div>';
-  }
-  $('#astrip').innerHTML=html;
-  $$('#astrip .acell2').forEach(function(el){
-    el.addEventListener('click',function(){ selK=+el.dataset.k; paintArr(); paintFormula(); });
+  $('#lb').addEventListener('change',function(){paintLen('lb');});
+  $('#ub').addEventListener('change',function(){paintLen('ub');});
+  $('#lb').addEventListener('input',function(){paintLen();});
+  $('#ub').addEventListener('input',function(){paintLen();});
+  $$('[data-lbub]').forEach(function(b){b.addEventListener('click',function(){
+    var q=b.dataset.lbub.split(',');
+    $('#lb').value=q[0]; $('#ub').value=q[1]; paintLen();
+  });});
+  api=Sim.make({
+    el:'#len-sim',
+    name:'Length = UB \u2212 LB + 1',
+    render:function(st,i,a){ api=a; paintLen(); },
+    onReset:function(){ $('#lb').value='1'; $('#ub').value='8'; paintLen(); }
   });
-}
-function paintFormula(){
-  var c=cfg();
-  if(selK===null){
-    $('#fboard').innerHTML='<span class="fline">LOC(LA[<span class="fb-k">K</span>]) = <span class="fb-base">BASE(LA)</span> + <span class="fb-w">w</span> ( <span class="fb-k">K</span> &minus; <span class="fb-lb">LB</span> )</span>'+
-      '<span class="fline dim"><span class="fc">// click any cell above to work it out</span></span>';
-    return;
+})();
+
+/* ---------- 4 · ADDRESS FORMULA ----------
+   Free play: clicking a cell IS the lesson. The watch strip carries the three
+   quantities the formula is built from, so the arithmetic on the board and
+   the chips are two readings of the same press. */
+(function(){
+  var VALS=[30,50,20,70,40,90,10,60,80,25,45,75];
+  var api=null, selK=null;
+  function cfg(){
+    return {base:+$('#f-base').value||0, w:+$('#f-w').value||1,
+            lb:parseInt($('#f-lb').value,10)||0, n:Math.max(1,Math.min(12,+$('#f-n').value||8))};
   }
-  var skipped=selK-c.lb, jump=c.w*skipped, res=c.base+jump;
-  var lbTxt=(c.lb<0?'(&minus;'+Math.abs(c.lb).toLocaleString('en-US')+')':c.lb.toLocaleString('en-US'));
-  $('#fboard').innerHTML=
-    '<span class="fline">LOC(LA[<span class="fb-k">'+selK.toLocaleString('en-US')+'</span>]) = <span class="fb-base">BASE(LA)</span> + <span class="fb-w">w</span> ( <span class="fb-k">K</span> &minus; <span class="fb-lb">LB</span> )</span>'+
-    '<span class="fline">                = <span class="fb-base">'+c.base.toLocaleString('en-US')+'</span> + <span class="fb-w">'+c.w+'</span> ( <span class="fb-k">'+selK.toLocaleString('en-US')+'</span> &minus; <span class="fb-lb">'+lbTxt+'</span> )</span>'+
-    '<span class="fline">                = '+c.base.toLocaleString('en-US')+' + '+c.w+' &times; <span class="fb-k">'+skipped.toLocaleString('en-US')+'</span>   <span class="fc">// '+skipped.toLocaleString('en-US')+' element'+(skipped===1?'':'s')+' skipped</span></span>'+
-    '<span class="fline">                = '+c.base.toLocaleString('en-US')+' + '+jump.toLocaleString('en-US')+'</span>'+
-    '<span class="fline">                = <span class="fr">'+res.toLocaleString('en-US')+'</span></span>';
-}
-['#f-base','#f-w','#f-lb','#f-n'].forEach(function(id){
-  $(id).addEventListener('input',function(){ selK=null; paintArr(); paintFormula(); });
-});
-$$('[data-preset2]').forEach(function(b){b.addEventListener('click',function(){
-  $$('[data-preset2]').forEach(function(x){x.classList.add('ghost');});
-  b.classList.remove('ghost');
-  var p=b.dataset.preset2.split(',');
-  $('#f-base').value=p[0]; $('#f-w').value=p[1]; $('#f-lb').value=p[2]; $('#f-n').value=p[3];
-  selK=null; paintArr(); paintFormula();
-});});
-paintArr(); paintFormula();
+  function loc(K){ var c=cfg(); return c.base + c.w*(K-c.lb); }
+  function paintArr(){
+    var c=cfg(), html='';
+    for(var i=0;i<c.n;i++){
+      var K=c.lb+i;
+      var cls='acell2'+(selK===K?' sel':'');
+      html+='<div class="'+cls+'" data-k="'+K+'"><span class="ai2">['+K.toLocaleString('en-US')+']</span>'+
+            '<div class="ab2">'+VALS[i%VALS.length]+'</div>'+
+            '<span class="aa2">'+loc(K).toLocaleString('en-US')+'</span></div>';
+    }
+    $('#astrip').innerHTML=html;
+    $$('#astrip .acell2').forEach(function(el){
+      el.addEventListener('click',function(){ selK=+el.dataset.k; paintArr(); paintFormula(); });
+    });
+    var p=[c.base,c.w,c.lb,c.n].join(',');
+    $$('[data-preset2]').forEach(function(b){ b.classList.toggle('ghost', b.dataset.preset2!==p); });
+  }
+  function paintFormula(){
+    var c=cfg();
+    if(selK===null){
+      $('#fboard').innerHTML='<span class="fline">LOC(LA[<span class="fb-k">K</span>]) = <span class="fb-base">BASE(LA)</span> + <span class="fb-w">w</span> ( <span class="fb-k">K</span> &minus; <span class="fb-lb">LB</span> )</span>'+
+        '<span class="fline dim"><span class="fc">// click any cell above to work it out</span></span>';
+      if(api){
+        api.watch([['K','\u2014'],['K \u2212 LB','\u2014'],['w(K \u2212 LB)','\u2014'],['LOC','\u2014']]);
+        api.msg('<b>Click any cell.</b> The machine does not count along the row to reach it \u2014 it works the address out in one go, and this board shows the same three steps it takes.');
+      }
+      return;
+    }
+    var skipped=selK-c.lb, jump=c.w*skipped, res=c.base+jump;
+    var lbTxt=(c.lb<0?'(&minus;'+Math.abs(c.lb).toLocaleString('en-US')+')':c.lb.toLocaleString('en-US'));
+    $('#fboard').innerHTML=
+      '<span class="fline">LOC(LA[<span class="fb-k">'+selK.toLocaleString('en-US')+'</span>]) = <span class="fb-base">BASE(LA)</span> + <span class="fb-w">w</span> ( <span class="fb-k">K</span> &minus; <span class="fb-lb">LB</span> )</span>'+
+      '<span class="fline">                = <span class="fb-base">'+c.base.toLocaleString('en-US')+'</span> + <span class="fb-w">'+c.w+'</span> ( <span class="fb-k">'+selK.toLocaleString('en-US')+'</span> &minus; <span class="fb-lb">'+lbTxt+'</span> )</span>'+
+      '<span class="fline">                = '+c.base.toLocaleString('en-US')+' + '+c.w+' &times; <span class="fb-k">'+skipped.toLocaleString('en-US')+'</span>   <span class="fc">// '+skipped.toLocaleString('en-US')+' element'+(skipped===1?'':'s')+' skipped</span></span>'+
+      '<span class="fline">                = '+c.base.toLocaleString('en-US')+' + '+jump.toLocaleString('en-US')+'</span>'+
+      '<span class="fline">                = <span class="fr">'+res.toLocaleString('en-US')+'</span></span>';
+    if(api){
+      api.watch([['K',selK.toLocaleString('en-US')],
+                 ['K \u2212 LB',skipped.toLocaleString('en-US')],
+                 ['w(K \u2212 LB)',jump.toLocaleString('en-US')],
+                 ['LOC',res.toLocaleString('en-US')]]);
+      api.msg('Element <b>'+selK.toLocaleString('en-US')+'</b> has <b>'+skipped.toLocaleString('en-US')+
+        '</b> element'+(skipped===1?'':'s')+' in front of it, each <b>'+c.w+'</b> byte'+(c.w===1?'':'s')+
+        ' wide \u2014 so it sits <b>'+jump.toLocaleString('en-US')+'</b> bytes past the base, at <b>'+
+        res.toLocaleString('en-US')+'</b>. One multiplication, two additions, <b>no counting along the row</b>.');
+    }
+  }
+  ['#f-base','#f-w','#f-lb','#f-n'].forEach(function(id){
+    $(id).addEventListener('input',function(){ selK=null; paintArr(); paintFormula(); });
+  });
+  $$('[data-preset2]').forEach(function(b){b.addEventListener('click',function(){
+    var q=b.dataset.preset2.split(',');
+    $('#f-base').value=q[0]; $('#f-w').value=q[1]; $('#f-lb').value=q[2]; $('#f-n').value=q[3];
+    selK=null; paintArr(); paintFormula();
+  });});
+  api=Sim.make({
+    el:'#loc-sim',
+    name:'LOC(LA[K]) \u2014 click any cell',
+    render:function(st,i,a){ api=a; paintArr(); paintFormula(); },
+    onReset:function(){
+      $('#f-base').value='200'; $('#f-w').value='4'; $('#f-lb').value='1'; $('#f-n').value='8';
+      selK=null; paintArr(); paintFormula();
+    }
+  });
+})();
 
 /* ---------- 5 · TRAVERSAL, LINE BY LINE ----------
    The module on the right is the answer the exam asks for, so it is the thing
    being executed rather than a listing beside the picture. Every pass lands on
-   the If and tints it by the answer — true and false both, which is what makes
-   "twelve of the twenty counted" something you watch instead of something you
-   are told at the end. */
+   the If and the shell tints it by the answer \u2014 true and false both, which is
+   what makes "twelve of the twenty counted" something you watch instead of
+   something you are told at the end. */
 (function(){
   var AUTO=[240,310,180,420,295,350,600,275,330,510,190,480,305,260,720,215,390,285,455,340];
   var LB=2000;
 
   /* the whole run, precomputed, so Back is exactly as correct as Next */
-  var S=[{ln:0, y:-1, num:0, act:'init'}];
+  var S=[{ln:0, y:-1, num:0, act:'init', g:'setup'}];
   (function(){
     var num=0;
+    /* One group for the whole loop rather than one per K: twenty labels in a
+       rail this wide come out as "K = 2…" twenty times, which is noise. The
+       segments still carry the colour of every test, and the watch strip says
+       which K you are on. */
     for(var y=0;y<AUTO.length;y++){
-      S.push({ln:1, y:y, num:num, act:'loop'});
+      var g='the twenty passes';
+      S.push({ln:1, y:y, num:num, act:'loop', g:g});
       var hit=AUTO[y]>300;
-      S.push({ln:2, y:y, num:num, act:'test', ok:hit});
-      if(hit){ num++; S.push({ln:3, y:y, num:num, act:'count'}); }
+      S.push({ln:2, y:y, num:num, act:'test', ok:hit, g:g, cond:{ok:hit}});
+      if(hit){ num++; S.push({ln:3, y:y, num:num, act:'count', g:g}); }
     }
-    S.push({ln:5, y:-1, num:num, act:'end'});
+    S.push({ln:5, y:-1, num:num, act:'end', g:'done'});
   })();
 
-  var at=-1, tmr=null;
-  var strip=$('#tstrip'), code=$('#tcode');
-
-  function draw(){
-    var s = at<0 ? null : S[at];
-    var num = s ? s.num : 0;
-    var cy  = s ? s.y : -1;
-
-    var html='';
-    for(var i=0;i<AUTO.length;i++){
-      var cls='acell2';
-      if(s){
-        var passed = (i<cy) || (i===cy && s.act!=='loop') || s.act==='end';
+  Sim.make({
+    el:'#trav-sim',
+    name:'Traversing AUTO(2000:2019)',
+    steps:S,
+    play:420,
+    lines:'#tcode .st',
+    lineOf:function(st){ return st.ln; },
+    group:function(st){ return st.g; },
+    render:function(st,idx,a){
+      var num=st.num, cy=st.y, html='';
+      for(var i=0;i<AUTO.length;i++){
+        var cls='acell2';
+        var passed=(i<cy) || (i===cy && st.act!=='loop') || st.act==='end';
         if(passed) cls += AUTO[i]>300 ? ' hitc' : ' done2';
         if(i===cy) cls+=' walk';
+        html+='<div class="'+cls+'"><span class="ai2">'+(LB+i)+'</span>'+
+              '<div class="ab2">'+AUTO[i]+'</div></div>';
       }
-      html+='<div class="'+cls+'"><span class="ai2">'+(LB+i)+'</span>'+
-            '<div class="ab2">'+AUTO[i]+'</div></div>';
+      $('#tstrip').innerHTML=html;
+
+      a.watch([
+        ['K',        cy>=0 ? (LB+cy) : '\u2014'],
+        ['AUTO[K]',  cy>=0 ? AUTO[cy] : '\u2014'],
+        ['NUM',      num],
+        ['visited',  st.act==='end' ? AUTO.length : Math.max(0, cy + (st.act==='loop'?0:1))]
+      ]);
+
+      var m;
+      if(st.act==='init')       m='<b>Line 1.</b> Set <b>NUM := 0</b> before the loop starts. This is the step the textbook warns about, and the one people forget.';
+      else if(st.act==='loop')  m='<b>Line 2.</b> K = <b>'+(LB+cy)+'</b>. The loop body runs for this year.';
+      else if(st.act==='test')  m='<b>Line 3.</b> AUTO['+(LB+cy)+'] = <b>'+AUTO[cy]+'</b>. Is it &gt; 300? '+
+          (st.ok?'So line 4 runs.':'So line 4 is skipped and K moves on.');
+      else if(st.act==='count') m='<b>Line 4.</b> NUM becomes <b>'+num+'</b>.';
+      else m='<b>Finished.</b> NUM = <b>'+num+'</b> of the '+AUTO.length+' years \u2014 and the loop touched <b>every</b> element exactly once, no more and no less.';
+      a.msg(m);
     }
-    strip.innerHTML=html;
-
-    $$('.st',code).forEach(function(l){
-      var n=+l.dataset.l;
-      l.classList.remove('cur','tt','ff');
-      if(!s) return;
-      if(n===s.ln){
-        if(s.act==='test') l.classList.add(s.ok?'tt':'ff');
-        else l.classList.add('cur');
-      }
-    });
-    var v=$('.verd',code);
-    v.textContent = (s&&s.act==='test') ? (s.ok?'TRUE':'FALSE') : '';
-
-    $('#t-k').textContent   = (s&&cy>=0) ? (LB+cy) : '—';
-    $('#t-v').textContent   = (s&&cy>=0) ? AUTO[cy] : '—';
-    $('#t-num').textContent = s ? num : '—';
-    $('#t-numbox').classList.toggle('hit2', !!(s&&s.act==='count'));
-
-    var m;
-    if(!s) m='Press <b>Next</b> to run line 1.';
-    else if(s.act==='init')  m='<b>Line 1.</b> Set <b>NUM := 0</b> before the loop starts. This is the step the textbook warns about, and the one people forget.';
-    else if(s.act==='loop')  m='<b>Line 2.</b> K = <b>'+(LB+cy)+'</b>. The loop body runs for this year.';
-    else if(s.act==='test')  m='<b>Line 3.</b> AUTO['+(LB+cy)+'] = <b>'+AUTO[cy]+'</b>. Is it &gt; 300? '+
-        (s.ok?'<b class="hl-good">TRUE</b> — so line 4 runs.':'<b class="hl-bad">FALSE</b> — line 4 is skipped and K moves on.');
-    else if(s.act==='count') m='<b>Line 4.</b> NUM becomes <b>'+num+'</b>.';
-    else m='<b>Finished.</b> NUM = <b>'+num+'</b> of the '+AUTO.length+' years. The loop touched <b>every</b> element exactly once — that is <b>O(n)</b>, and it is O(n) whatever PROCESS does.';
-    $('#t-msg').innerHTML=m;
-
-    $('#t-step').textContent=(at+1)+' / '+S.length;
-    $('#t-next').disabled = at>=S.length-1;
-    $('#t-back').disabled = at<0;
-    $('#t-next').textContent = at>=S.length-1 ? 'Done ✓' : 'Next ▸';
-  }
-  function stop(){ if(tmr){clearInterval(tmr);tmr=null;} $('#t-play').textContent='▶ Play'; }
-  $('#t-next').onclick =function(){ stop(); if(at<S.length-1){at++;draw();} };
-  $('#t-back').onclick =function(){ stop(); if(at>=0){at--;draw();} };
-  $('#t-reset').onclick=function(){ stop(); at=-1; draw(); };
-  $('#t-play').onclick =function(){
-    if(tmr){ stop(); return; }
-    if(at>=S.length-1) at=-1;
-    this.textContent='⏸ Pause';
-    tmr=setInterval(function(){
-      if(at<S.length-1){ at++; draw(); } else stop();
-    }, 420);
-  };
-  draw();
+  });
 })();
 
-
-/* ---------- 1b · CODE-DRIVEN ARRAY ---------- */
+/* ---------- 1b · CODE-DRIVEN ARRAY ----------
+   Four landings: the six cells as the machine hands them over, then one per
+   line of code. The listing is the live panel, so `lines` marks the line that
+   is running and the picture below it answers. */
 (function(){
   var LINES=[
-    {c:'<span class="t">int</span> arr[<span class="n">6</span>];',           note:'Six int variables are reserved, side by side. <b>Nothing is cleared</b> — each still holds whatever bytes were already there.', act:'declare'},
-    {c:'arr[<span class="n">3</span>] = <span class="n">5</span>;',            note:'The machine jumps <b>straight</b> to cell 3 and writes 5. It does not look at cells 0, 1 or 2.', act:3, val:5},
-    {c:'arr[<span class="n">5</span>] = <span class="n">100</span>;',          note:'Straight to cell 5 and writes 100 — <b>exactly as fast</b> as writing to cell 3 was.', act:5, val:100}
+    {c:'<span class="t">int</span> arr[<span class="n">6</span>];',    note:'Six int variables are reserved, side by side. <b>Nothing is cleared</b> \u2014 each still holds whatever bytes were already there.', act:'declare'},
+    {c:'arr[<span class="n">3</span>] = <span class="n">5</span>;',    note:'The machine jumps <b>straight</b> to cell 3 and writes 5. It does not look at cells 0, 1 or 2.', act:3, val:5},
+    {c:'arr[<span class="n">5</span>] = <span class="n">100</span>;',  note:'Straight to cell 5 and writes 100 \u2014 <b>exactly as fast</b> as writing to cell 3 was.', act:5, val:100}
   ];
   var GARB=['-8213','29417','0','1','-1','32764'];
-  var step=-1, cells=[];
-  function reset(){ step=-1; cells=[]; draw(); }
-  function draw(){
-    $('#cacode').innerHTML=LINES.map(function(l,i){
-      var cls='cl'+(i===step?' cur':(i<step?' done':''));
-      return '<span class="'+cls+'">'+l.c+'</span>';
-    }).join('')+'<span class="cl c">// arr[0] … arr[5]</span>';
-    var html='';
-    for(var i=0;i<6;i++){
-      var cls='mc', txt='';
-      if(step<0){ cls+=' garbage'; txt='—'; }
-      else if(cells[i]!==undefined){ cls+=' set'; txt=cells[i]; }
-      else { cls+=' garbage'; txt=GARB[i]; }
-      var cur = step>0 && LINES[step] && LINES[step].act===i;
-      if(cur) cls+=' touch';
-      html+='<div class="'+cls+'"><span class="mi">['+i+']</span><div class="mb">'+txt+'</div><span class="ma">'+(200+4*i)+'</span></div>';
+
+  var STEPS=[{i:-1}];
+  for(var q=0;q<LINES.length;q++) STEPS.push({i:q});
+
+  /* the listing never changes, so it is written once rather than every step */
+  $('#cacode').innerHTML=LINES.map(function(l,i){
+    return '<span class="cl" data-l="'+i+'">'+l.c+'</span>';
+  }).join('')+'<span class="cl c">// arr[0] \u2026 arr[5]</span>';
+
+  Sim.make({
+    el:'#ca-sim',
+    name:'int arr[6] \u2014 three lines, six cells',
+    steps:STEPS,
+    lines:'#cacode .cl[data-l]',
+    lineOf:function(st){ return st.i<0 ? null : st.i; },
+    group:function(st){ return st.i<0 ? 'given' : 'lines'; },
+    render:function(st,idx,a){
+      var step=st.i, cells=[];
+      for(var k=0;k<=step;k++){ var l=LINES[k]; if(typeof l.act==='number') cells[l.act]=l.val; }
+      var html='';
+      for(var i=0;i<6;i++){
+        var cls='mc', txt='';
+        if(step<0){ cls+=' garbage'; txt='\u2014'; }
+        else if(cells[i]!==undefined){ cls+=' set'; txt=cells[i]; }
+        else { cls+=' garbage'; txt=GARB[i]; }
+        if(step>0 && LINES[step] && LINES[step].act===i) cls+=' touch';
+        html+='<div class="'+cls+'"><span class="mi">['+i+']</span><div class="mb">'+txt+'</div><span class="ma">'+(200+4*i)+'</span></div>';
+      }
+      $('#cacells').innerHTML=html;
+      a.watch([
+        ['lines run', step+1],
+        ['arr[3]', cells[3]!==undefined ? cells[3] : '?'],
+        ['arr[5]', cells[5]!==undefined ? cells[5] : '?']
+      ]);
+      a.msg(step<0
+        ? 'Before a single line runs. <b>Six cells, side by side</b>, each holding whatever was left there by whatever ran before \u2014 the addresses underneath are what makes them an array.'
+        : LINES[step].note);
     }
-    $('#cacells').innerHTML=html;
-    $('#camsg').innerHTML = step<0 ? 'Press <b>Run next line</b>.' : LINES[step].note;
-    $('#ca-next').disabled = step>=LINES.length-1;
-    $('#ca-back').disabled = step<0;
-    $('#ca-next').textContent = step>=LINES.length-1 ? 'All lines run ✓' : 'Run next line ▸';
-  }
-  $('#ca-next').onclick=function(){
-    if(step>=LINES.length-1) return;
-    step++;
-    var l=LINES[step];
-    if(typeof l.act==='number') cells[l.act]=l.val;
-    draw();
-  };
-  $('#ca-back').onclick=function(){ if(step>-1){ step--; cells=[]; 
-    for(var i=0;i<=step;i++){ var l=LINES[i]; if(typeof l.act==='number') cells[l.act]=l.val; }
-    draw(); } };
-  $('#ca-reset').onclick=reset;
-  reset();
+  });
 })();
 
-/* ---------- 5 · DERIVATION ---------- */
+/* ---------- 5 · DERIVATION ----------
+   Six rows, one per press, ending on the general form. "Show all" is the
+   same walk jumped to its last step rather than a second way of drawing it. */
 (function(){
-  var d=0, rows=$$('#deriv .drow');
-  function paint(){ rows.forEach(function(r,i){ r.classList.toggle('on', i<d); });
-    $('#der-go').textContent = d>=rows.length ? '↻ Start again' : 'Next row ▸';
-    $('#der-back').disabled = d<=0; }
-  $('#der-go').onclick=function(){ if(d>=rows.length) d=0; else d++; paint(); };
-  $('#der-back').onclick=function(){ if(d>0){ d--; paint(); } };
-  $('#der-all').onclick=function(){ d=rows.length; paint(); };
-  $('#der-reset').onclick=function(){ d=0; paint(); };
-  paint();
+  var rows=$$('#deriv .drow');
+  var STEPS=[];
+  for(var q=0;q<=rows.length;q++) STEPS.push({d:q});
+  var NOTE=[
+    'Nothing derived yet. Each press adds one row, and by the last one the pattern has written the formula for you.',
+    'The <b>1st</b> element sits at the base address itself \u2014 <b>nothing</b> is skipped to reach it.',
+    'The <b>2nd</b> is one element past the base: <b>BASE + 4&times;1</b>.',
+    'The <b>3rd</b> is two past: <b>BASE + 4&times;2</b>. The multiplier is following the index, one behind.',
+    'The <b>4th</b> is three past: <b>BASE + 4&times;3</b>. Three presses in, the pattern is already fixed.',
+    'It keeps going the same way for every element in the array.',
+    'And there it is in general: the <b>K</b>th element skips <b>K &minus; LB</b> elements, each <b>w</b> bytes wide. <b>That is the formula</b> \u2014 derived, not memorised.'
+  ];
+  var api=Sim.make({
+    el:'#der-sim',
+    name:'Building the address formula, one row at a time',
+    steps:STEPS,
+    group:function(st){ return st.d===0 ? 'start' : (st.d>=rows.length ? 'the formula' : 'rows'); },
+    render:function(st,idx,a){
+      rows.forEach(function(r,i){ r.classList.toggle('on', i<st.d); });
+      a.watch([['rows shown', st.d], ['elements skipped', st.d>0 ? (st.d>=rows.length ? 'K \u2212 LB' : (st.d-1)) : '\u2014']]);
+      a.msg(NOTE[Math.min(st.d, NOTE.length-1)]);
+    }
+  });
+  $('#der-all').onclick=function(){ api.go(STEPS.length-1); };
 })();
-
 
 /* ---------- YOUR TURN: ask before showing ----------
    The question comes first and the answer is one button away. It is never
@@ -2289,72 +2415,9 @@ paintArr(); paintFormula();
   });
 })();
 
-/* ================= FOCUS MODE =================
-   For the projector. The widget is not duplicated — the whole .simbox is
-   physically moved into a full-screen overlay and moved back into its own
-   slot on close, so there is exactly one copy of every cell and every
-   handler, and nothing can drift out of sync. Everything on this page is
-   DOM rather than canvas, so it reflows on its own once the overlay is
-   wider; only the fixed cell sizes and the type are told to grow (see the
-   .fsbody rules in the stylesheet). */
-(function(){
-  var boxes=$$('.simbox'); if(!boxes.length) return;
-  var ov=el('div','fsov');
-  ov.id='fsov';
-  ov.setAttribute('role','dialog');
-  ov.setAttribute('aria-modal','true');
-  ov.innerHTML=
-    '<div class="fshd"><b id="fs-ttl"></b>'+
-      '<button class="fsx" id="fs-theme" type="button"></button>'+
-      '<button class="fsx" id="fs-x" type="button">Esc &#10005;</button></div>'+
-    '<div class="fsbody" id="fs-body"></div>'+
-    '<div class="fshint">'+
-      '<span><kbd>Esc</kbd> close</span>'+
-      '<span>the buttons work exactly as they do on the page</span>'+
-    '</div>';
-  document.body.appendChild(ov);
-
-  var body=$('#fs-body'), home=null, slot=null, node=null;
-
-  function open(id){
-    var box=$('#'+id); if(!box||node) return;
-    node=box; home=box.parentNode; slot=box.nextSibling;
-    $('#fs-ttl').textContent=box.dataset.title||'Simulator';
-    body.appendChild(box);
-    ov.classList.add('on'); document.body.classList.add('fsopen');
-    syncTheme();
-    $('#fs-x').focus();
-  }
-  function close(){
-    if(!node) return;
-    home.insertBefore(node,slot);          /* back into its own slot, not the end */
-    ov.classList.remove('on'); document.body.classList.remove('fsopen');
-    node=null; home=null; slot=null;
-  }
-  window.__fsClose=close;
-
-  /* one switch for the whole page: code panels and Focus mode together */
-  function syncTheme(){
-    var lightNow=document.body.classList.contains('codelight');
-    var b=$('#fs-theme'); if(b) b.textContent = lightNow ? '🌙 Dark code' : '☀ Light code';
-  }
-  window.__syncFsTheme=syncTheme;
-
-  $$('[data-focus]').forEach(function(b){
-    b.addEventListener('click',function(){ open(b.dataset.focus); });
-  });
-  $('#fs-x').addEventListener('click',close);
-  $('#fs-theme').addEventListener('click',function(){
-    document.body.classList.toggle('codelight');
-    try{ localStorage.setItem('dsa-code-theme',
-      document.body.classList.contains('codelight')?'light':'dark'); }catch(e){}
-    syncTheme();
-    if(window.__syncCodeTog) window.__syncCodeTog();
-  });
-  document.addEventListener('keydown',function(e){
-    if(e.key==='Escape' && node) close();
-  });
-})();
+/* Focus, and the n / b / r / p keys, are the shared shell's now \u2014 including
+   the ring that says which block the keys are pointing at, which started life
+   on this page and moved into assets/sim.js so every page has it. */
 
 /* ================= THE TAKEAWAY RAIL =================
    Each lesson card carries one sentence in data-key. As you reach a card the
@@ -2458,65 +2521,7 @@ paintArr(); paintFormula();
   };
   show();
 })();
-
-/* ---------- n / b / r drive the simulator you are looking at ----------
-   Every widget here has its own buttons, so the keys are wired to the block
-   nearest the middle of the view — or the one in Focus — and that block says
-   so in its own button row. */
-(function(){
-  var BLOCKS=$$('.simbox').filter(function(s){ return $('[data-k="next"]',s); });
-  if(!BLOCKS.length) return;
-  BLOCKS.forEach(function(sim){
-    var row=$('.btnrow',sim); if(!row) return;
-    var h=el('span','kbdhint','<kbd>n</kbd> next');
-    if($('[data-k="back"]',sim)) h.innerHTML+=' <kbd>b</kbd> back';
-    h.innerHTML+=' <kbd>r</kbd> reset';
-    row.appendChild(h);
-  });
-  var cur=null, tick=null;
-  function pick(){
-    var ov=document.querySelector('.fsov .simbox');
-    if(ov) return $('[data-k="next"]',ov)?ov:null;
-    var best=null, bd=1e9, mid=window.innerHeight/2;
-    BLOCKS.forEach(function(s){
-      var r=s.getBoundingClientRect();
-      if(r.bottom<70 || r.top>window.innerHeight-50) return;
-      var d=Math.abs((r.top+r.bottom)/2-mid);
-      if(d<bd){ bd=d; best=s; }
-    });
-    return best;
-  }
-  function mark(){
-    var s=pick();
-    if(s===cur) return;
-    if(cur) cur.classList.remove('kbdon');
-    cur=s; if(cur) cur.classList.add('kbdon');
-  }
-  window.addEventListener('scroll',function(){
-    if(tick) return;
-    tick=setTimeout(function(){ tick=null; mark(); },120);
-  },{passive:true});
-  window.addEventListener('resize',mark);
-  document.addEventListener('keydown',function(e){
-    if(e.metaKey||e.ctrlKey||e.altKey) return;
-    var fe=document.activeElement, t=(e.target&&e.target.tagName)||'';
-    var ft=(fe&&fe.tagName)||'';
-    if(/^(INPUT|SELECT|TEXTAREA)$/.test(t)||/^(INPUT|SELECT|TEXTAREA)$/.test(ft)) return;
-    var k=e.key.toLowerCase();
-    if(k!=='n'&&k!=='b'&&k!=='r') return;
-    mark(); var s=pick(); if(!s) return;
-    var btn=$('[data-k="'+(k==='n'?'next':k==='b'?'back':'reset')+'"]',s);
-    if(btn && !btn.disabled){ e.preventDefault(); btn.click(); }
-  });
-  mark();
 })();
-document.addEventListener('keydown',function(e){
-  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
-  if(e.key==='j'||e.key==='ArrowDown'){e.preventDefault();jump(1);}
-  if(e.key==='k'||e.key==='ArrowUp'){e.preventDefault();jump(-1);}
-});
-})();
-
 
 /* ---------- FLOATING JUMP DRAWER ---------- */
 (function(){
@@ -2570,8 +2575,8 @@ document.addEventListener('keydown',function(e){
     document.body.style.overflow = v?'hidden':'';
   }
   fab.querySelector('.fmenu').onclick=function(){open(!dr.classList.contains('on'));};
-  fab.querySelector('.fup').onclick=function(){jump(-1);};
-  fab.querySelector('.fdn').onclick=function(){jump(1);};
+  fab.querySelector('.fup').onclick=function(){window.cardJump(-1);};
+  fab.querySelector('.fdn').onclick=function(){window.cardJump(1);};
   dr.querySelector('.dx').onclick=function(){open(false);};
   scrim.onclick=function(){open(false);};
   dr.addEventListener('click',function(e){
