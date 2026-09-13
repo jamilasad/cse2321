@@ -25,6 +25,14 @@
                 on the flowchart page they are the SVG shapes, so the decision
                 diamond itself goes green on Yes and red on No.
 
+                A widget may show the SAME step in two listings at once — the
+                numbered procedure and the C++ beside it — at different line
+                numbers. Pass a list, each with its own index, and switching
+                tabs never loses your place:
+
+                  lines:[{sel:'#x [data-pane=\"a\"] .st', of:function(s){return s.la;}},
+                         {sel:'#x [data-pane=\"c\"] .cl', of:function(s){return s.lc;}}]
+
    ES5 on purpose: it has to match the rest of the site, and it has to run
    from file:// on a classroom laptop with no build step.
 
@@ -204,10 +212,20 @@ function make(cfg){
    Every stepper on the site was doing this by hand, and every one of them
    was doing it slightly differently. The page says which nodes are lines;
    the shell says which one is live and what a condition on it evaluated to. */
-  function lines(){
+  /* one listing, or several shown side by side — each with its own index */
+  function listings(){
     if(lineEls) return lineEls;
-    if(!cfg.lines) return null;
-    lineEls = typeof cfg.lines==='string' ? $$(cfg.lines) : cfg.lines;
+    var L=cfg.lines;
+    if(!L){ lineEls=[]; return lineEls; }
+    var dflt = cfg.lineOf || function(st){ return st.l; };
+    if(typeof L==='string')      lineEls=[{nodes:$$(L), of:dflt, first:true}];
+    else if(L.length===undefined) lineEls=[{nodes:[L], of:dflt, first:true}];
+    else if(typeof L[0]==='string' || (L[0] && L[0].nodeType))
+                                 lineEls=[{nodes:(typeof L[0]==='string'?$$(L[0]):L), of:dflt, first:true}];
+    else lineEls=L.map(function(x,i){
+      return {nodes: typeof x.sel==='string' ? $$(x.sel) : x.sel,
+              of: x.of || dflt, first:i===0};
+    });
     return lineEls;
   }
   /* the box the listing scrolls inside, if it scrolls at all */
@@ -221,26 +239,32 @@ function make(cfg){
     }
     return null;
   }
-  function lineOf(st){
+  function indexIn(set, st){
     if(!st) return null;
-    if(st.cond && typeof st.cond.ln==='number') return st.cond.ln;
-    var n = cfg.lineOf ? cfg.lineOf(st) : st.l;
+    /* cond.ln names a line in the FIRST listing only — with several listings
+       each one already carries its own index function */
+    if(set.first && st.cond && typeof st.cond.ln==='number') return st.cond.ln;
+    var n=set.of(st);
     return typeof n==='number' ? n : null;
   }
   function paintLines(st){
-    var L=lines(); if(!L||!L.length) return;
-    var idx=lineOf(st), c=st&&st.cond;
-    for(var k=0;k<L.length;k++){
-      var on=(k===idx);
-      L[k].classList.toggle('cur',on);
-      L[k].classList.toggle('simtrue',  on && !!c && c.ok===true);
-      L[k].classList.toggle('simfalse', on && !!c && c.ok===false);
-    }
-    /* looked up fresh every step: Focus moves the block, so the box a line
-       scrolls inside is not the same box it was a moment ago */
-    if(idx!==null && L[idx]){
-      var pane=scroller(L[idx]);
-      if(pane) api.reveal(L[idx], pane);
+    var sets=listings(); if(!sets.length) return;
+    var c=st&&st.cond;
+    for(var q=0;q<sets.length;q++){
+      var nodes=sets[q].nodes, idx=indexIn(sets[q],st);
+      for(var k=0;k<nodes.length;k++){
+        var on=(k===idx);
+        nodes[k].classList.toggle('cur',on);
+        nodes[k].classList.toggle('simtrue',  on && !!c && c.ok===true);
+        nodes[k].classList.toggle('simfalse', on && !!c && c.ok===false);
+      }
+      /* looked up fresh every step: Focus moves the block, so the box a line
+         scrolls inside is not the same box it was a moment ago. A listing that
+         is not on screen (the hidden half of a tab pair) has no scroller. */
+      if(idx!==null && nodes[idx] && nodes[idx].offsetParent!==null){
+        var pane=scroller(nodes[idx]);
+        if(pane) api.reveal(nodes[idx], pane);
+      }
     }
   }
   /* TRUE or FALSE, beside the step number, in the shell's own words */

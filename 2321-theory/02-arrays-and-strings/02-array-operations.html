@@ -790,15 +790,6 @@ details.prob.lc .plink{background:#d97706}
 .oc.found2 .ob{border-color:#16a34a;background:#bbf7d0;color:#14532d;box-shadow:0 0 0 3px rgba(22,163,74,.3)}
 .oc.sent .ob{border-color:#a855f7;background:#faf5ff;color:#7e22ce;border-style:dashed}
 
-/* counters */
-.cnts{display:grid;gap:.5rem;margin:.9rem 0}
-@media(min-width:520px){.cnts{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}}
-.cnt2{border:2px solid var(--line);border-radius:.6rem;background:#fff;padding:.6rem;text-align:center}
-.cnt2 .ck2{font-size:.58rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-mute);margin:0}
-.cnt2 .cv3{font-family:var(--mono);font-size:1.55rem;font-weight:700;color:var(--ink);margin:.1rem 0 0}
-.cnt2.c-c{border-color:#fcd34d;background:#fffbeb}.cnt2.c-c .cv3{color:#b45309}
-.cnt2.c-d{border-color:#86efac;background:#f0fdf4}.cnt2.c-d .cv3{color:#15803d}
-.cnt2.c-p{border-color:#bfdbfe;background:#eff6ff}.cnt2.c-p .cv3{color:#1d4ed8}
 
 /* word input */
 .wordbar{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;justify-content:center;margin:.9rem 0}
@@ -960,24 +951,17 @@ body:not(.codelight) .autocode .al.hot2{background:rgba(56,189,248,.22);box-shad
               border:1px dashed #cbd5e1;background:repeating-linear-gradient(-45deg,rgba(148,163,184,.12) 0 5px,transparent 5px 10px)}
 body:not(.codelight) .autocode .ph{border-color:#334155;background:repeating-linear-gradient(-45deg,rgba(148,163,184,.16) 0 5px,transparent 5px 10px)}
 /* ---- step message panel ---- */
-.stepmsg{display:flex;align-items:center;gap:.75rem;margin:.9rem 0;padding:.7rem .9rem;min-height:58px;
-         border:1px solid var(--line);border-left:5px solid #94a3b8;border-radius:.65rem;background:#f8fafc;
-         transition:background .3s,border-color .3s}
-.stepmsg .smic{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
-               font-size:.95rem;font-weight:800;color:#fff;background:#94a3b8;transition:background .3s}
-.stepmsg .smtx{margin:0;flex:1 1 auto;min-width:0;font-size:clamp(.85rem,3.2vw,1.02rem);line-height:1.55;color:var(--ink)}
-.stepmsg .smtx .mono,.stepmsg .smtx b{font-weight:800}
-.stepmsg .smn{flex:0 0 auto;font-family:var(--mono);font-size:.66rem;font-weight:800;letter-spacing:.05em;
-              color:var(--ink-mute);background:#fff;border:1px solid var(--line);border-radius:999px;padding:.2rem .55rem}
-.stepmsg.bump{animation:smPop .35s ease}
 @keyframes smPop{0%{transform:scale(.985);opacity:.55}100%{transform:scale(1);opacity:1}}
-.stepmsg.t-set  {border-left-color:#6366f1;background:#eef2ff}.stepmsg.t-set   .smic{background:#6366f1}
-.stepmsg.t-ask  {border-left-color:#0ea5e9;background:#f0f9ff}.stepmsg.t-ask   .smic{background:#0ea5e9}
-.stepmsg.t-mid  {border-left-color:#d97706;background:#fffbeb}.stepmsg.t-mid   .smic{background:#d97706}
-.stepmsg.t-cut  {border-left-color:#0284c7;background:#eff6ff}.stepmsg.t-cut   .smic{background:#0284c7}
-.stepmsg.t-found{border-left-color:#16a34a;background:#f0fdf4}.stepmsg.t-found .smic{background:#16a34a}
-.stepmsg.t-miss {border-left-color:#e11d48;background:#fff1f2}.stepmsg.t-miss  .smic{background:#e11d48}
-@media(max-width:520px){.stepmsg{gap:.55rem;padding:.6rem .7rem}.stepmsg .smn{display:none}}
+/* Binary search says more than true/false: setting up, asking, taking a
+   midpoint, cutting, found, missing. Six tones, carried on the shell's own
+   narration box so the sentence and its colour arrive together. */
+.simmsg.t-set  {border-left:4px solid #6366f1;background:#eef2ff}
+.simmsg.t-ask  {border-left:4px solid #0ea5e9;background:#f0f9ff}
+.simmsg.t-mid  {border-left:4px solid #d97706;background:#fffbeb}
+.simmsg.t-cut  {border-left:4px solid #0284c7;background:#eff6ff}
+.simmsg.t-found{border-left:4px solid #16a34a;background:#f0fdf4}
+.simmsg.t-miss {border-left:4px solid #e11d48;background:#fff1f2}
+@media(max-width:520px){.sim .simmsg{padding:.6rem .7rem}}
 .btnsep{width:1px;align-self:stretch;background:var(--line);margin:0 .35rem}
 @media(max-width:560px){.btnsep{display:none}}
 .autocode .al.fresh{animation:lineIn .6s ease}
@@ -1087,61 +1071,85 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 .pastq .pqt{margin:0;font-size:.93rem;line-height:1.68;color:#4c0519;font-style:italic}
 .pastq .pqt b{font-style:normal;color:#881337}
 
-/* ---- SIMULATOR SHELL + FOCUS -------------------------------------
-   Jamil teaches from a projector. Every widget on the page can now be
-   thrown full-screen, and it is the same node that moves — never a copy,
-   so nothing can drift out of sync. */
-.simbox{border:1px solid #e6e9f7;border-radius:1rem;margin:1.2rem 0;overflow:hidden;
-  background:linear-gradient(180deg,#fff 0%,#fcfdff 55%,#f7f9ff 100%);
-  box-shadow:0 14px 32px -26px rgba(30,27,75,.4)}
-.simhd{display:flex;align-items:center;gap:.7rem;padding:.55rem .9rem;border-bottom:1px solid #eef0f8}
-.simttl{font-size:.5rem;font-weight:800;letter-spacing:.24em;text-transform:uppercase;color:#b4bcd8}
-.focusb{margin-left:auto;appearance:none;font-family:inherit;font-size:.68rem;font-weight:800;
-  border:1px solid #dfe3f2;background:#fff;color:#6d7392;border-radius:.45rem;
-  padding:.28rem .6rem;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:.35rem}
-.focusb:hover{border-color:var(--accent,#0284c7);color:var(--accent,#0284c7)}
-.simbd{padding:.95rem}
-.simbd>:first-child{margin-top:0}
-.simbd>:last-child{margin-bottom:0}
+/* ---- THIS PAGE'S PICTURES, ON THE DARK BENCH ---------------------
+   The old private overlay used the page background, so it was light only and
+   none of these had ever been asked to sit on a dark surface. The shared
+   bench is dark by default; the light one keeps the page's own colours. */
+.fsov:not(.lit) .fsbody .oc .ob{background:#1b2238;border-color:#3d4670;color:#e6e9f7}
+.fsov:not(.lit) .fsbody .oc .oi{color:#5b678f}
+.fsov:not(.lit) .fsbody .oc.moving .ob{background:#241b3d;border-color:#7c3aed;color:#c4b5fd}
+.fsov:not(.lit) .fsbody .oc.newv2 .ob{background:#0d2b24;border-color:#0f8a67;color:#6ee7b7}
+.fsov:not(.lit) .fsbody .oc.gone2 .ob{background:#3b0d1c;border-color:#c2295a;color:#fda4af}
+.fsov:not(.lit) .fsbody .oc.empty2 .ob{background:#151c30;border-color:#2b3554;color:#4c5680}
+.fsov:not(.lit) .fsbody .oc.cmp .ob{background:#3a2a10;border-color:#b45309;color:#fcd34d}
+.fsov:not(.lit) .fsbody .oc.swapd .ob,.fsov:not(.lit) .fsbody .oc.found2 .ob{background:#0d2b24;border-color:#0f8a67;color:#6ee7b7}
+.fsov:not(.lit) .fsbody .oc.locked .ob{background:#10241d;border-color:#155e4a;color:#9fe8cd}
+.fsov:not(.lit) .fsbody .oc.sent .ob{background:#2a1b3d;border-color:#a855f7;color:#e9d5ff}
+.fsov:not(.lit) .fsbody .bcell .bb{background:#1b2238;border-color:#3d4670;color:#e6e9f7}
+.fsov:not(.lit) .fsbody .bcell .bi{color:#5b678f}
+.fsov:not(.lit) .fsbody .bcell.pad .bb{border-color:#2b3554;background:transparent;color:#3d4670}
+.fsov:not(.lit) .fsbody .bcell.out .bb{opacity:.3}
+.fsov:not(.lit) .fsbody .bcell.mid .bb{background:#3a2a10;border-color:#d97706;color:#fcd34d}
+.fsov:not(.lit) .fsbody .bcell.hit .bb{background:#0d2b24;border-color:#0f8a67;color:#6ee7b7}
+.fsov:not(.lit) .fsbody .swapwrap2{background:#131a2e;border-color:#232b45}
+.fsov:not(.lit) .fsbody .swaphd{background:#151c30;border-color:#232b45}
+.fsov:not(.lit) .fsbody .swt{color:#8f9ac2}
+.fsov:not(.lit) .fsbody .swapbtn{background:#1b2238;border-color:#2b3554;color:#c3cbe4}
+.fsov:not(.lit) .fsbody .algo{background:#131a2e;border-color:#232b45}
+.fsov:not(.lit) .fsbody .algo .ahead{background:#1b2238;border-bottom-color:#3d3018;color:#e6cf9c}
+.fsov:not(.lit) .fsbody .algo .ahead b{color:#fcd34d}
+.fsov:not(.lit) .fsbody .algo .st{color:#c3cbe4}
+.fsov:not(.lit) .fsbody .algo .st.cur{background:#3a2a10;box-shadow:inset 3px 0 0 #d97706;color:#fcd34d}
+.fsov:not(.lit) .fsbody .algo .st.simtrue{background:#0d2b24;box-shadow:inset 3px 0 0 #0f8a67;color:#6ee7b7}
+.fsov:not(.lit) .fsbody .algo .st.simfalse{background:#3b0d1c;box-shadow:inset 3px 0 0 #c2295a;color:#fda4af}
+.fsov:not(.lit) .fsbody .cxs{background:#151c30;border-color:#232b45}
+.fsov:not(.lit) .fsbody .cx{color:#8f9ac2}
+.fsov:not(.lit) .fsbody .cx em{color:#5b678f}
+.fsov:not(.lit) .fsbody .hbrow{color:#c3cbe4}
+.fsov:not(.lit) .fsbody .hbn,.fsov:not(.lit) .fsbody .hbv{color:#8f9ac2}
+.fsov:not(.lit) .fsbody .wordbar input{background:#1b2238;border-color:#2b3554;color:#e6e9f7}
+.fsov:not(.lit) .fsbody .ptag2{filter:saturate(1.1)}
+.fsov:not(.lit) .fsbody .crossbar{background:#3b0d1c;border-color:#c2295a;color:#fda4af}
+/* both listings are code surfaces, so the light code theme turns them white */
+body.codelight .fsov:not(.lit) .fsbody .autocode,
+body.codelight .fsov:not(.lit) .fsbody pre.code.lines{background:#0f172a;color:#e2e8f0;border-color:#232b45}
+body.codelight .fsov:not(.lit) .fsbody .autocode .k,body.codelight .fsov:not(.lit) .fsbody pre.code.lines .k{color:#c4b5fd}
+body.codelight .fsov:not(.lit) .fsbody .autocode .t,body.codelight .fsov:not(.lit) .fsbody pre.code.lines .t{color:#fcd34d}
+body.codelight .fsov:not(.lit) .fsbody .autocode .f,body.codelight .fsov:not(.lit) .fsbody pre.code.lines .f{color:#7dd3fc}
+body.codelight .fsov:not(.lit) .fsbody .autocode .n,body.codelight .fsov:not(.lit) .fsbody pre.code.lines .n{color:#fdba74}
+body.codelight .fsov:not(.lit) .fsbody .autocode .c,body.codelight .fsov:not(.lit) .fsbody pre.code.lines .c{color:#64748b}
+/* and the six narration tones need night versions of their washes */
+.fsov:not(.lit) .fsbody .simmsg.t-set{background:#161b33;border-left-color:#6366f1}
+.fsov:not(.lit) .fsbody .simmsg.t-ask{background:#0d2030;border-left-color:#0ea5e9}
+.fsov:not(.lit) .fsbody .simmsg.t-mid{background:#3a2a10;border-left-color:#d97706}
+.fsov:not(.lit) .fsbody .simmsg.t-cut{background:#11243d;border-left-color:#0284c7}
+.fsov:not(.lit) .fsbody .simmsg.t-found{background:#0d2b24;border-left-color:#16a34a}
+.fsov:not(.lit) .fsbody .simmsg.t-miss{background:#3b0d1c;border-left-color:#e11d48}
 
-.fsov{position:fixed;inset:0;z-index:120;background:var(--bg);display:none;flex-direction:column}
-.fsov.on{display:flex}
-body.fsopen{overflow:hidden}
-.fshd{flex:0 0 auto;display:flex;align-items:center;gap:.8rem;padding:.7rem 1.2rem;
-  border-bottom:1px solid var(--line);background:#fff}
-.fshd b{font-size:.9rem;font-weight:800;color:var(--ink);letter-spacing:-.01em}
-.fsx{margin-left:auto;appearance:none;font-family:var(--mono);font-size:.7rem;font-weight:700;
-  color:var(--ink-mute);border:1px solid var(--line-strong);border-radius:.4rem;padding:.22rem .55rem;
-  background:#fff;cursor:pointer}
-.fsx+.fsx{margin-left:0}
-.fsx:hover{color:var(--ink);border-color:var(--ink-mute)}
-.fsbody{flex:1;min-height:0;overflow:auto;padding:clamp(.7rem,2vw,1.6rem)}
-.fsbody{display:flex;flex-direction:column;justify-content:center;justify-content:safe center}
-.fsbody .simbox{max-width:1180px;width:100%;margin:0 auto;border:0;background:transparent;box-shadow:none}
-.fsbody .simhd{display:none}
-.fsbody .simbd{padding:0}
-/* On the wall everything grows. These widgets are DOM, not canvas, so they
-   reflow on their own once the overlay is wider — only the fixed cell sizes
-   and the type have to be told to get bigger. */
-.fsbody .acell2{width:78px}
-.fsbody .acell2 .ab2{height:58px;font-size:1.3rem}
-.fsbody .acell2 .ai2{font-size:.72rem}
-.fsbody .acell2 .aa2{font-size:.66rem}
-.fsbody .mc{width:68px}
-.fsbody .mc .mb{height:56px;font-size:1.15rem}
-.fsbody .mc .mi{font-size:.72rem}
-.fsbody .mc .ma{font-size:.63rem}
-.fsbody .fline{font-size:clamp(.9rem,2vw,1.3rem);line-height:2.35}
-.fsbody .carr-code{font-size:1.02rem;line-height:2.2}
-.fsbody .tw2 .tv2{font-size:1.75rem}
-.fsbody .tw2 .tk2{font-size:.7rem}
-.fsbody .drow span{font-size:.98rem}
-.fsbody .drow{padding:.55rem .9rem}
-.fsbody .opdesc,.fsbody .fclbl{font-size:1rem}
-.fshint{flex:0 0 auto;display:flex;flex-wrap:wrap;gap:.5rem 1.3rem;padding:.55rem 1.2rem;
-  border-top:1px solid var(--line);background:#fff;font-size:.7rem;color:var(--ink-mute)}
-.fshint kbd{font-family:var(--mono);font-size:.66rem;border:1px solid var(--line-strong);
-  border-bottom-width:2px;border-radius:.28rem;padding:.02rem .3rem;background:#f8fafc;color:var(--ink-soft)}
+/* ---- THIS PAGE'S PICTURES, ON THE SHARED BENCH -------------------
+   The frame, the Focus overlay and the keyboard used to live here; they
+   are in assets/sim.css now. This page was one of the prototypes they
+   came from, so the private shell is DELETED rather than layered under
+   the shared one, which owns the same names.
+
+   The fifteen .fsbody size rules that used to sit here named .acell2,
+   .mc, .fline, .carr-code, .tw2 and .drow — every one of them copied
+   from class 1, and NOT ONE of them used on this page. So nothing here
+   had ever grown on the projector. These are the real ones. */
+.fsbody .oc{width:74px}
+.fsbody .oc .ob{height:58px;font-size:1.3rem}
+.fsbody .oc .oi{font-size:.72rem}
+.fsbody .bcell .bb{height:58px;font-size:1.25rem}
+.fsbody .bcell .bi{font-size:.66rem}
+.fsbody .bcell.pad{flex:0 0 44px}
+.fsbody .ptrow{font-size:.9rem}
+.fsbody .autocode{font-size:1.05rem;line-height:2.1;padding:1.1rem 1.2rem}
+.fsbody .wordbar input{font-size:1.25rem}
+.fsbody .swapbtn{font-size:.86rem;padding:.4rem .9rem}
+.fsbody .algo{font-size:1.02rem}
+.fsbody pre.code.lines{font-size:1.02rem;line-height:2}
+.fsbody .cxs .cx{font-size:.84rem}
+.fsbody .cxs .cx em{font-size:.7rem}
 
 /* ---- THE TAKEAWAY RAIL -------------------------------------------
    One sentence per section, added as the section is reached — forward
@@ -1175,7 +1183,6 @@ body.fsopen{overflow:hidden}
   padding:.02rem .26rem;font-size:.94em;font-weight:600;color:#075985}
 @keyframes kin{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.kitem{animation:none}}
-body.fsopen .keyrail{display:none}          /* never over a projected screen */
 body.onexam .keyrail{display:none}          /* nor over the exam tab, which has no keys */
 
 /* ---- the input/output examples inside a problem block ---- */
@@ -1219,17 +1226,8 @@ body.onexam .keyrail{display:none}          /* nor over the exam tab, which has 
 .qchip i{width:7px;height:7px;border-radius:50%;background:#0284c7;display:block;flex:0 0 auto}
 .qchip b{font-family:var(--mono);color:#e2e8f0}
 
-/* ---- n / r drive the simulator you are looking at -----------------------
-   A lecture is run from the keyboard: the mouse is for pointing at the wall,
-   not for hunting a Next button. The block being driven says so in its own
-   button row, so which one the keys belong to is never a guess. */
-.kbdhint{position:absolute;right:.9rem;top:50%;transform:translateY(-50%);
-  font-size:.62rem;color:#b4bcd8;white-space:nowrap;display:none;gap:.3rem;align-items:center}
-.simbox.kbdon .kbdhint{display:inline-flex}
-.kbdhint kbd{font-family:var(--mono);font-size:.6rem;border:1px solid var(--line);border-bottom-width:2px;
-  border-radius:.25rem;padding:0 .28rem;background:#f8fafc;color:var(--ink-soft)}
-.simbox.kbdon{box-shadow:0 0 0 2px rgba(2,132,199,.28),0 14px 32px -26px rgba(30,27,75,.4)}
-body.fsopen .simbox.kbdon{box-shadow:none}
+/* the keyboard, and the ring that says which block it is pointing at, are
+   the shared shell's now \u2014 see .sim.simon in assets/sim.css */
 
 
 
@@ -1249,7 +1247,7 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 .wkey>span{display:inline-flex;align-items:center;gap:.4rem}
 
 /* every simulator's controls sit under the middle of what they drive */
-.simbox .btnrow{justify-content:center}
+.sim .btnrow{justify-content:center}
 
 /* In Focus the binary-search block is a stage AND a listing, and stacked they
    do not fit on one screen — which is the one thing a projector cannot forgive.
@@ -1266,28 +1264,49 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 
 /* the procedure beside a simulator is live: the running line is marked, and an
    If is tinted by the answer on every pass */
-.simbox .algo .st.cur{background:#fef3c7;box-shadow:inset 3px 0 0 #d97706;font-weight:700;color:#78350f}
-.simbox .algo .st.tt{background:#dcfce7;box-shadow:inset 3px 0 0 #16a34a;color:#14532d}
-.simbox .algo .st.ff{background:#fee2e2;box-shadow:inset 3px 0 0 #dc2626;color:#7f1d1d}
+.sim .algo .st.cur{background:#fef3c7;box-shadow:inset 3px 0 0 #d97706;font-weight:700;color:#78350f}
+.sim .algo .st.tt{background:#dcfce7;box-shadow:inset 3px 0 0 #16a34a;color:#14532d}
+.sim .algo .st.ff{background:#fee2e2;box-shadow:inset 3px 0 0 #dc2626;color:#7f1d1d}
 .lvdot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#16a34a;
   margin-left:.35rem;vertical-align:1px;box-shadow:0 0 0 3px rgba(22,163,74,.18)}
 .swapbtn:not(.on) .lvdot{background:#cbd5e1;box-shadow:none}
 
 /* stage and procedure side by side, the way the linked-list pages do it */
 @media(min-width:1000px){
-  .simbox .simbd{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);
+  /* Stage left, the procedure and its C++ right. The shell lays .simbd out as
+     a flex column and assets/sim.css is linked AFTER this stylesheet, so at
+     equal specificity the shell wins — the shell wins. `.card .sim` would fix it on
+     the page and NOT on the bench, because Focus moves the block out of its
+     card — so the weight has to come from something that travels WITH the
+     block. Repeating the class does that: .simbd.simbd is one heavier and
+     matches wherever the block happens to live.
+
+     Everything that is not the stage or the code pane spans both columns. The
+     shell's `order` values still decide the sequence, because order drives
+     grid auto-placement as well as flex. */
+  .sim .simbd.simbd{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);
     gap:.85rem 1.2rem;align-items:start}
-  .simbox .simstage{grid-column:1;min-width:0}
-  .simbox .simbd>.swapwrap2{grid-column:2;grid-row:1;margin:0;align-self:start}
-  /* the narration and the controls belong to the whole block, not to one column */
-  .simbox .simbd>.stepmsg,.simbox .simbd>.btnrow,
-  .simbox .simbd>.passes,.simbox .simbd>.fclbl{grid-column:1/-1}
-  #bin-sim .simbd,#hb-sim .simbd{display:block}
+  .sim .simbd.simbd > *{grid-column:1/-1}
+  .sim .simbd.simbd > .simstage{grid-column:1;grid-row:2;min-width:0}
+  .sim .simbd.simbd > .swapwrap2{grid-column:2;grid-row:2/4;margin:0;align-self:start}
+  /* the code pane is twice the height of the strip beside it, so the watch
+     chips go in the air under the stage rather than in a band of their own */
+  .sim .simbd.simbd > .simwatch{grid-column:1;grid-row:3;align-content:flex-start}
+  /* align-items:start above is for the grid. These two stay a flex column,
+     and in a flex column `start` stops the children stretching — which
+     squeezed the step rail down to the width of its own segments. */
+  #bin-sim .simbd.simbd,#hb-sim .simbd.simbd{display:flex;flex-direction:column;align-items:stretch}
+  /* bubble sort carries a pass-by-pass summary as well. Under the stage it
+     balances the two columns — 145 + 235 on the left against 362 of code on
+     the right — instead of adding its whole height to the bottom. */
+  #bs-sim .simbd.simbd > .fclbl{grid-column:1;grid-row:4;margin:.2rem 0 0}
+  #bs-sim .simbd.simbd > .passes{grid-column:1;grid-row:5}
+  #bs-sim .simbd.simbd > .swapwrap2{grid-row:2/6}
 }
 /* on the wall the overlay is taller than the content, so the procedure sizes
    to its own lines instead of stretching into empty space */
-.fsbody .simbox .simbd{align-items:start;align-content:center}
-.fsbody .simbox .simbd>.swapwrap2{align-self:start}
+.fsbody .sim .simbd{align-items:start;align-content:center}
+.fsbody .sim .simbd>.swapwrap2{align-self:start}
 
 /* ---- the live listing: every line addressable, in either pane ---- */
 pre.code.lines{padding:.9rem 1rem}
@@ -1300,35 +1319,31 @@ body.codelight pre.code.lines .cl.cur{background:rgba(217,119,6,.14);box-shadow:
 body.codelight pre.code.lines .cl.tt{background:rgba(22,163,74,.14);box-shadow:inset 3px 0 0 #16a34a}
 body.codelight pre.code.lines .cl.ff{background:rgba(220,38,38,.12);box-shadow:inset 3px 0 0 #dc2626}
 
-/* the narration keeps its height whatever it says, so the buttons stay put */
-.simbox .stepmsg{margin:.2rem 0 0;min-height:7.2rem}
-@media(min-width:700px){.simbox .stepmsg{min-height:5.6rem}}
-@media(min-width:1000px){.simbox .stepmsg{min-height:4.9rem}}
-.simbox .btnrow{position:relative;margin-bottom:0;padding-top:.2rem}
-@media(max-width:860px){.simbox .kbdhint{display:none!important}}
+/* Six passes means six rail labels, and on a phone they all ellipsise to
+   "p…". A label nobody can read is noise, so below 420px the rail keeps its
+   colours and drops the words. */
+@media(max-width:420px){#bs-sim .simrail .grp::before{content:''}}
 
-.simbox .stepmsg.tt{border-left-color:#16a34a;background:#f2fdf5}
-.simbox .stepmsg.ff{border-left-color:#dc2626;background:#fff5f5}
-.simbox .stepmsg.tt .smic{background:#16a34a;color:#fff}
-.simbox .stepmsg.ff .smic{background:#dc2626;color:#fff}
+/* the narration keeps its height whatever it says \u2014 it sits below the
+   controls now, but the reserve still stops the card resizing every press */
+.sim .simmsg{min-height:7.2rem}
+@media(min-width:700px){.sim .simmsg{min-height:5.6rem}}
+@media(min-width:1000px){.sim .simmsg{min-height:4.9rem}}
 
 /* the stage column is narrower than the page, so the cells are too — the
    pattern still reads, and seven of them stay on one line */
 .simstage{display:flex;flex-direction:column;gap:.2rem;justify-content:center}
-.simbox .opstrip{margin:.7rem 0;min-height:70px}
+.sim .opstrip{margin:.7rem 0;min-height:70px}
 @media(min-width:1000px){
-  .simbox .oc{width:50px}
-  .simbox .oc .ob{height:42px;font-size:.92rem}
-  .simbox .cnt2 .cv3{font-size:1.35rem}
-  .simbox .wordbar{margin:0 0 .2rem}
+  .sim .oc{width:50px}
+  .sim .oc .ob{height:42px;font-size:.92rem}
+  .sim .wordbar{margin:0 0 .2rem}
 }
 
 /* N changes exactly once in an insert and once in a delete — so when it does,
    the box says so rather than quietly showing a different number */
-.cnt2.hit2{background:#dcfce7;border-color:#86efac;box-shadow:0 0 0 3px rgba(22,163,74,.16)}
-.cnt2.hit2 .cv3{color:#15803d}
-.cnt2.hit2 .ck2{color:#15803d}
 </style>
+<link rel="stylesheet" href="../assets/sim.css?v=3">
 </head>
 <body>
 <div class="topbar">
@@ -1428,9 +1443,14 @@ body.codelight pre.code.lines .cl.ff{background:rgba(220,38,38,.12);box-shadow:i
     </div>
   </div>
 
-  <div class="simbox" id="ins-sim" data-title="Inserting ITEM at the K-th position">
-    <div class="simhd"><span class="simttl">Simulator</span><button class="focusb" type="button" data-focus="ins-sim">&#9974; Focus</button></div>
+  <div class="sim" id="ins-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Inserting ITEM at the K-th position</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
     <div class="simbd">
+      <div class="simrail"></div>
       <div class="simstage">
   <div class="wordbar">
     <span class="subtle" style="font-weight:700">Insert</span>
@@ -1440,19 +1460,17 @@ body.codelight pre.code.lines .cl.ff{background:rgba(220,38,38,.12);box-shadow:i
   </div>
 
   <div class="opstrip" id="ins-strip"></div>
-  <div class="cnts" style="grid-template-columns:repeat(3,1fr);max-width:520px;margin:.6rem auto">
-    <div class="cnt2" id="ins-nbox"><p class="ck2">N &middot; the length</p><p class="cv3" id="ins-n">—</p></div>
-    <div class="cnt2"><p class="ck2">Current J</p><p class="cv3" id="ins-j">—</p></div>
-    <div class="cnt2 c-p"><p class="ck2">Elements moved</p><p class="cv3" id="ins-moved">0</p></div>
-  </div>
       </div>
-      <div class="stepmsg" id="ins-msgbox"><span class="smic" id="ins-msgic">&#9656;</span><p class="smtx" id="ins-msg">Press <b>Next</b> to begin.</p><span class="smn" id="ins-msgn">&mdash;</span></div>
-  <div class="btnrow" style="justify-content:center">
-    <button class="btn ghost sm" id="ins-back" data-k="back">&#9666; Back</button>
-      <button class="btn" id="ins-next" data-k="next" style="background:#7c3aed">Next step ▸</button>
-    <button class="btn ghost sm" id="ins-play">▶ Play</button>
-    <button class="btn ghost sm" id="ins-reset" data-k="reset">Reset</button>
-  </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">1</span><p id="ins-msg"></p></div>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#7c3aed">Next step &#9656;</button>
+        <button class="btn ghost sm" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 1</span>
+      </div>
 <div class="swapwrap2" style="--accent:#7c3aed">
     <div class="swaphd">
       <span class="swt">Insert at the K-th position</span>
@@ -1536,9 +1554,14 @@ body.codelight pre.code.lines .cl.ff{background:rgba(220,38,38,.12);box-shadow:i
     </div>
   </div>
 
-  <div class="simbox" id="del-sim" data-title="Deleting the K-th element">
-    <div class="simhd"><span class="simttl">Simulator</span><button class="focusb" type="button" data-focus="del-sim">&#9974; Focus</button></div>
+  <div class="sim" id="del-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Deleting the K-th element</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
     <div class="simbd">
+      <div class="simrail"></div>
       <div class="simstage">
   <div class="wordbar">
     <span class="subtle" style="font-weight:700">Delete position K =</span>
@@ -1546,19 +1569,17 @@ body.codelight pre.code.lines .cl.ff{background:rgba(220,38,38,.12);box-shadow:i
   </div>
 
   <div class="opstrip" id="del-strip"></div>
-  <div class="cnts" style="grid-template-columns:repeat(3,1fr);max-width:520px;margin:.6rem auto">
-    <div class="cnt2" id="del-nbox"><p class="ck2">N &middot; the length</p><p class="cv3" id="del-n">—</p></div>
-    <div class="cnt2"><p class="ck2">Current J</p><p class="cv3" id="del-j">—</p></div>
-    <div class="cnt2 c-p"><p class="ck2">Elements moved</p><p class="cv3" id="del-moved">0</p></div>
-  </div>
       </div>
-      <div class="stepmsg" id="del-msgbox"><span class="smic" id="del-msgic">&#9656;</span><p class="smtx" id="del-msg">Press <b>Next</b> to begin.</p><span class="smn" id="del-msgn">&mdash;</span></div>
-  <div class="btnrow" style="justify-content:center">
-    <button class="btn ghost sm" id="del-back" data-k="back">&#9666; Back</button>
-      <button class="btn" id="del-next" data-k="next" style="background:#e11d48">Next step ▸</button>
-    <button class="btn ghost sm" id="del-play">▶ Play</button>
-    <button class="btn ghost sm" id="del-reset" data-k="reset">Reset</button>
-  </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">1</span><p id="del-msg"></p></div>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#e11d48">Next step &#9656;</button>
+        <button class="btn ghost sm" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 1</span>
+      </div>
 <div class="swapwrap2" style="--accent:#e11d48">
     <div class="swaphd">
       <span class="swt">Delete the K-th element</span>
@@ -1647,9 +1668,14 @@ body.codelight pre.code.lines .cl.ff{background:rgba(220,38,38,.12);box-shadow:i
     </div>
   </div>
 
-  <div class="simbox" id="ls-sim" data-title="Linear search, with and without the sentinel">
-    <div class="simhd"><span class="simttl">Simulator</span><button class="focusb" type="button" data-focus="ls-sim">&#9974; Focus</button></div>
+  <div class="sim" id="ls-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Linear search, with and without the sentinel</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
     <div class="simbd">
+      <div class="simrail"></div>
       <div class="simstage">
   <div class="wordbar">
     <span class="subtle" style="font-weight:700">Search for</span>
@@ -1659,19 +1685,18 @@ body.codelight pre.code.lines .cl.ff{background:rgba(220,38,38,.12);box-shadow:i
   </div>
 
   <div class="opstrip" id="ls-strip"></div>
-  <div class="cnts" style="grid-template-columns:repeat(2,1fr);max-width:400px;margin:.6rem auto">
-    <div class="cnt2 c-c"><p class="ck2">Comparisons</p><p class="cv3" id="ls-c">0</p></div>
-    <div class="cnt2"><p class="ck2">LOC</p><p class="cv3" id="ls-loc">—</p></div>
-  </div>
       </div>
-      <div class="stepmsg" id="ls-msgbox"><span class="smic" id="ls-msgic">&#9656;</span><p class="smtx" id="ls-msg">Press <b>Next</b> to begin.</p><span class="smn" id="ls-msgn">&mdash;</span></div>
-  <div class="btnrow" style="justify-content:center">
-    <button class="btn ghost sm" id="ls-back" data-k="back">&#9666; Back</button>
-      <button class="btn" id="ls-next" data-k="next" style="background:#16a34a">Next ▸</button>
-    <button class="btn ghost sm" id="ls-play">▶ Play</button>
-    <button class="btn ghost sm" id="ls-reset" data-k="reset">Reset</button>
-    <button class="btn ghost sm" id="ls-sent">Sentinel: off</button>
-  </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">1</span><p id="ls-msg"></p></div>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#16a34a">Next &#9656;</button>
+        <button class="btn ghost sm" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <button class="btn ghost sm" id="ls-sent">Sentinel: off</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 1</span>
+      </div>
 <div class="swapwrap2" style="--accent:#16a34a">
     <div class="swaphd">
       <span class="swt">Linear search</span>
@@ -1809,9 +1834,14 @@ body.codelight pre.code.lines .cl.ff{background:rgba(220,38,38,.12);box-shadow:i
     </div>
   </div>
 
-  <div class="simbox" id="bs-sim" data-title="Bubble sort — counting C and D">
-    <div class="simhd"><span class="simttl">Simulator</span><button class="focusb" type="button" data-focus="bs-sim">&#9974; Focus</button></div>
+  <div class="sim" id="bs-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Bubble sort — counting C and D</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
     <div class="simbd">
+      <div class="simrail"></div>
       <div class="simstage">
   <div class="wordbar">
     <span class="subtle" style="font-weight:700">Sort:</span>
@@ -1825,20 +1855,18 @@ body.codelight pre.code.lines .cl.ff{background:rgba(220,38,38,.12);box-shadow:i
 
   <div class="opstrip" id="bs-strip"></div>
 
-  <div class="cnts">
-    <div class="cnt2 c-p"><p class="ck2">Pass</p><p class="cv3" id="bs-pass">—</p></div>
-    <div class="cnt2 c-c"><p class="ck2">Comparisons · C</p><p class="cv3" id="bs-c">0</p></div>
-    <div class="cnt2 c-d"><p class="ck2">Interchanges · D</p><p class="cv3" id="bs-d">0</p></div>
-  </div>
       </div>
-      <div class="stepmsg" id="bs-msgbox"><span class="smic" id="bs-msgic">&#9656;</span><p class="smtx" id="bs-msg">Press <b>Next</b> to compare the first pair.</p><span class="smn" id="bs-msgn">&mdash;</span></div>
-  <div class="btnrow" style="justify-content:center">
-    <button class="btn ghost sm" id="bs-back" data-k="back">&#9666; Back</button>
-      <button class="btn" id="bs-next" data-k="next" style="background:#d97706">Next comparison ▸</button>
-    <button class="btn ghost sm" id="bs-pass2">Finish this pass</button>
-    <button class="btn ghost sm" id="bs-play">▶ Play</button>
-    <button class="btn ghost sm" id="bs-reset" data-k="reset">Reset</button>
-  </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">1</span><p id="bs-msg"></p></div>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#d97706">Next comparison &#9656;</button>
+        <button class="btn ghost sm" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <button class="btn ghost sm" id="bs-pass2">Finish this pass</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 1</span>
+      </div>
 
   <p class="fclbl" style="text-align:center;margin-top:1.2rem">The answer you write in the exam</p>
   <div class="passes" id="bs-passes"></div>
@@ -1963,9 +1991,14 @@ body.codelight pre.code.lines .cl.ff{background:rgba(220,38,38,.12);box-shadow:i
   <p>Mark the two ends of the search space with <span class="mono">low</span> and <span class="mono">high</span>, take the middle, and compare. Step through and watch the <b>array</b> shrink and the <b>pointers</b> underneath it move.</p>
   <p class="subtle"><b>No code yet.</b> Work out what the machine must be doing at each step just by looking. The code comes after.</p>
 
-  <div class="simbox" id="bin-sim" data-title="Binary search on 13 sorted numbers">
-    <div class="simhd"><span class="simttl">Simulator</span><button class="focusb" type="button" data-focus="bin-sim">&#9974; Focus</button></div>
+  <div class="sim" id="bin-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Binary search on 13 sorted numbers</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
     <div class="simbd">
+      <div class="simrail"></div>
   <div class="wordbar">
     <span class="subtle" style="font-weight:700">key =</span>
     <input id="bin-item" type="number" value="41" style="width:80px;letter-spacing:0">
@@ -1974,30 +2007,23 @@ body.codelight pre.code.lines .cl.ff{background:rgba(220,38,38,.12);box-shadow:i
     <button class="btn sm ghost" data-bin="21">21 (first)</button>
   </div>
 
-  <div class="cnts" style="grid-template-columns:repeat(4,1fr)">
-    <div class="cnt2 c-p"><p class="ck2">low</p><p class="cv3" id="bin-lo">—</p></div>
-    <div class="cnt2 c-c"><p class="ck2">mid</p><p class="cv3" id="bin-mi">—</p></div>
-    <div class="cnt2"><p class="ck2">high</p><p class="cv3" id="bin-hi">—</p></div>
-    <div class="cnt2 c-d"><p class="ck2">looks</p><p class="cv3" id="bin-steps">0</p></div>
-  </div>
-  <div class="stepmsg" id="bin-msgbox">
-    <span class="smic" id="bin-msgic">&#9656;</span>
-    <p class="smtx" id="bin-msg">Press <b>Next step</b> to take the first midpoint.</p>
-    <span class="smn" id="bin-msgn">&mdash;</span>
-  </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">1</span><p id="bin-msg"></p></div>
 
   <div class="bstrip" id="bin-strip"></div>
   <div class="ptrow" id="bin-ptrs"></div>
   <div class="crossbar" id="bin-cross" hidden></div>
 
-  <div class="btnrow" style="justify-content:center;margin-top:1rem;margin-bottom:1.1rem">
-    <button class="btn ghost sm" id="bin-back" data-k="back">&#9666; Back</button>
-      <button class="btn" id="bin-next" data-k="next" style="background:#0284c7">Next step &#9656;</button>
-    <button class="btn ghost sm" id="bin-play">&#9654; Play</button>
-    <button class="btn ghost sm" id="bin-reset" data-k="reset">Reset</button>
-    <span class="btnsep"></span>
-    <button class="btn sm" id="bin-showcode" style="background:#0284c7">&#128065; Show the code</button>
-  </div>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#0284c7">Next step &#9656;</button>
+        <button class="btn ghost sm" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="btnsep"></span>
+        <button class="btn sm" id="bin-showcode" style="background:#0284c7">&#128065; Show the code</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 1</span>
+      </div>
 
   <div id="bin-codewrap" hidden>
     <p class="subtle" style="text-align:center;margin:.2rem 0 .6rem">Now run it again. <b>Each line inside the loop appears only when the animation reaches it.</b></p>
@@ -2043,17 +2069,24 @@ body.codelight pre.code.lines .cl.ff{background:rgba(220,38,38,.12);box-shadow:i
   <h3>Why is it O(log n)? Count the halvings</h3>
   <p>Every look throws away half of what is left. Watch how quickly that empties the array.</p>
 
-  <div class="simbox" id="hb-sim" data-title="Halving the search space">
-    <div class="simhd"><span class="simttl">Simulator</span><button class="focusb" type="button" data-focus="hb-sim">&#9974; Focus</button></div>
+  <div class="sim" id="hb-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Halving the search space</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
     <div class="simbd">
-  <div class="btnrow" style="justify-content:center">
-    <button class="btn sm" data-hb="13" style="background:#0284c7">13</button>
-    <button class="btn sm ghost" data-hb="100">100</button>
-    <button class="btn sm ghost" data-hb="1000">1,000</button>
-    <button class="btn sm ghost" data-hb="1000000">1,000,000</button>
-  </div>
+  <div class="simctl">
+        <span class="subtle" style="font-weight:700;align-self:center">N =</span>
+        <button class="btn sm" data-hb="13" style="background:#0284c7">13</button>
+        <button class="btn sm ghost" data-hb="100">100</button>
+        <button class="btn sm ghost" data-hb="1000">1,000</button>
+        <button class="btn sm ghost" data-hb="1000000">1,000,000</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+      </div>
   <div class="halvebars" id="halvebars"></div>
-  <p class="opdesc" id="halvemsg" style="text-align:center"></p>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">÷2</span><p id="halvemsg"></p></div>
     </div>
   </div>
 
@@ -2318,6 +2351,7 @@ body.codelight pre.code.lines .cl.ff{background:rgba(220,38,38,.12);box-shadow:i
   </div>
 </footer>
 
+<script src="../assets/sim.js?v=3"></script>
 <script>
 
 
@@ -2353,6 +2387,9 @@ function jump(d){
   if(t>s.length-1)t=s.length-1;
   window.scrollTo({top:Math.max(s[t].offsetTop-80,0),behavior:'smooth'});
 }
+/* the floating drawer is a separate IIFE, so it cannot see jump() unless we
+   hand it over. Without this its up and down arrows throw on every press. */
+window.cardJump=jump;
 
 var BASE6=[30,50,20,70,40,90];
 function drawStrip(el,arr,marks,startIdx){
@@ -2365,27 +2402,33 @@ function drawStrip(el,arr,marks,startIdx){
 }
 
 
-/* ---------- the two things every simulator on this page shares ----------
-   liveLine marks the running line in BOTH panes — the numbered procedure and
-   the C++ — so switching tabs never loses your place. stepMsg writes the
-   narration into a box of fixed height, with the step count on the right, so
-   the buttons underneath do not jump as the sentence changes length. */
-function liveLine(simId, la, lc, ok){
-  var box=$('#'+simId+'-sim'); if(!box) return;
-  var A=$$('[data-pane="a"] .body .st', box), C=$$('[data-pane="c"] pre.code.lines .cl', box);
-  A.concat(C).forEach(function(x){ x.classList.remove('cur','tt','ff'); });
-  var cls = (ok===undefined||ok===null) ? 'cur' : (ok ? 'tt' : 'ff');
-  if(la!==null && la!==undefined && A[la]) A[la].classList.add(cls);
-  if(lc!==null && lc!==undefined && C[lc]) C[lc].classList.add(cls);
+/* ---------- one mount for every simulator on this page ----------
+   liveLine and stepMsg used to live here: one marked the running line in BOTH
+   panes — the numbered procedure and the C++ — so switching tabs never lost
+   your place, and the other wrote the narration with the step count beside it.
+   The shell does both now, so this is what is left: which two listings the
+   step lands in, and what `ok` means.
+
+   Every build() below is untouched. A step that carries `ok` becomes a step
+   that carries `cond`, and from there the shell tints the line in both panes,
+   colours the rail segment, and prints TRUE or FALSE beside the narration. */
+function withCond(S){
+  for(var i=0;i<S.length;i++) if(S[i].ok!==undefined && S[i].ok!==null) S[i].cond={ok:S[i].ok};
+  return S;
 }
-function stepMsg(k, sp, total, msg, ok){
-  var box=$('#'+k+'-msgbox'); if(!box) return;
-  box.classList.remove('tt','ff');
-  if(ok===true) box.classList.add('tt'); else if(ok===false) box.classList.add('ff');
-  $('#'+k+'-msg').innerHTML=msg;
-  $('#'+k+'-msgn').textContent = (sp<0?0:sp+1)+' / '+total;
-  var ic=$('#'+k+'-msgic');
-  if(ic) ic.innerHTML = ok===true ? '&#10003;' : ok===false ? '&#10007;' : '&#9656;';
+function mount(k, o){
+  return Sim.make({
+    el:'#'+k+'-sim',
+    name:o.name,
+    steps:o.steps,
+    play:o.play||700,
+    group:o.group,
+    lines:[
+      {sel:'#'+k+'-sim [data-pane="a"] .body .st',            of:function(st){ return st.la; }},
+      {sel:'#'+k+'-sim [data-pane="c"] pre.code.lines .cl',   of:function(st){ return st.lc; }}
+    ],
+    render:function(st,idx,a){ o.draw(st,idx,a); a.msg(st.msg); }
+  });
 }
 
 /* ---------- 1 · INSERT ----------
@@ -2393,7 +2436,7 @@ function stepMsg(k, sp, total, msg, ok){
    including the loop test on the pass that fails. The narration says what the
    line did, in the same shape the linked-list pages use. */
 (function(){
-  var steps=[], sp=-1, tmr=null;
+  var steps=[];
   function build(){
     var N=BASE6.length, K=Math.max(1,Math.min(N+1,+$('#ins-k').value||1)), ITEM=+$('#ins-item').value||0;
     var a=BASE6.slice(); a.push(null);
@@ -2423,36 +2466,29 @@ function stepMsg(k, sp, total, msg, ok){
       msg:'<b>Set N := N + 1.</b> N goes from '+N+' to <b>'+(N+1)+'</b> — the array really is one longer, and the spare cell at the end is part of it now.'});
     S.push({a:a.slice(),m:mm,la:7,lc:8,j:'—',moved:moved,n:N+1,
       msg:'<b>Exit.</b> ITEM is at position '+K+' and <b>'+moved+' element'+(moved===1?'':'s')+' had to move</b> to put it there. That shifting is the whole cost of an insert.'});
-    steps=S;
+    /* in place: the shell holds this array, so a rebuild must fill the
+       same one rather than hand back a new reference */
+    steps.length=0; withCond(S);
+    for(var z=0;z<S.length;z++) steps.push(S[z]);
   }
-  function paint(){
-    var st = sp<0 ? steps[0] : steps[sp];
-    drawStrip($('#ins-strip'), st.a, sp<0?{}:st.m);
-    $('#ins-moved').textContent=sp<0?0:st.moved;
-    $('#ins-j').textContent=sp<0?'—':st.j;
-    $('#ins-n').textContent=sp<0?BASE6.length:st.n;
-    $('#ins-nbox').classList.toggle('hit2', sp>=0 && !!st.nchg);
-    stepMsg('ins', sp, steps.length, sp<0?'Press <b>Next</b> to run the first line.':st.msg, sp<0?undefined:st.ok);
-    liveLine('ins', sp<0?null:st.la, sp<0?null:st.lc, sp<0?undefined:st.ok);
-    $('#ins-next').disabled = sp>=steps.length-1;
-    $('#ins-back').disabled = sp<0;
-  }
-  function reset(){ clearInterval(tmr); tmr=null; $('#ins-play').textContent='▶ Play'; build(); sp=-1; paint(); }
-  $('#ins-next').onclick=function(){ if(sp<steps.length-1){sp++;paint();} };
-  $('#ins-back').onclick=function(){ if(sp>-1){sp--;paint();} };
-  $('#ins-reset').onclick=reset;
-  $('#ins-play').onclick=function(){var b=this;
-    if(tmr){clearInterval(tmr);tmr=null;b.textContent='▶ Play';return;}
-    if(sp>=steps.length-1)sp=-1; b.textContent='⏸ Pause';
-    tmr=setInterval(function(){ if(sp<steps.length-1){sp++;paint();} else {clearInterval(tmr);tmr=null;b.textContent='▶ Play';} },700);};
-  $('#ins-k').addEventListener('change',reset);
-  $('#ins-item').addEventListener('change',reset);
-  reset();
+  build();
+  var api=mount('ins',{
+    name:'Inserting ITEM at the K-th position',
+    steps:steps, play:700,
+    group:function(st){ return st.la===null ? 'call' : (st.la<=0 ? 'setup' : (st.la>=5 ? 'insert' : 'the shift')); },
+    draw:function(st,idx,a){
+      drawStrip($('#ins-strip'), st.a, st.m);
+      a.watch([['N',st.n],['J',st.j],['moved',st.moved]]);
+    }
+  });
+  function again(){ build(); api.reset(); }
+  $('#ins-k').addEventListener('change',again);
+  $('#ins-item').addEventListener('change',again);
 })();
 
 /* ---------- 2 · DELETE ---------- */
 (function(){
-  var steps=[], sp=-1, tmr=null;
+  var steps=[];
   function build(){
     var N=BASE6.length, K=Math.max(1,Math.min(N,+$('#del-k').value||1));
     var a=BASE6.slice(), S=[];
@@ -2480,35 +2516,28 @@ function stepMsg(k, sp, total, msg, ok){
       msg:'<b>return item</b> — the saved value goes back to the caller.'});
     S.push({a:a.slice(),m:m2,la:5,lc:10,j:'—',moved:moved,n:N-1,
       msg:'<b>Exit.</b> <b>'+moved+' element'+(moved===1?'':'s')+' had to move</b> — and the one you deleted was not one of them.'});
-    steps=S;
+    /* in place: the shell holds this array, so a rebuild must fill the
+       same one rather than hand back a new reference */
+    steps.length=0; withCond(S);
+    for(var z=0;z<S.length;z++) steps.push(S[z]);
   }
-  function paint(){
-    var st = sp<0 ? steps[0] : steps[sp];
-    drawStrip($('#del-strip'), st.a, sp<0?{}:st.m);
-    $('#del-moved').textContent=sp<0?0:st.moved;
-    $('#del-j').textContent=sp<0?'—':st.j;
-    $('#del-n').textContent=sp<0?BASE6.length:st.n;
-    $('#del-nbox').classList.toggle('hit2', sp>=0 && !!st.nchg);
-    stepMsg('del', sp, steps.length, sp<0?'Press <b>Next</b> to run the first line.':st.msg, sp<0?undefined:st.ok);
-    liveLine('del', sp<0?null:st.la, sp<0?null:st.lc, sp<0?undefined:st.ok);
-    $('#del-next').disabled = sp>=steps.length-1;
-    $('#del-back').disabled = sp<0;
-  }
-  function reset(){ clearInterval(tmr); tmr=null; $('#del-play').textContent='▶ Play'; build(); sp=-1; paint(); }
-  $('#del-next').onclick=function(){ if(sp<steps.length-1){sp++;paint();} };
-  $('#del-back').onclick=function(){ if(sp>-1){sp--;paint();} };
-  $('#del-reset').onclick=reset;
-  $('#del-play').onclick=function(){var b=this;
-    if(tmr){clearInterval(tmr);tmr=null;b.textContent='▶ Play';return;}
-    if(sp>=steps.length-1)sp=-1; b.textContent='⏸ Pause';
-    tmr=setInterval(function(){ if(sp<steps.length-1){sp++;paint();} else {clearInterval(tmr);tmr=null;b.textContent='▶ Play';} },700);};
-  $('#del-k').addEventListener('change',reset);
-  reset();
+  build();
+  var api=mount('del',{
+    name:'Deleting the K-th element',
+    steps:steps, play:700,
+    group:function(st){ return st.la===null ? 'call' : (st.la<=1 ? 'setup' : (st.la>=5 ? 'finish' : 'closing the gap')); },
+    draw:function(st,idx,a){
+      drawStrip($('#del-strip'), st.a, st.m);
+      a.watch([['N',st.n],['J',st.j],['moved',st.moved]]);
+    }
+  });
+  function again(){ build(); api.reset(); }
+  $('#del-k').addEventListener('change',again);
 })();
 
 /* ---------- 3 · LINEAR SEARCH ---------- */
 (function(){
-  var steps=[], sp=-1, tmr=null, sentinel=false;
+  var steps=[], sentinel=false;
   function build(){
     var ITEM=+$('#ls-item').value||0, a=BASE6.slice();
     if(sentinel) a.push(ITEM);
@@ -2562,36 +2591,31 @@ function stepMsg(k, sp, total, msg, ok){
       S.push({a:a,m:mz,la:6,lc:10,C:C,loc:0,
         msg:'<b>cout &lt;&lt; loc</b> prints <b>&minus;1</b>. A miss always costs the full <b>N</b> comparisons — the worst case, and the reason this is <b>O(n)</b>.'});
     }
-    steps=S;
+    /* in place: the shell holds this array, so a rebuild must fill the
+       same one rather than hand back a new reference */
+    steps.length=0; withCond(S);
+    for(var z=0;z<S.length;z++) steps.push(S[z]);
   }
-  function paint(){
-    var st = sp<0 ? steps[0] : steps[sp];
-    drawStrip($('#ls-strip'), st.a, sp<0?(sentinel?{6:'sent'}:{}):st.m);
-    $('#ls-c').textContent = sp<0?0:st.C;
-    $('#ls-loc').textContent = sp<0?'—':st.loc;
-    stepMsg('ls', sp, steps.length, sp<0?'Press <b>Next</b> to run the first line.':st.msg, sp<0?undefined:st.ok);
-    liveLine('ls', sp<0?null:st.la, sp<0?null:st.lc, sp<0?undefined:st.ok);
-    $('#ls-next').disabled = sp>=steps.length-1;
-    $('#ls-back').disabled = sp<0;
-  }
-  function reset(){ clearInterval(tmr); tmr=null; $('#ls-play').textContent='▶ Play'; build(); sp=-1; paint(); }
-  $('#ls-next').onclick=function(){ if(sp<steps.length-1){sp++;paint();} };
-  $('#ls-back').onclick=function(){ if(sp>-1){sp--;paint();} };
-  $('#ls-reset').onclick=reset;
+  build();
+  var api=mount('ls',{
+    name:'Linear search, with and without the sentinel',
+    steps:steps, play:600,
+    group:function(st){ return st.la===null ? 'call' : (st.la<=0 ? 'setup' : (st.loc!=='—' ? 'done' : 'the scan')); },
+    draw:function(st,idx,a){
+      drawStrip($('#ls-strip'), st.a, st.m);
+      a.watch([['comparisons',st.C],['LOC',st.loc],['sentinel',sentinel?'on':'off']]);
+    }
+  });
+  function again(){ build(); api.reset(); }
   $('#ls-sent').onclick=function(){ sentinel=!sentinel; this.textContent='Sentinel: '+(sentinel?'on':'off');
-    this.classList.toggle('ghost',!sentinel); reset(); };
-  $('#ls-play').onclick=function(){var b=this;
-    if(tmr){clearInterval(tmr);tmr=null;b.textContent='▶ Play';return;}
-    if(sp>=steps.length-1)sp=-1; b.textContent='⏸ Pause';
-    tmr=setInterval(function(){ if(sp<steps.length-1){sp++;paint();} else {clearInterval(tmr);tmr=null;b.textContent='▶ Play';} },600);};
-  $('#ls-item').addEventListener('change',reset);
-  $$('[data-ls]').forEach(function(b){b.addEventListener('click',function(){ $('#ls-item').value=b.dataset.ls; reset(); });});
-  reset();
+    this.classList.toggle('ghost',!sentinel); again(); };
+  $('#ls-item').addEventListener('change',again);
+  $$('[data-ls]').forEach(function(b){b.addEventListener('click',function(){ $('#ls-item').value=b.dataset.ls; again(); });});
 })();
 
 /* ---------- 4 · BUBBLE SORT ---------- */
 (function(){
-  var steps=[], sp=-1, tmr=null, passRows=[];
+  var steps=[], passRows=[];
   function build(){
     var raw=($('#bs-word').value||'CANDLE').trim();
     var a, w, numeric=/[0-9]/.test(raw) && /^[0-9\s,]+$/.test(raw);
@@ -2645,7 +2669,10 @@ function stepMsg(k, sp, total, msg, ok){
     var mf={}; for(L=0;L<n;L++) mf[L]='locked';
     S.push({a:a.slice(),m:mf,C:C,D:D,pass:'done',la:9,lc:6,fin:1,
       msg:'<b>Sorted: '+a.join(numeric?', ':'')+'</b> &nbsp;·&nbsp; <b>C = '+C+'</b> comparisons, <b>D = '+D+'</b> interchanges. <b>That is the answer you write.</b>'});
-    steps=S;
+    /* in place: the shell holds this array, so a rebuild must fill the
+       same one rather than hand back a new reference */
+    steps.length=0; withCond(S);
+    for(var z=0;z<S.length;z++) steps.push(S[z]);
   }
   function paintPasses(upto){
     $('#bs-passes').innerHTML=passRows.map(function(r,i){
@@ -2655,35 +2682,29 @@ function stepMsg(k, sp, total, msg, ok){
              (r.p?'<span class="pc">'+r.c+' comp · '+r.d+' swap</span>':'')+'</div>';
     }).join('');
   }
-  function paint(){
-    var st = sp<0 ? steps[0] : steps[sp];
-    drawStrip($('#bs-strip'), st.a, sp<0?{}:st.m);
-    $('#bs-pass').textContent = sp<0?'—':st.pass;
-    $('#bs-c').textContent = sp<0?0:st.C;
-    $('#bs-d').textContent = sp<0?0:st.D;
-    stepMsg('bs', sp, steps.length, sp<0?'Press <b>Next</b> to run the first line.':st.msg, sp<0?undefined:st.ok);
-    liveLine('bs', sp<0?null:st.la, sp<0?null:st.lc, sp<0?undefined:st.ok);
-    var done=0; for(var i=0;i<=sp;i++) if(steps[i]&&steps[i].endpass) done=steps[i].endpass;
+  function paint(st,idx,a){
+    drawStrip($('#bs-strip'), st.a, st.m);
+    var done=0; for(var i=0;i<=idx;i++) if(steps[i]&&steps[i].endpass) done=steps[i].endpass;
     paintPasses(done);
-    $('#bs-next').disabled = sp>=steps.length-1;
-    $('#bs-back').disabled = sp<0;
+    a.watch([['pass',st.pass],['C  comparisons',st.C],['D  swaps',st.D]]);
   }
-  function reset(){ clearInterval(tmr); tmr=null; $('#bs-play').textContent='▶ Play'; build(); sp=-1; paint(); }
-  $('#bs-next').onclick=function(){ if(sp<steps.length-1){sp++;paint();} };
-  $('#bs-back').onclick=function(){ if(sp>-1){sp--;paint();} };
-  $('#bs-reset').onclick=reset;
+  build();
+  var api=mount('bs',{
+    name:'Bubble sort — counting C and D',
+    steps:steps, play:380,
+    group:function(st){ return st.pass==='—' || st.pass===undefined ? 'setup' : 'pass '+st.pass; },
+    draw:paint
+  });
+  function again(){ build(); api.reset(); }
+  /* "Finish this pass" runs the walk on to the next pass boundary */
   $('#bs-pass2').onclick=function(){
-    if(sp>=steps.length-1) return;
-    do { sp++; } while(sp<steps.length-1 && !steps[sp].endpass);
-    paint();
+    var i=api.index();
+    if(i>=steps.length-1) return;
+    do { i++; } while(i<steps.length-1 && !steps[i].endpass);
+    api.go(i);
   };
-  $('#bs-play').onclick=function(){var b=this;
-    if(tmr){clearInterval(tmr);tmr=null;b.textContent='▶ Play';return;}
-    if(sp>=steps.length-1)sp=-1; b.textContent='⏸ Pause';
-    tmr=setInterval(function(){ if(sp<steps.length-1){sp++;paint();} else {clearInterval(tmr);tmr=null;b.textContent='▶ Play';} },380);};
-  $('#bs-word').addEventListener('change',reset);
-  $$('[data-bw]').forEach(function(b){b.addEventListener('click',function(){ $('#bs-word').value=b.dataset.bw; reset(); });});
-  reset();
+  $('#bs-word').addEventListener('change',again);
+  $$('[data-bw]').forEach(function(b){b.addEventListener('click',function(){ $('#bs-word').value=b.dataset.bw; again(); });});
 })();
 
 /* ---------- 5 · BINARY SEARCH : array + pointers + auto-highlighted code ---------- */
@@ -2713,7 +2734,7 @@ function stepMsg(k, sp, total, msg, ok){
      value = width of the placeholder bar, in monospace characters */
   var HIDE={8:27, 10:39, 11:39, 12:26};
   var codeOn=false, condOn=false;
-  var steps=[], sp=-1, tmr=null;
+  var steps=[];
 
   function whileLine(){
     return '    <span class="k">while</span> (' +
@@ -2722,11 +2743,11 @@ function stepMsg(k, sp, total, msg, ok){
 
   function build(){
     var key=+$('#bin-item').value||0;
-    steps=[]; var low=0, high=A.length-1, n=0;
+    steps.length=0; var low=0, high=A.length-1, n=0;
     steps.push({low:low,high:high,mid:null,line:L.init,n:0,tone:'set',
       msg:'<b>low = 0, high = 12.</b> The search space is the whole array — every element is still a candidate.'});
     while(true){
-      steps.push({low:low,high:high,mid:null,line:L.cond,n:n,tone:'ask',
+      steps.push({low:low,high:high,mid:null,line:L.cond,n:n,tone:'ask',cond:{ok:low<=high},
         msg:(low<=high
               ? '<b>low &le; high ?</b> &nbsp;'+low+' &le; '+high+' is <b>true</b> — go round again.'
               : '<b>low &le; high ?</b> &nbsp;'+low+' &le; '+high+' is <b>false</b>. <b>low has crossed past high</b> — there is no space left between them, so the loop stops.')});
@@ -2753,82 +2774,76 @@ function stepMsg(k, sp, total, msg, ok){
       }
     }
   }
-  function paint(){
-    var st = sp<0 ? null : steps[sp];
-    var lo = st?st.low:0, hi = st?st.high:A.length-1, mid = st?st.mid:null;
+  function paint(st,sp,a){
+    var lo = st.low, hi = st.high, mid = st.mid;
     // array
     var pad='<div class="bcell pad"><span class="bi">&nbsp;</span><div class="bb">&middot;</div></div>';
     $('#bin-strip').innerHTML= pad + A.map(function(v,i){
       var cls='bcell';
-      if(st){
-        if(i<lo||i>hi) cls+=' out';
-        if(mid!==null && i===mid) cls+=(st.found?' hit':' mid');
-      }
+      if(i<lo||i>hi) cls+=' out';
+      if(mid!==null && i===mid) cls+=(st.found?' hit':' mid');
       return '<div class="'+cls+'"><span class="bi">'+i+'</span><div class="bb">'+v+'</div></div>';
     }).join('') + pad;
     // pointers — slots run from -1 to n so low/high can step right off the array
-    var last=A.length-1, crossed = st && lo>hi, cells=[], i2;
+    var last=A.length-1, crossed = lo>hi, cells=[], i2;
     for(i2=-1; i2<=A.length; i2++){
       var h='', outside=(i2<0 || i2>last);
-      if(st){
-        var tags=[];
-        if(i2===lo) tags.push('<span class="ptag2 lo'+(crossed?' xed':'')+(outside?' off':'')+'">low'+(crossed?' &raquo;':'')+'</span>');
-        if(mid!==null && i2===mid) tags.push('<span class="ptag2 mi">mid</span>');
-        if(i2===hi) tags.push('<span class="ptag2 hi2'+(crossed?' xed':'')+(outside?' off':'')+'">'+(crossed?'&laquo; ':'')+'high</span>');
-        if(tags.length) h='<span class="parrow'+(crossed?' dim':'')+'">▲</span>'+tags.join('');
-      }
+      var tags=[];
+      if(i2===lo) tags.push('<span class="ptag2 lo'+(crossed?' xed':'')+(outside?' off':'')+'">low'+(crossed?' &raquo;':'')+'</span>');
+      if(mid!==null && i2===mid) tags.push('<span class="ptag2 mi">mid</span>');
+      if(i2===hi) tags.push('<span class="ptag2 hi2'+(crossed?' xed':'')+(outside?' off':'')+'">'+(crossed?'&laquo; ':'')+'high</span>');
+      if(tags.length) h='<span class="parrow'+(crossed?' dim':'')+'">▲</span>'+tags.join('');
       cells.push('<div class="pcell'+(outside?' pad':'')+'">'+h+'</div>');
     }
     $('#bin-ptrs').innerHTML=cells.join('');
-    $('#bin-lo').textContent = st? (lo<=hi?lo:lo) : '—';
-    $('#bin-hi').textContent = st? hi : '—';
-    $('#bin-mi').textContent = st && mid!==null ? mid : '—';
-    $('#bin-steps').textContent = st?st.n:0;
-    var tone = st ? st.tone : 'idle';
-    var ICON = {idle:'\u25B8', set:'\u2194', ask:'?', mid:'\u25CE', cut:'\u2702', found:'\u2713', miss:'\u2715'};
-    var box = $('#bin-msgbox');
-    box.className = 'stepmsg' + (st ? ' t-'+tone : '');
-    $('#bin-msgic').innerHTML = ICON[tone] || '\u25B8';
-    $('#bin-msg').innerHTML = st ? st.msg : 'Press <b>Next step</b> to take the first midpoint.';
-    $('#bin-msgn').innerHTML = st ? (sp+1)+' / '+steps.length : '\u2014';
-    void box.offsetWidth; box.classList.add('bump');
+    a.watch([['low',lo],['mid',mid===null?'\u2014':mid],['high',hi],['looks',st.n]]);
+    /* the tone is richer than true/false \u2014 found and missing are their own
+       colours \u2014 so it rides on the shell's narration box as a class */
+    var box=$('#bin-sim .simmsg');
+    if(box) box.className='simmsg t-'+st.tone;
     // code: scaffolding always visible, loop body revealed step by step
     var seen={}, before={};
     for(var q=0;q<sp;q++)  if(steps[q]) before[steps[q].line]=1;
     for(var q2=0;q2<=sp;q2++) if(steps[q2]) seen[steps[q2].line]=1;
     $('#bin-code').innerHTML=CODE.map(function(l,i){
-      var on   = st && st.line===i;
+      var on   = (st.line===i);
       var body = (i===L.cond) ? whileLine() : l;
       if(HIDE[i] && !seen[i])
         body = '        <span class="ph" style="width:'+HIDE[i]+'ch"></span>';
-      var fresh = (HIDE[i] && st && st.line===i && !before[i]) ? ' fresh' : '';
+      var fresh = (HIDE[i] && st.line===i && !before[i]) ? ' fresh' : '';
       return '<span class="al'+(on?' hot2':'')+fresh+'">'+(body||' ')+'</span>';
     }).join('');
     var cb=$('#bin-cross');
-    cb.hidden = !crossed;
+    cb.style.display = crossed ? '' : 'none';
     if(crossed){
       var off = (lo>last) ? ' <b>low has stepped right off the end of the array.</b>'
               : (hi<0)    ? ' <b>high has stepped off the front of the array.</b>' : '';
       cb.innerHTML = '<span class="cx2b">&#10007;</span> <b>low = '+lo+'</b> is now past <b>high = '+hi+
         '</b> &mdash; they have <b>crossed</b>. There is no cell between them, so the search space is <b>empty</b>.'+off;
     }
-    $('#bin-next').disabled = sp>=steps.length-1;
-    $('#bin-back').disabled = sp<0;
+    a.msg(st.msg);
   }
+
+  build();
+  var api=Sim.make({
+    el:'#bin-sim',
+    name:'Binary search on 13 sorted numbers',
+    steps:steps,
+    play:1000,
+    lines:'#bin-code .al',
+    lineOf:function(st){ return st.line; },
+    /* one group for the looks, not one per look: three or four segments each
+       render their label as "look 1…" and the `looks` chip says which one */
+    group:function(st){ return st.mid===null && st.tone==='set' ? 'setup'
+                             : (st.done ? 'done' : 'halving'); },
+    render:function(st,idx,a){ paint(st,idx,a); }
+  });
   function reset(){
-    clearInterval(tmr); tmr=null; $('#bin-play').textContent='▶ Play';
     condOn=false;                                   /* the condition goes back under its button */
     $('#bin-condgo').style.display='';
     $('#bin-condwhy').style.display='none';
-    build(); sp=-1; paint();
+    build(); api.reset();
   }
-  $('#bin-next').onclick=function(){ if(sp<steps.length-1){sp++;paint();} };
-  $('#bin-back').onclick=function(){ if(sp>-1){sp--;paint();} };
-  $('#bin-reset').onclick=reset;
-  $('#bin-play').onclick=function(){var b=this;
-    if(tmr){clearInterval(tmr);tmr=null;b.textContent='▶ Play';return;}
-    if(sp>=steps.length-1)sp=-1; b.textContent='⏸ Pause';
-    tmr=setInterval(function(){ if(sp<steps.length-1){sp++;paint();} else {clearInterval(tmr);tmr=null;b.textContent='▶ Play';} },1000);};
   $('#bin-showcode').onclick=function(){
     codeOn=!codeOn;
     $('#bin-codewrap').hidden=!codeOn;
@@ -2839,7 +2854,7 @@ function stepMsg(k, sp, total, msg, ok){
   $('#bin-condgo').onclick=function(){
     condOn=true; this.style.display='none';
     $('#bin-condwhy').style.display='block';
-    paint();
+    api.go(api.index());          /* repaint in place, with the condition written in */
   };
   $('#bin-item').addEventListener('change',function(){
     CODE[2]='    <span class="t">int</span> n = <span class="n">13</span>, key = <span class="n">'+(+$('#bin-item').value||0)+'</span>;';
@@ -2849,12 +2864,11 @@ function stepMsg(k, sp, total, msg, ok){
     $('#bin-item').value=b.dataset.bin;
     CODE[2]='    <span class="t">int</span> n = <span class="n">13</span>, key = <span class="n">'+b.dataset.bin+'</span>;';
     reset(); });});
-  reset();
 })();
 
 /* ---------- 5 · HALVING BARS ---------- */
 (function(){
-  var N=13;
+  var N=13, api=null;
   function paint(){
     var v=N, rows='', k=0;
     while(k<=40){
@@ -2866,12 +2880,21 @@ function stepMsg(k, sp, total, msg, ok){
       v=Math.ceil(v/2); k++;
     }
     $('#halvebars').innerHTML=rows;
-    $('#halvemsg').innerHTML='From <b>'+N.toLocaleString('en-US')+'</b> down to 1 in <b>'+k+' look'+(k===1?'':'s')+'</b>. And log₂('+N.toLocaleString('en-US')+') ≈ <b>'+Math.log2(N).toFixed(1)+'</b> — the same number.';
+    $$('[data-hb]').forEach(function(b){ b.classList.toggle('ghost', +b.dataset.hb!==N); });
+    var m='From <b>'+N.toLocaleString('en-US')+'</b> down to 1 in <b>'+k+' look'+(k===1?'':'s')+'</b>. And log₂('+N.toLocaleString('en-US')+') ≈ <b>'+Math.log2(N).toFixed(1)+'</b> — the same number.';
+    if(api){
+      api.msg(m);
+      api.watch([['N',N.toLocaleString('en-US')],['looks',k],['log\u2082 N',Math.log2(N).toFixed(1)]]);
+    } else $('#halvemsg').innerHTML=m;
   }
   $$('[data-hb]').forEach(function(b){b.addEventListener('click',function(){
-    $$('[data-hb]').forEach(function(x){x.classList.add('ghost');}); b.classList.remove('ghost');
     N=+b.dataset.hb; paint(); });});
-  paint();
+  Sim.make({
+    el:'#hb-sim',
+    name:'Halving the search space',
+    render:function(st,i,a){ api=a; paint(); },
+    onReset:function(){ N=13; paint(); }
+  });
 })();
 
 /* ---------- YOUR TURN: ask before showing ----------
@@ -2888,72 +2911,8 @@ function stepMsg(k, sp, total, msg, ok){
   });
 })();
 
-/* ================= FOCUS MODE =================
-   For the projector. The widget is not duplicated — the whole .simbox is
-   physically moved into a full-screen overlay and moved back into its own
-   slot on close, so there is exactly one copy of every cell and every
-   handler, and nothing can drift out of sync. Everything on this page is
-   DOM rather than canvas, so it reflows on its own once the overlay is
-   wider; only the fixed cell sizes and the type are told to grow (see the
-   .fsbody rules in the stylesheet). */
-(function(){
-  var boxes=$$('.simbox'); if(!boxes.length) return;
-  var ov=el('div','fsov');
-  ov.id='fsov';
-  ov.setAttribute('role','dialog');
-  ov.setAttribute('aria-modal','true');
-  ov.innerHTML=
-    '<div class="fshd"><b id="fs-ttl"></b>'+
-      '<button class="fsx" id="fs-theme" type="button"></button>'+
-      '<button class="fsx" id="fs-x" type="button">Esc &#10005;</button></div>'+
-    '<div class="fsbody" id="fs-body"></div>'+
-    '<div class="fshint">'+
-      '<span><kbd>Esc</kbd> close</span>'+
-      '<span>the buttons work exactly as they do on the page</span>'+
-    '</div>';
-  document.body.appendChild(ov);
-
-  var body=$('#fs-body'), home=null, slot=null, node=null;
-
-  function open(id){
-    var box=$('#'+id); if(!box||node) return;
-    node=box; home=box.parentNode; slot=box.nextSibling;
-    $('#fs-ttl').textContent=box.dataset.title||'Simulator';
-    body.appendChild(box);
-    ov.classList.add('on'); document.body.classList.add('fsopen');
-    syncTheme();
-    $('#fs-x').focus();
-  }
-  function close(){
-    if(!node) return;
-    home.insertBefore(node,slot);          /* back into its own slot, not the end */
-    ov.classList.remove('on'); document.body.classList.remove('fsopen');
-    node=null; home=null; slot=null;
-  }
-  window.__fsClose=close;
-
-  /* one switch for the whole page: code panels and Focus mode together */
-  function syncTheme(){
-    var lightNow=document.body.classList.contains('codelight');
-    var b=$('#fs-theme'); if(b) b.textContent = lightNow ? '🌙 Dark code' : '☀ Light code';
-  }
-  window.__syncFsTheme=syncTheme;
-
-  $$('[data-focus]').forEach(function(b){
-    b.addEventListener('click',function(){ open(b.dataset.focus); });
-  });
-  $('#fs-x').addEventListener('click',close);
-  $('#fs-theme').addEventListener('click',function(){
-    document.body.classList.toggle('codelight');
-    try{ localStorage.setItem('dsa-code-theme',
-      document.body.classList.contains('codelight')?'light':'dark'); }catch(e){}
-    syncTheme();
-    if(window.__syncCodeTog) window.__syncCodeTog();
-  });
-  document.addEventListener('keydown',function(e){
-    if(e.key==='Escape' && node) close();
-  });
-})();
+/* Focus, and the n / b / r / p keys with the ring that says which block
+   they point at, are the shared shell's now. */
 
 /* ================= THE TAKEAWAY RAIL =================
    Each lesson card carries one sentence in data-key. As you reach a card the
@@ -3058,62 +3017,6 @@ function stepMsg(k, sp, total, msg, ok){
   show();
 })();
 
-/* ---------- n / b / r drive the simulator you are looking at ----------
-   Every widget here has its own buttons, so the keys are wired to the block
-   nearest the middle of the view — or the one in Focus — and that block says
-   so in its own button row. */
-(function(){
-  var BLOCKS=$$('.simbox').filter(function(s){ return $('[data-k="next"]',s); });
-  if(!BLOCKS.length) return;
-  BLOCKS.forEach(function(sim){
-    var row=$('.btnrow',sim); if(!row) return;
-    var h=el('span','kbdhint','<kbd>n</kbd> next');
-    if($('[data-k="back"]',sim)) h.innerHTML+=' <kbd>b</kbd> back';
-    h.innerHTML+=' <kbd>r</kbd> reset';
-    row.appendChild(h);
-  });
-  var cur=null, tick=null;
-  function pick(){
-    var ov=document.querySelector('.fsov .simbox');
-    if(ov) return $('[data-k="next"]',ov)?ov:null;
-    var best=null, bd=1e9, mid=window.innerHeight/2;
-    BLOCKS.forEach(function(s){
-      var r=s.getBoundingClientRect();
-      if(r.bottom<70 || r.top>window.innerHeight-50) return;
-      var d=Math.abs((r.top+r.bottom)/2-mid);
-      if(d<bd){ bd=d; best=s; }
-    });
-    return best;
-  }
-  function mark(){
-    var s=pick();
-    if(s===cur) return;
-    if(cur) cur.classList.remove('kbdon');
-    cur=s; if(cur) cur.classList.add('kbdon');
-  }
-  window.addEventListener('scroll',function(){
-    if(tick) return;
-    tick=setTimeout(function(){ tick=null; mark(); },120);
-  },{passive:true});
-  window.addEventListener('resize',mark);
-  document.addEventListener('keydown',function(e){
-    if(e.metaKey||e.ctrlKey||e.altKey) return;
-    var fe=document.activeElement, t=(e.target&&e.target.tagName)||'';
-    var ft=(fe&&fe.tagName)||'';
-    if(/^(INPUT|SELECT|TEXTAREA)$/.test(t)||/^(INPUT|SELECT|TEXTAREA)$/.test(ft)) return;
-    var k=e.key.toLowerCase();
-    if(k!=='n'&&k!=='b'&&k!=='r') return;
-    mark(); var s=pick(); if(!s) return;
-    var btn=$('[data-k="'+(k==='n'?'next':k==='b'?'back':'reset')+'"]',s);
-    if(btn && !btn.disabled){ e.preventDefault(); btn.click(); }
-  });
-  mark();
-})();
-document.addEventListener('keydown',function(e){
-  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
-  if(e.key==='j'||e.key==='ArrowDown'){e.preventDefault();jump(1);}
-  if(e.key==='k'||e.key==='ArrowUp'){e.preventDefault();jump(-1);}
-});
 })();
 
 
@@ -3169,8 +3072,8 @@ document.addEventListener('keydown',function(e){
     document.body.style.overflow = v?'hidden':'';
   }
   fab.querySelector('.fmenu').onclick=function(){open(!dr.classList.contains('on'));};
-  fab.querySelector('.fup').onclick=function(){jump(-1);};
-  fab.querySelector('.fdn').onclick=function(){jump(1);};
+  fab.querySelector('.fup').onclick=function(){window.cardJump(-1);};
+  fab.querySelector('.fdn').onclick=function(){window.cardJump(1);};
   dr.querySelector('.dx').onclick=function(){open(false);};
   scrim.onclick=function(){open(false);};
   dr.addEventListener('click',function(e){
