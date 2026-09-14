@@ -982,7 +982,15 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 .fsov:not(.lit) .fsbody .algo.live .st.simtrue{background:#0d2b24;box-shadow:inset 3px 0 0 #0f8a67;color:#6ee7b7}
 .fsov:not(.lit) .fsbody .algo.live .st.simfalse{background:#3b0d1c;box-shadow:inset 3px 0 0 #c2295a;color:#fda4af}
 .fsov:not(.lit) .fsbody .ctrl label{color:#8f9ac2}
+.fsov:not(.lit) .fsbody .ctrl{background:#1b2238;border-color:#2b3554}
 .fsov:not(.lit) .fsbody .ctrl input{background:#1b2238;border-color:#2b3554;color:#e6e9f7}
+/* the five symbol colours again, lightened — the page tints are pastel fills
+   meant for white paper and they glow on a dark wall */
+.fsov:not(.lit) .fsbody .tk-base{--tkbg:#0b3a56;--tkfg:#bae6fd}
+.fsov:not(.lit) .fsbody .tk-w   {--tkbg:#442a06;--tkfg:#fde68a}
+.fsov:not(.lit) .fsbody .tk-k   {--tkbg:#241c4d;--tkfg:#ddd6fe}
+.fsov:not(.lit) .fsbody .tk-lb  {--tkbg:#0b3833;--tkfg:#99f6e4}
+.fsov:not(.lit) .fsbody .tk-ub  {--tkbg:#3b0d1c;--tkfg:#fecdd3}
 .fsov:not(.lit) .fsbody .fclbl,.fsov:not(.lit) .fsbody .opdesc,.fsov:not(.lit) .fsbody .subtle{color:#8f9ac2}
 
 /* ---- THIS PAGE'S PICTURES, ON THE SHARED BENCH -------------------
@@ -2528,7 +2536,7 @@ window.cardJump=jump;
   var CLASSES=[
     ['1','Linear arrays & memory','01-linear-arrays.html'],
     ['2','Operations on an array','02-array-operations.html'],
-    ['3','2D arrays, matrices & sparse','03-2d-arrays.html'],
+    ['3','Multidimensional arrays & sparse','03-2d-arrays.html'],
     ['4','Strings & pattern matching','04-strings.html']
   ];
   var here=(location.pathname.split('/').pop()||'');

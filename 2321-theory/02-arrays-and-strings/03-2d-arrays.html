@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>2D Arrays, Matrices &amp; Sparse — CSE-2321 Segment 2, Class 3</title>
+<title>Multidimensional Arrays, Matrices &amp; Sparse — CSE-2321 Segment 2, Class 3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/sim.css?v=3">
 <style>
 /* ============ TOKENS ============ */
 :root{
@@ -703,6 +704,11 @@ details.prob.lc .plink{background:#d97706}
         color:#e2e8f0;overflow-x:auto}
 .fline{display:block;white-space:pre;font-size:clamp(.78rem,3.2vw,1rem);line-height:2.2;letter-spacing:.01em}
 .fline.dim{color:#64748b}
+/* a line the walk has not reached keeps its space but not its content:
+   the board must not move under the buttons, and a dimmed answer is still
+   an answer */
+.fline.pend{visibility:hidden}
+.fline.liv{background:rgba(56,189,248,.12);border-radius:.25rem;box-shadow:inset 3px 0 0 #38bdf8}
 .fline .fv{color:#38bdf8;font-weight:700}
 .fline .fk{color:#fbbf24;font-weight:700}
 .fline .fr{color:#4ade80;font-weight:700;font-size:1.15em}
@@ -820,8 +826,8 @@ details.prob.lc .plink{background:#d97706}
 /* overflow-x:auto makes a box scroll on BOTH axes, so a cell that lifts on
    hover or wears a selection ring is clipped unless there is headroom */
 .gridwrap{overflow-x:auto;padding:.55rem .25rem}
-.mgrid{display:grid;gap:3px;margin:0 auto;width:max-content}
-.gc{width:56px;height:44px;border:2px solid #cbd5e1;border-radius:.3rem;background:#fff;display:grid;
+.mgrid{display:grid;gap:3px;margin:0 auto;width:max-content;--gcw:56px;--gsw:34px}
+.gc{width:var(--gcw);height:var(--gch,44px);border:2px solid #cbd5e1;border-radius:.3rem;background:#fff;display:grid;
     place-items:center;font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--ink);
     cursor:pointer;transition:.18s;position:relative}
 .gc:hover{border-color:#7dd3fc;transform:translateY(-2px)}
@@ -830,9 +836,9 @@ details.prob.lc .plink{background:#d97706}
 .gc.collit{background:#fef3c7;border-color:#fcd34d}
 .gc .gidx{position:absolute;top:2px;left:4px;font-size:.5rem;color:#94a3b8;font-weight:700}
 .gc.sel2 .gidx{color:#0284c7}
-.ghdr{width:56px;height:22px;display:grid;place-items:center;font-family:var(--mono);font-size:.6rem;
+.ghdr{width:var(--gcw);height:22px;display:grid;place-items:center;font-family:var(--mono);font-size:.6rem;
       font-weight:800;color:#94a3b8}
-.gside{width:34px;height:44px;display:grid;place-items:center;font-family:var(--mono);font-size:.6rem;
+.gside{width:var(--gsw);height:var(--gch,44px);display:grid;place-items:center;font-family:var(--mono);font-size:.6rem;
        font-weight:800;color:#94a3b8}
 
 /* linear strips */
@@ -852,8 +858,8 @@ details.prob.lc .plink{background:#d97706}
 .ls2.on .la2{color:var(--ink-soft);font-weight:800}
 
 /* sparse */
-.spgrid{display:grid;gap:2px;width:max-content;margin:0 auto}
-.spc{width:34px;height:30px;border:1px solid #e2e8f0;border-radius:.2rem;display:grid;place-items:center;
+.spgrid{display:grid;gap:2px;width:max-content;margin:0 auto;--spw:34px;--sph:30px}
+.spc{width:var(--spw);height:var(--sph);border:1px solid #e2e8f0;border-radius:.2rem;display:grid;place-items:center;
      font-family:var(--mono);font-size:.72rem;color:#cbd5e1;background:#fafbfc;transition:.2s}
 .spc.nz{background:#dcfce7;border-color:#16a34a;color:#15803d;font-weight:800}
 .spstats{display:grid;gap:.5rem;margin:.9rem 0}
@@ -1016,61 +1022,226 @@ body.revealall .ovbtn{opacity:.4;pointer-events:none}
 .pastq .pqt{margin:0;font-size:.93rem;line-height:1.68;color:#4c0519;font-style:italic}
 .pastq .pqt b{font-style:normal;color:#881337}
 
-/* ---- SIMULATOR SHELL + FOCUS -------------------------------------
-   Jamil teaches from a projector. Every widget on the page can now be
-   thrown full-screen, and it is the same node that moves — never a copy,
-   so nothing can drift out of sync. */
-.simbox{border:1px solid #e6e9f7;border-radius:1rem;margin:1.2rem 0;overflow:hidden;
-  background:linear-gradient(180deg,#fff 0%,#fcfdff 55%,#f7f9ff 100%);
-  box-shadow:0 14px 32px -26px rgba(30,27,75,.4)}
-.simhd{display:flex;align-items:center;gap:.7rem;padding:.55rem .9rem;border-bottom:1px solid #eef0f8}
-.simttl{font-size:.5rem;font-weight:800;letter-spacing:.24em;text-transform:uppercase;color:#b4bcd8}
-.focusb{margin-left:auto;appearance:none;font-family:inherit;font-size:.68rem;font-weight:800;
-  border:1px solid #dfe3f2;background:#fff;color:#6d7392;border-radius:.45rem;
-  padding:.28rem .6rem;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:.35rem}
-.focusb:hover{border-color:var(--accent,#0284c7);color:var(--accent,#0284c7)}
-.simbd{padding:.95rem}
-.simbd>:first-child{margin-top:0}
-.simbd>:last-child{margin-bottom:0}
+/* ============ THE VERDICT — WHAT THIS COSTS ============
+   Same block as Segment 1 Class 5 and Segment 2 Class 1: the name in large
+   mono type, one or two lines on what it means as a count of operations, and
+   colour carrying the judgement.
+   --oc the ink and the rules   --ob the wash behind it */
+.bigo{display:flex;flex-wrap:wrap;align-items:center;gap:.55rem 1.2rem;
+  margin:1.25rem 0;padding:.9rem 1.15rem;border-radius:.85rem;
+  border:1.5px solid var(--oc,#94a3b8);border-left-width:6px;
+  background:linear-gradient(100deg,var(--ob,#f8fafc),#fff 66%);
+  box-shadow:0 12px 28px -22px rgba(15,23,42,.65)}
+.bigo .bopair{flex:0 0 auto}
+.bigo .bok{margin:0;font-size:.55rem;font-weight:800;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--oc,#64748b);opacity:.85}
+.bigo .bov{margin:.05rem 0 0;font-family:var(--mono);font-weight:800;line-height:1.02;
+  font-size:clamp(1.65rem,5.6vw,2.35rem);color:var(--oc,#0f172a);white-space:nowrap;
+  font-variant-numeric:tabular-nums}
+.bigo .bod{flex:1 1 15rem;min-width:0;margin:0;font-size:.91rem;line-height:1.62;color:var(--ink-soft)}
+.bigo .bod b{color:var(--ink)}
+.bigo .bopair + .bopair{border-left:1px solid var(--line);padding-left:1.2rem}
+@media(max-width:520px){
+  .bigo{padding:.8rem .9rem;gap:.45rem .9rem}
+  .bigo .bopair + .bopair{border-left:0;padding-left:0}
+  .bigo .bod{flex-basis:100%}
+}
 
-.fsov{position:fixed;inset:0;z-index:120;background:var(--bg);display:none;flex-direction:column}
-.fsov.on{display:flex}
-body.fsopen{overflow:hidden}
-.fshd{flex:0 0 auto;display:flex;align-items:center;gap:.8rem;padding:.7rem 1.2rem;
-  border-bottom:1px solid var(--line);background:#fff}
-.fshd b{font-size:.9rem;font-weight:800;color:var(--ink);letter-spacing:-.01em}
-.fsx{margin-left:auto;appearance:none;font-family:var(--mono);font-size:.7rem;font-weight:700;
-  color:var(--ink-mute);border:1px solid var(--line-strong);border-radius:.4rem;padding:.22rem .55rem;
-  background:#fff;cursor:pointer}
-.fsx+.fsx{margin-left:0}
-.fsx:hover{color:var(--ink);border-color:var(--ink-mute)}
-.fsbody{flex:1;min-height:0;overflow:auto;padding:clamp(.7rem,2vw,1.6rem)}
-.fsbody{display:flex;flex-direction:column;justify-content:center}
-.fsbody .simbox{max-width:1180px;width:100%;margin:0 auto;border:0;background:transparent;box-shadow:none}
-.fsbody .simhd{display:none}
-.fsbody .simbd{padding:0}
-/* On the wall everything grows. These widgets are DOM, not canvas, so they
-   reflow on their own once the overlay is wider — only the fixed cell sizes
-   and the type have to be told to get bigger. */
-.fsbody .acell2{width:78px}
-.fsbody .acell2 .ab2{height:58px;font-size:1.3rem}
-.fsbody .acell2 .ai2{font-size:.72rem}
-.fsbody .acell2 .aa2{font-size:.66rem}
-.fsbody .mc{width:68px}
-.fsbody .mc .mb{height:56px;font-size:1.15rem}
-.fsbody .mc .mi{font-size:.72rem}
-.fsbody .mc .ma{font-size:.63rem}
-.fsbody .fline{font-size:clamp(.9rem,2vw,1.3rem);line-height:2.35}
-.fsbody .carr-code{font-size:1.02rem;line-height:2.2}
-.fsbody .tw2 .tv2{font-size:1.75rem}
-.fsbody .tw2 .tk2{font-size:.7rem}
-.fsbody .drow span{font-size:.98rem}
-.fsbody .drow{padding:.55rem .9rem}
-.fsbody .opdesc,.fsbody .fclbl{font-size:1rem}
-.fshint{flex:0 0 auto;display:flex;flex-wrap:wrap;gap:.5rem 1.3rem;padding:.55rem 1.2rem;
-  border-top:1px solid var(--line);background:#fff;font-size:.7rem;color:var(--ink-mute)}
-.fshint kbd{font-family:var(--mono);font-size:.66rem;border:1px solid var(--line-strong);
-  border-bottom-width:2px;border-radius:.28rem;padding:.02rem .3rem;background:#f8fafc;color:var(--ink-soft)}
+/* ============ STAGE BESIDE A LIVE PROCEDURE ============
+   The segment's standard shape: the picture left, the module right, both
+   full height, stacked under 900px. Named .tv* on Class 1 and kept here so
+   the two pages describe the same layout with the same words. */
+.tvgrid{display:grid;gap:.9rem}
+@media(min-width:900px){.tvgrid{grid-template-columns:minmax(0,332px) minmax(0,1fr);align-items:stretch}}
+.tvcol{min-width:0;display:flex;flex-direction:column;gap:.75rem}
+.tvcol>.algo.live{flex:1;display:flex;flex-direction:column;justify-content:center}
+.algo.live{border-color:#d9e2ec;margin:0}
+.algo.live .st{cursor:default;position:relative}
+.algo.live .st.cur{background:#fef3c7;box-shadow:inset 3px 0 0 #d97706;font-weight:700;color:#78350f}
+/* the shell's names for a condition coloured by its answer. The TRUE/FALSE
+   word is printed beside the step number, not on the line. */
+.algo.live .st.simtrue{background:#dcfce7;box-shadow:inset 3px 0 0 #16a34a;color:#14532d}
+.algo.live .st.simfalse{background:#fee2e2;box-shadow:inset 3px 0 0 #dc2626;color:#7f1d1d}
+
+/* ============ n DIMENSIONS: THE WHEELS AND THE LINE ============
+   One row per dimension, L_d boxes on it, the live one lit. Row-major ticks
+   the BOTTOM row and carries upward; column-major ticks the TOP row and
+   carries down — which is the whole difference between the two orders, and
+   the thing a 2-D picture cannot show because two wheels look symmetric. */
+.ndw{display:flex;flex-direction:column;gap:.4rem;margin:.2rem 0 .1rem}
+.ndrow{display:grid;grid-template-columns:5.6rem minmax(0,1fr);gap:.55rem;align-items:center}
+.ndrow .ndk{font-family:var(--mono);font-size:.6rem;font-weight:800;color:var(--ink-mute);
+  white-space:nowrap;text-align:right;letter-spacing:.02em;transition:color .2s}
+.ndcells{display:flex;gap:3px;flex-wrap:wrap;min-width:0}
+.ndc{min-width:30px;height:26px;padding:0 .25rem;border:1.5px solid #e2e8f0;border-radius:.3rem;background:#fff;
+  display:grid;place-items:center;font-family:var(--mono);font-size:.66rem;font-weight:700;color:#94a3b8;transition:.18s}
+.ndc.on{border-color:#0284c7;background:#e0f2fe;color:#075985;transform:translateY(-2px)}
+.ndrow.tick .ndk{color:#0369a1}
+.ndrow.tick .ndc.on{box-shadow:0 0 0 3px rgba(2,132,199,.25)}
+.ndrow.carry .ndk{color:#b45309}
+.ndrow.carry .ndc.on{border-color:#d97706;background:#fef3c7;color:#92400e;box-shadow:0 0 0 3px rgba(217,119,6,.3)}
+.ndmem{display:flex;gap:2px;overflow-x:auto;padding:.35rem 0 .25rem}
+.ndm{min-width:34px;flex:1 1 0;text-align:center}
+.ndm .ndb{height:30px;border:1.5px dashed #e2e8f0;border-radius:.25rem;background:#fbfcfe;
+  display:grid;place-items:center;font-family:var(--mono);font-size:.56rem;font-weight:700;
+  color:transparent;transition:.2s;white-space:nowrap}
+.ndm.set .ndb{border-style:solid;border-color:#cbd5e1;color:#475569;background:#fff;
+  animation:landin .34s cubic-bezier(.3,1.2,.4,1) both}
+.ndm.on .ndb{border-color:#2563eb;background:#dbeafe;color:#1e3a8a;transform:translateY(-3px)}
+.ndm .nda{font-family:var(--mono);font-size:.47rem;color:#cbd5e1;display:block;margin-top:2px}
+.ndm.set .nda{color:var(--ink-soft);font-weight:800}
+@media (prefers-reduced-motion:reduce){.ndm.set .ndb{animation:none}}
+
+/* ============ A SQUARE MATRIX YOU CAN WALK ============
+   One grid component for the exam's module and for both problems, so the
+   three walks look like the same object being read three ways. */
+.sqwrap{overflow-x:auto;padding:.5rem .25rem}
+.sqgrid{display:grid;gap:3px;width:max-content;margin:0 auto;--sqw:42px;--sqh:34px}
+.sqc{width:var(--sqw);height:var(--sqh);border:1.5px solid #e2e8f0;border-radius:.28rem;background:#fff;
+  display:grid;place-items:center;font-family:var(--mono);font-size:.78rem;font-weight:700;
+  color:var(--ink);transition:.18s;position:relative}
+.sqc.diag{background:#f8fafc;border-style:dashed;color:#94a3b8}
+.sqc.zero{border-color:#0284c7;background:#e0f2fe;color:#075985}
+.sqc.summed{border-color:#16a34a;background:#dcfce7;color:#14532d}
+/* two of the cells above the diagonal are zeros, and the two answers are
+   independent — so a counted zero keeps its dot after it turns green */
+.sqc.zero::after{content:'';position:absolute;top:3px;right:3px;width:5px;height:5px;
+  border-radius:50%;background:#0284c7}
+.sqc.cut{opacity:.32;border-style:dashed}
+.sqc.hit{border-color:#16a34a;background:#bbf7d0;color:#14532d;box-shadow:0 0 0 3px rgba(22,163,74,.28);z-index:2}
+.sqc.mark{border-color:#7c3aed;background:#ede9fe;color:#5b21b6}
+.sqc.wiped{border-color:#e11d48;background:#ffe4e6;color:#9f1239}
+/* last, so it wins: the cell in hand must read as the cell in hand even after
+   it has been counted or summed, or the walk loses its cursor */
+.sqc.look{border-color:#d97706;background:#fef3c7;color:#92400e;transform:translateY(-2px);z-index:2}
+.sqhd{width:var(--sqw);height:20px;display:grid;place-items:center;font-family:var(--mono);
+  font-size:.55rem;font-weight:800;color:#94a3b8}
+.sqhd.side{width:26px;height:var(--sqh)}
+
+/* ---- THIS PAGE'S PICTURES, ON THE SHARED BENCH -------------------
+   The frame, the Focus overlay, the ring and the control conventions used to
+   live here. They are in assets/sim.css now, and the private copies are
+   DELETED rather than layered underneath, because they own the same names.
+
+   What stays below is what is genuinely this page's: how big ITS pictures
+   get on the wall, and what colour they are on the dark bench. Every rule
+   here names something this page actually draws — the block that used to
+   sit here named .acell2, .mc, .tw2, .drow and .carr-code, none of which
+   exist on this page, so nothing had ever grown for the room. */
+.fsbody .mgrid{--gcw:76px;--gsw:44px;--gch:52px}
+.fsbody .gc{font-size:1.05rem}
+.fsbody .gc .gidx{font-size:.6rem}
+.fsbody .ghdr,.fsbody .gside{font-size:.72rem}
+.fsbody .linlbl,.fsbody .lincnt{font-size:.75rem}
+.fsbody .ls2{min-width:42px}
+.fsbody .ls2 .lb2{height:34px;font-size:.74rem}
+.fsbody .ls2 .la2{font-size:.58rem}
+.fsbody .spgrid{--spw:48px;--sph:40px}
+.fsbody .spc{font-size:.92rem}
+.fsbody .cnt2 .ck2{font-size:.7rem}
+.fsbody .cnt2 .cv3{font-size:1.5rem}
+.fsbody .fboard{padding:.9rem 1rem}
+/* Section 5's board is fifteen lines — the tallest single thing on the page.
+   It gets its own size on the bench so Section 4's eleven-line board does not
+   have to shrink with it. */
+.fsbody #t-sim .simbd{gap:.5rem}
+.fsbody #t-sim .ctrl{padding:.22rem .5rem}
+.fsbody #t-sim .ctrl input{font-size:.95rem}
+.fsbody #tboard{padding:.7rem .9rem}
+.fsbody #tboard .fline{font-size:clamp(.8rem,1.4vw,.96rem);line-height:1.5}
+.fsbody #t-sim .simmsg{min-height:52px}
+/* eleven lines of derivation have to fit a 900px bench with the inputs and
+   the preset row above them, so the board grows in type and not in leading */
+.fsbody .fline{font-size:clamp(.88rem,1.7vw,1.12rem);line-height:1.95}
+.fsbody .algo.live{font-size:1rem}
+.fsbody .tvgrid{grid-template-columns:minmax(0,520px) minmax(0,1fr);gap:1.4rem}
+.fsbody .ndrow{grid-template-columns:7rem minmax(0,1fr)}
+.fsbody .ndrow .ndk{font-size:.76rem}
+.fsbody .ndc{min-width:44px;height:36px;font-size:.9rem}
+.fsbody .ndm{min-width:46px}
+.fsbody .ndm .ndb{height:42px;font-size:.7rem}
+.fsbody .ndm .nda{font-size:.57rem}
+.fsbody .sqgrid{--sqw:58px;--sqh:46px}
+.fsbody .sqc{font-size:1.02rem}
+.fsbody .sqhd{font-size:.68rem}
+.fsbody .sqhd.side{width:34px}
+.fsbody .ctrl label{font-size:.72rem}
+
+/* carried over from Segment 1 Class 2, where it is defined. It arrived here
+   with an inline background and nothing else, so the box had no border, no
+   radius and no padding of its own. */
+.trade{border:1px solid var(--line);border-radius:.75rem;padding:.85rem 1rem;background:#f8fafc;margin:1.1rem 0}
+.trade input[type=range]{width:100%;accent-color:#16a34a;margin:.6rem 0 0}
+
+/* ---- the same pictures on the DARK bench. Dark is the shell's default,
+        so anything left light here is a white rectangle on a wall. ---- */
+.fsov:not(.lit) .fsbody .gc{background:#1b2238;border-color:#2b3554;color:#e6e9f7}
+.fsov:not(.lit) .fsbody .gc .gidx{color:#6b769e}
+.fsov:not(.lit) .fsbody .gc.sel2{background:#0b3a56;border-color:#38bdf8;color:#e0f2fe}
+.fsov:not(.lit) .fsbody .gc.spent{border-color:#2b3554;color:#6b769e}
+.fsov:not(.lit) .fsbody .gc.sel2 .gidx{color:#7dd3fc}
+.fsov:not(.lit) .fsbody .ghdr,.fsov:not(.lit) .fsbody .gside{color:#8f9ac2}
+.fsov:not(.lit) .fsbody .linlbl.row{color:#93c5fd}
+.fsov:not(.lit) .fsbody .linlbl.col{color:#fcd34d}
+.fsov:not(.lit) .fsbody .linlbl.row span{background:#1e3a8a}
+.fsov:not(.lit) .fsbody .linlbl.col span{background:#78350f}
+.fsov:not(.lit) .fsbody .lincnt{background:#1b2238;border-color:#2b3554;color:#8f9ac2}
+.fsov:not(.lit) .fsbody .ls2 .lb2{background:#1b2238;border-color:#2b3554;color:#8f9ac2}
+.fsov:not(.lit) .fsbody .ls2.hole .lb2{background:#151b2e;border-color:#232b45}
+.fsov:not(.lit) .fsbody .linstrip.row .ls2.on .lb2{background:#12325e;border-color:#3b82f6;color:#dbeafe}
+.fsov:not(.lit) .fsbody .linstrip.col .ls2.on .lb2{background:#442a06;border-color:#d97706;color:#fde68a}
+.fsov:not(.lit) .fsbody .ls2 .la2{color:#5b678f}
+.fsov:not(.lit) .fsbody .ls2.set .la2{color:#8f9ac2}
+.fsov:not(.lit) .fsbody .spc{background:#151b2e;border-color:#232b45;color:#4c5680}
+.fsov:not(.lit) .fsbody .spc.nz{background:#0d2b24;border-color:#0f8a67;color:#6ee7b7}
+.fsov:not(.lit) .fsbody .cnt2{background:#1b2238;border-color:#2b3554}
+.fsov:not(.lit) .fsbody .cnt2 .ck2{color:#8f9ac2}
+.fsov:not(.lit) .fsbody .cnt2 .cv3{color:#e6e9f7}
+.fsov:not(.lit) .fsbody .trade{background:#1b2238;border-color:#2b3554}
+.fsov:not(.lit) .fsbody .trade label{color:#c3cbe4}
+.fsov:not(.lit) .fsbody .fboard{background:#131a2e;border-color:#232b45;color:#c3cbe4}
+.fsov:not(.lit) .fsbody .fline{color:#c3cbe4}
+.fsov:not(.lit) .fsbody .fline .fc{color:#5b678f}
+.fsov:not(.lit) .fsbody .fline .fr{color:#6ee7b7}
+.fsov:not(.lit) .fsbody .algo{background:#131a2e;border-color:#232b45}
+.fsov:not(.lit) .fsbody .algo .st{color:#c3cbe4}
+.fsov:not(.lit) .fsbody .algo.live .st.cur{background:#3a2a10;box-shadow:inset 3px 0 0 #d97706;color:#fcd34d}
+.fsov:not(.lit) .fsbody .algo.live .st.simtrue{background:#0d2b24;box-shadow:inset 3px 0 0 #0f8a67;color:#6ee7b7}
+.fsov:not(.lit) .fsbody .algo.live .st.simfalse{background:#3b0d1c;box-shadow:inset 3px 0 0 #c2295a;color:#fda4af}
+.fsov:not(.lit) .fsbody .ctrl label{color:#8f9ac2}
+.fsov:not(.lit) .fsbody .ctrl{background:#1b2238;border-color:#2b3554}
+.fsov:not(.lit) .fsbody .ctrl input{background:#1b2238;border-color:#2b3554;color:#e6e9f7}
+.fsov:not(.lit) .fsbody input[type="range"]{background:#2b3554;accent-color:#38bdf8}
+/* the five symbol colours again, lightened — the page tints are pastel fills
+   meant for white paper and they glow on a dark wall */
+.fsov:not(.lit) .fsbody .tk-base{--tkbg:#0b3a56;--tkfg:#bae6fd}
+.fsov:not(.lit) .fsbody .tk-w   {--tkbg:#442a06;--tkfg:#fde68a}
+.fsov:not(.lit) .fsbody .tk-k   {--tkbg:#241c4d;--tkfg:#ddd6fe}
+.fsov:not(.lit) .fsbody .tk-lb  {--tkbg:#0b3833;--tkfg:#99f6e4}
+.fsov:not(.lit) .fsbody .tk-ub  {--tkbg:#3b0d1c;--tkfg:#fecdd3}
+.fsov:not(.lit) .fsbody .btn.ghost{background:#1b2238;border-color:#2b3554;color:#c3cbe4}
+.fsov:not(.lit) .fsbody .subtle{color:#8f9ac2}
+.fsov:not(.lit) .fsbody .ndc{background:#1b2238;border-color:#2b3554;color:#8f9ac2}
+.fsov:not(.lit) .fsbody .ndc.on{background:#0b3a56;border-color:#38bdf8;color:#e0f2fe}
+.fsov:not(.lit) .fsbody .ndrow.carry .ndc.on{background:#442a06;border-color:#d97706;color:#fde68a}
+.fsov:not(.lit) .fsbody .ndrow .ndk{color:#8f9ac2}
+.fsov:not(.lit) .fsbody .ndrow.tick .ndk{color:#7dd3fc}
+.fsov:not(.lit) .fsbody .ndrow.carry .ndk{color:#fcd34d}
+.fsov:not(.lit) .fsbody .ndm .ndb{background:#151b2e;border-color:#232b45}
+.fsov:not(.lit) .fsbody .ndm.set .ndb{background:#1b2238;border-color:#2b3554;color:#c3cbe4}
+.fsov:not(.lit) .fsbody .ndm.on .ndb{background:#12325e;border-color:#3b82f6;color:#dbeafe}
+.fsov:not(.lit) .fsbody .ndm .nda{color:#5b678f}
+.fsov:not(.lit) .fsbody .ndm.set .nda{color:#8f9ac2}
+.fsov:not(.lit) .fsbody .sqc{background:#1b2238;border-color:#2b3554;color:#e6e9f7}
+.fsov:not(.lit) .fsbody .sqc.diag{background:#151b2e;border-color:#232b45;color:#5b678f}
+.fsov:not(.lit) .fsbody .sqc.zero{background:#0b3a56;border-color:#38bdf8;color:#e0f2fe}
+.fsov:not(.lit) .fsbody .sqc.summed{background:#0d2b24;border-color:#0f8a67;color:#6ee7b7}
+.fsov:not(.lit) .fsbody .sqc.hit{background:#0d2b24;border-color:#22c55e;color:#bbf7d0}
+.fsov:not(.lit) .fsbody .sqc.mark{background:#241c4d;border-color:#8b5cf6;color:#ddd6fe}
+.fsov:not(.lit) .fsbody .sqc.wiped{background:#3b0d1c;border-color:#c2295a;color:#fda4af}
+.fsov:not(.lit) .fsbody .sqc.look{background:#442a06;border-color:#d97706;color:#fde68a}
+.fsov:not(.lit) .fsbody .sqhd{color:#8f9ac2}
+.fsov:not(.lit) .fsbody .sqc.cut{opacity:.3}
 
 /* ---- THE TAKEAWAY RAIL -------------------------------------------
    One sentence per section, added as the section is reached — forward
@@ -1107,25 +1278,7 @@ body.fsopen{overflow:hidden}
 body.fsopen .keyrail{display:none}          /* never over a projected screen */
 body.onexam .keyrail{display:none}          /* nor over the exam tab, which has no keys */
 
-/* ---- the input/output examples inside a problem block ---- */
-.iogrid{display:grid;gap:.55rem;margin:.8rem 0 0}
-@media(min-width:640px){.iogrid{grid-template-columns:1fr 1fr}}
-.io{display:grid;grid-template-columns:auto 1fr;gap:.3rem .6rem;align-items:baseline;
-  border:1px solid var(--line);border-radius:.55rem;background:#f8fafc;padding:.6rem .7rem}
-.io .iok{font-size:.55rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute)}
-.io .mono{font-size:.78rem;font-weight:700;overflow-wrap:anywhere}
-.io em{grid-column:1/-1;font-style:normal;font-size:.76rem;line-height:1.55;color:var(--ink-mute);
-  margin-top:.3rem;padding-top:.35rem;border-top:1px dashed var(--line)}
 
-/* The traversal strip carries twenty years, which never fits on one line at
-   any width worth having. Rather than let it wrap wherever it happens to
-   run out — which strands three or four years alone on a second row — it is
-   capped to exactly ten cells, so it always reads as two decades:
-   2000-2009 above, 2010-2019 below. The sizes live here, not inline, or
-   Focus mode cannot grow them. */
-#tstrip .acell2{width:52px}
-#tstrip .acell2 .ab2{font-size:.82rem}
-.fsbody #tstrip .acell2{width:52px}
 
 /* ---- quiz progress: the ribbon, the chip in the tabs, and the reset ------
    The answers are remembered, so a student who comes back to revise sees
@@ -1148,43 +1301,6 @@ body.onexam .keyrail{display:none}          /* nor over the exam tab, which has 
 .qchip i{width:7px;height:7px;border-radius:50%;background:#0284c7;display:block;flex:0 0 auto}
 .qchip b{font-family:var(--mono);color:#e2e8f0}
 
-/* ---- n / r drive the simulator you are looking at -----------------------
-   A lecture is run from the keyboard: the mouse is for pointing at the wall,
-   not for hunting a Next button. The block being driven says so in its own
-   button row, so which one the keys belong to is never a guess. */
-.kbdhint{margin-left:auto;align-self:center;font-size:.62rem;color:#b4bcd8;white-space:nowrap;
-  display:none;gap:.3rem;align-items:center}
-.simbox.kbdon .kbdhint{display:inline-flex}
-.kbdhint kbd{font-family:var(--mono);font-size:.6rem;border:1px solid var(--line);border-bottom-width:2px;
-  border-radius:.25rem;padding:0 .28rem;background:#f8fafc;color:var(--ink-soft)}
-.simbox.kbdon{box-shadow:0 0 0 2px rgba(2,132,199,.28),0 14px 32px -26px rgba(30,27,75,.4)}
-body.fsopen .simbox.kbdon{box-shadow:none}
-
-
-/* every simulator's controls sit under the middle of what they drive */
-.simbox .btnrow{position:relative;justify-content:center;margin-bottom:0;padding-top:.2rem}
-@media(max-width:860px){.simbox .kbdhint{display:none!important}}
-/* the narration is sized for its tallest sentence, so the buttons never move */
-/* ---- the step narration, as on every other page in the segment ---- */
-.stepmsg{display:flex;align-items:center;gap:.75rem;padding:.7rem .9rem;
-  border:1px solid var(--line);border-left:5px solid #7c3aed;border-radius:0 .65rem .65rem 0;
-  background:#f8fafc;transition:background .3s,border-color .3s}
-.stepmsg .smic{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
-  font-size:.95rem;font-weight:800;color:#fff;background:#94a3b8;transition:background .3s}
-.stepmsg .smtx{margin:0;flex:1 1 auto;min-width:0;font-size:clamp(.85rem,3.2vw,1rem);
-  line-height:1.55;color:var(--ink)}
-.stepmsg .smn{flex:0 0 auto;white-space:nowrap;font-family:var(--mono);font-size:.66rem;
-  font-weight:800;letter-spacing:.05em;color:var(--ink-mute);background:#fff;
-  border:1px solid var(--line);border-radius:999px;padding:.2rem .55rem}
-.stepmsg.tt{border-left-color:#16a34a;background:#f2fdf5}
-.stepmsg.tt .smic{background:#16a34a}
-.simbox .opdesc,.simbox .stepmsg{min-height:5.2rem;display:flex;align-items:center;
-  justify-content:center;text-align:center;margin:.55rem 0 0}
-@media(min-width:700px){.simbox .opdesc,.simbox .stepmsg{min-height:4.2rem}}
-@media(min-width:1000px){.simbox .opdesc,.simbox .stepmsg{min-height:3.7rem}}
-.simbox .stepmsg{text-align:left;justify-content:flex-start}
-
-
 /* a cell that has already been taken out of the table, and a place in the
    line that is still waiting for one */
 .gc.spent{opacity:.42;border-style:dashed;cursor:pointer}
@@ -1195,7 +1311,8 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 .lincnt{font-family:var(--mono);font-size:.62rem;font-weight:800;color:var(--ink-mute);
   background:#fff;border:1px solid var(--line);border-radius:999px;padding:.05rem .45rem;
   letter-spacing:0;flex:0 0 auto}
-.simbox .gridwrap{margin:.2rem 0 .6rem}
+.sim .gridwrap{margin:.2rem 0 .6rem}
+.sim .sqwrap{margin:0}
 
 /* ---- what the exams actually asked, as a compact table ---- */
 .freqt{display:grid;gap:.4rem;margin:1rem 0}
@@ -1217,12 +1334,13 @@ body.fsopen .simbox.kbdon{box-shadow:none}
       <span class="brand-badge" style="background:linear-gradient(135deg,#0284c7,#38bdf8)">03</span>
       <span>
         <span class="brand-s">CSE-2321 · Segment 2 · Class 3</span>
-        <span class="brand-t">2D Arrays, Matrices &amp; Sparse</span>
+        <span class="brand-t">Multidimensional Arrays, Matrices &amp; Sparse</span>
       </span>
     </div>
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" aria-selected="true" data-tab="lesson">Lesson</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="exam">Exam &amp; Interview</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="problems">Problems</button>
     </div>
   </div>
   <div class="rail"><i id="rail"></i></div>
@@ -1233,15 +1351,15 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 <header class="hero" style="background:linear-gradient(160deg,#0f172a 0%,#0c3a5e 55%,#0369a1 100%)">
   <div class="wrap">
     <p class="eyebrow" style="color:#7dd3fc">Data Structures · Segment 2 · Class 3</p>
-    <h1>2D arrays, matrices <em>&amp; sparse</em></h1>
+    <h1>Multidimensional arrays, matrices <em>&amp; sparse</em></h1>
     <p class="hero-lede">Memory is a <b>straight line</b>. A table is a <b>rectangle</b>. Something has to give — and the way it gives is the single most-asked question on the Mid Term paper.</p>
     <div class="arc">
-      <span>Rows &amp; columns</span><span>Flattening</span><span>Row-major</span><span>Column-major</span><span>3D</span><span>Sparse</span>
+      <span>Rows &amp; columns</span><span>Flattening</span><span>Row-major</span><span>Column-major</span><span>3D</span><span>n dimensions</span><span>Sparse</span><span>Two problems</span>
     </div>
     <div class="hero-meta">
-      <div><b>4 of 4</b>papers ask this exact question</div>
-      <div><b>2 orders</b>row-major and column-major</div>
-      <div><b>65 min</b>7 sections</div>
+      <div><b>8 of 8</b>papers ask this exact question</div>
+      <div><b>any n</b>one rule, every dimension</div>
+      <div><b>75 min</b>9 sections</div>
     </div>
     <div class="byline">
       <span class="av">JA</span>
@@ -1277,11 +1395,11 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 </div>
 
 <!-- ============ 1 · WHAT IS A 2D ARRAY ============ -->
-<article class="card numbered" id="s1" style="--accent:#0284c7" data-min="7" data-key="A[J, K] is <b>row J, column K</b> — row first, always. In an m &times; n array m is rows and n is columns.">
+<article class="card numbered" id="s1" style="--accent:#0284c7" data-min="6" data-key="A[J, K] is <b>row J, column K</b> — row first, always. In an m &times; n array m is rows and n is columns.">
   <span class="badge">1</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 1</p><h2>From one dimension to two</h2></div>
-    <span class="timechip">⏱ 7 min</span>
+    <span class="timechip">⏱ 6 min</span>
   </div>
 
   <div class="box info">
@@ -1332,11 +1450,11 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 </article>
 
 <!-- ============ 2 · FLATTENING ============ -->
-<article class="card numbered" id="s2" style="--accent:#7c3aed" data-min="11" data-key="Memory is a line, so a rectangle has to be read in some order. Row-major and column-major are the same table written down two ways.">
+<article class="card numbered" id="s2" style="--accent:#7c3aed" data-min="9" data-key="Memory is a line, so a rectangle has to be read in some order. Row-major and column-major are the same table written down two ways.">
   <span class="badge">2</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 2 · the whole problem</p><h2>Memory is a line. A table is not.</h2></div>
-    <span class="timechip">⏱ 11 min</span>
+    <span class="timechip">⏱ 9 min</span>
   </div>
 
   <p>Go back to Segment 1. RAM is <b>one long strip of numbered boxes</b> — there is no such thing as "up" or "down" in it. But a 2D array has rows and columns.</p>
@@ -1381,15 +1499,16 @@ body.fsopen .simbox.kbdon{box-shadow:none}
   <h3>Watch it flatten, block by block</h3>
   <p>The grid is read in one order and written into memory in that order. <b>Press Next and watch a single cell leave the table and take its place in the line</b> — in <b>both</b> layouts at once.</p>
 
-  <div class="simbox" id="map-sim" data-title="Flattening a rectangle into a line">
+  <div class="sim" id="map-sim">
     <div class="simhd">
       <span class="simttl">Simulator</span>
-      <button class="focusb" type="button" data-focus="map-sim">&#9974; Focus</button>
+      <span class="simnm">Flattening a rectangle into a line</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
     </div>
     <div class="simbd">
-      <div class="ctrls" style="grid-template-columns:1fr 1fr 1.6fr;margin-top:0">
-        <div class="ctrl"><label>m — rows</label><input id="g-m" type="number" value="3" min="1" max="6"></div>
-        <div class="ctrl"><label>n — columns</label><input id="g-n" type="number" value="4" min="1" max="6"></div>
+      <div class="ctrls" style="grid-template-columns:1fr 1fr 1.6fr;margin:0">
+        <div class="ctrl"><label>m &mdash; rows</label><input id="g-m" type="number" value="3" min="1" max="6"></div>
+        <div class="ctrl"><label>n &mdash; columns</label><input id="g-n" type="number" value="4" min="1" max="6"></div>
         <div class="ctrl"><label>reading order</label>
           <div class="btnrow" style="margin:0;padding:0;gap:.35rem">
             <button class="btn sm" id="map-ord-r" style="background:#1d4ed8">row by row</button>
@@ -1401,23 +1520,25 @@ body.fsopen .simbox.kbdon{box-shadow:none}
       <div class="gridwrap"><div class="mgrid" id="mapgrid"></div></div>
 
       <div class="lin">
-        <p class="linlbl row">Row-major — row by row<span></span><b class="lincnt" id="rowcnt">0 / 12</b></p>
+        <p class="linlbl row">Row-major &mdash; row by row<span></span><b class="lincnt" id="rowcnt">0 / 12</b></p>
         <div class="linstrip row" id="rowstrip"></div>
       </div>
       <div class="lin">
-        <p class="linlbl col">Column-major — column by column<span></span><b class="lincnt" id="colcnt">0 / 12</b></p>
+        <p class="linlbl col">Column-major &mdash; column by column<span></span><b class="lincnt" id="colcnt">0 / 12</b></p>
         <div class="linstrip col" id="colstrip"></div>
       </div>
 
-      <div class="stepmsg" id="map-msgbox"><span class="smic" id="map-msgic">&#9656;</span>
-        <p class="smtx" id="mapmsg">Press <b>Next</b> to take the first cell out of the table.</p>
-        <span class="smn" id="map-msgn">0 / 12</span></div>
-      <div class="btnrow">
-        <button class="btn ghost sm" id="map-back" data-k="back">&#9666; Back</button>
-        <button class="btn" id="map-next" data-k="next" style="background:#7c3aed">Next cell &#9656;</button>
-        <button class="btn ghost sm" id="map-play">&#9654; Play</button>
-        <button class="btn ghost sm" id="map-reset" data-k="reset">Reset</button>
+      <div class="simrail"></div>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#7c3aed">Next cell &#9656;</button>
+        <button class="btn ghost sm" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 13</span>
       </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">0 / 12</span><p id="mapmsg">Press <b>Next</b> to take the first cell out of the table.</p></div>
     </div>
   </div>
 
@@ -1438,14 +1559,19 @@ body.fsopen .simbox.kbdon{box-shadow:none}
     <p style="margin:0">
     That is the entire idea. <b>Row-major and column-major are not two data structures — they are two ways of writing down the same one.</b></p>
   </div>
+
+  <div class="bigo" style="--oc:#b45309;--ob:#fffbeb">
+    <div class="bopair"><p class="bok">Time to visit every cell</p><p class="bov">O(M &middot; N)</p></div>
+    <p class="bod">The walk above is <b>one press per cell</b> &mdash; twelve for a 3 &times; 4 table, thirty-six for 6 &times; 6. Nothing is skipped and nothing is visited twice, so the count <b>is</b> the number of cells. Every "do something to the whole table" question has this shape, and <b>a nested loop is what it looks like in code</b>.</p>
+  </div>
 </article>
 
 <!-- ============ 3 · DERIVING THE FORMULA ============ -->
-<article class="card numbered" id="s3" style="--accent:#0284c7" data-min="10" data-key="You multiply by the length of the thing you are skipping over: a row is N long, a column is M long.">
+<article class="card numbered" id="s3" style="--accent:#0284c7" data-min="9" data-key="You multiply by the length of the thing you are skipping over: a row is N long, a column is M long.">
   <span class="badge">3</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 3</p><h2>Deriving the address formula</h2></div>
-    <span class="timechip">⏱ 10 min</span>
+    <span class="timechip">⏱ 9 min</span>
   </div>
 
   <p>You already know the 1D formula from Class 1:</p>
@@ -1521,14 +1647,19 @@ body.fsopen .simbox.kbdon{box-shadow:none}
     <span class="fline">                    = <span class="fr">248</span></span>
   </div>
   <p class="subtle">If MARKS were stored in <b>column-major</b> order instead: 100 + 4[25(2&minus;1) + (10&minus;1)] = 100 + 4[25 + 9] = <b>236</b>. Same element, different address — because the layout is different.</p>
+
+  <div class="bigo" style="--oc:#15803d;--ob:#f0fdf4">
+    <div class="bopair"><p class="bok">Time to reach A[J, K]</p><p class="bov">O(1)</p></div>
+    <p class="bod">One multiplication and two additions &mdash; and <b>that is the whole cost, whatever the size</b>. A 25 &times; 4 table and a 25,000 &times; 4,000 table are reached in exactly the same three operations, because the machine <b>calculates</b> the address instead of walking to it. That is what you are buying when you store a table as an array, and it is the sentence to write when an exam asks why the formula matters.</p>
+  </div>
 </article>
 
 <!-- ============ 4 · EFFECTIVE INDICES ============ -->
-<article class="card numbered" id="s4" style="--accent:#e11d48" data-min="17" data-key="Subtract the lower bound first. <b>E&#8321; = J &minus; LB&#8321;</b>, <b>E&#8322; = K &minus; LB&#8322;</b> — then the formula is the one you already know.">
+<article class="card numbered" id="s4" style="--accent:#e11d48" data-min="16" data-key="Subtract the lower bound first. <b>E&#8321; = J &minus; LB&#8321;</b>, <b>E&#8322; = K &minus; LB&#8322;</b> — then the formula is the one you already know.">
   <span class="badge">4</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 4 · the exam form</p><h2>When the bounds don't start at 1</h2></div>
-    <span class="timechip">⏱ 17 min</span>
+    <span class="timechip">⏱ 16 min</span>
   </div>
 
   <p>Every exam question gives you something like <span class="mono">A(4:12, 7:14)</span>. The rows start at <b>4</b>, not 1. So <span class="mono">(J &minus; 1)</span> is wrong — you must subtract the <b>real</b> lower bound.</p>
@@ -1548,8 +1679,8 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 
   <p><b>Set up any exam question here.</b> It works the whole thing out, step by step, exactly as you should write it.</p>
 
-  <div class="simbox" id="e-sim" data-title="Effective indices and the address">
-    <div class="simhd"><span class="simttl">Simulator</span><button class="focusb" type="button" data-focus="e-sim">&#9974; Focus</button></div>
+  <div class="sim" id="e-sim">
+    <div class="simhd"><span class="simttl">Simulator</span><span class="simnm">Effective indices and the address</span><button class="focusb" type="button">&#9974; Focus</button></div>
     <div class="simbd">
   <div class="ctrls">
     <div class="ctrl"><label><span class="tk tk-lb">LB&#8321;</span> (rows from)</label><input id="e-lb1" type="number" value="4"></div>
@@ -1562,7 +1693,7 @@ body.fsopen .simbox.kbdon{box-shadow:none}
     <div class="ctrl"><label><span class="tk tk-k">K</span> — which column</label><input id="e-k" type="number" value="10"></div>
   </div>
 
-  <div class="btnrow">
+  <div class="simctl">
     <button class="btn sm" data-ex="4,12,7,14,300,8,6,10" style="background:#e11d48">Autumn 2025</button>
     <button class="btn sm ghost" data-ex="4,12,7,14,500,4,6,10">Spring 2025</button>
     <button class="btn sm ghost" data-ex="5,10,8,15,200,4,7,10">Autumn 2023</button>
@@ -1573,6 +1704,8 @@ body.fsopen .simbox.kbdon{box-shadow:none}
   </div>
 
   <div class="fboard" id="eboard"></div>
+  <div class="simwatch"></div>
+  <div class="simmsg"><span class="smn">LOC</span><p id="e-msg"></p></div>
     </div>
   </div>
 
@@ -1656,19 +1789,11 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 </article>
 
 <!-- ============ 5 · THREE DIMENSIONS ============ -->
-<article class="card numbered" id="s5" style="--accent:#7c3aed" data-min="11" data-key="Three dimensions is the same idea with one more layer: skip whole planes, then whole rows, then elements.">
+<article class="card numbered" id="s5" style="--accent:#7c3aed" data-min="9" data-key="Three dimensions is the same idea with one more layer: skip whole planes, then whole rows, then elements.">
   <span class="badge">5</span>
   <div class="hdr-row">
-    <div><p class="kicker">Section 5</p><h2>Three dimensions — same idea, one more layer</h2></div>
-    <span class="timechip">⏱ 11 min</span>
-  </div>
-
-  <div class="box warn">
-    <p class="bt">⚠ When a bound is a letter, not a number</p>
-    <p>The <b>Autumn 2024 Class Test</b> set two arrays at once and made a bound depend on your ID:</p>
-    <p class="pqt" style="font-style:italic;color:#78350f;margin:.5rem 0"><span class="mono">A(&minus;5:X, &minus;3:31)</span> and <span class="mono">B(&minus;3:X, 2:15, 10:25)</span>, where <b>X is the last digit of your ID</b>, <b>Base(B) = Y</b> (the last three digits), and w = 4. Find the lengths, the effective indices and the address of <span class="mono">B[0, 12, 17]</span> in row-major order.</p>
-    <p><b>Nothing changes.</b> Substitute your own digit first, write it down once — <em>"my ID is C151206, so X = 6 and Y = 206"</em> — and then it is an ordinary question.</p>
-    <p style="margin:0">With X = 6: A is <b>12 &times; 35 = 420</b> elements. B's lengths are <b>10, 14, 16</b>, the effective indices are <b>3, 10, 7</b>, and the address is <b>206 + 4[16(14&times;3 + 10) + 7] = 3,562</b>. <b>Do the substitution in the first line of your answer</b>, or you will carry a letter through four lines of arithmetic.</p>
+    <div><p class="kicker">Section 5 · the exam form</p><h2>Three dimensions — same idea, one more layer</h2></div>
+    <span class="timechip">⏱ 9 min</span>
   </div>
 
   <div class="box bad">
@@ -1678,7 +1803,37 @@ body.fsopen .simbox.kbdon{box-shadow:none}
     <b>Spring 2023:</b> the same with <span class="mono">A(3:10, 1:10, &minus;3:10)</span> and <span class="mono">A[8, 6, 4]</span>.</p>
   </div>
 
-  <p>Do not panic. <b>It is the same counting</b>, one level deeper. Picture a stack of tables: to reach a cell you skip whole <b>tables</b>, then whole <b>rows</b>, then individual <b>cells</b>.</p>
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>Part (i) of Spring 2024 is worth marks on its own, and it needs nothing from this section. Do it before you read on.</p>
+      <p class="mono" style="text-align:center;font-weight:800">B(1:8, &minus;5:5, &minus;10:5)</p>
+      <ol>
+        <li>How long is each of the three dimensions?</li>
+        <li>How many elements does B hold altogether?</li>
+      </ol>
+      <p class="hint">One rule, three times — Class 1's <span class="mono">UB &minus; LB + 1</span>. Nothing about three dimensions changes it.</p>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p><b>L₁ = 8 &minus; 1 + 1 = 8</b> &nbsp; <b>L₂ = 5 &minus; (&minus;5) + 1 = 11</b> &nbsp; <b>L₃ = 5 &minus; (&minus;10) + 1 = 16</b></p>
+      <p><b>8 &times; 11 &times; 16 = 1,408</b> elements.</p>
+      <p><b>The two negative lower bounds are the whole question.</b> <span class="mono">5 &minus; (&minus;5)</span> is <b>10</b>, not 0 — and then the <b>+ 1</b>. Almost every mark lost on this part is lost to a minus sign.</p>
+    </div>
+  </div>
+
+  <div class="quiz" data-q="q4">
+    <div class="qh">Quick check</div>
+    <div class="qq">In Spring 2023's array <span class="mono">A(3:10, 1:10, &minus;3:10)</span>, how long is the <b>third</b> dimension?</div>
+    <div class="qopts">
+      <button class="qopt" data-a="0">13</button>
+      <button class="qopt" data-a="1" data-ok="1">14</button>
+      <button class="qopt" data-a="2">10</button>
+    </div>
+    <div class="qexp"><b>14.</b> <span class="mono">L₃ = 10 &minus; (&minus;3) + 1 = 13 + 1 = 14</span>.<br><br><b>13</b> forgets the <b>+ 1</b> — the commonest slip in the segment. <b>10</b> reads the upper bound as the length, which is only ever right when LB = 1.</div>
+  </div>
+
+  <p><b>Do not panic at the third subscript.</b> It is the same counting, one level deeper. Picture a stack of tables: to reach a cell you skip whole <b>tables</b>, then whole <b>rows</b>, then individual <b>cells</b>.</p>
 
   <p class="mono" style="text-align:center;font-size:clamp(.78rem,3.2vw,1rem);font-weight:800;color:#5b21b6;background:#f5f3ff;border:2px solid #ddd6fe;border-radius:.6rem;padding:.8rem">
     LOC = Base + w [ ( E<sub>1</sub> &times; L<sub>2</sub> + E<sub>2</sub> ) &times; L<sub>3</sub> + E<sub>3</sub> ]</p>
@@ -1693,38 +1848,177 @@ body.fsopen .simbox.kbdon{box-shadow:none}
     <b>Same principle every time: multiply by the length of what you are skipping.</b></p>
   </div>
 
-  <p><b>Try the two real questions.</b></p>
+  <h3>The two real questions, one line at a time</h3>
+  <p>Walk it the way you would write it: the lengths first, then the effective indices, then the address collapsing term by term. <b>Nothing appears before you have earned it.</b></p>
 
-  <div class="simbox" id="t-sim" data-title="Three dimensions, worked">
-    <div class="simhd"><span class="simttl">Simulator</span><button class="focusb" type="button" data-focus="t-sim">&#9974; Focus</button></div>
+  <div class="sim" id="t-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Three dimensions, worked line by line</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
     <div class="simbd">
-  <div class="ctrls">
-    <div class="ctrl"><label>Dim 1 · LB : UB</label><input id="t-d1" value="1:8"></div>
-    <div class="ctrl"><label>Dim 2 · LB : UB</label><input id="t-d2" value="-5:5"></div>
-    <div class="ctrl"><label>Dim 3 · LB : UB</label><input id="t-d3" value="-10:5"></div>
-    <div class="ctrl"><label>Base &nbsp;·&nbsp; w</label><input id="t-bw" value="150 4"></div>
-  </div>
-  <div class="ctrls" style="grid-template-columns:1fr 1fr 1fr">
-    <div class="ctrl"><label>J</label><input id="t-j" type="number" value="2"></div>
-    <div class="ctrl"><label>K</label><input id="t-k" type="number" value="-3"></div>
-    <div class="ctrl"><label>L</label><input id="t-l" type="number" value="2"></div>
-  </div>
-  <div class="btnrow">
-    <button class="btn sm" data-tex="1:8|-5:5|-10:5|150 4|2|-3|2" style="background:#7c3aed">Spring 2024</button>
-    <button class="btn sm ghost" data-tex="3:10|1:10|-3:10|200 4|8|6|4">Spring 2023</button>
-  </div>
+      <div class="ctrls">
+        <div class="ctrl"><label>Dim 1 · LB : UB</label><input id="t-d1" value="1:8"></div>
+        <div class="ctrl"><label>Dim 2 · LB : UB</label><input id="t-d2" value="-5:5"></div>
+        <div class="ctrl"><label>Dim 3 · LB : UB</label><input id="t-d3" value="-10:5"></div>
+        <div class="ctrl"><label>Base &nbsp;·&nbsp; w</label><input id="t-bw" value="150 4"></div>
+      </div>
+      <div class="ctrls" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="ctrl"><label>J</label><input id="t-j" type="number" value="2"></div>
+        <div class="ctrl"><label>K</label><input id="t-k" type="number" value="-3"></div>
+        <div class="ctrl"><label>L</label><input id="t-l" type="number" value="2"></div>
+      </div>
 
-  <div class="fboard" id="tboard"></div>
+      <div class="fboard" id="tboard"></div>
+
+      <div class="simrail"></div>
+      <div class="simctl">
+        <button class="btn sm" data-tex="1:8|-5:5|-10:5|150 4|2|-3|2" style="background:#7c3aed">Spring 2024</button>
+        <button class="btn sm ghost" data-tex="3:10|1:10|-3:10|200 4|8|6|4">Spring 2023</button>
+        <button class="btn" data-k="next" style="background:#16a34a">Next &#9656;</button>
+        <button class="btn ghost sm" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 12</span>
+      </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">1</span><p id="t-msg"></p></div>
     </div>
   </div>
 
+  <div class="box warn">
+    <p class="bt">⚠ When a bound is a letter, not a number</p>
+    <p>The <b>Autumn 2024 Class Test</b> set two arrays at once and made a bound depend on your ID:</p>
+    <p class="pqt" style="font-style:italic;color:#78350f;margin:.5rem 0"><span class="mono">A(&minus;5:X, &minus;3:31)</span> and <span class="mono">B(&minus;3:X, 2:15, 10:25)</span>, where <b>X is the last digit of your ID</b>, <b>Base(B) = Y</b> (the last three digits), and w = 4. Find the lengths, the effective indices and the address of <span class="mono">B[0, 12, 17]</span> in row-major order.</p>
+    <p><b>Nothing changes.</b> Substitute your own digit first, write it down once — <em>"my ID is C151206, so X = 6 and Y = 206"</em> — and then it is an ordinary question.</p>
+    <p style="margin:0">With X = 6: A is <b>12 &times; 35 = 420</b> elements. B's lengths are <b>10, 14, 16</b>, the effective indices are <b>3, 10, 7</b>, and the address is <b>206 + 4[16(14&times;3 + 10) + 7] = 3,562</b>. <b>Do the substitution in the first line of your answer</b>, or you will carry a letter through four lines of arithmetic.</p>
+  </div>
 </article>
 
-<!-- ============ 6 · SPARSE ============ -->
-<article class="card numbered" id="s6" style="--accent:#16a34a" data-min="6" data-key="A sparse matrix is worth compressing only when the zeros far outnumber the values — below about a third full, the triplet form costs more.">
+
+<!-- ============ 6 · n DIMENSIONS ============ -->
+<article class="card numbered" id="s6" style="--accent:#0891b2" data-min="9" data-key="One rule for any number of dimensions: the last subscript runs fastest, and every time it wraps the one above it ticks. Each wrap is one multiplication in the formula.">
   <span class="badge">6</span>
   <div class="hdr-row">
-    <div><p class="kicker">Section 6</p><h2>Sparse matrices — when most of it is zero</h2></div>
+    <div><p class="kicker">Section 6</p><h2>n dimensions — one rule behind all three formulas</h2></div>
+    <span class="timechip">⏱ 9 min</span>
+  </div>
+
+  <p>You have now written what looks like three different formulas: one for a line, one for a table, one for a stack of tables. <b>They are one formula.</b> Here is the machine underneath it, and it does not care how many dimensions you give it.</p>
+
+  <div class="box info">
+    <p class="bt">The declaration, in general</p>
+    <p>An <b>n-dimensional</b> array C is declared with n pairs of bounds, <span class="mono">C(LB<sub>1</sub>:UB<sub>1</sub>, LB<sub>2</sub>:UB<sub>2</sub>, &hellip;, LB<sub>n</sub>:UB<sub>n</sub>)</span>, and holds</p>
+    <p class="mono" style="text-align:center;font-weight:800;margin:.5rem 0">L<sub>1</sub> &middot; L<sub>2</sub> &middot; &hellip; &middot; L<sub>n</sub> &nbsp; elements, &nbsp; where L<sub>i</sub> = UB<sub>i</sub> &minus; LB<sub>i</sub> + 1</p>
+    <p style="margin:0">
+    Memory, as always, is <b>one line</b>. So the n subscripts have to be put in some order, and there are only two orders anyone uses.</p>
+  </div>
+
+  <h3>Watch the subscripts turn like an odometer</h3>
+  <p>Each row below is one dimension. The lit box is that subscript's current value. Press <b>Next</b> and watch <b>which row moves</b> — because that, and nothing else, is the difference between row-major and column-major at any number of dimensions.</p>
+
+  <div class="sim" id="nd-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">n dimensions, flattened into one line</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+      <div class="simctl" style="order:0">
+        <span class="subtle" style="font-weight:700;align-self:center">shape</span>
+        <button class="btn sm ghost" data-nd="4,6">4 &times; 6</button>
+        <button class="btn sm" data-nd="2,3,4" style="background:#0891b2">2 &times; 3 &times; 4</button>
+        <button class="btn sm ghost" data-nd="2,2,2,3">2 &times; 2 &times; 2 &times; 3</button>
+        <span class="subtle" style="font-weight:700;align-self:center;margin-left:.4rem">order</span>
+        <button class="btn sm" id="nd-ord" style="background:#1d4ed8">row-major</button>
+      </div>
+
+      <div class="ndw" id="ndwheels"></div>
+
+      <p class="fclbl" style="margin:.5rem 0 0">Memory &mdash; one line, filling left to right</p>
+      <div class="ndmem" id="ndmem"></div>
+
+      <div class="simrail"></div>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#0891b2">Next &#9656;</button>
+        <button class="btn ghost sm" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 24</span>
+      </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">1</span><p id="nd-msg"></p></div>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>Run it once in <b>row-major</b> and once in <b>column-major</b>, then answer from what you saw:</p>
+      <ol>
+        <li>Which row of wheels moves on <b>every single press</b>?</li>
+        <li>What has to happen before the row <em>above</em> it moves once?</li>
+        <li>So how many cells does one tick of that upper row step over?</li>
+      </ol>
+      <p class="hint">Your third answer is a multiplication. It is already in the formula you wrote in Section 5.</p>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p><b>1.</b> In row-major the <b>last</b> subscript moves every press; in column-major the <b>first</b> does. That one swap is the entire difference.</p>
+      <p><b>2.</b> The fast wheel must run through <b>all</b> of its values and wrap back to its lower bound. Only then does the wheel above it tick.</p>
+      <p><b>3.</b> It steps over <b>L</b> cells — the whole length of the wheel below it. <b>That is where the multiplication comes from</b>: every level of the formula multiplies by the length of the level beneath it, because that is how many cells one tick of this level crosses.</p>
+    </div>
+  </div>
+
+  <h3>The general formula</h3>
+  <p>Write the odometer down as arithmetic and you get this. Each bracket is one carry.</p>
+
+  <p class="mono" style="text-align:center;font-size:clamp(.72rem,2.9vw,.95rem);font-weight:800;color:#1d4ed8;background:#eff6ff;border:2px solid #bfdbfe;border-radius:.6rem;padding:.85rem;overflow-x:auto">
+    Row-major: &nbsp; LOC = <span class="tk tk-base">Base</span> + <span class="tk tk-w">w</span> [ ( &hellip; ( ( E<sub>1</sub>&middot;L<sub>2</sub> + E<sub>2</sub> )&middot;L<sub>3</sub> + E<sub>3</sub> ) &hellip; )&middot;L<sub>n</sub> + E<sub>n</sub> ]</p>
+
+  <p class="mono" style="text-align:center;font-size:clamp(.72rem,2.9vw,.95rem);font-weight:800;color:#b45309;background:#fffbeb;border:2px solid #fde68a;border-radius:.6rem;padding:.85rem;overflow-x:auto">
+    Column-major: &nbsp; LOC = <span class="tk tk-base">Base</span> + <span class="tk tk-w">w</span> [ ( &hellip; ( ( E<sub>n</sub>&middot;L<sub>n&minus;1</sub> + E<sub>n&minus;1</sub> )&middot;L<sub>n&minus;2</sub> + E<sub>n&minus;2</sub> ) &hellip; )&middot;L<sub>1</sub> + E<sub>1</sub> ]</p>
+
+  <div class="box good">
+    <p class="bt">You have not learned three formulas. You have learned one, three times.</p>
+    <div class="tw">
+    <table>
+      <thead><tr><th>n</th><th>Row-major offset</th><th>Where you met it</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td class="mono">E<sub>1</sub></td><td>Class 1 — <span class="mono">K &minus; LB</span></td></tr>
+        <tr><td class="num">2</td><td class="mono">E<sub>1</sub>&middot;L<sub>2</sub> + E<sub>2</sub></td><td>Section 3 — <span class="mono">N&middot;E<sub>1</sub> + E<sub>2</sub></span>, and L<sub>2</sub> <b>is</b> N</td></tr>
+        <tr><td class="num">3</td><td class="mono">(E<sub>1</sub>&middot;L<sub>2</sub> + E<sub>2</sub>)&middot;L<sub>3</sub> + E<sub>3</sub></td><td>Section 5, exactly as printed</td></tr>
+        <tr><td class="num">4</td><td class="mono">((E<sub>1</sub>&middot;L<sub>2</sub> + E<sub>2</sub>)&middot;L<sub>3</sub> + E<sub>3</sub>)&middot;L<sub>4</sub> + E<sub>4</sub></td><td>one more bracket, and no new idea</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="margin:0"><b>Each new dimension wraps the whole previous answer in one more bracket.</b> If you can write the n = 2 line you can write any of them — which is why the exam only ever needs to set two or three.</p>
+  </div>
+
+  <div class="bigo" style="--oc:#15803d;--ob:#f0fdf4">
+    <div class="bopair"><p class="bok">Time to reach C[K<sub>1</sub>, &hellip;, K<sub>n</sub>]</p><p class="bov">O(1)</p></div>
+    <p class="bod">The brackets add <b>n &minus; 1 multiplications</b> — but n is fixed the moment the array is declared, so it is a <b>constant</b>, not an input. A four-dimensional array is reached in a fixed handful of operations however large it grows. <b>Every array, at every number of dimensions, is O(1) to index.</b></p>
+  </div>
+
+  <div class="quiz" data-q="q5">
+    <div class="qh">Quick check</div>
+    <div class="qq">A 4-dimensional array with lengths <span class="mono">L = (2, 5, 3, 7)</span> is stored <b>row-major</b>. How many cells does one tick of <b>K<sub>2</sub></b> step over?</div>
+    <div class="qopts">
+      <button class="qopt" data-a="0">7</button>
+      <button class="qopt" data-a="1" data-ok="1">21</button>
+      <button class="qopt" data-a="2">5</button>
+    </div>
+    <div class="qexp"><b>21.</b> Below K<sub>2</sub> there are two more wheels, and both must run out before it ticks: <span class="mono">L<sub>3</sub> &times; L<sub>4</sub> = 3 &times; 7 = 21</span>.<br><br><b>7</b> counts only the fastest wheel — that is what one tick of <b>K<sub>3</sub></b> steps over. <b>5</b> is K<sub>2</sub>'s own length, which is how many ticks it gets, not how far each one goes.</div>
+  </div>
+</article>
+<!-- ============ 6 · SPARSE ============ -->
+<article class="card numbered" id="s7" style="--accent:#16a34a" data-min="6" data-key="A sparse matrix is worth compressing only when the zeros far outnumber the values — below about a third full, the triplet form costs more.">
+  <span class="badge">7</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 7</p><h2>Sparse matrices — when most of it is zero</h2></div>
     <span class="timechip">⏱ 6 min</span>
   </div>
 
@@ -1732,10 +2026,10 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 
   <p>Drag the slider and watch the waste grow.</p>
 
-  <div class="simbox" id="sp-sim" data-title="How much a sparse matrix actually saves">
-    <div class="simhd"><span class="simttl">Simulator</span><button class="focusb" type="button" data-focus="sp-sim">&#9974; Focus</button></div>
+  <div class="sim" id="sp-sim">
+    <div class="simhd"><span class="simttl">Simulator</span><span class="simnm">How much a sparse matrix actually saves</span><button class="focusb" type="button">&#9974; Focus</button></div>
     <div class="simbd">
-      <div class="trade" style="background:#f8fafc;margin:0">
+      <div class="trade" style="margin:0">
         <label for="sp-fill" style="font-size:.82rem;font-weight:700;color:var(--ink-soft)">Non-zero elements: <b id="sp-pct" class="mono">10%</b></label>
         <input type="range" id="sp-fill" min="2" max="60" step="2" value="10">
       </div>
@@ -1747,7 +2041,7 @@ body.fsopen .simbox.kbdon{box-shadow:none}
         <div class="cnt2 c-d"><p class="ck2">Triplet form</p><p class="cv3" id="sp-trip">&mdash;</p></div>
         <div class="cnt2 c-c"><p class="ck2">Memory saved</p><p class="cv3" id="sp-save">&mdash;</p></div>
       </div>
-      <p class="opdesc" id="sp-msg" style="text-align:center"></p>
+      <div class="simmsg"><span class="smn">%</span><p id="sp-msg"></p></div>
     </div>
   </div>
 
@@ -1775,6 +2069,36 @@ body.fsopen .simbox.kbdon{box-shadow:none}
     You also <b>lose O(1) access</b> — to read A[J,K] you now have to <b>search</b> the triplet list instead of calculating an address. <b>Classic time&ndash;space tradeoff, once again.</b></p>
   </div>
 
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>A <b>100 &times; 100</b> matrix holds <b>250</b> non-zero values and nothing else.</p>
+      <ol>
+        <li>How many numbers does the <b>full array</b> store? How many does the <b>triplet form</b> store?</li>
+        <li>Is it worth it &mdash; and by how much?</li>
+        <li>Now push the slider up. <b>At what percentage does the saving disappear?</b> Say why, in one line.</li>
+      </ol>
+      <p class="hint">Each triple is three numbers, and there is one header row on top.</p>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p><b>1.</b> The full array stores <b>10,000</b> numbers &mdash; every cell, zero or not. The triplet form stores <span class="mono">250 &times; 3 + 3 = <b>753</b></span>.</p>
+      <p><b>2.</b> A saving of <b>9,247 numbers, about 92%</b>. At this density it is not an optimisation, it is the difference between fitting in memory and not.</p>
+      <p><b>3. One third.</b> Each value costs <b>three</b> numbers instead of one, so the moment more than <span class="mono">1/3</span> of the cells are non-zero the triples cost more than the cells they replace. <b>Sparse is a bet that the zeros outnumber the values three to one</b>, and above 33% the bet loses.</p>
+    </div>
+  </div>
+
+  <div class="bigo" style="--oc:#0369a1;--ob:#f0f9ff">
+    <div class="bopair"><p class="bok">Space &middot; full array</p><p class="bov">O(M &middot; N)</p></div>
+    <div class="bopair"><p class="bok">Space &middot; triplets</p><p class="bov">O(k)</p></div>
+    <p class="bod">The full array pays for every cell whether or not anything is in it; the triplet form pays only for the <b>k</b> values that exist, at three numbers each. <b>This is the whole reason sparse representation exists</b> &mdash; and the reason it stops being worth it once k climbs past a third of M &middot; N.</p>
+  </div>
+
+  <div class="bigo" style="--oc:#b91c1c;--ob:#fef2f2">
+    <div class="bopair"><p class="bok">Time to read A[J, K]</p><p class="bov">O(k)</p></div>
+    <p class="bod">And here is what it costs. In the full array the address is <b>calculated</b> &mdash; the O(1) of Section 3. In a triplet list there is no formula, so you <b>search</b> the k entries for a row and column that match. <b>You bought the space by selling the constant-time access</b>, which is the trade to name if an exam asks what sparse representation costs.</p>
+  </div>
   <div class="digwrap" style="--accent:#16a34a">
     <p class="dighead">Dig deeper<span></span></p>
     <details class="dig"><summary><span class="dicon">?</span>Special sparse shapes worth knowing</summary><div>
@@ -1793,9 +2117,105 @@ body.fsopen .simbox.kbdon{box-shadow:none}
   </div>
 </article>
 
+
+<!-- ============ 8 · THE EXAM'S SQUARE-MATRIX MODULE ============ -->
+<article class="card numbered" id="s8" style="--accent:#d97706" data-min="8" data-key="Two questions about a matrix, one walk. Above the diagonal means I &lt; J — and both tests fit inside the same pass, so the cost is one O(n²) traversal, not two.">
+  <span class="badge">8</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 8 · solving one, step by step</p><h2>Write a module for a square matrix</h2></div>
+    <span class="timechip">⏱ 8 min</span>
+  </div>
+
+  <p>Every address question so far has been arithmetic. This one asks you to <b>write an algorithm</b>, and it has been set twice in the same words.</p>
+
+  <div class="pastq">
+    <p class="pqh">Autumn 2023 Q2(c) &middot; Autumn 2022 Q2(c)<span class="pqm">3 marks</span></p>
+    <p class="pqt">Let A be an <b>n &times; n</b> square matrix. Write a module which<br>
+    i) Find the number <b>NUM</b> of <em>zero</em> elements in A.<br>
+    ii) Find the <b>SUM</b> of the elements above the diagonal i.e. elements <b>A[I, J]</b> where I &lt; J.</p>
+  </div>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>Answer these three before you look at any code.</p>
+      <ol>
+        <li>The main diagonal is where <b>I = J</b>. So which is "above the diagonal" — <b>I &lt; J</b> or <b>J &lt; I</b>? Draw a 4 &times; 4 grid and mark them if it helps.</li>
+        <li>How many cells are above the diagonal of a <b>4 &times; 4</b> matrix?</li>
+        <li>The module has to count zeros <em>and</em> add up those cells. <b>How many times must it walk the matrix?</b></li>
+      </ol>
+      <p class="hint">For part 2, count what is left after you remove the diagonal and split the rest in half.</p>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p><b>1. I &lt; J.</b> Row 1 column 3 is above; row 3 column 1 is below. The row index is the smaller one above the diagonal — and if you ever doubt it, <span class="mono">A[1, 4]</span> is the top-right corner, which is plainly above.</p>
+      <p><b>2. Six.</b> Sixteen cells, minus four on the diagonal, leaves twelve split evenly above and below: <span class="mono">n(n &minus; 1) / 2 = 4 &times; 3 / 2 = 6</span>.</p>
+      <p><b>3. Once.</b> Both tests are about the same cell, so both fit inside the same visit. <b>Two separate loops would be a correct answer and a worse one</b> — same order, twice the work, and twice as much to get wrong.</p>
+    </div>
+  </div>
+
+  <h3>The module, walked</h3>
+  <p>Written for a general <b>N</b>, run here on a 4 &times; 4 so you can watch every pass. The diagonal is drawn dashed. <b>Every <span class="mono">If</span> is landed on and coloured by its answer</b> — green for true, red for false — which is what "show each step" means when an exam asks for it.</p>
+
+  <div class="sim" id="sq-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">NUM and SUM in one pass</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+      <div class="tvgrid">
+        <div class="tvcol">
+          <div class="sqwrap"><div class="sqgrid" id="sqgrid"></div></div>
+        </div>
+        <div class="tvcol">
+          <div class="algo live">
+            <div class="body" id="sqcode">
+<span class="st" data-l="0">1. <span class="kw">Set</span> <span class="vr">NUM</span> <span class="op">:=</span> 0 <span class="kw">and</span> <span class="vr">SUM</span> <span class="op">:=</span> 0.</span>
+<span class="st" data-l="1">2. <span class="kw">Repeat for</span> <span class="vr">I</span> = 1 <span class="kw">to</span> <span class="vr">N</span>:</span>
+<span class="st" data-l="2">3.       <span class="kw">Repeat for</span> <span class="vr">J</span> = 1 <span class="kw">to</span> <span class="vr">N</span>:</span>
+<span class="st" data-l="3">4.              <span class="kw">If</span> <span class="vr">A</span>[<span class="vr">I</span>, <span class="vr">J</span>] = 0, <span class="kw">then</span>:</span>
+<span class="st" data-l="4">5.                     <span class="kw">Set</span> <span class="vr">NUM</span> <span class="op">:=</span> <span class="vr">NUM</span> + 1.</span>
+<span class="st" data-l="5">6.              <span class="kw">If</span> <span class="vr">I</span> &lt; <span class="vr">J</span>, <span class="kw">then</span>:</span>
+<span class="st" data-l="6">7.                     <span class="kw">Set</span> <span class="vr">SUM</span> <span class="op">:=</span> <span class="vr">SUM</span> + <span class="vr">A</span>[<span class="vr">I</span>, <span class="vr">J</span>].</span>
+<span class="st">8.       <span class="cm">[End of step 3 loop]</span></span>
+<span class="st">9. <span class="cm">[End of step 2 loop]</span></span>
+<span class="st" data-l="7">10. <span class="kw">Write</span>: <span class="vr">NUM</span>, <span class="vr">SUM</span>.</span>
+<span class="st" data-l="8">11. <span class="kw">Return</span>.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="simrail"></div>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#d97706">Next &#9656;</button>
+        <button class="btn ghost sm" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 68</span>
+      </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">1</span><p id="sq-msg"></p></div>
+    </div>
+  </div>
+
+  <div class="bigo" style="--oc:#b45309;--ob:#fffbeb">
+    <div class="bopair"><p class="bok">Time to answer both parts</p><p class="bov">O(n&sup2;)</p></div>
+    <p class="bod">The module visits each of the <b>n&sup2;</b> cells exactly once and does two constant-time tests on it. Nothing can be cheaper: <b>you cannot count the zeros without looking at every cell</b>. Two separate loops would also be O(n&sup2;) &mdash; the order would not change, but the work would double, and that is the difference an examiner reads as understanding.</p>
+  </div>
+
+  <div class="box good">
+    <p class="bt">What earns the three marks</p>
+    <p><b>Initialise both counters before the loops</b>, not inside them — a <span class="mono">Set SUM := 0</span> in the wrong place is the single commonest way to lose this question.</p>
+    <p><b>Write N, not 4.</b> The question says n &times; n; a module hard-coded to one size has not answered it.</p>
+    <p style="margin:0">
+    <b>End both loops explicitly</b> and finish with <span class="mono">Write</span> and <span class="mono">Return</span>. The exam's own algorithms are written that way, and it costs you one line to match them.</p>
+  </div>
+</article>
 <!-- ============ CLOSING ============ -->
-<article class="card numbered" id="s7" style="--accent:#0284c7" data-min="3">
-  <span class="badge">7</span>
+<article class="card numbered" id="s9" style="--accent:#0284c7" data-min="3">
+  <span class="badge">9</span>
   <div class="hdr-row">
     <div><p class="kicker">Before you go</p><h2>The exam answer, in five lines</h2></div>
     <span class="timechip">⏱ 3 min</span>
@@ -1812,6 +2232,11 @@ body.fsopen .simbox.kbdon{box-shadow:none}
     </p>
   </div>
 
+  <div class="box info">
+    <p class="bt">Three dimensions is the same five lines</p>
+    <p style="margin:0">Line 1 gains an L<sub>3</sub>, line 3 gains an E<sub>3</sub>, and line 4 becomes <span class="mono">Base + w [ (E₁&middot;L₂ + E₂)&middot;L₃ + E₃ ]</span>. <b>One more bracket, and no new idea</b> — which is exactly what Section 6 is for, and why a four-dimensional array would not be a new question either.</p>
+  </div>
+
   <div class="grid2">
     <div class="box info" style="margin:0"><p class="bt">Row-major</p><p class="mono" style="margin:0;font-weight:800">Base + w[ N&middot;E₁ + E₂ ]</p><p style="margin:.4rem 0 0">Multiply by <b>N</b>, the number of columns — a row is N long.</p></div>
     <div class="box warn" style="margin:0"><p class="bt">Column-major</p><p class="mono" style="margin:0;font-weight:800">Base + w[ M&middot;E₂ + E₁ ]</p><p style="margin:.4rem 0 0">Multiply by <b>M</b>, the number of rows — a column is M long.</p></div>
@@ -1819,8 +2244,8 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 
   <div class="bridge" style="--accent:#0284c7">
     <p class="lbl">One idea, three classes</p>
-    <p class="say">1D, 2D, 3D — it has been the same sentence every time: <b>Base, plus w times how many elements you skipped.</b></p>
-    <p style="margin-top:.9rem">Only the counting of "how many you skipped" gets harder. The formula never actually changed.</p>
+    <p class="say">1D, 2D, 3D, n-D — it has been the same sentence every time: <b>Base, plus w times how many elements you skipped.</b></p>
+    <p style="margin-top:.9rem">Only the counting of "how many you skipped" gets harder, and Section 6 showed that even that is one rule: <b>multiply by the length of the thing you are skipping over, once per dimension.</b> The formula never actually changed.</p>
   </div>
 
   <div class="box">
@@ -1844,7 +2269,7 @@ body.fsopen .simbox.kbdon{box-shadow:none}
   <div class="wrap">
     <p class="eyebrow" style="color:#fda4af">Exam &amp; Interview · CSE-2321</p>
     <h1>The question on <em>every single paper</em></h1>
-    <p class="hero-lede">Four papers, four address-calculation questions. Here are all four, fully worked, exactly as you should write them.</p>
+    <p class="hero-lede">Eight papers, nine address-calculation questions. Here are all nine, fully worked, exactly as you should write them.</p>
     <div class="byline">
       <span class="av">JA</span>
       <span class="who">Jamil As-ad<span>Lecturer, Dept. of CSE &middot; International Islamic University Chittagong</span></span>
@@ -1875,6 +2300,10 @@ body.fsopen .simbox.kbdon{box-shadow:none}
     <div class="freqr">
       <span class="fqn"><b>Column-major</b> asked for directly</span><span class="fqc">1</span>
       <span class="fqw">Spring 2022, for anyone whose ID ends in an odd digit. It is the only one — which is exactly why it is worth practising.</span>
+    </div>
+    <div class="freqr">
+      <span class="fqn">Write a <b>module over a square matrix</b> — NUM and SUM</span><span class="fqc">2</span>
+      <span class="fqw">Autumn 2023 and Autumn 2022, <b>word for word the same</b>, 3 marks. Not arithmetic — they want an algorithm. It is worked step by step in <b>Section 8</b>.</span>
     </div>
     <div class="freqr">
       <span class="fqn">Sparse matrix — define and describe the saving</span><span class="fqc">2</span>
@@ -2049,6 +2478,194 @@ body.fsopen .simbox.kbdon{box-shadow:none}
 </main>
 </section>
 
+<!-- ================= PROBLEMS TAB ================= -->
+<section class="panel" id="p-problems" hidden>
+
+<article class="card" style="--accent:#7c3aed">
+  <p class="kicker">Beyond the exam</p>
+  <h2>Two problems on a matrix, step by step</h2>
+  <p class="subtle" style="margin-top:.4rem">Not on any paper we have on file. They are here because each one turns a fact from the lesson into a method you can use — and because they are the two 2-D questions an interview actually asks.</p>
+
+  <div class="box info">
+    <p class="bt">Where these sit</p>
+    <p><b>Section 8's module is the exam question.</b> These two are the lab's half of the same material: the transpose, the diagonal and the zero count are <b>Week 3 of CSE-2322</b>, written as C++ rather than as a module.</p>
+    <p style="margin:0">
+    Work through them here first. The walk is the part that is hard to get from a solution you read.</p>
+  </div>
+</article>
+
+<article class="card numbered" style="--accent:#0284c7">
+  <span class="badge">1</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Problem 1 · LeetCode 240</p><h2>Search a matrix sorted both ways</h2></div>
+    <span class="timechip">O(M + N)</span>
+  </div>
+
+  <div class="box">
+    <p class="bt">The problem</p>
+    <p style="margin:0">Every <b>row</b> of A is sorted left to right, and every <b>column</b> is sorted top to bottom. Given ITEM, say whether it is in the matrix — <b>and do better than looking at every cell</b>.</p>
+  </div>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>The obvious answer is a nested loop: M &times; N comparisons. You can do much better, and the trick is <b>where you start</b>.</p>
+      <ol>
+        <li>If you stand on the <b>top-right</b> corner and it is <em>bigger</em> than ITEM, what do you know about its whole <b>column</b>?</li>
+        <li>If it is <em>smaller</em> than ITEM, what do you know about its whole <b>row</b>?</li>
+        <li>So how many cells can one comparison throw away?</li>
+      </ol>
+      <p class="hint">The top-right corner is the largest of its row and the smallest of its column. No other corner has both properties.</p>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p><b>1.</b> Everything below it in that column is <b>even bigger</b>, so if the corner already exceeds ITEM the <b>entire column</b> is out. Step left.</p>
+      <p><b>2.</b> Everything to its left in that row is <b>even smaller</b>, so if the corner is below ITEM the <b>entire row</b> is out. Step down.</p>
+      <p><b>3.</b> One whole row or one whole column — <b>M or N cells at a time</b>. Each comparison ends a row or a column for good, and there are only M + N of them, so the search cannot take more than <b>M + N</b> steps.</p>
+    </div>
+  </div>
+
+  <div class="sim" id="st-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">The staircase, from the top-right corner</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+      <div class="simctl" style="order:0">
+        <span class="subtle" style="font-weight:700;align-self:center">ITEM =</span>
+        <button class="btn sm" data-st="5" style="background:#0284c7">5 &mdash; in the matrix</button>
+        <button class="btn sm ghost" data-st="20">20 &mdash; not there</button>
+      </div>
+      <div class="tvgrid">
+        <div class="tvcol">
+          <div class="sqwrap"><div class="sqgrid" id="stgrid"></div></div>
+        </div>
+        <div class="tvcol">
+          <div class="algo live">
+            <div class="body" id="stcode">
+<span class="st" data-l="0">1. <span class="kw">Set</span> <span class="vr">I</span> <span class="op">:=</span> 1 <span class="kw">and</span> <span class="vr">J</span> <span class="op">:=</span> <span class="vr">N</span>. <span class="cm">[top-right]</span></span>
+<span class="st" data-l="1">2. <span class="kw">Repeat while</span> <span class="vr">I</span> &le; <span class="vr">M</span> <span class="kw">and</span> <span class="vr">J</span> &ge; 1:</span>
+<span class="st" data-l="2">3.       <span class="kw">If</span> <span class="vr">A</span>[<span class="vr">I</span>, <span class="vr">J</span>] = <span class="vr">ITEM</span>, <span class="kw">then</span>:</span>
+<span class="st" data-l="3">4.              <span class="kw">Write</span>: found at <span class="vr">I</span>, <span class="vr">J</span>. <span class="kw">Return</span>.</span>
+<span class="st" data-l="4">5.       <span class="kw">If</span> <span class="vr">A</span>[<span class="vr">I</span>, <span class="vr">J</span>] &gt; <span class="vr">ITEM</span>, <span class="kw">then</span>:</span>
+<span class="st" data-l="5">6.              <span class="kw">Set</span> <span class="vr">J</span> <span class="op">:=</span> <span class="vr">J</span> &minus; 1. <span class="cm">[drop the column]</span></span>
+<span class="st" data-l="6">7.       <span class="kw">Else</span>:</span>
+<span class="st" data-l="7">8.              <span class="kw">Set</span> <span class="vr">I</span> <span class="op">:=</span> <span class="vr">I</span> + 1. <span class="cm">[drop the row]</span></span>
+<span class="st">9. <span class="cm">[End of loop]</span></span>
+<span class="st" data-l="8">10. <span class="kw">Write</span>: not found. <span class="kw">Return</span>.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="simrail"></div>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#0284c7">Next &#9656;</button>
+        <button class="btn ghost sm" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 1</span>
+      </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">1</span><p id="st-msg"></p></div>
+    </div>
+  </div>
+
+  <div class="bigo" style="--oc:#15803d;--ob:#f0fdf4">
+    <div class="bopair"><p class="bok">Nested loop</p><p class="bov">O(M &middot; N)</p></div>
+    <div class="bopair"><p class="bok">Staircase</p><p class="bov">O(M + N)</p></div>
+    <p class="bod">On a 1,000 &times; 1,000 matrix that is <b>a million comparisons against two thousand</b>. Nothing clever happened: the matrix was already sorted, and <b>the staircase is simply the algorithm that uses what the data already told you</b>. Sorted input that you search linearly is the commonest wasted opportunity in the course.</p>
+  </div>
+</article>
+
+<article class="card numbered" style="--accent:#e11d48">
+  <span class="badge">2</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Problem 2 · LeetCode 73</p><h2>Set matrix zeroes, without a second matrix</h2></div>
+    <span class="timechip">O(1) space</span>
+  </div>
+
+  <div class="box">
+    <p class="bt">The problem</p>
+    <p style="margin:0">Wherever A[I, J] is <b>0</b>, the whole of row I and the whole of column J must become 0. Do it <b>in place</b> — no copy of the matrix, and no list of rows and columns to fix afterwards.</p>
+  </div>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>Two answers come to mind first, and both have something wrong with them.</p>
+      <ol>
+        <li><b>Zero each row and column as soon as you find a 0.</b> Walk through what happens on the very next cell you read. Why is the answer wrong?</li>
+        <li><b>Keep two lists</b> — rows to clear, columns to clear — then clear them at the end. This is correct. <b>What does it cost?</b></li>
+        <li>The matrix already has M + N cells you could write a mark into without needing any extra memory at all. <b>Which ones?</b></li>
+      </ol>
+      <p class="hint">For 3, you need one cell per row and one per column, and they have to be somewhere you will read before you overwrite them.</p>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p><b>1.</b> The zeros you write are <b>indistinguishable from the zeros that were there to begin with</b>. The next cell you read is a 0 you just wrote, so you clear its row too, and the whole matrix collapses to zero. <b>An in-place algorithm must never destroy the input it has not finished reading.</b></p>
+      <p><b>2.</b> It works, and it costs <b>O(M + N)</b> extra memory. For most purposes that is fine — but the question asked for constant space, and there is a way.</p>
+      <p><b>3. The first row and the first column.</b> If row I needs clearing, write a 0 into <span class="mono">A[I, 1]</span>; if column J needs clearing, write it into <span class="mono">A[1, J]</span>. The marks live <b>inside the matrix</b>, and every one of them is a cell that is going to be zeroed anyway. The only awkward cell is <span class="mono">A[1, 1]</span>, which two marks would have to share — so the first row and first column get one true/false flag each, checked before anything is overwritten.</p>
+    </div>
+  </div>
+
+  <div class="sim" id="sz-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Marks stored inside the matrix</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+      <div class="tvgrid">
+        <div class="tvcol">
+          <div class="sqwrap"><div class="sqgrid" id="szgrid"></div></div>
+        </div>
+        <div class="tvcol">
+          <div class="algo live">
+            <div class="body" id="szcode">
+<span class="st" data-l="0">1. <span class="kw">Set</span> <span class="vr">R0</span> <span class="op">:=</span> false, <span class="vr">C0</span> <span class="op">:=</span> false.</span>
+<span class="st" data-l="1">2. <span class="kw">Repeat for</span> <span class="vr">J</span> = 1 <span class="kw">to</span> <span class="vr">N</span>: <span class="kw">if</span> <span class="vr">A</span>[1,<span class="vr">J</span>] = 0 <span class="kw">then</span> <span class="vr">R0</span> <span class="op">:=</span> true.</span>
+<span class="st" data-l="2">3. <span class="kw">Repeat for</span> <span class="vr">I</span> = 1 <span class="kw">to</span> <span class="vr">M</span>: <span class="kw">if</span> <span class="vr">A</span>[<span class="vr">I</span>,1] = 0 <span class="kw">then</span> <span class="vr">C0</span> <span class="op">:=</span> true.</span>
+<span class="st" data-l="3">4. <span class="kw">Repeat for</span> <span class="vr">I</span> = 2..<span class="vr">M</span>, <span class="vr">J</span> = 2..<span class="vr">N</span>: <span class="cm">[leave the marks alone]</span></span>
+<span class="st" data-l="4">5.       <span class="kw">If</span> <span class="vr">A</span>[<span class="vr">I</span>,<span class="vr">J</span>] = 0, <span class="kw">then</span> <span class="vr">A</span>[<span class="vr">I</span>,1] <span class="op">:=</span> 0 <span class="kw">and</span> <span class="vr">A</span>[1,<span class="vr">J</span>] <span class="op">:=</span> 0.</span>
+<span class="st" data-l="5">6. <span class="kw">Repeat for</span> <span class="vr">I</span> = 2..<span class="vr">M</span>, <span class="vr">J</span> = 2..<span class="vr">N</span>: <span class="cm">[now read the marks]</span></span>
+<span class="st" data-l="6">7.       <span class="kw">If</span> <span class="vr">A</span>[<span class="vr">I</span>,1] = 0 <span class="kw">or</span> <span class="vr">A</span>[1,<span class="vr">J</span>] = 0, <span class="kw">then</span> <span class="vr">A</span>[<span class="vr">I</span>,<span class="vr">J</span>] <span class="op">:=</span> 0.</span>
+<span class="st" data-l="7">8. <span class="kw">If</span> <span class="vr">R0</span>, <span class="kw">then</span>: clear the whole first row.</span>
+<span class="st" data-l="8">9. <span class="kw">If</span> <span class="vr">C0</span>, <span class="kw">then</span>: clear the whole first column.</span>
+<span class="st" data-l="9">10. <span class="kw">Return</span>.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="simrail"></div>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#e11d48">Next &#9656;</button>
+        <button class="btn ghost sm" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 1</span>
+      </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">1</span><p id="sz-msg"></p></div>
+    </div>
+  </div>
+
+  <div class="bigo" style="--oc:#15803d;--ob:#f0fdf4">
+    <div class="bopair"><p class="bok">Extra space</p><p class="bov">O(1)</p></div>
+    <div class="bopair"><p class="bok">Time</p><p class="bov">O(M &middot; N)</p></div>
+    <p class="bod">Two flags, and nothing else. The matrix is walked three times instead of once, so the time is still <b>O(M &middot; N)</b> — three passes over n&sup2; cells is the same order as one. <b>Trading a constant number of passes for all of your extra memory is almost always the right trade</b>, and recognising when the data can hold its own bookkeeping is the actual skill here.</p>
+  </div>
+
+  <div class="box good">
+    <p class="bt">Where to go next</p>
+    <p style="margin:0">Both of these are on the <b>CSE-2322 lab list</b> alongside <b>Island Perimeter (LC 463)</b> and <b>Spiral Matrix (LC 54)</b>. Write them as C++ there — the walk above is what you should have in your head before you start typing.</p>
+  </div>
+</article>
+
+</section>
+
 <footer class="pagefoot">
   <div class="wrap fin">
     <div class="fw">
@@ -2059,6 +2676,7 @@ body.fsopen .simbox.kbdon{box-shadow:none}
   </div>
 </footer>
 
+<script src="../assets/sim.js?v=3"></script>
 <script>
 
 
@@ -2095,12 +2713,13 @@ function jump(d){
   if(t>s.length-1)t=s.length-1;
   window.scrollTo({top:Math.max(s[t].offsetTop-80,0),behavior:'smooth'});
 }
+window.cardJump=jump;   /* the FAB arrows live in another IIFE */
 
 /* ---------- 1 · INTRO GRID ---------- */
 (function(){
   var M=5,N=4,html='';
   var g=$('#introgrid'); if(!g)return;
-  g.style.gridTemplateColumns='34px repeat('+N+',56px)';
+  g.style.gridTemplateColumns='var(--gsw) repeat('+N+',var(--gcw))';
   html+='<div class="gside"></div>';
   for(var k=1;k<=N;k++) html+='<div class="ghdr">test '+k+'</div>';
   var vals=[[78,64,91,70],[55,80,62,88],[90,72,84,66],[45,58,73,60],[82,95,77,89]];
@@ -2119,54 +2738,53 @@ function jump(d){
    it into its place in BOTH layouts at once — so the row-major line fills left
    to right while the column-major line fills with gaps, which is the whole
    point of the section. Reading order is switchable, and the two views swap
-   roles when you switch it. */
+   roles when you switch it.
+
+   m and n belong to the student, so the number of steps changes underneath the
+   shell. The array the shell holds is mutated in place and never replaced, or
+   the rail would go on describing the walk before last. */
 (function(){
-  var M=3, N=4, rowRead=true, at=-1, tmr=null, seq=[];
-  function build(){
-    M=Math.max(1,Math.min(6,+$('#g-m').value||3));
-    N=Math.max(1,Math.min(6,+$('#g-n').value||4));
-    seq=[];
-    if(rowRead){ for(var j=1;j<=M;j++) for(var k=1;k<=N;k++) seq.push({j:j,k:k}); }
-    else       { for(var k2=1;k2<=N;k2++) for(var j2=1;j2<=M;j2++) seq.push({j:j2,k:k2}); }
-    at=-1; draw();
-  }
-  function rOff(c){ return (c.j-1)*N + (c.k-1); }   /* row-major offset    */
-  function cOff(c){ return (c.k-1)*M + (c.j-1); }   /* column-major offset */
-  function placedBy(off, which){
+  var M=3, N=4, rowRead=true, seq=[], steps=[], sim=null;
+  function rOff(c){ return (c.j-1)*N + (c.k-1); }
+  function cOff(c){ return (c.k-1)*M + (c.j-1); }
+  function placedBy(at,off,which){
     for(var i=0;i<=at;i++) if((which==='r'?rOff(seq[i]):cOff(seq[i]))===off) return seq[i];
     return null;
   }
-  function draw(){
-    var cur = at>=0 ? seq[at] : null;
-    /* ---- the table: placed cells are spent, the current one is lit ---- */
+  function build(){
+    M=Math.max(1,Math.min(6,+$('#g-m').value||3));
+    N=Math.max(1,Math.min(6,+$('#g-n').value||4));
+    seq=[]; var j,k;
+    if(rowRead){ for(j=1;j<=M;j++) for(k=1;k<=N;k++) seq.push({j:j,k:k}); }
+    else       { for(k=1;k<=N;k++) for(j=1;j<=M;j++) seq.push({j:j,k:k}); }
+    steps.length=0; steps.push({at:-1});
+    for(var i=0;i<seq.length;i++) steps.push({at:i});
+    if(sim) sim.reset();
+  }
+  function draw(st,idx,a){
+    var at=st.at, cur = at>=0 ? seq[at] : null, j,k,q, tot=M*N, done=at+1;
     var g=$('#mapgrid');
-    g.style.gridTemplateColumns='34px repeat('+N+',56px)';
-    var html='<div class="gside"></div>', k, j;
+    g.style.gridTemplateColumns='var(--gsw) repeat('+N+',var(--gcw))';
+    var html='<div class="gside"></div>';
     for(k=1;k<=N;k++) html+='<div class="ghdr">col '+k+'</div>';
     for(j=1;j<=M;j++){
       html+='<div class="gside">row '+j+'</div>';
       for(k=1;k<=N;k++){
-        var idx=-1;
-        for(var q=0;q<=at;q++) if(seq[q].j===j&&seq[q].k===k){ idx=q; break; }
+        var ix=-1;
+        for(q=0;q<=at;q++) if(seq[q].j===j&&seq[q].k===k){ ix=q; break; }
         var cls='gc';
         if(cur && cur.j===j && cur.k===k) cls+=' sel2';
-        else if(idx>=0) cls+=' spent';
-        html+='<div class="'+cls+'" data-j="'+j+'" data-k="'+k+'">'+
+        else if(ix>=0) cls+=' spent';
+        html+='<div class="'+cls+'" data-s="'+(ix>=0?ix:'')+'" data-j="'+j+'" data-k="'+k+'">'+
               '<span class="gidx">'+j+','+k+'</span>'+((j-1)*N+k)*10+'</div>';
       }
     }
     g.innerHTML=html;
-    $$('#mapgrid .gc').forEach(function(elc){
-      elc.addEventListener('click',function(){
-        var jj=+elc.dataset.j, kk=+elc.dataset.k;
-        for(var i=0;i<seq.length;i++) if(seq[i].j===jj&&seq[i].k===kk){ stop(); at=i; draw(); return; }
-      });
-    });
-    /* ---- the two lines, filling one block at a time ---- */
+
     function strip(which){
-      var out='', total=M*N;
-      for(var o=0;o<total;o++){
-        var c=placedBy(o,which);
+      var out='';
+      for(var o=0;o<tot;o++){
+        var c=placedBy(at,o,which);
         var live = c && cur && c.j===cur.j && c.k===cur.k;
         if(!c) out+='<div class="ls2 hole"><div class="lb2"></div><span class="la2">'+o+'</span></div>';
         else out+='<div class="ls2 set'+(live?' on':'')+'"><div class="lb2">'+c.j+','+c.k+'</div>'+
@@ -2176,55 +2794,58 @@ function jump(d){
     }
     $('#rowstrip').innerHTML=strip('r');
     $('#colstrip').innerHTML=strip('c');
-    var done=at+1, tot=M*N;
     $('#rowcnt').textContent=done+' / '+tot;
     $('#colcnt').textContent=done+' / '+tot;
 
-    var m;
-    if(!cur) m='The table is full and both lines are empty. Press <b>Next</b> to take the first cell out.';
-    else {
-      var ro=rOff(cur), co=cOff(cur);
-      m='<b>['+cur.j+','+cur.k+']</b> leaves the table and lands at '+
-        '<b style="color:#1d4ed8">offset '+ro+'</b> in row-major, but at '+
-        '<b style="color:#b45309">offset '+co+'</b> in column-major.'+
-        (ro===co ? ' <b>The same place, this once.</b>'
-                 : ' <b>Same cell, two different addresses.</b>');
-      if(done===tot) m='<b>All '+tot+' cells placed.</b> The table is empty and both lines are full — with the <b>same values in a different order</b>. Row-major and column-major are not two data structures; they are two ways of writing down one.';
+    if(!cur){
+      a.resetWatch();
+      a.watch([['K','—'],['row-major','—'],['column-major','—'],['placed','0 / '+tot]]);
+      a.msg('The table is full and both lines are empty. Press <b>Next</b> to take the first cell out.');
+      return;
     }
-    $('#mapmsg').innerHTML=m;
-    $('#map-msgn').textContent=done+' / '+tot;
-    $('#map-msgic').innerHTML = done===tot ? '&#10003;' : '&#9656;';
-    $('#map-msgbox').classList.toggle('tt', done===tot);
-    $('#map-next').disabled = at>=seq.length-1;
-    $('#map-back').disabled = at<0;
+    var ro=rOff(cur), co=cOff(cur);
+    a.watch([['K',cur.j+', '+cur.k],['row-major',ro],['column-major',co],['placed',done+' / '+tot]]);
+    var m='<b>['+cur.j+','+cur.k+']</b> leaves the table and lands at '+
+      '<b style="color:#1d4ed8">offset '+ro+'</b> in row-major, but at '+
+      '<b style="color:#b45309">offset '+co+'</b> in column-major.'+
+      (ro===co ? ' <b>The same place, this once.</b>' : ' <b>Same cell, two different addresses.</b>');
+    if(done===tot) m='<b>All '+tot+' cells placed.</b> The table is empty and both lines are full — with the '+
+      '<b>same values in a different order</b>. Row-major and column-major are not two data structures; '+
+      'they are two ways of writing down one.';
+    a.msg(m);
   }
-  function stop(){ if(tmr){clearInterval(tmr);tmr=null;} $('#map-play').textContent='▶ Play'; }
   function order(r){
     rowRead=r;
     $('#map-ord-r').classList.toggle('ghost',!r); $('#map-ord-r').style.background=r?'#1d4ed8':'';
     $('#map-ord-c').classList.toggle('ghost',r);  $('#map-ord-c').style.background=r?'':'#b45309';
-    stop(); build();
+    build();
   }
-  $('#map-next').onclick=function(){ stop(); if(at<seq.length-1){at++;draw();} };
-  $('#map-back').onclick=function(){ stop(); if(at>-1){at--;draw();} };
-  $('#map-reset').onclick=function(){ stop(); at=-1; draw(); };
-  $('#map-play').onclick=function(){
-    var b=this;
-    if(tmr){ stop(); return; }
-    if(at>=seq.length-1) at=-1;
-    b.textContent='⏸ Pause';
-    tmr=setInterval(function(){ if(at<seq.length-1){at++;draw();} else stop(); },460);
-  };
+  build();
+  sim=Sim.make({
+    el:'#map-sim', name:'Flattening a rectangle into a line', steps:steps, play:460,
+    /* the rail takes the shape of the reading order: one group per row when the
+       table is read row by row, one per column when it is not */
+    group:function(st){
+      if(st.at<0) return 'start';
+      var c=seq[st.at];
+      return rowRead ? ('row '+c.j) : ('col '+c.k);
+    },
+    render:draw
+  });
+  $('#mapgrid').addEventListener('click',function(e){
+    var c=e.target.closest ? e.target.closest('.gc') : null; if(!c) return;
+    var jj=+c.dataset.j, kk=+c.dataset.k;
+    for(var i=0;i<seq.length;i++) if(seq[i].j===jj&&seq[i].k===kk){ sim.go(i+1); return; }
+  });
   $('#map-ord-r').onclick=function(){ order(true); };
   $('#map-ord-c').onclick=function(){ order(false); };
   $('#g-m').addEventListener('change',build);
   $('#g-n').addEventListener('change',build);
-  build();
 })();
 
 /* ---------- 4 · EFFECTIVE INDEX CALCULATOR ---------- */
 (function(){
-  var rowMajor=true;
+  var rowMajor=true, sim=null, printing=null;
   function v(id){ return parseInt($(id).value,10); }
   function paint(){
     var lb1=v('#e-lb1'),ub1=v('#e-ub1'),lb2=v('#e-lb2'),ub2=v('#e-ub2');
@@ -2248,9 +2869,18 @@ function jump(d){
       '<span class="fline">    = '+base+' + '+w+' &times; '+skipped+'</span>'+
       '<span class="fline">    = <span class="fr">'+loc+'</span></span>'+
       (inRange?'':'<span class="fline" style="color:#fca5a5">// ⚠ J or K is outside the declared bounds</span>');
+    if(!sim) return;
+    sim.watch([['M',M],['N',N],['E\u2081',E1],['E\u2082',E2],['LOC',loc]]);
+    sim.msg(!inRange
+      ? '<b>A[' + J + ', ' + K + '] is outside A(' + lb1 + ':' + ub1 + ', ' + lb2 + ':' + ub2 + ').</b> '+
+        'The arithmetic still runs — which is exactly why an out-of-bounds subscript does not crash, it just reads the wrong memory.'
+      : (printing ? '<b>' + printing + '.</b> ' : '<b>Your own array.</b> ') +
+        M + ' rows of ' + N + ', read ' + (rowMajor?'row':'column') + '-major. '+
+        'Change any box above and every line below it recomputes — the three steps never do.');
   }
   ['#e-lb1','#e-ub1','#e-lb2','#e-ub2','#e-base','#e-w','#e-j','#e-k'].forEach(function(id){
-    $(id).addEventListener('input',paint);
+    $(id).addEventListener('input',function(){ printing=null;
+      $$('[data-ex]').forEach(function(x){x.classList.add('ghost');}); paint(); });
   });
   $('#e-order').onclick=function(){ rowMajor=!rowMajor;
     this.textContent='Order: '+(rowMajor?'row-major':'column-major');
@@ -2259,47 +2889,212 @@ function jump(d){
     $$('[data-ex]').forEach(function(x){x.classList.add('ghost');}); b.classList.remove('ghost');
     var p=b.dataset.ex.split(',');
     ['#e-lb1','#e-ub1','#e-lb2','#e-ub2','#e-base','#e-w','#e-j','#e-k'].forEach(function(id,i){ $(id).value=p[i]; });
+    printing=b.textContent.trim();
     paint();
   });});
+  sim=Sim.make({ el:'#e-sim', name:'Effective indices and the address' });
+  printing='Autumn 2025';
   paint();
 })();
 
-/* ---------- 5 · THREE DIMENSIONS ---------- */
+/* ---------- 5 · THREE DIMENSIONS, ONE LINE AT A TIME ----------
+   The board holds every line from the first press so the buttons never move,
+   but a line the walk has not reached yet is hidden rather than dimmed — a
+   dimmed answer is still an answer, and this one is worth three marks. */
 (function(){
+  var steps=[], sim=null;
+  for(var q=0;q<12;q++) steps.push({r:q});
   function rng(s){ var p=String(s).split(':'); return [parseInt(p[0],10),parseInt(p[1],10)]; }
-  function paint(){
+  function br(n){ return n<0 ? '('+n+')' : ''+n; }
+  function num(n){ return n.toLocaleString('en-US'); }
+  function model(){
     var d1=rng($('#t-d1').value), d2=rng($('#t-d2').value), d3=rng($('#t-d3').value);
     var bw=String($('#t-bw').value).trim().split(/\s+/);
-    var base=parseInt(bw[0],10), w=parseInt(bw[1],10);
-    var J=parseInt($('#t-j').value,10), K=parseInt($('#t-k').value,10), L=parseInt($('#t-l').value,10);
-    if([d1[0],d1[1],d2[0],d2[1],d3[0],d3[1],base,w,J,K,L].some(isNaN)) return;
-    var L1=d1[1]-d1[0]+1, L2=d2[1]-d2[0]+1, L3=d3[1]-d3[0]+1;
-    var E1=J-d1[0], E2=K-d2[0], E3=L-d3[0];
-    var inner=E1*L2+E2, skipped=inner*L3+E3, loc=base+w*skipped;
-    $('#tboard').innerHTML=
-      '<span class="fline fc">// step 1 — length of each dimension</span>'+
-      '<span class="fline">L<sub>1</sub> = '+d1[1]+' &minus; ('+d1[0]+') + 1 = <span class="fv">'+L1+'</span> &nbsp; L<sub>2</sub> = '+d2[1]+' &minus; ('+d2[0]+') + 1 = <span class="fv">'+L2+'</span> &nbsp; L<sub>3</sub> = '+d3[1]+' &minus; ('+d3[0]+') + 1 = <span class="fv">'+L3+'</span></span>'+
-      '<span class="fline">Total elements = '+L1+' &times; '+L2+' &times; '+L3+' = <span class="fr">'+(L1*L2*L3).toLocaleString('en-US')+'</span></span>'+
-      '<span class="fline fc">// step 2 — effective indices</span>'+
-      '<span class="fline">E<sub>1</sub> = '+J+' &minus; ('+d1[0]+') = <span class="fk">'+E1+'</span> &nbsp; E<sub>2</sub> = '+K+' &minus; ('+d2[0]+') = <span class="fk">'+E2+'</span> &nbsp; E<sub>3</sub> = '+L+' &minus; ('+d3[0]+') = <span class="fk">'+E3+'</span></span>'+
-      '<span class="fline fc">// step 3 — row-major address</span>'+
-      '<span class="fline">LOC = Base + w [ ( E<sub>1</sub>&times;L<sub>2</sub> + E<sub>2</sub> ) &times; L<sub>3</sub> + E<sub>3</sub> ]</span>'+
-      '<span class="fline">    = '+base+' + '+w+' [ ( '+E1+'&times;'+L2+' + '+E2+' ) &times; '+L3+' + '+E3+' ]</span>'+
-      '<span class="fline">    = '+base+' + '+w+' [ '+inner+' &times; '+L3+' + '+E3+' ]</span>'+
-      '<span class="fline">    = '+base+' + '+w+' &times; '+skipped+'</span>'+
-      '<span class="fline">    = <span class="fr">'+loc.toLocaleString('en-US')+'</span></span>';
+    var m={ base:parseInt(bw[0],10), w:parseInt(bw[1],10),
+            J:parseInt($('#t-j').value,10), K:parseInt($('#t-k').value,10), L:parseInt($('#t-l').value,10),
+            d1:d1, d2:d2, d3:d3 };
+    if([d1[0],d1[1],d2[0],d2[1],d3[0],d3[1],m.base,m.w,m.J,m.K,m.L].some(isNaN)) return null;
+    m.L1=d1[1]-d1[0]+1; m.L2=d2[1]-d2[0]+1; m.L3=d3[1]-d3[0]+1;
+    m.tot=m.L1*m.L2*m.L3;
+    m.E1=m.J-d1[0]; m.E2=m.K-d2[0]; m.E3=m.L-d3[0];
+    m.inner=m.E1*m.L2+m.E2; m.skip=m.inner*m.L3+m.E3; m.loc=m.base+m.w*m.skip;
+    return m;
   }
-  ['#t-d1','#t-d2','#t-d3','#t-bw','#t-j','#t-k','#t-l'].forEach(function(id){ $(id).addEventListener('input',paint); });
+  function lines(m){
+    return [
+     [0,'fc','// step 1 — length of each dimension'],
+     [0,'', 'L<sub>1</sub> = '+m.d1[1]+' &minus; '+br(m.d1[0])+' + 1 = <span class="fv">'+m.L1+'</span>'],
+     [1,'', 'L<sub>2</sub> = '+m.d2[1]+' &minus; '+br(m.d2[0])+' + 1 = <span class="fv">'+m.L2+'</span>'],
+     [2,'', 'L<sub>3</sub> = '+m.d3[1]+' &minus; '+br(m.d3[0])+' + 1 = <span class="fv">'+m.L3+'</span>'],
+     [3,'', 'Total elements = '+m.L1+' &times; '+m.L2+' &times; '+m.L3+' = <span class="fr">'+num(m.tot)+'</span>'],
+     [4,'fc','// step 2 — effective indices'],
+     [4,'', 'E<sub>1</sub> = J &minus; LB<sub>1</sub> = '+m.J+' &minus; '+br(m.d1[0])+' = <span class="fk">'+m.E1+'</span>'],
+     [5,'', 'E<sub>2</sub> = K &minus; LB<sub>2</sub> = '+m.K+' &minus; '+br(m.d2[0])+' = <span class="fk">'+m.E2+'</span>'],
+     [6,'', 'E<sub>3</sub> = L &minus; LB<sub>3</sub> = '+m.L+' &minus; '+br(m.d3[0])+' = <span class="fk">'+m.E3+'</span>'],
+     [7,'fc','// step 3 — row-major address'],
+     [7,'', 'LOC = Base + w [ ( E<sub>1</sub>&times;L<sub>2</sub> + E<sub>2</sub> ) &times; L<sub>3</sub> + E<sub>3</sub> ]'],
+     [8,'', '    = <span class="fv">'+m.base+'</span> + <span class="fv">'+m.w+'</span> [ ( '+m.E1+'&times;'+m.L2+' + '+m.E2+' ) &times; '+m.L3+' + '+m.E3+' ]'],
+     [9,'', '    = '+m.base+' + '+m.w+' [ '+m.inner+' &times; '+m.L3+' + '+m.E3+' ]'],
+     [10,'','    = '+m.base+' + '+m.w+' &times; '+num(m.skip)],
+     [11,'','    = <span class="fr">'+num(m.loc)+'</span>']
+    ];
+  }
+  var SAY=[
+   function(m){ return 'The first dimension runs '+m.d1[0]+' to '+m.d1[1]+', so it is <b>'+m.L1+'</b> long. <b>UB &minus; LB + 1</b> — the same rule as a one-dimensional array.'; },
+   function(m){ return 'The second runs '+m.d2[0]+' to '+m.d2[1]+'. '+(m.d2[0]<0?'A negative lower bound is subtracted, so it <b>adds</b>: ':'')+m.d2[1]+' &minus; '+br(m.d2[0])+' + 1 = <b>'+m.L2+'</b>.'; },
+   function(m){ return 'And the third is <b>'+m.L3+'</b>. Three dimensions, three lengths, one rule.'; },
+   function(m){ return 'Multiply the three and the array holds <b>'+num(m.tot)+'</b> elements. <b>That is part (i) answered</b> — worth marks before you touch an address.'; },
+   function(m){ return 'Now the effective indices. <b>E<sub>1</sub> = J &minus; LB<sub>1</sub> = '+m.E1+'</b>: '+(m.E1===0?'row J is the very first one, so nothing is skipped.':'there are '+m.E1+' complete slabs before it.'); },
+   function(m){ return '<b>E<sub>2</sub> = '+m.E2+'</b>. Subtract the <em>lower bound</em>, never 1 — the bound here is '+m.d2[0]+'.'; },
+   function(m){ return '<b>E<sub>3</sub> = '+m.E3+'</b>. All three are now counts of things to skip, not subscripts.'; },
+   function(m){ return 'The formula, before any numbers. <b>Read it inside out</b>: skip E<sub>1</sub> slabs of L<sub>2</sub> rows, then E<sub>2</sub> more rows, and every one of those rows is L<sub>3</sub> long.'; },
+   function(m){ return 'Substitute. Nothing has been calculated yet — <b>write this line in the exam</b>, because it earns the method mark even if the arithmetic slips.'; },
+   function(m){ return 'The innermost bracket first: '+m.E1+'&times;'+m.L2+' + '+m.E2+' = <b>'+m.inner+'</b> complete rows come before the one we want.'; },
+   function(m){ return '&times; '+m.L3+' elements per row, + '+m.E3+' inside it = <b>'+num(m.skip)+'</b> elements skipped in total.'; },
+   function(m){ return '<b>'+num(m.skip)+' elements &times; '+m.w+' bytes, added to Base '+m.base+'.</b> The address is <b>'+num(m.loc)+'</b>.'; }
+  ];
+  function render(st,idx,a){
+    var m=model(); if(!m) return;
+    var LN=lines(m), h='';
+    for(var i=0;i<LN.length;i++){
+      var cls='fline'+(LN[i][1]?' '+LN[i][1]:'');
+      if(LN[i][0]>idx) cls+=' pend';
+      else if(LN[i][0]===idx) cls+=' liv';
+      h+='<span class="'+cls+'">'+LN[i][2]+'</span>';
+    }
+    $('#tboard').innerHTML=h;
+    var W=[];
+    if(idx>=0) W.push(['L₁',m.L1]);
+    if(idx>=1) W.push(['L₂',m.L2]);
+    if(idx>=2) W.push(['L₃',m.L3]);
+    if(idx>=3) W.push(['total',num(m.tot)]);
+    if(idx>=4) W.push(['E₁',m.E1]);
+    if(idx>=5) W.push(['E₂',m.E2]);
+    if(idx>=6) W.push(['E₃',m.E3]);
+    if(idx>=10) W.push(['skipped',num(m.skip)]);
+    if(idx>=11) W.push(['LOC',num(m.loc)]);
+    a.watch(W);
+    a.msg(SAY[idx](m));
+  }
+  sim=Sim.make({
+    el:'#t-sim', name:'Three dimensions, worked line by line', steps:steps, play:1300,
+    group:function(st){ return st.r<4 ? 'lengths' : st.r<7 ? 'effective indices' : 'address'; },
+    render:render
+  });
+  ['#t-d1','#t-d2','#t-d3','#t-bw','#t-j','#t-k','#t-l'].forEach(function(id){
+    $(id).addEventListener('input',function(){ sim.go(sim.index()); });
+  });
   $$('[data-tex]').forEach(function(b){b.addEventListener('click',function(){
     $$('[data-tex]').forEach(function(x){x.classList.add('ghost');}); b.classList.remove('ghost');
     var p=b.dataset.tex.split('|');
     $('#t-d1').value=p[0]; $('#t-d2').value=p[1]; $('#t-d3').value=p[2];
     $('#t-bw').value=p[3]; $('#t-j').value=p[4]; $('#t-k').value=p[5]; $('#t-l').value=p[6];
-    paint();
+    sim.reset();
   });});
-  paint();
 })();
 
+
+/* ---------- 6 · n DIMENSIONS: THE ODOMETER ----------
+   One row of wheels per dimension and one flat line of memory. The offset of
+   a step IS the step number — memory fills left to right whatever the order —
+   so what the order changes is WHICH cell lands there, and that shows up as
+   which wheel ticked. Row-major turns the bottom wheel and carries upward;
+   column-major turns the top wheel and carries down.
+
+   The product of the lengths is capped at 24 so the line stays one unscrolled
+   row on a projector. */
+(function(){
+  var Ls=[2,3,4], rowMajor=true, steps=[], sim=null, SUB='₁₂₃₄₅';
+  function total(){ var t=1; for(var i=0;i<Ls.length;i++) t*=Ls[i]; return t; }
+  function tupleAt(off){
+    var n=Ls.length, E=new Array(n), r=off, i;
+    if(rowMajor){ for(i=n-1;i>=0;i--){ E[i]=r%Ls[i]; r=Math.floor(r/Ls[i]); } }
+    else        { for(i=0;i<n;i++)   { E[i]=r%Ls[i]; r=Math.floor(r/Ls[i]); } }
+    return E;
+  }
+  /* the formula, built in the same order the carries happen */
+  function horner(E){
+    var n=Ls.length, s, v, i;
+    if(rowMajor){ v=E[0]; s=''+E[0];
+      for(i=1;i<n;i++){ s='('+s+'&times;'+Ls[i]+' + '+E[i]+')'; v=v*Ls[i]+E[i]; } }
+    else{ v=E[n-1]; s=''+E[n-1];
+      for(i=n-2;i>=0;i--){ s='('+s+'&times;'+Ls[i]+' + '+E[i]+')'; v=v*Ls[i]+E[i]; } }
+    return {s:s, v:v};
+  }
+  function build(){
+    steps.length=0;
+    for(var t=0;t<total();t++) steps.push({o:t});
+    $('#nd-ord').textContent = rowMajor ? 'row-major' : 'column-major';
+    $('#nd-ord').style.background = rowMajor ? '#1d4ed8' : '#b45309';
+    if(sim) sim.reset();
+  }
+  function render(st,idx,a){
+    var off=st.o, E=tupleAt(off), prev = off>0 ? tupleAt(off-1) : null, n=Ls.length, i, k;
+    var fast = rowMajor ? n-1 : 0;
+    /* ---- the wheels ---- */
+    var h='';
+    for(i=0;i<n;i++){
+      var moved = prev && prev[i]!==E[i];
+      var cls='ndrow'+(i===fast ? ' tick' : (moved ? ' carry' : ''));
+      h+='<div class="'+cls+'"><span class="ndk">K'+SUB.charAt(i)+' &middot; 0&hellip;'+(Ls[i]-1)+'</span><div class="ndcells">';
+      for(k=0;k<Ls[i];k++) h+='<span class="ndc'+(k===E[i]?' on':'')+'">'+k+'</span>';
+      h+='</div></div>';
+    }
+    $('#ndwheels').innerHTML=h;
+    /* ---- the line ---- */
+    var tot=total(), m='';
+    for(i=0;i<tot;i++){
+      var lab = i<=off ? tupleAt(i).join(',') : '';
+      m+='<div class="ndm'+(i<=off?' set':'')+(i===off?' on':'')+'">'+
+         '<div class="ndb">'+lab+'</div><span class="nda">'+i+'</span></div>';
+    }
+    $('#ndmem').innerHTML=m;
+    /* ---- the arithmetic, every step ---- */
+    var H=horner(E);
+    a.watch([['K','('+E.join(', ')+')'],['offset',off],['cells',(off+1)+' / '+tot]]);
+    var carried=[];
+    if(prev) for(i=0;i<n;i++) if(prev[i]!==E[i] && i!==fast) carried.push(i);
+    var msg;
+    if(off===0){
+      msg='Every subscript is at its lower bound, so <b>nothing has been skipped</b> and this cell sits at offset 0. '+
+          'The '+(rowMajor?'bottom':'top')+' wheel is the one that will move next.';
+    } else if(!carried.length){
+      msg='Only <b>K'+SUB.charAt(fast)+'</b> moved &mdash; one step along the fastest dimension is one step along memory. '+
+          'offset = '+H.s+' = <b>'+H.v+'</b>';
+    } else {
+      var c=carried[carried.length-1], below=1;
+      if(rowMajor){ for(i=c+1;i<n;i++) below*=Ls[i]; } else { for(i=0;i<c;i++) below*=Ls[i]; }
+      msg='<b>K'+SUB.charAt(fast)+' ran out and wrapped back to 0, so K'+SUB.charAt(c)+' ticked.</b> '+
+          'One tick of K'+SUB.charAt(c)+' steps over <b>'+below+'</b> cells &mdash; and <b>that is the &times;'+
+          (rowMajor?Ls[c+1]:Ls[c-1])+' in the formula</b>. offset = '+H.s+' = <b>'+H.v+'</b>';
+      if(carried.length>1) msg='<b>Two wheels wrapped at once.</b> '+msg.replace('<b>K'+SUB.charAt(fast)+' ran out','K'+SUB.charAt(fast)+' ran out');
+    }
+    if(off===tot-1) msg='<b>All '+tot+' cells are on the line.</b> The wheels are an odometer and the formula is '+
+      'that odometer written as arithmetic &mdash; one bracket per carry. Switch the order and watch the other end turn fastest.';
+    a.msg(msg);
+  }
+  build();
+  sim=Sim.make({
+    el:'#nd-sim', name:'n dimensions, flattened into one line', steps:steps, play:620,
+    /* one rail group per value of the slowest wheel */
+    group:function(st){
+      var E=tupleAt(st.o), slow = rowMajor ? 0 : Ls.length-1;
+      return 'K'+SUB.charAt(slow)+' = '+E[slow];
+    },
+    render:render
+  });
+  $$('[data-nd]').forEach(function(b){ b.addEventListener('click',function(){
+    $$('[data-nd]').forEach(function(x){ x.classList.add('ghost'); x.style.background=''; });
+    b.classList.remove('ghost'); b.style.background='#0891b2';
+    Ls=b.dataset.nd.split(',').map(Number); build();
+  });});
+  $('#nd-ord').onclick=function(){ rowMajor=!rowMajor; build(); };
+  $('#ndmem').addEventListener('click',function(e){
+    var c=e.target.closest ? e.target.closest('.ndm') : null; if(!c) return;
+    var kids=Array.prototype.slice.call(this.children);
+    sim.go(kids.indexOf(c));
+  });
+})();
 /* ---------- 6 · SPARSE ---------- */
 (function(){
   var R=6,C=8,cells=[];
@@ -2312,7 +3107,7 @@ function jump(d){
     // deterministic spread so it does not jump about while dragging
     var step=total/want, picked={};
     for(i=0;i<want;i++) picked[Math.floor(i*step)]=true;
-    var g=$('#spgrid'); g.style.gridTemplateColumns='repeat('+C+',34px)';
+    var g=$('#spgrid'); g.style.gridTemplateColumns='repeat('+C+',var(--spw))';
     var html='', trip='', nz=0;
     for(i=0;i<total;i++){
       var r=Math.floor(i/C)+1, c=i%C+1;
@@ -2336,9 +3131,272 @@ function jump(d){
       : '<b>'+nz+'</b> non-zeros out of '+full+'. Triplets would need <b>'+tripCount+'</b> numbers — <b>more than storing the whole matrix</b>. Too dense to be worth it.';
   }
   $('#sp-fill').addEventListener('input',build);
+  Sim.make({ el:'#sp-sim', name:'How much a sparse matrix actually saves' });
   build();
 })();
 
+
+/* ---------- 8 · THE EXAM'S SQUARE-MATRIX MODULE ----------
+   Both tests happen on the same visit, so the walk lands on each If once per
+   cell and colours it by its answer. A cell that is a counted zero keeps a
+   blue dot even after it turns green for the sum, because two of the cells
+   above the diagonal are zeros and the two answers are independent. */
+(function(){
+  var N=4;
+  var A=[[0,7,0,2],
+         [3,0,5,0],
+         [0,4,9,6],
+         [1,0,0,8]];
+  var steps=[];
+  function push(l,msg,ex){
+    var s={l:l,msg:msg};
+    if(ex) for(var k in ex) if(ex.hasOwnProperty(k)) s[k]=ex[k];
+    steps.push(s); return s;
+  }
+  (function plan(){
+    var NUM=0, SUM=0, I, J, v;
+    push(0,'Both counters start at zero, <b>outside</b> both loops. Put either one inside and it is reset on every pass — that is the commonest way this question is lost.',{num:0,sum:0});
+    for(I=1;I<=N;I++){
+      push(1,'Outer loop: <b>I = '+I+'</b>. Row '+I+' of the matrix.',{I:I,num:NUM,sum:SUM});
+      for(J=1;J<=N;J++){
+        v=A[I-1][J-1];
+        push(2,'Inner loop: <b>J = '+J+'</b>. The cell in hand is <b>A['+I+', '+J+'] = '+v+'</b>.',
+             {I:I,J:J,look:[I,J],num:NUM,sum:SUM});
+        push(3,'Is <b>A['+I+', '+J+'] = 0</b>? It is <b>'+v+'</b>, so '+(v===0?'<b>yes</b> — this one counts.':'<b>no</b>. Move on to the second test.'),
+             {I:I,J:J,look:[I,J],cond:{ok:v===0},num:NUM,sum:SUM});
+        if(v===0){ NUM++;
+          push(4,'<b>NUM becomes '+NUM+'.</b> Counting a zero says nothing about where it sits — the diagonal test is a separate question about the same cell.',
+               {I:I,J:J,look:[I,J],zero:[I,J],num:NUM,sum:SUM}); }
+        var ab=(I<J);
+        push(5,'Is <b>I &lt; J</b>? '+I+' &lt; '+J+' is <b>'+(ab?'true':'false')+'</b>, so A['+I+', '+J+'] is '+
+             (ab?'<b>above</b> the diagonal.':(I===J?'<b>on</b> the diagonal — the diagonal itself is not included.':'<b>below</b> it.')),
+             {I:I,J:J,look:[I,J],cond:{ok:ab},num:NUM,sum:SUM});
+        if(ab){ SUM+=v;
+          push(6,'<b>SUM becomes '+SUM+'</b> ('+(SUM-v)+' + '+v+').'+(v===0?' Adding a zero changes nothing — but the cell was still above the diagonal, so the test was still true.':''),
+               {I:I,J:J,look:[I,J],sum:SUM,num:NUM,summed:[I,J]}); }
+      }
+    }
+    push(7,'Both loops are finished. <b>NUM = '+NUM+'</b> zeros and <b>SUM = '+SUM+'</b> above the diagonal — from <b>one</b> walk over the matrix.',{num:NUM,sum:SUM,done:1});
+    push(8,'Return. Sixteen cells, sixteen visits, two answers. <b>That is the module the exam is asking for.</b>',{num:NUM,sum:SUM,done:1});
+  })();
+
+  function render(st,idx,a){
+    var zeros={}, sums={}, i;
+    for(i=0;i<=idx;i++){
+      if(steps[i].zero)   zeros[steps[i].zero.join(',')]=1;
+      if(steps[i].summed) sums[steps[i].summed.join(',')]=1;
+    }
+    var h='<div class="sqhd side"></div>';
+    for(var c=1;c<=N;c++) h+='<div class="sqhd">J='+c+'</div>';
+    for(var r=1;r<=N;r++){
+      h+='<div class="sqhd side">I='+r+'</div>';
+      for(c=1;c<=N;c++){
+        var key=r+','+c, cls='sqc';
+        if(r===c) cls+=' diag';
+        if(zeros[key]) cls+=' zero';
+        if(sums[key]) cls+=' summed';
+        if(st.look && st.look[0]===r && st.look[1]===c) cls+=' look';
+        h+='<div class="'+cls+'">'+A[r-1][c-1]+'</div>';
+      }
+    }
+    $('#sqgrid').style.gridTemplateColumns='auto repeat('+N+',var(--sqw))';
+    $('#sqgrid').innerHTML=h;
+    var W=[];
+    if(st.I!==undefined) W.push(['I',st.I]);
+    if(st.J!==undefined) W.push(['J',st.J]);
+    if(st.look) W.push(['A[I,J]',A[st.look[0]-1][st.look[1]-1]]);
+    W.push(['NUM',st.num]); W.push(['SUM',st.sum]);
+    a.watch(W);
+    a.msg(st.msg);
+  }
+  Sim.make({
+    el:'#sq-sim', name:'NUM and SUM in one pass', steps:steps, play:700,
+    lines:'#sqcode .st[data-l]',
+    lineOf:function(st){ return st.l; },
+    /* the first and last groups are one or two steps wide, and a label that
+     cannot fit inside its own segment is noise on the rail */
+    group:function(st){ return st.I===undefined ? '' : ('I = '+st.I); },
+    tone:function(st){ return st.cond ? (st.cond.ok?'tr':'fl') : ''; },
+    render:render
+  });
+})();
+
+/* ---------- PROBLEM 1 · THE STAIRCASE (LeetCode 240) ----------
+   Every comparison ends a whole row or a whole column, so the eliminated
+   region is drawn as it grows: the staircase is visible as the shape of what
+   is left, not just as a moving cell. */
+(function(){
+  var A=[[ 1, 4, 7,11,15],
+         [ 2, 5, 8,12,19],
+         [ 3, 6, 9,16,22],
+         [10,13,14,17,24],
+         [18,21,23,26,30]];
+  var M=5, N=5, steps=[], sim=null, TARGET=5;
+  function plan(T){
+    var S=[], I=1, J=N, cut=[], v, guard=0;
+    function cp(){ return cut.slice(); }
+    S.push({l:0,I:I,J:J,cut:cp(),msg:'Start at the <b>top-right corner</b>, A[1, '+N+'] = '+A[0][N-1]+
+      '. It is the <b>largest of its row</b> and the <b>smallest of its column</b> &mdash; the only corner that is both, which is why the walk starts here.'});
+    for(;;){
+      if(++guard>60) break;
+      var inside = (I<=M && J>=1);
+      S.push({l:1,I:I,J:J,cut:cp(),cond:{ok:inside},
+        msg: inside ? 'Still inside the matrix: I = '+I+', J = '+J+'.'
+                    : '<b>I has walked off the bottom.</b> There is nowhere left to look, so ITEM is not in the matrix.'});
+      if(!inside) break;
+      v=A[I-1][J-1];
+      S.push({l:2,I:I,J:J,v:v,cut:cp(),cond:{ok:v===T},
+        msg:'A['+I+', '+J+'] is <b>'+v+'</b>. Is it '+T+'? <b>'+(v===T?'Yes.':'No.')+'</b>'});
+      if(v===T){
+        S.push({l:3,I:I,J:J,v:v,cut:cp(),found:[I,J],
+          msg:'<b>Found at row '+I+', column '+J+'.</b> Five comparisons on a 25-cell matrix &mdash; a nested loop would have been unlucky to do it in fewer than twelve.'});
+        break;
+      }
+      S.push({l:4,I:I,J:J,v:v,cut:cp(),cond:{ok:v>T},
+        msg:'Is '+v+' &gt; '+T+'? <b>'+(v>T?'Yes':'No')+'.</b> '+(v>T
+          ? 'Everything <em>below</em> it in column '+J+' is bigger still, so the <b>whole column</b> is out.'
+          : 'Everything <em>left</em> of it in row '+I+' is smaller still, so the <b>whole row</b> is out.')});
+      if(v>T){
+        for(var r=I;r<=M;r++) cut.push(r+','+J);
+        S.push({l:5,I:I,J:J-1,cut:cp(),msg:'<b>Column '+J+' discarded</b> &mdash; '+(M-I+1)+
+          ' cells gone in one comparison. Step left to column '+(J-1)+'.'});
+        J--;
+      } else {
+        S.push({l:6,I:I,J:J,cut:cp(),msg:'Not equal and not greater, so it must be smaller. <b>Take the else branch.</b>'});
+        for(var c=1;c<=J;c++) cut.push(I+','+c);
+        S.push({l:7,I:I+1,J:J,cut:cp(),msg:'<b>Row '+I+' discarded</b> &mdash; '+J+
+          ' cells gone. Step down to row '+(I+1)+'.'});
+        I++;
+      }
+    }
+    if(!S[S.length-1].found)
+      S.push({l:8,cut:cp(),msg:'<b>Not found.</b> Nine comparisons, and every one of them ended a row or a column &mdash; '+
+        'which is why the walk can never take more than <b>M + N = 10</b> steps.'});
+    return S;
+  }
+  function build(T){
+    TARGET=T; var S=plan(T);
+    steps.length=0; for(var i=0;i<S.length;i++) steps.push(S[i]);
+    if(sim) sim.reset();
+  }
+  function render(st,idx,a){
+    var cut={}, i;
+    if(st.cut) for(i=0;i<st.cut.length;i++) cut[st.cut[i]]=1;
+    var h='<div class="sqhd side"></div>', r, c;
+    for(c=1;c<=N;c++) h+='<div class="sqhd">'+c+'</div>';
+    for(r=1;r<=M;r++){
+      h+='<div class="sqhd side">'+r+'</div>';
+      for(c=1;c<=N;c++){
+        var cls='sqc';
+        if(cut[r+','+c]) cls+=' cut';
+        if(st.found && st.found[0]===r && st.found[1]===c) cls+=' hit';
+        else if(st.I===r && st.J===c && st.l!==8) cls+=' look';
+        h+='<div class="'+cls+'">'+A[r-1][c-1]+'</div>';
+      }
+    }
+    var g=$('#stgrid');
+    g.style.gridTemplateColumns='auto repeat('+N+',var(--sqw))';
+    g.innerHTML=h;
+    var W=[['ITEM',TARGET]];
+    if(st.I!==undefined && st.l!==8) W.push(['I',st.I],['J',st.J]);
+    if(st.v!==undefined) W.push(['A[I,J]',st.v]);
+    W.push(['discarded',(st.cut?st.cut.length:0)+' / 25']);
+    a.watch(W); a.msg(st.msg);
+  }
+  build(5);
+  sim=Sim.make({ el:'#st-sim', name:'The staircase, from the top-right corner', steps:steps, play:800,
+    lines:'#stcode .st[data-l]', lineOf:function(st){ return st.l; },
+    tone:function(st){ return st.cond ? (st.cond.ok?'tr':'fl') : ''; },
+    group:function(st){ return st.l===0 ? '' : (st.l===8||st.found) ? '' : ('at '+st.I+','+st.J); },
+    render:render });
+  $$('[data-st]').forEach(function(b){ b.addEventListener('click',function(){
+    $$('[data-st]').forEach(function(x){ x.classList.add('ghost'); x.style.background=''; });
+    b.classList.remove('ghost'); b.style.background='#0284c7';
+    build(+b.dataset.st);
+  });});
+})();
+
+/* ---------- PROBLEM 2 · SET MATRIX ZEROES (LeetCode 73) ----------
+   The matrix changes under the walk, so each step carries its own snapshot of
+   all sixteen values. Marks are drawn violet and cleared cells rose, which is
+   the only way to tell a mark from a zero the algorithm has just written. */
+(function(){
+  var M=4, N=4, steps=[], START=[[1,2,0,4],[5,0,7,8],[9,10,11,12],[13,14,15,16]];
+  (function plan(){
+    var G=START.map(function(r){ return r.slice(); });
+    var R0=false, C0=false, I, J, marks={}, wiped={};
+    function snap(o){
+      o.g=G.map(function(r){ return r.slice(); });
+      o.mk={}; for(var k in marks) if(marks.hasOwnProperty(k)) o.mk[k]=1;
+      o.wp={}; for(k in wiped) if(wiped.hasOwnProperty(k)) o.wp[k]=1;
+      o.R0=R0; o.C0=C0; steps.push(o); return o;
+    }
+    snap({l:0,msg:'Two flags, and that is the entire extra memory this algorithm uses. <b>R0</b> remembers whether the first row had a zero to begin with, <b>C0</b> the first column.'});
+    for(J=1;J<=N;J++){
+      if(G[0][J-1]===0) R0=true;
+      snap({l:1,look:[1,J],msg:'Scanning the first row: A[1, '+J+'] = '+G[0][J-1]+'. '+
+        (G[0][J-1]===0?'<b>A zero — R0 is now true.</b> The first row is about to be used as scratch space, so this has to be recorded before anything is written to it.'
+                      :'Not a zero; R0 stays '+(R0?'true':'false')+'.')});
+    }
+    for(I=1;I<=M;I++){
+      if(G[I-1][0]===0) C0=true;
+      snap({l:2,look:[I,1],msg:'Scanning the first column: A['+I+', 1] = '+G[I-1][0]+'. '+
+        (G[I-1][0]===0?'<b>A zero — C0 is now true.</b>':'Not a zero; C0 stays '+(C0?'true':'false')+'.')});
+    }
+    for(I=2;I<=M;I++) for(J=2;J<=N;J++){
+      snap({l:3,look:[I,J],msg:'Second pass, cell A['+I+', '+J+']. <b>The first row and first column are skipped</b> — they are the notepad now.'});
+      var z=(G[I-1][J-1]===0);
+      if(z){ G[I-1][0]=0; G[0][J-1]=0; marks[I+',1']=1; marks['1,'+J]=1; }
+      snap({l:4,look:[I,J],cond:{ok:z},msg: z
+        ? '<b>A zero.</b> Instead of clearing row '+I+' and column '+J+' now — which would destroy cells this pass has not read yet — leave a mark: <b>A['+I+', 1] := 0</b> and <b>A[1, '+J+'] := 0</b>.'
+        : 'Not a zero, so nothing to mark. Move on.'});
+    }
+    for(I=2;I<=M;I++) for(J=2;J<=N;J++){
+      snap({l:5,look:[I,J],msg:'Third pass, cell A['+I+', '+J+']. Now the marks are <b>read</b> rather than written.'});
+      var hit=(G[I-1][0]===0 || G[0][J-1]===0);
+      if(hit && G[I-1][J-1]!==0){ G[I-1][J-1]=0; wiped[I+','+J]=1; }
+      else if(hit){ wiped[I+','+J]=1; }
+      snap({l:6,look:[I,J],cond:{ok:hit},msg: hit
+        ? '<b>Marked</b> — '+(G[I-1][0]===0 && G[0][J-1]===0 ? 'both its row and its column carry a mark' : (G[I-1][0]===0?'its row is marked at A['+I+', 1]':'its column is marked at A[1, '+J+']'))+'. Set A['+I+', '+J+'] := 0.'
+        : 'Neither A['+I+', 1] nor A[1, '+J+'] is 0, so this cell survives.'});
+    }
+    snap({l:7,cond:{ok:R0},msg: R0
+      ? '<b>R0 is true</b>, so the first row really did contain a zero of its own — clear the whole of it.'
+      : 'R0 is false: the first row held no zero of its own, so whatever marks are in it are exactly the values it should end with.'});
+    if(R0){ for(J=1;J<=N;J++){ G[0][J-1]=0; wiped['1,'+J]=1; } snap({l:7,msg:'<b>First row cleared.</b> The marks it was holding have done their job and are now simply part of the answer.'}); }
+    snap({l:8,cond:{ok:C0},msg: C0
+      ? '<b>C0 is true</b> — clear the whole first column too.'
+      : 'C0 is false, so the first column keeps its marks, and every one of them is a 0 that belongs in the answer anyway.'});
+    if(C0){ for(I=1;I<=M;I++){ G[I-1][0]=0; wiped[I+',1']=1; } snap({l:8,msg:'<b>First column cleared.</b>'}); }
+    snap({l:9,done:1,msg:'<b>Done, with two booleans of extra memory.</b> Three passes over the matrix instead of one — still O(M &middot; N) — and the bookkeeping lived <b>inside the data it was about</b>.'});
+  })();
+  function render(st,idx,a){
+    var h='<div class="sqhd side"></div>', r, c;
+    for(c=1;c<=N;c++) h+='<div class="sqhd">'+c+'</div>';
+    for(r=1;r<=M;r++){
+      h+='<div class="sqhd side">'+r+'</div>';
+      for(c=1;c<=N;c++){
+        var key=r+','+c, cls='sqc';
+        if(st.wp[key]) cls+=' wiped';
+        else if(st.mk[key]) cls+=' mark';
+        if(st.look && st.look[0]===r && st.look[1]===c) cls+=' look';
+        h+='<div class="'+cls+'">'+st.g[r-1][c-1]+'</div>';
+      }
+    }
+    var g=$('#szgrid');
+    g.style.gridTemplateColumns='auto repeat('+N+',var(--sqw))';
+    g.innerHTML=h;
+    var W=[['R0',st.R0?'true':'false'],['C0',st.C0?'true':'false']];
+    if(st.look) W.push(['I',st.look[0]],['J',st.look[1]],['A[I,J]',st.g[st.look[0]-1][st.look[1]-1]]);
+    W.push(['extra memory','2 flags']);
+    a.watch(W); a.msg(st.msg);
+  }
+  Sim.make({ el:'#sz-sim', name:'Marks stored inside the matrix', steps:steps, play:620,
+    lines:'#szcode .st[data-l]', lineOf:function(st){ return st.l; },
+    tone:function(st){ return st.cond ? (st.cond.ok?'tr':'fl') : ''; },
+    group:function(st){ return st.l<=0 ? '' : st.l<=2 ? 'the two flags' : st.l<=4 ? 'leave marks' : st.l<=6 ? 'read marks' : 'first row & column'; },
+    render:render });
+})();
 /* ---------- YOUR TURN: ask before showing ----------
    The question comes first and the answer is one button away. It is never
    hidden from someone revising at home — the reveal is a prompt, not a gate. */
@@ -2353,72 +3411,6 @@ function jump(d){
   });
 })();
 
-/* ================= FOCUS MODE =================
-   For the projector. The widget is not duplicated — the whole .simbox is
-   physically moved into a full-screen overlay and moved back into its own
-   slot on close, so there is exactly one copy of every cell and every
-   handler, and nothing can drift out of sync. Everything on this page is
-   DOM rather than canvas, so it reflows on its own once the overlay is
-   wider; only the fixed cell sizes and the type are told to grow (see the
-   .fsbody rules in the stylesheet). */
-(function(){
-  var boxes=$$('.simbox'); if(!boxes.length) return;
-  var ov=el('div','fsov');
-  ov.id='fsov';
-  ov.setAttribute('role','dialog');
-  ov.setAttribute('aria-modal','true');
-  ov.innerHTML=
-    '<div class="fshd"><b id="fs-ttl"></b>'+
-      '<button class="fsx" id="fs-theme" type="button"></button>'+
-      '<button class="fsx" id="fs-x" type="button">Esc &#10005;</button></div>'+
-    '<div class="fsbody" id="fs-body"></div>'+
-    '<div class="fshint">'+
-      '<span><kbd>Esc</kbd> close</span>'+
-      '<span>the buttons work exactly as they do on the page</span>'+
-    '</div>';
-  document.body.appendChild(ov);
-
-  var body=$('#fs-body'), home=null, slot=null, node=null;
-
-  function open(id){
-    var box=$('#'+id); if(!box||node) return;
-    node=box; home=box.parentNode; slot=box.nextSibling;
-    $('#fs-ttl').textContent=box.dataset.title||'Simulator';
-    body.appendChild(box);
-    ov.classList.add('on'); document.body.classList.add('fsopen');
-    syncTheme();
-    $('#fs-x').focus();
-  }
-  function close(){
-    if(!node) return;
-    home.insertBefore(node,slot);          /* back into its own slot, not the end */
-    ov.classList.remove('on'); document.body.classList.remove('fsopen');
-    node=null; home=null; slot=null;
-  }
-  window.__fsClose=close;
-
-  /* one switch for the whole page: code panels and Focus mode together */
-  function syncTheme(){
-    var lightNow=document.body.classList.contains('codelight');
-    var b=$('#fs-theme'); if(b) b.textContent = lightNow ? '🌙 Dark code' : '☀ Light code';
-  }
-  window.__syncFsTheme=syncTheme;
-
-  $$('[data-focus]').forEach(function(b){
-    b.addEventListener('click',function(){ open(b.dataset.focus); });
-  });
-  $('#fs-x').addEventListener('click',close);
-  $('#fs-theme').addEventListener('click',function(){
-    document.body.classList.toggle('codelight');
-    try{ localStorage.setItem('dsa-code-theme',
-      document.body.classList.contains('codelight')?'light':'dark'); }catch(e){}
-    syncTheme();
-    if(window.__syncCodeTog) window.__syncCodeTog();
-  });
-  document.addEventListener('keydown',function(e){
-    if(e.key==='Escape' && node) close();
-  });
-})();
 
 /* ================= THE TAKEAWAY RAIL =================
    Each lesson card carries one sentence in data-key. As you reach a card the
@@ -2523,61 +3515,6 @@ function jump(d){
   show();
 })();
 
-/* ---------- n / b / r drive the simulator you are looking at ----------
-   Every widget here has its own buttons, so the keys are wired to the block
-   nearest the middle of the view — or the one in Focus — and that block says
-   so in its own button row. */
-(function(){
-  var BLOCKS=$$('.simbox').filter(function(s){ return $('[data-k="next"]',s); });
-  if(!BLOCKS.length) return;
-  BLOCKS.forEach(function(sim){
-    var rows=$$('.btnrow',sim);
-    var row=null;
-    for(var i=rows.length-1;i>=0;i--) if(rows[i].querySelector('[data-k]')) { row=rows[i]; break; }
-    if(!row) row=rows[rows.length-1];
-    if(!row) return;
-    var h=el('span','kbdhint','<kbd>n</kbd> next');
-    if($('[data-k="back"]',sim)) h.innerHTML+=' <kbd>b</kbd> back';
-    h.innerHTML+=' <kbd>r</kbd> reset';
-    row.appendChild(h);
-  });
-  var cur=null, tick=null;
-  function pick(){
-    var ov=document.querySelector('.fsov .simbox');
-    if(ov) return $('[data-k="next"]',ov)?ov:null;
-    var best=null, bd=1e9, mid=window.innerHeight/2;
-    BLOCKS.forEach(function(s){
-      var r=s.getBoundingClientRect();
-      if(r.bottom<70 || r.top>window.innerHeight-50) return;
-      var d=Math.abs((r.top+r.bottom)/2-mid);
-      if(d<bd){ bd=d; best=s; }
-    });
-    return best;
-  }
-  function mark(){
-    var s=pick();
-    if(s===cur) return;
-    if(cur) cur.classList.remove('kbdon');
-    cur=s; if(cur) cur.classList.add('kbdon');
-  }
-  window.addEventListener('scroll',function(){
-    if(tick) return;
-    tick=setTimeout(function(){ tick=null; mark(); },120);
-  },{passive:true});
-  window.addEventListener('resize',mark);
-  document.addEventListener('keydown',function(e){
-    if(e.metaKey||e.ctrlKey||e.altKey) return;
-    var fe=document.activeElement, t=(e.target&&e.target.tagName)||'';
-    var ft=(fe&&fe.tagName)||'';
-    if(/^(INPUT|SELECT|TEXTAREA)$/.test(t)||/^(INPUT|SELECT|TEXTAREA)$/.test(ft)) return;
-    var k=e.key.toLowerCase();
-    if(k!=='n'&&k!=='b'&&k!=='r') return;
-    mark(); var s=pick(); if(!s) return;
-    var btn=$('[data-k="'+(k==='n'?'next':k==='b'?'back':'reset')+'"]',s);
-    if(btn && !btn.disabled){ e.preventDefault(); btn.click(); }
-  });
-  mark();
-})();
 document.addEventListener('keydown',function(e){
   if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
   if(e.key==='j'||e.key==='ArrowDown'){e.preventDefault();jump(1);}
@@ -2591,7 +3528,7 @@ document.addEventListener('keydown',function(e){
   var CLASSES=[
     ['1','Linear arrays & memory','01-linear-arrays.html'],
     ['2','Operations on an array','02-array-operations.html'],
-    ['3','2D arrays, matrices & sparse','03-2d-arrays.html'],
+    ['3','Multidimensional arrays & sparse','03-2d-arrays.html'],
     ['4','Strings & pattern matching','04-strings.html']
   ];
   var here=(location.pathname.split('/').pop()||'');
@@ -2638,8 +3575,8 @@ document.addEventListener('keydown',function(e){
     document.body.style.overflow = v?'hidden':'';
   }
   fab.querySelector('.fmenu').onclick=function(){open(!dr.classList.contains('on'));};
-  fab.querySelector('.fup').onclick=function(){jump(-1);};
-  fab.querySelector('.fdn').onclick=function(){jump(1);};
+  fab.querySelector('.fup').onclick=function(){window.cardJump(-1);};
+  fab.querySelector('.fdn').onclick=function(){window.cardJump(1);};
   dr.querySelector('.dx').onclick=function(){open(false);};
   scrim.onclick=function(){open(false);};
   dr.addEventListener('click',function(e){
