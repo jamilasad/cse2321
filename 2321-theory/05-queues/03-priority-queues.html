@@ -1,0 +1,3309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Priority Queues — CSE-2321 Segment 5, Class 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/sim.css?v=3">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --mono:'Fira Code',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  --bn:'Noto Serif Bengali','Kalpurush','SolaimanLipi','Nirmala UI',serif;
+  --bg:#f1f5f9; --panel:#ffffff; --ink:#1e293b; --ink-soft:#475569; --ink-mute:#64748b;
+  --line:#e2e8f0; --line-strong:#cbd5e1; --dark:#0f172a; --dark-2:#1e293b;
+  --accent:#4f46e5;
+  --r:1rem; --r-sm:.6rem;
+  --sh-sm:0 1px 2px rgba(15,23,42,.06),0 1px 3px rgba(15,23,42,.04);
+  --sh-md:0 4px 6px -1px rgba(15,23,42,.07),0 2px 4px -2px rgba(15,23,42,.05);
+  --sh-lg:0 12px 28px -8px rgba(15,23,42,.18);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
+body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.65;font-size:16px;
+     -webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3,h4{line-height:1.25;margin:0}
+p{margin:0 0 1rem}
+p:last-child{margin-bottom:0}
+a{color:var(--accent)}
+.mono{font-family:var(--mono)}
+.bn{font-family:var(--bn);line-height:1.95;font-size:1.02rem}
+.wrap{max-width:1080px;margin:0 auto;padding:0 1rem}
+@media(min-width:768px){ .wrap{padding:0 1.75rem} body{font-size:16.5px} }
+
+/* ============ HEADER + TABS ============ */
+.topbar{position:sticky;top:0;z-index:60;background:rgba(15,23,42,.97);backdrop-filter:blur(10px);
+        border-bottom:1px solid #334155;color:#e2e8f0}
+.topbar-in{max-width:1080px;margin:0 auto;padding:.6rem 1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+@media(min-width:768px){.topbar-in{padding:.7rem 1.75rem}}
+.brand{display:flex;align-items:center;gap:.6rem;min-width:0}
+.brand-badge{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#6366f1,#8b5cf6);
+             display:grid;place-items:center;font-weight:900;font-size:.8rem;color:#fff;flex:0 0 auto}
+.brand-t{font-size:.78rem;font-weight:800;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand-s{font-size:.66rem;color:#94a3b8;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.tabs{display:flex;gap:.3rem;margin-left:auto;overflow-x:auto;scrollbar-width:none;padding:2px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{appearance:none;border:1px solid transparent;background:transparent;color:#94a3b8;font-family:inherit;
+     font-size:.78rem;font-weight:700;padding:.42rem .85rem;border-radius:.5rem;cursor:pointer;white-space:nowrap;
+     transition:background .15s,color .15s}
+.tab:hover{color:#e2e8f0;background:#1e293b}
+.tab[aria-selected="true"]{background:#e2e8f0;color:#0f172a}
+.tab:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px solid #818cf8;outline-offset:2px}
+.panel[hidden]{display:none}
+
+/* progress rail */
+.rail{height:3px;background:#1e293b;position:relative;overflow:hidden}
+.rail>i{position:absolute;inset:0 100% 0 0;background:linear-gradient(90deg,#6366f1,#22d3ee);transition:right .1s linear}
+
+/* ============ HERO ============ */
+.hero{background:linear-gradient(160deg,#0f172a 0%,#1e1b4b 55%,#312e81 100%);color:#e2e8f0;
+      padding:3rem 0 3.4rem;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;width:520px;height:520px;right:-180px;top:-200px;border-radius:50%;
+             background:radial-gradient(circle,rgba(99,102,241,.32),transparent 68%)}
+.hero .wrap{position:relative;z-index:1}
+.eyebrow{font-size:.68rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#a5b4fc;margin-bottom:.9rem}
+.hero h1{font-size:clamp(1.85rem,6.4vw,3.4rem);font-weight:900;letter-spacing:-.025em;margin-bottom:1rem}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,#818cf8,#22d3ee);-webkit-background-clip:text;
+            background-clip:text;color:transparent}
+.hero-lede{font-size:clamp(1rem,2.5vw,1.15rem);color:#cbd5e1}
+.arc{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1.6rem}
+.arc span{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:.4rem .7rem;
+          border-radius:999px;border:1px solid rgba(148,163,184,.35);color:#cbd5e1;background:rgba(15,23,42,.4)}
+.arc span b{color:#fff}
+.hero-meta{display:flex;flex-wrap:wrap;gap:1.4rem;margin-top:1.8rem;font-size:.8rem;color:#94a3b8}
+.hero-meta b{color:#e2e8f0;display:block;font-size:1.05rem;font-weight:800}
+
+/* ============ CARDS ============ */
+main{padding:2.6rem 0 4rem}
+.card{background:var(--panel);border-radius:var(--r);box-shadow:var(--sh-md);padding:1.5rem 1.25rem;
+      margin-bottom:2.6rem;position:relative;border-top:4px solid var(--accent)}
+@media(min-width:768px){.card{padding:2rem 2.25rem}}
+.card>.badge{position:absolute;top:-1.15rem;left:1.25rem;width:2.4rem;height:2.4rem;border-radius:50%;
+             background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:900;font-size:1rem;
+             border:4px solid var(--bg);z-index:2}
+@media(min-width:768px){.card>.badge{left:2rem}}
+.card.numbered{padding-top:2.1rem}
+@media(min-width:768px){.card.numbered{padding-top:2.4rem}}
+.kicker{font-size:.66rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:.45rem}
+.card h2{font-size:clamp(1.2rem,3.6vw,1.7rem);font-weight:800;letter-spacing:-.015em;margin-bottom:.35rem}
+.card h3{font-size:1.02rem;font-weight:800;margin:1.5rem 0 .5rem}
+.subtle{color:var(--ink-mute);font-size:.85rem;font-weight:600}
+.timechip{display:inline-flex;align-items:center;gap:.35rem;font-size:.68rem;font-weight:800;letter-spacing:.05em;
+          padding:.24rem .6rem;border-radius:999px;background:#f1f5f9;color:var(--ink-mute);border:1px solid var(--line)}
+.hdr-row{display:flex;align-items:flex-start;gap:1rem;flex-wrap:wrap;justify-content:space-between;margin-bottom:1.1rem}
+
+/* ============ DARK "SO WHAT" PANEL ============ */
+.bridge{background:linear-gradient(135deg,#0f172a,#1e293b);border-left:5px solid var(--accent);
+        border-radius:.85rem;padding:1.25rem 1.1rem;color:#cbd5e1;margin:1.4rem 0;box-shadow:var(--sh-md)}
+@media(min-width:768px){.bridge{padding:1.5rem 1.6rem}}
+.bridge .lbl{font-size:.64rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#818cf8;margin-bottom:.5rem}
+.bridge p{margin-bottom:.7rem}
+.bridge strong,.bridge b{color:#fff}
+.bridge .say{font-size:clamp(1.02rem,2.9vw,1.28rem);font-weight:800;color:#fff;line-height:1.45}
+
+/* ============ GENERIC BOXES ============ */
+.box{background:#f8fafc;border:1px solid var(--line);border-radius:.8rem;padding:1rem 1.1rem;margin:1rem 0}
+.box.warn{background:#fffbeb;border-color:#fde68a}
+.box.bad{background:#fff1f2;border-color:#fecdd3}
+.box.good{background:#f0fdf4;border-color:#bbf7d0}
+.box.info{background:#eff6ff;border-color:#bfdbfe}
+.box .bt{font-weight:800;font-size:.8rem;letter-spacing:.02em;margin-bottom:.35rem;display:flex;align-items:center;gap:.4rem}
+.box.warn .bt{color:#b45309}.box.bad .bt{color:#be123c}.box.good .bt{color:#15803d}.box.info .bt{color:#1d4ed8}
+.box p{font-size:.9rem;margin-bottom:.5rem}
+.grid2{display:grid;gap:1rem}
+@media(min-width:720px){.grid2{grid-template-columns:1fr 1fr}}
+.grid3{display:grid;gap:.8rem}
+@media(min-width:720px){.grid3{grid-template-columns:repeat(3,1fr)}}
+
+/* ============ TABLES ============ */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:1.1rem 0;border:1px solid var(--line);border-radius:.8rem;background:#fff}
+table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:520px}
+th{background:#f8fafc;text-align:left;font-weight:800;font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;
+   color:var(--ink-mute);padding:.65rem .85rem;border-bottom:1px solid var(--line)}
+td{padding:.7rem .85rem;border-bottom:1px solid #f1f5f9;vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.num{font-family:var(--mono);font-weight:600;white-space:nowrap}
+.hl-bad{color:#be123c;font-weight:800}
+.hl-good{color:#15803d;font-weight:800}
+
+/* ============ CODE ============ */
+pre.code{font-family:var(--mono);font-size:.78rem;line-height:1.75;background:#0f172a;color:#e2e8f0;
+         padding:1rem;border-radius:.7rem;overflow-x:auto;margin:.8rem 0}
+@media(min-width:768px){pre.code{font-size:.83rem}}
+.k{color:#c4b5fd}.t{color:#fcd34d}.f{color:#7dd3fc}.n{color:#fdba74}.c{color:#64748b;font-style:italic}.s{color:#86efac}
+
+/* ============ BUTTONS ============ */
+.btn{appearance:none;font-family:inherit;font-weight:800;font-size:.82rem;padding:.6rem 1.15rem;border-radius:.55rem;
+     cursor:pointer;border:2px solid transparent;background:var(--accent);color:#fff;box-shadow:var(--sh-sm);
+     transition:filter .15s,transform .1s}
+.btn:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn.ghost{background:#fff;color:var(--ink-soft);border:2px solid var(--line)}
+.btn.ghost:hover:not(:disabled){border-color:var(--line-strong);color:var(--ink)}
+.btn.sm{font-size:.74rem;padding:.42rem .8rem}
+.btnrow{display:flex;flex-wrap:wrap;gap:.5rem;margin:.9rem 0}
+
+/* ============ QUIZ ============ */
+.quiz{border:2px solid #e2e8f0;border-radius:.85rem;overflow:hidden;margin:1.3rem 0;background:#fff}
+.quiz .qh{background:#f8fafc;padding:.75rem 1rem;font-size:.66rem;font-weight:800;letter-spacing:.12em;
+          text-transform:uppercase;color:var(--ink-mute);border-bottom:1px solid var(--line)}
+.quiz .qq{padding:1rem;font-weight:700;font-size:.95rem}
+.qopts{display:grid;gap:.45rem;padding:0 1rem 1rem}
+.qopt{appearance:none;text-align:left;font-family:inherit;font-size:.87rem;font-weight:600;padding:.65rem .85rem;
+      border:2px solid var(--line);border-radius:.55rem;background:#fff;color:var(--ink-soft);cursor:pointer;transition:.15s}
+.qopt:hover:not(:disabled){border-color:var(--line-strong);background:#f8fafc}
+.qopt.ok{border-color:#22c55e;background:#f0fdf4;color:#15803d}
+.qopt.no{border-color:#f43f5e;background:#fff1f2;color:#be123c}
+.qopt:disabled{cursor:default}
+.qexp{display:none;padding:1rem;background:#0f172a;color:#cbd5e1;font-size:.87rem;border-top:1px solid var(--line)}
+.qexp.show{display:block}
+.qexp b{color:#fff}
+
+/* ============ MISC ============ */
+.shot{border-radius:.7rem;border:1px solid var(--line);max-width:100%;height:auto;display:block;box-shadow:var(--sh-md)}
+figure{margin:1rem 0}
+figcaption{font-size:.74rem;color:var(--ink-mute);margin-top:.5rem;font-weight:600}
+details{border:1px solid var(--line);border-radius:.6rem;background:#fff;margin:.7rem 0;overflow:hidden}
+details>summary{cursor:pointer;padding:.75rem 1rem;font-weight:700;font-size:.87rem;background:#f8fafc;list-style:none;
+                display:flex;align-items:center;gap:.5rem}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"+";font-family:var(--mono);font-weight:700;color:var(--accent);width:1rem}
+details[open]>summary::before{content:"–"}
+details>div{padding:1rem;border-top:1px solid var(--line);font-size:.88rem}
+ul.tight,ol.tight{margin:.6rem 0;padding-left:1.3rem}
+ul.tight li,ol.tight li{margin-bottom:.4rem;font-size:.9rem}
+.note13{background:linear-gradient(135deg,#fef3c7,#fde68a);border:2px solid #f59e0b;border-radius:.85rem;
+        padding:1.1rem;margin:1.3rem 0;display:flex;gap:.9rem;align-items:flex-start}
+.note13 .ic{font-size:1.5rem;line-height:1;flex:0 0 auto}
+.note13 b{color:#92400e}
+.note13 p{font-size:.88rem;color:#78350f;margin:0}
+.sec-nav{position:fixed;right:.6rem;bottom:.6rem;z-index:50;display:flex;gap:.35rem;background:rgba(15,23,42,.94);
+         padding:.35rem;border-radius:.6rem;box-shadow:var(--sh-lg)}
+.sec-nav button{appearance:none;border:none;background:transparent;color:#94a3b8;font-size:1rem;cursor:pointer;
+                padding:.3rem .5rem;border-radius:.35rem;line-height:1}
+.sec-nav button:hover{background:#334155;color:#fff}
+@media print{.topbar,.sec-nav{display:none}.card{break-inside:avoid;box-shadow:none;border:1px solid #ccc}}
+
+/* ============ SHARED BYLINE (all pages) ============ */
+.byline{display:flex;align-items:center;gap:.75rem;margin-top:1.9rem;padding-top:1.15rem;
+        border-top:1px solid rgba(148,163,184,.22)}
+.byline .av{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.11);
+            border:1px solid rgba(148,163,184,.3);display:grid;place-items:center;
+            font-weight:800;font-size:.7rem;color:#fff;letter-spacing:.03em;flex:0 0 auto}
+.byline .who{font-size:.82rem;font-weight:700;color:#e2e8f0;line-height:1.4;min-width:0}
+.byline .who span{display:block;font-size:.7rem;font-weight:500;color:#94a3b8}
+.pagefoot{border-top:1px solid var(--line);background:#fff;padding:1.7rem 0 2.2rem;margin-top:2rem}
+.pagefoot .fin{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;justify-content:space-between}
+.pagefoot .fw{display:flex;align-items:center;gap:.7rem}
+.pagefoot .av{width:34px;height:34px;border-radius:50%;background:#0f172a;color:#fff;display:grid;
+              place-items:center;font-weight:800;font-size:.68rem;flex:0 0 auto}
+.pagefoot .nm{font-size:.8rem;font-weight:700;color:var(--ink);line-height:1.4}
+.pagefoot .nm span{display:block;font-size:.7rem;font-weight:500;color:var(--ink-mute)}
+.pagefoot .dept{font-size:.72rem;color:var(--ink-mute);font-weight:600}
+.pagefoot a{color:var(--ink-mute);text-decoration:none;font-weight:700}
+.pagefoot a:hover{color:var(--accent)}
+
+
+/* ============ PREV / INDEX / NEXT ============ */
+.pagenav{display:grid;gap:.6rem;margin:2.6rem 0 0}
+@media(min-width:700px){.pagenav{grid-template-columns:1fr auto 1fr;align-items:stretch}}
+.pgn{display:flex;align-items:center;gap:.75rem;border:1px solid var(--line);border-radius:.75rem;padding:.85rem 1rem;
+    background:#fff;text-decoration:none;color:inherit;transition:.16s;box-shadow:var(--sh-sm);min-height:64px}
+a.pn:hover{border-color:var(--accent);box-shadow:var(--sh-md);transform:translateY(-2px)}
+.pgn.off{opacity:.4;pointer-events:none;border-style:dashed;background:transparent;box-shadow:none}
+.pgn .ar{font-size:1.1rem;color:var(--accent);flex:0 0 auto;font-weight:700}
+.pgn.off .ar{color:#cbd5e1}
+.pgn .tx{min-width:0;flex:1}
+.pgn .tx em{font-style:normal;display:block;font-size:.6rem;font-weight:800;letter-spacing:.11em;
+           text-transform:uppercase;color:var(--ink-mute)}
+.pgn .tx b{display:block;font-size:.86rem;font-weight:700;line-height:1.35;margin-top:.12rem}
+.pgn.nx{text-align:right}
+.pgn.nx .ar{order:2}
+.pgn.nx .tx{order:1}
+.pgn.home{justify-content:center;text-align:center;flex-direction:column;gap:.2rem;padding:.85rem 1.4rem;min-width:120px}
+.pgn.home .ar{font-size:1.2rem;color:var(--ink-mute)}
+.pgn.home b{font-size:.76rem}
+
+/* ============ RESPONSIVE HARDENING ============ */
+img,svg,video,canvas{max-width:100%;height:auto}
+pre,code,.mono{overflow-wrap:break-word}
+pre.code{white-space:pre;word-break:normal}
+table{min-width:0}
+.tw table{min-width:480px}
+@media(max-width:420px){
+  .wrap{padding:0 .8rem}
+  .card{padding:1.15rem .9rem;border-radius:.8rem}
+  .card.numbered{padding-top:1.9rem}
+  .card>.badge{left:.9rem;width:2.1rem;height:2.1rem;font-size:.85rem}
+  .box{padding:.8rem .85rem}
+  .bridge{padding:1rem .9rem}
+  pre.code{font-size:.7rem;padding:.8rem .7rem}
+  .hero{padding:2.2rem 0 2.4rem}
+  .timechip{display:none}
+  .hdr-row{gap:.4rem}
+}
+@media(max-width:340px){ .bit{width:30px} .byte{width:26px;height:26px;line-height:26px} }
+
+/* footer + pagenav centring */
+.pagenav{margin:2.6rem auto 0 !important}
+.pagefoot .fin{justify-content:center;text-align:center}
+@media(min-width:700px){.pagefoot .fin{justify-content:space-between;text-align:left}}
+.pagefoot .dept{text-align:center}
+@media(min-width:700px){.pagefoot .dept{text-align:right}}
+@media(max-width:699px){
+  .pagenav{grid-template-columns:1fr}
+  .pgn{justify-content:flex-start}
+  .pgn.nx{text-align:left}
+  .pgn.nx .ar{order:0}.pgn.nx .tx{order:1}
+  .pgn.home{flex-direction:row;justify-content:center;gap:.5rem}
+}
+
+/* ============ FLOATING JUMP DRAWER ============ */
+.fab{position:fixed;right:.7rem;bottom:.7rem;z-index:90;display:flex;flex-direction:column;gap:.4rem}
+.fab button{width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;display:grid;place-items:center;
+            font-size:1.05rem;box-shadow:var(--sh-lg);transition:transform .15s,filter .15s;font-family:inherit}
+.fab button:hover{transform:scale(1.07)}
+.fab .fmenu{background:var(--acc,#4f46e5);color:#fff;font-size:1.15rem}
+.fab .fup,.fab .fdn{background:rgba(15,23,42,.92);color:#e2e8f0;width:38px;height:38px;font-size:.9rem;margin:0 3px}
+@media(max-width:520px){.fab .fup,.fab .fdn{display:none}}
+
+.scrim{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:95;opacity:0;pointer-events:none;transition:opacity .22s}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;right:0;top:0;bottom:0;width:min(340px,86vw);background:#fff;z-index:96;
+        box-shadow:-8px 0 30px rgba(15,23,42,.22);transform:translateX(105%);transition:transform .26s cubic-bezier(.4,0,.2,1);
+        display:flex;flex-direction:column;overflow:hidden}
+.drawer.on{transform:none}
+.drawer .dh{background:linear-gradient(140deg,var(--h1,#0f172a),var(--h3,#312e81));color:#fff;padding:1.05rem 1.1rem;flex:0 0 auto}
+.drawer .dh p{font-size:.6rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:#a5b4fc;margin:0 0 .2rem}
+.drawer .dh b{font-size:1rem;font-weight:800;display:block;line-height:1.3}
+.drawer .dx{position:absolute;right:.7rem;top:.7rem;background:rgba(255,255,255,.14);border:none;color:#fff;
+            width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem;line-height:1}
+.drawer .db{overflow-y:auto;padding:.85rem;flex:1}
+.drawer .grp{font-size:.6rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);
+             margin:.9rem .2rem .45rem;display:flex;align-items:center;gap:.45rem}
+.drawer .grp:first-child{margin-top:0}
+.drawer .grp span{height:1px;background:var(--line);flex:1}
+.drawer a.dl,.drawer button.dl{display:flex;align-items:center;gap:.55rem;width:100%;text-align:left;font-family:inherit;
+     border:1px solid var(--line);background:#fff;border-radius:.55rem;padding:.55rem .7rem;margin-bottom:.3rem;
+     text-decoration:none;color:var(--ink-soft);font-size:.82rem;font-weight:600;cursor:pointer;transition:.14s;line-height:1.4}
+.drawer a.dl:hover,.drawer button.dl:hover{border-color:var(--acc,#4f46e5);color:var(--ink);transform:translateX(2px)}
+.drawer a.dl.here{background:#eef2ff;border-color:#4f46e5;color:#3730a3;font-weight:800}
+.drawer .dn2{font-family:var(--mono);font-size:.62rem;font-weight:700;color:#fff;background:#94a3b8;border-radius:.28rem;
+             padding:.15rem .35rem;flex:0 0 auto;min-width:1.5rem;text-align:center}
+.drawer a.dl.here .dn2{background:#4f46e5}
+.drawer .home2{background:var(--h1,#0f172a);color:#fff;border-color:var(--h1,#0f172a);justify-content:center;font-weight:800}
+.drawer .home2:hover{color:#fff;filter:brightness(1.2)}
+.drawer .dsec{font-size:.78rem;padding:.42rem .7rem}
+.drawer .dsec .dn2{background:#e2e8f0;color:#64748b}
+
+/* ---- copy bar ---- */
+.copybar{display:grid;gap:.35rem;margin:1rem 0 .5rem}
+.cprow{display:flex;justify-content:space-between;gap:.8rem;border:1px solid var(--line);border-radius:.45rem;
+       background:#fff;padding:.45rem .7rem}
+.cpl{font-size:.78rem;color:var(--ink-mute);font-weight:700}
+.cpv{font-weight:700;font-size:.95rem;text-align:right;word-break:break-all;max-width:62%}
+
+.arc span{white-space:nowrap}
+.hero-meta div{white-space:nowrap}
+@media(max-width:520px){.hero-meta div{white-space:normal}}
+
+/* ============ DIG DEEPER — richer look (all pages) ============ */
+.digwrap{margin:1.5rem 0}
+.dighead{display:flex;align-items:center;gap:.55rem;font-size:.64rem;font-weight:800;letter-spacing:.14em;
+         text-transform:uppercase;color:var(--ink-mute);margin-bottom:.7rem}
+.dighead::before{content:"";width:16px;height:16px;border-radius:5px;flex:0 0 auto;
+  background:linear-gradient(135deg,var(--accent,#4f46e5),color-mix(in srgb,var(--accent,#4f46e5) 45%,#fff))}
+.dighead span{height:1px;background:linear-gradient(90deg,var(--line),transparent);flex:1}
+
+details.dig{border:1px solid var(--line);border-radius:.75rem;background:#fff;margin-bottom:.55rem;
+            overflow:hidden;position:relative;transition:border-color .2s,box-shadow .2s,transform .2s}
+details.dig::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,var(--accent,#4f46e5),transparent);opacity:0;transition:opacity .25s}
+details.dig:hover{border-color:var(--line-strong);transform:translateX(2px)}
+details.dig[open]{border-color:color-mix(in srgb,var(--accent,#4f46e5) 40%,var(--line));
+                  box-shadow:0 6px 20px -10px color-mix(in srgb,var(--accent,#4f46e5) 60%,transparent)}
+details.dig[open]::before{opacity:1}
+
+details.dig>summary{cursor:pointer;padding:.8rem 2.5rem .8rem 4.05rem;font-weight:700;font-size:.87rem;
+  list-style:none;display:block;color:var(--ink);position:relative;
+  background:linear-gradient(180deg,#fff,#fafbfd);transition:background .18s;line-height:1.45}
+details.dig>summary::-webkit-details-marker{display:none}
+details.dig>summary:hover{background:#f5f8fc}
+details.dig>summary::before{position:absolute;left:1rem;top:.78rem;text-align:center;line-height:1.45}
+details.dig>summary .dicon{position:absolute;left:2.15rem;top:.72rem;
+  width:26px;height:26px;border-radius:8px;display:grid;place-items:center;
+  font-size:.78rem;font-weight:800;color:#fff;
+  background:linear-gradient(135deg,var(--accent,#4f46e5),color-mix(in srgb,var(--accent,#4f46e5) 60%,#000));
+  box-shadow:0 2px 6px -1px color-mix(in srgb,var(--accent,#4f46e5) 70%,transparent);transition:transform .25s}
+details.dig[open]>summary .dicon{transform:rotate(-8deg) scale(1.06)}
+details.dig>summary::after{content:"";position:absolute;right:1rem;top:50%;width:9px;height:9px;
+  border-right:2.4px solid var(--accent,#4f46e5);border-bottom:2.4px solid var(--accent,#4f46e5);
+  transform:translateY(-70%) rotate(45deg);transition:transform .25s;opacity:.75}
+details.dig[open]>summary::after{transform:translateY(-30%) rotate(225deg)}
+details.dig[open]>summary{border-bottom:1px solid color-mix(in srgb,var(--accent,#4f46e5) 22%,var(--line))}
+details.dig>div{padding:1rem 1.1rem;font-size:.87rem;color:var(--ink-soft);line-height:1.75;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--accent,#4f46e5) 4%,#fff),#fff)}
+details.dig>div table{line-height:1.5}
+details.dig>div td,details.dig>div th{padding:.48rem .85rem}
+
+details.dig>div b{color:var(--ink)}
+details.dig>div b.hl-good,details.dig>div .hl-good{color:#15803d}
+details.dig>div b.hl-bad,details.dig>div .hl-bad{color:#be123c}
+
+/* ---- goals box ---- */
+.goals{border:2px solid #fecdd3;border-radius:.9rem;background:linear-gradient(180deg,#fff5f6,#fff);
+       padding:1.1rem 1.2rem;margin-bottom:2.2rem}
+.goals .gh{display:flex;align-items:center;gap:.6rem;margin:0 0 .9rem}
+.goals .gh i{font-style:normal;width:32px;height:32px;border-radius:9px;background:#e11d48;color:#fff;
+             display:grid;place-items:center;font-size:1rem;flex:0 0 auto}
+.goals .gh b{font-size:.95rem;font-weight:800;color:#9f1239}
+.goals ol{list-style:none;counter-reset:g;margin:0;padding:0;display:grid;gap:.55rem}
+.goals li{counter-increment:g;position:relative;padding-left:1.95rem;font-size:.9rem;
+  line-height:1.6;color:var(--ink-soft)}
+.goals li::before{content:counter(g);position:absolute;left:0;top:.14rem;
+  width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #fda4af;
+  color:#be123c;font-size:.7rem;font-weight:800;display:grid;place-items:center}
+.goals li b{color:var(--ink)}
+
+/* ============ LIGHT CODE THEME (default) + toggle ============ */
+body.codelight pre.code{
+  background:#f8fafc;color:#334155;border:1px solid #e2e8f0;box-shadow:inset 0 1px 0 #fff}
+body.codelight pre.code .k{color:#7c3aed}
+body.codelight pre.code .t{color:#b45309}
+body.codelight pre.code .f{color:#0369a1}
+body.codelight pre.code .n{color:#c2410c}
+body.codelight pre.code .c{color:#94a3b8}
+body.codelight pre.code .s{color:#15803d}
+
+.codetog{appearance:none;border:1px solid #334155;background:transparent;color:#94a3b8;border-radius:.45rem;
+         font-family:inherit;font-size:.68rem;font-weight:700;padding:.3rem .6rem;cursor:pointer;
+         white-space:nowrap;transition:.15s;flex:0 0 auto}
+.codetog:hover{color:#e2e8f0;border-color:#64748b}
+
+/* ---- the bar gets out of the way ----
+   Vertical space is the scarce thing in a lecture room, so the bar slides
+   away as you read down and comes back the moment you scroll up. It is
+   never hidden while a menu or an overlay is open. */
+.topbar{transition:transform .26s ease}
+.topbar.tucked{transform:translateY(-100%)}
+.prog{transition:transform .26s ease,top .26s ease,opacity .2s ease}
+body.tucked .prog{transform:translateY(-140%);opacity:0;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.topbar{transition:none}}
+/* ============ REVISION MODE ============
+   One switch that opens every hidden answer on the page at once, for someone
+   going back over the material rather than meeting it for the first time.
+   It is remembered, so a revision session stays open across pages. The
+   individual buttons are dimmed while it is on, because the switch is now in
+   charge of them. */
+body.revealall .ta,
+body.revealall .revealed,
+body.revealall .ova,
+body.revealall .qexp,
+body.revealall .ovs.hid{display:block!important}
+body.revealall .tbtn,
+body.revealall .ovbtn{opacity:.4;pointer-events:none}
+.revtog{appearance:none;border:1px solid #334155;background:transparent;color:#94a3b8;border-radius:.45rem;
+  font-family:inherit;font-size:.68rem;font-weight:700;padding:.3rem .6rem;cursor:pointer;
+  white-space:nowrap;transition:.15s;flex:0 0 auto}
+.revtog:hover{color:#e2e8f0;border-color:#64748b}
+.revtog.on{background:#6d28d9;border-color:#7c3aed;color:#fff}
+.revtog.solo{display:block;margin:0 0 1.2rem;border-color:var(--line);color:var(--ink-soft);background:#fff}
+.revtog.solo:hover{color:var(--ink);border-color:var(--line-strong)}
+.revtog.solo.on{background:#6d28d9;border-color:#7c3aed;color:#fff}
+
+/* ==================================================================
+   ADDED IN THE SEGMENT-2 REWORK
+   ================================================================== */
+
+/* ---- segment tags (used in the prose since day one, never styled here) ---- */
+.sgtag{font-size:.56rem;font-weight:800;letter-spacing:.05em;padding:.22rem .45rem;border-radius:.3rem;
+       background:var(--sc);color:#fff;white-space:nowrap;line-height:1.25;display:inline-block;
+       vertical-align:.08em}
+.sg1{--sc:#0ea5e9}.sg2{--sc:#0284c7}.sg3{--sc:#7c3aed}.sg4{--sc:#c2410c}.sg5{--sc:#0d9488}
+
+/* ---- YOUR TURN — the question first, the answer one button away ---- */
+.turn{border:1.5px solid #c4b5fd;border-radius:.9rem;margin:1.2rem 0;overflow:hidden;
+  background:linear-gradient(180deg,#faf8ff,#f6f3ff)}
+.turn .th{display:flex;align-items:center;gap:.5rem;padding:.7rem .95rem;
+  border-bottom:1.5px solid #ddd6fe;background:rgba(255,255,255,.6)}
+.turn .th b{font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#6d28d9}
+.turn .tq{padding:.85rem .95rem;font-size:.96rem;line-height:1.62;color:var(--ink)}
+.turn .tq p{margin:0 0 .6rem}
+.turn .tq p:last-child{margin:0}
+.turn .tq ul,.turn .tq ol{margin:.1rem 0 .7rem;padding-left:1.15rem}
+.turn .tq li{margin:.3rem 0}
+.turn .tbtn{appearance:none;font-family:inherit;font-size:.78rem;font-weight:800;
+  border:1.5px solid #a78bfa;background:#fff;color:#6d28d9;border-radius:.5rem;
+  padding:.42rem .85rem;cursor:pointer;margin:0 .95rem .95rem;transition:.15s}
+.turn .tbtn:hover{background:#f5f3ff;border-color:#7c3aed}
+.turn .ta{display:none;padding:0 .95rem .95rem;font-size:.94rem;line-height:1.62;color:var(--ink)}
+.turn .ta.on{display:block;animation:drop .3s ease}
+.turn .ta p{margin:0 0 .55rem}
+.turn .ta p:last-child{margin:0}
+.turn .ta .mono{background:#f5f3ff;border:1px solid #ddd6fe;border-radius:.25rem;
+  padding:.02rem .3rem;font-size:.94em;font-weight:600;color:#5b21b6}
+.turn .hint{font-size:.84rem;color:#7c3aed;font-weight:700}
+
+/* ---- A REAL PAST QUESTION, INSIDE THE LESSON ----------------------
+   The Exam tab is for revision. This is for the moment in the class when
+   the thing just taught IS the question — so it carries the exam's own
+   words, its own marks, and nothing else. */
+.pastq{border:1.5px solid #fecdd3;border-left:4px solid #e11d48;border-radius:.7rem;
+  background:linear-gradient(180deg,#fff7f8,#fff);padding:.9rem 1rem;margin:1.1rem 0}
+.pastq .pqh{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;margin:0 0 .55rem}
+.pastq .pqs{font-size:.58rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  background:#e11d48;color:#fff;border-radius:.3rem;padding:.16rem .45rem}
+.pastq .pqw{font-size:.68rem;font-weight:700;color:#9f1239}
+.pastq .pqm{margin-left:auto;font-family:var(--mono);font-size:.66rem;font-weight:800;color:#be123c;
+  background:#ffe4e6;border-radius:999px;padding:.14rem .55rem;white-space:nowrap}
+.pastq .pqt{margin:0;font-size:.93rem;line-height:1.68;color:#4c0519;font-style:italic}
+.pastq .pqt b{font-style:normal;color:#881337}
+
+/* ============ THE VERDICT — WHAT THIS COSTS ============
+   Same block as Segment 1 Class 5 and Segment 2 Class 1: the name in large
+   mono type, one or two lines on what it means as a count of operations, and
+   colour carrying the judgement.
+   --oc the ink and the rules   --ob the wash behind it */
+.bigo{display:flex;flex-wrap:wrap;align-items:center;gap:.55rem 1.2rem;
+  margin:1.25rem 0;padding:.9rem 1.15rem;border-radius:.85rem;
+  border:1.5px solid var(--oc,#94a3b8);border-left-width:6px;
+  background:linear-gradient(100deg,var(--ob,#f8fafc),#fff 66%);
+  box-shadow:0 12px 28px -22px rgba(15,23,42,.65)}
+.bigo .bopair{flex:0 0 auto}
+.bigo .bok{margin:0;font-size:.55rem;font-weight:800;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--oc,#64748b);opacity:.85}
+.bigo .bov{margin:.05rem 0 0;font-family:var(--mono);font-weight:800;line-height:1.02;
+  font-size:clamp(1.65rem,5.6vw,2.35rem);color:var(--oc,#0f172a);white-space:nowrap;
+  font-variant-numeric:tabular-nums}
+.bigo .bod{flex:1 1 15rem;min-width:0;margin:0;font-size:.91rem;line-height:1.62;color:var(--ink-soft)}
+.bigo .bod b{color:var(--ink)}
+.bigo .bopair + .bopair{border-left:1px solid var(--line);padding-left:1.2rem}
+@media(max-width:520px){
+  .bigo{padding:.8rem .9rem;gap:.45rem .9rem}
+  .bigo .bopair + .bopair{border-left:0;padding-left:0}
+  .bigo .bod{flex-basis:100%}
+}
+
+/* ---- THE TAKEAWAY RAIL -------------------------------------------
+   One sentence per section, added as the section is reached — forward
+   only, so it records what has been said rather than previewing it. */
+.keyrail{position:fixed;right:1rem;top:5.6rem;bottom:9.6rem;width:280px;z-index:40;
+  display:none;flex-direction:column;pointer-events:none}
+@media(min-width:1680px){.keyrail{display:flex}}
+.keyrail.hid .kbody{display:none}
+.krhd{pointer-events:auto;display:flex;align-items:center;gap:.55rem;align-self:flex-end;
+  background:linear-gradient(180deg,#fff,#fbfcff);border:1px solid #dfe3f2;border-radius:.7rem;
+  padding:.42rem .7rem;box-shadow:0 10px 26px -18px rgba(30,27,75,.55);cursor:pointer;transition:.15s}
+.krhd:hover{border-color:#7dd3fc;box-shadow:0 12px 30px -18px rgba(2,132,199,.6)}
+.krhd .kt{font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#7b8199}
+.krhd .kn{font-family:var(--mono);font-size:.66rem;font-weight:800;color:#fff;
+  background:linear-gradient(135deg,#0284c7,#38bdf8);border-radius:.35rem;padding:.06rem .38rem}
+.krhd .kv{color:#b4bcd8;font-size:.66rem;transition:transform .22s}
+.keyrail.hid .krhd .kv{transform:rotate(-90deg)}
+.kbody{pointer-events:auto;margin-top:.5rem;overflow-y:auto;display:flex;flex-direction:column;gap:.45rem;
+  padding:.2rem .2rem .5rem;scrollbar-width:thin;mask-image:linear-gradient(180deg,transparent 0,#000 12px)}
+.kitem{position:relative;background:#fff;border:1px solid #e6e9f7;border-radius:.6rem;
+  padding:.6rem .75rem .6rem 2.5rem;font-size:.82rem;line-height:1.5;color:#4c5480;
+  box-shadow:0 10px 24px -20px rgba(30,27,75,.6);
+  animation:kin .38s cubic-bezier(.32,1.1,.4,1) both}
+.kitem b{color:#0f172a;font-weight:700}
+.kitem .kx{position:absolute;left:.6rem;top:.62rem;width:1.45rem;height:1.45rem;border-radius:.35rem;
+  display:grid;place-items:center;font-family:var(--mono);font-size:.62rem;font-weight:800;
+  background:#e0f2fe;color:#0369a1;letter-spacing:0}
+.kitem.new{border-color:#7dd3fc;box-shadow:0 12px 28px -18px rgba(2,132,199,.6)}
+.kitem.new .kx{background:linear-gradient(135deg,#0284c7,#38bdf8);color:#fff}
+.kitem .mono{background:#f0f9ff;border:1px solid #e0f2fe;border-radius:.25rem;
+  padding:.02rem .26rem;font-size:.94em;font-weight:600;color:#075985}
+@keyframes kin{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.kitem{animation:none}}
+body.fsopen .keyrail{display:none}          /* never over a projected screen */
+body.onexam .keyrail{display:none}          /* nor over the exam tab, which has no keys */
+
+
+
+/* ---- quiz progress: the ribbon, the chip in the tabs, and the reset ------
+   The answers are remembered, so a student who comes back to revise sees
+   which checks they have already done rather than a blank page. */
+.prog{position:sticky;top:calc(var(--barh,52px) + .5rem);z-index:40;display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;
+      border:1px solid #e8ebfa;border-radius:.7rem;background:rgba(255,255,255,.94);backdrop-filter:blur(6px);
+      padding:.55rem .8rem;margin:0 0 1.6rem;box-shadow:0 8px 22px -18px rgba(30,27,75,.5)}
+.prog .pk{font-size:.55rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#b4bcd8}
+.prog .pbar{flex:1;min-width:120px;height:8px;border-radius:99px;background:#e0f2fe;overflow:hidden}
+.prog .pbar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#38bdf8,#0284c7);
+              transition:width .5s cubic-bezier(.32,1.1,.4,1)}
+.prog .pn{font-family:var(--mono);font-size:.78rem;font-weight:800;color:#0369a1}
+.prog button{appearance:none;font-family:inherit;font-size:.68rem;font-weight:700;padding:.28rem .6rem;
+             border-radius:.4rem;border:1px solid var(--line);background:#fff;color:var(--ink-mute);cursor:pointer}
+.prog button:hover{border-color:#0284c7;color:#0369a1}
+@media(max-width:700px){.prog{position:static;backdrop-filter:none;background:#fff}}
+.qchip{display:inline-flex;align-items:center;gap:.34rem;border:1px solid #334155;background:transparent;
+   color:#94a3b8;border-radius:.45rem;font-family:inherit;font-size:.68rem;font-weight:700;
+   padding:.3rem .6rem;white-space:nowrap;flex:0 0 auto}
+.qchip i{width:7px;height:7px;border-radius:50%;background:#0284c7;display:block;flex:0 0 auto}
+.qchip b{font-family:var(--mono);color:#e2e8f0}
+
+/* ---- what the exams actually asked, as a compact table ---- */
+.freqt{display:grid;gap:.4rem;margin:1rem 0}
+.freqr{display:grid;grid-template-columns:1fr auto;gap:.4rem .8rem;align-items:center;
+  border:1px solid var(--line);border-radius:.55rem;background:#fff;padding:.55rem .75rem}
+.freqr.top{border-color:#fda4af;background:#fff7f8}
+.freqr .fqn{font-size:.87rem;font-weight:700;color:var(--ink);line-height:1.45}
+.freqr .fqc{font-family:var(--mono);font-size:.7rem;font-weight:800;white-space:nowrap;
+  background:#f1f5f9;color:#475569;border-radius:999px;padding:.16rem .55rem}
+.freqr.top .fqc{background:#ffe4e6;color:#be123c}
+.freqr .fqw{grid-column:1/-1;font-size:.74rem;color:var(--ink-mute);line-height:1.5;
+  border-top:1px dashed var(--line);padding-top:.35rem}
+
+
+
+/* ==================================================================
+   SEGMENT 5 · PRIORITY QUEUES
+   Every class name below starts prq. The short .pq* names are already
+   taken by the past-question card (.pastq .pqh/.pqs/.pqw/.pqm/.pqt).
+   ================================================================== */
+
+/* ---- one colour per passenger class, everywhere on the page ---- */
+:root{
+  --c1:#b45309; --c1b:#fef3c7;   /* 1 · VVIP   */
+  --c2:#7c3aed; --c2b:#ede9fe;   /* 2 · CIP    */
+  --c3:#0f766e; --c3b:#ccfbf1;   /* 3 · VIP    */
+  --c4:#1d4ed8; --c4b:#dbeafe;   /* 4 · Normal */
+}
+.k1{--rc:var(--c1);--rb:var(--c1b)} .k2{--rc:var(--c2);--rb:var(--c2b)}
+.k3{--rc:var(--c3);--rb:var(--c3b)} .k4{--rc:var(--c4);--rb:var(--c4b)}
+.k0{--rc:#475569;--rb:#f1f5f9}   /* a plain Queue object, no class */
+
+/* code inside a sentence */
+.prqx{font-family:var(--mono);font-size:.84em;font-weight:600;background:#eef2ff;color:#3730a3;
+  border:1px solid #e0e7ff;border-radius:.3rem;padding:.04rem .32rem;white-space:nowrap}
+
+/* a passenger: id, with the priority number in the corner */
+.prqp{display:inline-flex;align-items:center;justify-content:center;position:relative;
+  width:2.3rem;height:2.3rem;border-radius:.55rem;background:var(--rb);border:2px solid var(--rc);
+  color:var(--rc);font-family:var(--mono);font-weight:800;font-size:1rem;vertical-align:middle;flex:0 0 auto}
+.prqp i{position:absolute;right:-.45rem;top:-.45rem;min-width:1.05rem;height:1.05rem;border-radius:999px;
+  background:var(--rc);color:#fff;font-style:normal;font-size:.62rem;display:grid;place-items:center;padding:0 .2rem}
+.prqp.done{opacity:.28}
+.prqp.hot{box-shadow:0 0 0 4px rgba(250,204,21,.6)}
+.prqp.fr{box-shadow:0 0 0 3px rgba(34,197,94,.5)}           /* the front of its line */
+.prqp.fr.hot{box-shadow:0 0 0 3px rgba(34,197,94,.5),0 0 0 7px rgba(250,204,21,.55)}
+.prqinl{display:inline-flex;gap:.65rem;align-items:center;flex-wrap:wrap;vertical-align:middle;margin:.2rem 0}
+.prqinl > span{display:inline-flex;align-items:center;gap:.35rem;font-size:.86rem;font-weight:700;color:var(--ink-soft)}
+
+/* the four classes, as a legend */
+.prqcls{display:grid;gap:.55rem;margin:1rem 0}
+@media(min-width:720px){.prqcls{grid-template-columns:repeat(4,1fr)}}
+.prqcls > div{border:1.5px solid var(--rc);background:var(--rb);border-radius:.7rem;padding:.65rem .8rem}
+.prqcls b{display:block;color:var(--rc);font-size:.95rem}
+.prqcls b em{font-style:normal;font-family:var(--mono);margin-right:.35rem}
+.prqcls span{font-size:.8rem;color:var(--ink-soft)}
+
+/* figures */
+.prqfig{margin:1rem 0;text-align:center}
+.prqfig svg{width:100%;height:auto;display:block;margin:0 auto}
+.prqfig figcaption{text-align:center}
+.prqrep{border:1px solid var(--line);border-radius:.8rem;background:#fff;padding:.9rem 1rem;margin:1rem 0}
+.prqrep > h4{font-size:.9rem;font-weight:800;margin:0 0 .6rem;display:flex;gap:.5rem;align-items:center}
+.prqrep > h4 span{font-size:.58rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  background:#0f172a;color:#fff;border-radius:.3rem;padding:.16rem .45rem}
+.prqrep > p{font-size:.9rem;margin:.6rem 0 0}
+.prqhold{font-size:.82rem;color:#92400e;background:#fffbeb;border:1px dashed #f59e0b;border-radius:.5rem;
+  padding:.5rem .7rem;margin:.7rem 0 0}
+.svgt{font-family:var(--sans)}
+.f1{fill:var(--c1)}.f2{fill:var(--c2)}.f3{fill:var(--c3)}.f4{fill:var(--c4)}
+.b1{fill:var(--c1b);stroke:var(--c1)}.b2{fill:var(--c2b);stroke:var(--c2)}
+.b3{fill:var(--c3b);stroke:var(--c3)}.b4{fill:var(--c4b);stroke:var(--c4)}
+
+/* ---- a code listing: gutter | code | dots (one per pass) or a tag ---- */
+.prqcw{position:relative;min-width:0}
+  color:var(--ink-mute);margin:0 0 .35rem}
+pre.code.prqcode{margin:0;padding:.7rem 0;max-height:min(56vh,520px);overflow:auto;font-size:.8rem;line-height:1.7}
+@media(min-width:768px){pre.code.prqcode{font-size:.84rem}}
+.prqcode.free{max-height:none}
+.prql{display:grid;grid-template-columns:2.4rem minmax(0,1fr) auto;align-items:start;padding-right:.6rem;
+  border-radius:3px;cursor:pointer}
+.prql .g{color:#64748b;text-align:right;padding-right:.8rem;user-select:none;font-size:.86em}
+.prql .x{white-space:pre-wrap;overflow-wrap:anywhere;min-width:0}
+.prql .pp{display:flex;gap:2px;align-items:center;justify-content:flex-end;padding-left:.5rem;min-height:1.7em;flex-wrap:nowrap}
+/* in a simulator the dot column is reserved at its widest (--pipw, from the
+   line that runs most), so a pass that adds a dot never rewraps the code */
+.sim .prql{grid-template-columns:2.4rem minmax(0,1fr) var(--pipw,6.4rem)}
+.prql .pp i{width:6px;height:6px;border-radius:50%;background:#f59e0b;display:block;flex:0 0 auto}
+.prql .pp b{font-family:var(--sans);font-size:.66rem;font-weight:800;color:#f59e0b}
+.prql.inert{cursor:default}
+/* folding: a closed function is its header plus a ⋯ chip; the caret sits
+   in the gutter, left of the line number */
+.prql.fh{display:none}
+.prql .g{position:relative}
+.sim .prqcode.hasfold .prql{grid-template-columns:3rem minmax(0,1fr) var(--pipw,6.4rem)}
+.prql .fc{position:absolute;left:.2rem;top:0;font-style:normal;font-size:.8em;color:#64748b;cursor:pointer;padding:0 .1rem}
+.prql .fc:hover{color:#f59e0b}
+.prqfz{display:none;font-style:normal;font-family:var(--mono);font-size:.82em;font-weight:700;margin-left:.45rem;
+  padding:0 .4rem;border-radius:.35rem;background:#334155;color:#cbd5e1;cursor:pointer;white-space:nowrap}
+.prqfz:hover{background:#475569;color:#fff}
+.prql.fold .prqfz{display:inline-block}
+body.codelight .prqfz{background:#e2e8f0;color:#475569}
+body.codelight .prqfz:hover{background:#cbd5e1;color:#1e293b}
+.btn.prqfold{min-width:8.4rem}
+.prql.bl{line-height:.8}
+.prql.cur{background:rgba(251,191,36,.20);box-shadow:inset 3px 0 0 #f59e0b}
+.prql.simtrue{background:rgba(34,197,94,.20);box-shadow:inset 3px 0 0 #22c55e}
+.prql.simfalse{background:rgba(244,63,94,.18);box-shadow:inset 3px 0 0 #f43f5e}
+body.codelight .prql .g{color:#94a3b8}
+body.codelight .prql.cur{background:rgba(217,119,6,.13);box-shadow:inset 3px 0 0 #d97706}
+body.codelight .prql.simtrue{background:rgba(22,163,74,.14);box-shadow:inset 3px 0 0 #16a34a}
+body.codelight .prql.simfalse{background:rgba(220,38,38,.11);box-shadow:inset 3px 0 0 #dc2626}
+body.codelight .prql .pp i{background:#d97706}
+body.codelight .prql .pp b{color:#b45309}
+.prqcp{position:absolute;top:.45rem;right:.55rem;z-index:2;appearance:none;font-family:var(--sans);
+  font-size:.64rem;font-weight:800;padding:.24rem .55rem;border-radius:.4rem;cursor:pointer;
+  border:1px solid #334155;background:#1e293b;color:#cbd5e1}
+.prqcp:hover{color:#fff}
+body.codelight .prqcp{background:#fff;border-color:#cbd5e1;color:#475569}
+/* ---- simulator layout: stage | code, stacked under 900px ---- */
+.prqgrid{display:grid;gap:.9rem;min-width:0}
+@media(min-width:900px){.prqgrid{grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);align-items:stretch}}
+@media(min-width:900px){.prqgrid.tall{grid-template-columns:minmax(0,1fr)}}
+.fsbody .prqgrid.tall{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);align-items:stretch}
+.prqstage{min-width:0;display:flex;flex-direction:column;gap:.7rem;justify-content:center;align-items:stretch;
+  border:1px solid #e8ebfa;border-radius:.6rem;background:#fbfcff;padding:.8rem;margin:0}
+.prqstage .prqsvg{width:100%;overflow:hidden}
+.prqstage .prqsvg svg,.prqfig .prqsvg svg{width:100%;height:auto;display:block;margin:0 auto;max-width:var(--w,100%)}
+.prqside{min-width:0;display:flex;flex-direction:column}
+.prqside pre.code.prqcode{flex:1 1 auto}
+.prqcon{font-family:var(--mono);font-size:.84rem;border-radius:.45rem;padding:.4rem .7rem;margin:0;
+  background:#0f172a;color:#86efac;white-space:pre-wrap;line-height:1.5;display:flex;gap:.6rem;align-items:flex-start;
+  height:calc(var(--conl,1) * 1.5em + .8rem);overflow:hidden}   /* --conl: the most lines this run ever prints */
+.prqcon em,.prqcon span.none{line-height:1.5rem}
+.prqcon em{font-family:var(--sans);font-style:normal;font-size:.55rem;font-weight:800;letter-spacing:.16em;
+  text-transform:uppercase;color:#64748b;flex:0 0 auto}
+.prqcon span.none{color:#64748b;font-family:var(--sans);font-size:.78rem}
+body.codelight .prqcon{background:#f1f5f9;color:#15803d;border:1px solid #e2e8f0}
+
+/* ---- a queue drawn as a row: marker | label | −1 | cells 0..4 | …
+   and under it a lane of badges (f, r, i), each under the box it indexes ---- */
+.prqbd{display:grid;grid-template-columns:var(--mkw,0) var(--lbw,3.9rem) repeat(var(--c,5),var(--cw,2.9rem)) .9rem;
+  gap:0 4px;align-items:center;margin:0 auto;width:max-content;font-family:var(--mono)}
+.prqbh{font-size:.62rem;font-weight:700;color:#94a3b8;text-align:center;padding-bottom:.25rem}
+.prqbr{display:contents}
+.prqbd.mk{--mkw:3rem}                 /* a marker column only where i scans rows */
+.prqbm{font-size:.68rem;font-weight:800;color:#e11d48;text-align:right;white-space:nowrap;padding-right:.25rem}
+.prqbl{display:flex;flex-direction:column;justify-content:center;line-height:1.15;padding-right:.35rem;min-width:0}
+.prqbl b{font-size:.8rem;font-weight:800;color:var(--rc);white-space:nowrap}
+.prqbl em{font-family:var(--sans);font-style:normal;font-size:.58rem;font-weight:800;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--rc);opacity:.85;white-space:nowrap}
+.prqbc{height:2.5rem;display:grid;place-items:center;border:1.5px solid #cbd5e1;border-radius:.45rem;background:#fff;
+  font-weight:800;font-size:1.05rem;color:var(--rc);transition:background .25s,border-color .25s}
+.prqbc.gh{border-style:dashed;border-color:#dbe1ea;background:transparent}
+.prqbc.dead{color:#cbd5e1;text-decoration:line-through;text-decoration-color:#fda4af}
+.prqbx{color:#cbd5e1;text-align:center;font-weight:700}
+.prqbr.on > .prqbc:not(.gh){border-color:var(--rc);background:var(--rb)}
+.prqbr.on > .prqbc.dead{background:#fff}
+.prqbc.w,.prqbr.on > .prqbc.w{background:#ecfdf5;border-color:#34d399;box-shadow:0 0 0 3px rgba(110,231,183,.35)}
+.prqbc.pick,.prqbr.on > .prqbc.pick{background:#fef9c3;border-color:#facc15;box-shadow:0 0 0 3px rgba(250,204,21,.35)}
+.prqbc.rd,.prqbr.on > .prqbc.rd{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.3)}
+.prqbr.seen > .prqbl b,.prqbr.seen > .prqbl em,
+.prqbr.unu > .prqbl b,.prqbr.unu > .prqbl em{color:#94a3b8}
+.prqbr.unu > .prqbc{height:1.5rem;margin-bottom:.45rem;border-color:#e2e8f0;
+  background:repeating-linear-gradient(135deg,#f8fafc 0 6px,#eef2f7 6px 12px)}
+.prqbr.unu > .prqbc.gh{background:transparent}
+.prqbr.unu > .prqbl,.prqbr.unu > .prqbx,.prqbr.unu > .prqbm{margin-bottom:.45rem}
+.prqbn{min-height:calc(var(--ln,2) * 1.12rem + .3rem);align-self:start;display:flex;flex-direction:column;align-items:center}
+.prqbb{position:relative;display:block;font-style:normal;font-size:.6rem;font-weight:800;line-height:1;white-space:nowrap;
+  color:#fff;background:var(--bc);border-radius:.3rem;padding:.16rem .3rem;margin-top:.12rem}
+.prqbb:first-child{margin-top:.4rem}
+.prqbb:first-child::before{content:'';position:absolute;left:50%;top:-4px;margin-left:-4px;
+  border:4px solid transparent;border-top:0;border-bottom-color:var(--bc)}
+.prqbb.bf{--bc:#e11d48}.prqbb.br{--bc:#059669}.prqbb.bi{--bc:#4f46e5}
+.prqbb.chg{box-shadow:0 0 0 2px #fcd34d}
+.prqarrwrap{overflow-x:auto;padding:.2rem 0}
+/* a phone: a little tighter, and the strip scrolls rather than shrinking */
+@media(max-width:560px){
+  .prqbd{--cw:2.6rem;--lbw:3.4rem;gap:0 3px}
+  .prqbd.mk{--mkw:2.7rem}
+  .prqbb{font-size:.56rem;padding:.14rem .22rem}
+  .prqbm{font-size:.62rem}
+}
+.prqfig .prqarrwrap{padding:.4rem 0}
+.ta .prqarrwrap{margin:.6rem 0}
+
+/* ---- the boarding gate ---- */
+.prqgate{display:grid;gap:.5rem;border:1px solid #e8ebfa;border-radius:.6rem;background:#fbfcff;padding:.8rem;margin:0}
+.gtrow{display:grid;grid-template-columns:4.9rem minmax(0,1fr);gap:.6rem;align-items:center}
+.gtl{font-size:.58rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#94a3b8}
+.gtq{display:flex;gap:.5rem;align-items:center;height:3.4rem;padding:0 .55rem;overflow-x:auto;
+  border:1px dashed #e2e8f0;border-radius:.5rem;background:#fff}
+.gtq .gtnone{font-size:.78rem;color:#94a3b8}
+.gtlane .gtl{color:var(--rc);font-size:.62rem}
+.gtlane .gtq{border-style:solid;border-color:color-mix(in srgb,var(--rc) 35%,#fff);background:color-mix(in srgb,var(--rb) 45%,#fff)}
+.gtlane.next .gtq{box-shadow:0 0 0 3px color-mix(in srgb,var(--rc) 30%,transparent)}
+.gtsep{height:1px;background:#eef0f8;margin:.15rem 0}
+.prqstage .prqgate{border:0;background:none;padding:0}
+.gtbrd .gtl{color:#0f172a;font-size:.62rem}
+
+/* ---- the comparison table ---- */
+.prqcmp table{min-width:440px}
+.prqcmp td{vertical-align:middle;text-align:center}
+.prqcmp td:first-child{text-align:left}
+.prqcmp th{text-align:center}
+.prqcmp th:first-child{text-align:left}
+.prqcmp .cn{display:block;font-size:.72rem;color:var(--ink-mute);font-weight:600}
+.prqcmp .prqq{display:inline-grid;place-items:center;min-width:3.4rem;height:1.9rem;border:1.5px dashed #cbd5e1;
+  border-radius:.4rem;color:#94a3b8;font-weight:800}
+.prqcmp .ov{font-family:var(--mono);font-weight:800;font-size:1rem;padding:.2rem .55rem;border-radius:.4rem;display:inline-block}
+.prqcmp .ov.g{background:#dcfce7;color:#15803d}
+.prqcmp .ov.m{background:#fef3c7;color:#b45309}
+.prqcmp .ov.b{background:#ffe4e6;color:#be123c}
+.prqcmp .later{font-size:.75rem;color:#94a3b8;font-weight:700;font-style:italic}
+.prqcmp .ov.pre{background:#f1f5f9;color:#475569;border:1px dashed #cbd5e1;font-size:.9rem}
+.prqcmp .prqa{display:none}
+.prqcmp.on .prqa,body.revealall .prqcmp .prqa{display:inline-block}
+.prqcmp.on .prqq,body.revealall .prqcmp tr.ask .prqq{display:none}
+.prqcmp tr.ask td{background:#faf8ff}
+.prqcmp tr.heap td{background:#f8fafc}
+
+/* small tables: the hand trace and the row → object map */
+.prqht,.prqmap{max-width:560px}
+.prqht{max-width:380px}
+.prqht table,.prqmap table{min-width:0}
+.prqht td,.prqmap td{vertical-align:middle}
+.prqht .prqq{display:inline-grid;place-items:center;min-width:5.6rem;height:1.7rem;border:1.5px dashed #cbd5e1;
+  border-radius:.4rem;color:#94a3b8;font-weight:800}
+
+/* queues-checked tally */
+.prqtally{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.5rem;margin:1rem 0}
+.prqtally > div{border:1px solid var(--line);border-radius:.6rem;background:#fff;padding:.55rem .6rem;text-align:center}
+.prqtally .prqp{margin:0 auto .35rem}
+.prqtally b{display:block;font-family:var(--mono);font-size:1.25rem;color:#b45309}
+.prqtally span{font-size:.72rem;color:var(--ink-mute);font-weight:700}
+
+/* two side-by-side verdict boxes */
+.prqvs{display:grid;gap:1rem;margin:1rem 0}
+@media(min-width:720px){.prqvs{grid-template-columns:1fr 1fr}}
+.prqvs .box{margin:0}
+.prqvs ul{margin:.3rem 0 0;padding-left:1.1rem;font-size:.88rem}
+.prqvs li{margin:.25rem 0}
+
+/* ---- SVG linked list ---- */
+.prqsvg text{font-family:var(--mono)}
+.ln .lb{fill:#fff;stroke:#64748b;stroke-width:1.6}
+.ln .ld{stroke:#94a3b8;stroke-width:1.2}
+.ln .lpb{fill:transparent}
+.ln.k1 .lpb{fill:var(--c1b)}.ln.k2 .lpb{fill:var(--c2b)}.ln.k3 .lpb{fill:var(--c3b)}.ln.k4 .lpb{fill:var(--c4b)}
+.ln .li{font-size:17px;font-weight:700;fill:#1e293b;text-anchor:middle}
+.ln .lp{font-size:14px;font-weight:700;text-anchor:middle;fill:#475569}
+.ln.k1 .lp{fill:var(--c1)}.ln.k2 .lp{fill:var(--c2)}.ln.k3 .lp{fill:var(--c3)}.ln.k4 .lp{fill:var(--c4)}
+.ln .lq{font-size:15px;font-weight:700;fill:#94a3b8;text-anchor:middle}
+.ln .ldot{fill:#334155}
+.ln .lx{stroke:#e11d48;stroke-width:2}
+.ln .lchg{fill:#fde68a}
+.ln.walk .lb{stroke:#e11d48;stroke-width:2.6}
+.ln.new .lb{stroke:#16a34a;stroke-width:2.2;stroke-dasharray:5 3}
+.ln.cut .lb{stroke:#94a3b8;stroke-dasharray:4 3}
+.la{fill:none;stroke:#475569;stroke-width:1.8}
+.la.chg{stroke:#d97706;stroke-width:2.4}
+.lah{fill:#475569}
+.lac{fill:#d97706}
+.lnull rect{fill:#f1f5f9;stroke:#94a3b8;stroke-width:1.2}
+.lnull text{font-size:12px;font-weight:700;fill:#64748b;text-anchor:middle}
+.lchip rect{fill:#fff;stroke:#334155;stroke-width:1.5}
+.lchip text{font-size:13px;font-weight:700;fill:#1e293b;text-anchor:middle}
+.lchip.head rect{fill:#eef2ff;stroke:#4f46e5}
+.lchip.head text{fill:#3730a3}
+.lchip.cur rect{fill:#fff1f2;stroke:#e11d48}
+.lchip.cur text{fill:#be123c}
+.lchip.prev rect{fill:#fff7ed;stroke:#ea580c}
+.lchip.prev text{fill:#c2410c}
+.lchip.nw rect{fill:#f0fdf4;stroke:#16a34a}
+.lchip.nw text{fill:#166534}
+.lchip.t rect{fill:#f8fafc;stroke:#64748b}
+.lchip.freed rect{stroke-dasharray:4 3;fill:#f8fafc;stroke:#94a3b8}
+.lchip.freed text{fill:#94a3b8}
+.lchip.chg rect{stroke:#d97706;stroke-width:2.4}
+.lca{stroke:#334155;stroke-width:1.6;fill:none}
+.lca.head{stroke:#4f46e5}
+.lca.cur{stroke:#e11d48}.lca.prev{stroke:#ea580c}.lca.nw{stroke:#16a34a}.lca.temp{stroke:#64748b}
+.lgrp rect{fill:var(--rc)}
+.lgrp text{font-family:var(--sans);font-size:12px;font-weight:800;fill:var(--rc);text-anchor:middle}
+
+/* ---- heap and story figures ---- */
+.hp circle{stroke-width:2}
+.hp text{font-family:var(--mono);font-weight:800;text-anchor:middle}
+.hpe{stroke:#94a3b8;stroke-width:1.6}
+.hpk{fill:var(--rc)}
+.hpkt{fill:#fff;font-size:11px;font-weight:800}
+
+/* ==================================================================
+   ON THE BENCH. Sizes are written once and apply to both skins; only
+   colour is skinned (.fsov:not(.lit) is the dark bench).
+   ================================================================== */
+/* measured at 1366×900: the bench is 830px, and the rail, controls, watch
+   strip and narration take 240 of it; a shorter screen scrolls the code */
+.fsbody pre.code.prqcode{font-size:.98rem;line-height:1.6;max-height:max(320px,calc(100vh - 336px))}
+.fsbody .prqcode.free{max-height:none}
+.fsbody .prqcode{flex:1 1 auto}
+.fsbody .prqbd{--lbw:5.6rem;--cw:4.3rem;gap:0 6px}
+.fsbody .prqbd.mk{--mkw:3.9rem}
+.fsbody .prqbc{height:3rem;font-size:1.4rem}
+.fsbody .prqbr.unu > .prqbc{height:1.5rem}
+.fsbody .prqbh{font-size:.76rem}
+.fsbody .prqbm{font-size:.92rem}
+.fsbody .prqbl b{font-size:1.05rem}
+.fsbody .prqbl em{font-size:.72rem}
+.fsbody .prqbn{min-height:calc(var(--ln,2) * 1.25rem + .35rem)}
+.fsbody .prqbb{font-size:.76rem;padding:.2rem .36rem}
+.fsbody .prqcon{font-size:1rem}
+.fsbody .prqstage .prqsvg svg{max-width:calc(var(--w,100%) * 1.6)}
+.fsbody .prqgate{gap:.7rem}
+.fsbody .gtrow{grid-template-columns:7.5rem minmax(0,1fr)}
+.fsbody .gtq{height:4.3rem}
+.fsbody .gtl{font-size:.75rem}
+.fsbody .prqp{width:3rem;height:3rem;font-size:1.35rem}
+.fsbody .prqp i{font-size:.78rem;min-width:1.35rem;height:1.35rem}
+
+/* the dark bench */
+.fsov:not(.lit) .fsbody .prqstage,
+.fsov:not(.lit) .fsbody .prqgate{background:#151c30;border-color:#232b45}
+.fsov:not(.lit) .fsbody pre.code.prqcode{background:#0f172a;color:#e2e8f0;border:1px solid #232b45;box-shadow:none}
+.fsov:not(.lit) .fsbody pre.code.prqcode .k{color:#c4b5fd}
+.fsov:not(.lit) .fsbody pre.code.prqcode .t{color:#fcd34d}
+.fsov:not(.lit) .fsbody pre.code.prqcode .f{color:#7dd3fc}
+.fsov:not(.lit) .fsbody pre.code.prqcode .n{color:#fdba74}
+.fsov:not(.lit) .fsbody pre.code.prqcode .c{color:#64748b}
+.fsov:not(.lit) .fsbody pre.code.prqcode .s{color:#86efac}
+.fsov:not(.lit) .fsbody .prql .g{color:#4c5680}
+.fsov:not(.lit) .fsbody .prql.cur{background:rgba(251,191,36,.20);box-shadow:inset 3px 0 0 #f59e0b}
+.fsov:not(.lit) .fsbody .prql.simtrue{background:rgba(34,197,94,.20);box-shadow:inset 3px 0 0 #22c55e}
+.fsov:not(.lit) .fsbody .prql.simfalse{background:rgba(244,63,94,.20);box-shadow:inset 3px 0 0 #f43f5e}
+.fsov:not(.lit) .fsbody .prql .pp i{background:#f59e0b}
+.fsov:not(.lit) .fsbody .prqfz{background:#334155;color:#cbd5e1}
+.fsov:not(.lit) .fsbody .prql .fc{color:#4c5680}
+.fsov:not(.lit) .fsbody .prqcon{background:#0b1020;color:#86efac;border:1px solid #232b45}
+.fsov:not(.lit) .fsbody .prqbh{color:#4c5680}
+.fsov:not(.lit) .fsbody .prqbm{color:#fb7185}
+.fsov:not(.lit) .fsbody .prqbl{filter:brightness(1.7)}
+.fsov:not(.lit) .fsbody .prqbr.seen > .prqbl,.fsov:not(.lit) .fsbody .prqbr.unu > .prqbl{filter:none}
+.fsov:not(.lit) .fsbody .prqbr.seen > .prqbl b,.fsov:not(.lit) .fsbody .prqbr.seen > .prqbl em,
+.fsov:not(.lit) .fsbody .prqbr.unu > .prqbl b,.fsov:not(.lit) .fsbody .prqbr.unu > .prqbl em{color:#4c5680}
+.fsov:not(.lit) .fsbody .prqbc{background:#1b2238;border-color:#2b3554;color:#e6e9f7}
+.fsov:not(.lit) .fsbody .prqbc.gh{background:transparent;border-color:#2b3554}
+.fsov:not(.lit) .fsbody .prqbc.dead{color:#3d4a75}
+.fsov:not(.lit) .fsbody .prqbr.on > .prqbc:not(.gh){background:#20294a;border-color:var(--rc)}
+.fsov:not(.lit) .fsbody .prqbr.on > .prqbc.dead{background:#1b2238}
+.fsov:not(.lit) .fsbody .prqbc.w,.fsov:not(.lit) .fsbody .prqbr.on > .prqbc.w{background:#0d2b24;border-color:#0f8a67;color:#6ee7b7}
+.fsov:not(.lit) .fsbody .prqbc.pick,.fsov:not(.lit) .fsbody .prqbr.on > .prqbc.pick{background:#3a2a10;border-color:#d97706;color:#fcd34d}
+.fsov:not(.lit) .fsbody .prqbc.rd,.fsov:not(.lit) .fsbody .prqbr.on > .prqbc.rd{border-color:#818cf8}
+.fsov:not(.lit) .fsbody .prqbr.unu > .prqbc{background:repeating-linear-gradient(135deg,#151c30 0 6px,#1b2238 6px 12px);border-color:#232b45}
+.fsov:not(.lit) .fsbody .prqbr.unu > .prqbc.gh{background:transparent}
+.fsov:not(.lit) .fsbody .prqbx{color:#3d4a75}
+.fsov:not(.lit) .fsbody .gtbrd .gtl{color:#c3cbe4}
+.fsov:not(.lit) .fsbody .gtq{background:#1b2238;border-color:#2b3554}
+.fsov:not(.lit) .fsbody .gtlane .gtq{background:#18203a;border-color:#2b3554}
+.fsov:not(.lit) .fsbody .gtl{color:#6b769c}
+.fsov:not(.lit) .fsbody .gtlane .gtl{color:var(--rc);filter:brightness(1.6)}
+.fsov:not(.lit) .fsbody .gtsep{background:#232b45}
+.fsov:not(.lit) .fsbody .ln .lb{fill:#1b2238;stroke:#8f9ac2}
+.fsov:not(.lit) .fsbody .ln .ld{stroke:#3d4a75}
+.fsov:not(.lit) .fsbody .ln .li{fill:#e6e9f7}
+.fsov:not(.lit) .fsbody .ln .lpb{fill:transparent}
+.fsov:not(.lit) .fsbody .ln.k1 .lpb{fill:rgba(180,83,9,.30)}
+.fsov:not(.lit) .fsbody .ln.k2 .lpb{fill:rgba(124,58,237,.30)}
+.fsov:not(.lit) .fsbody .ln.k3 .lpb{fill:rgba(15,118,110,.35)}
+.fsov:not(.lit) .fsbody .ln.k4 .lpb{fill:rgba(29,78,216,.35)}
+.fsov:not(.lit) .fsbody .ln .lp{fill:#e6e9f7}
+.fsov:not(.lit) .fsbody .ln .ldot{fill:#e6e9f7}
+.fsov:not(.lit) .fsbody .ln .lchg{fill:#5b4410}
+.fsov:not(.lit) .fsbody .la{stroke:#94a3b8}
+.fsov:not(.lit) .fsbody .lah{fill:#94a3b8}
+.fsov:not(.lit) .fsbody .lnull rect{fill:#1b2238;stroke:#4c5680}
+.fsov:not(.lit) .fsbody .lnull text{fill:#8f9ac2}
+.fsov:not(.lit) .fsbody .lchip rect{fill:#1b2238}
+.fsov:not(.lit) .fsbody .lchip text{fill:#e6e9f7}
+.fsov:not(.lit) .fsbody .lca{stroke:#8f9ac2}
+.fsov:not(.lit) .fsbody .lca.head{stroke:#8b85f5}
+.fsov:not(.lit) .fsbody .lca.cur{stroke:#fb7185}
+.fsov:not(.lit) .fsbody .lca.prev{stroke:#fdba74}
+.fsov:not(.lit) .fsbody .lgrp{filter:brightness(1.6)}
+.fsov:not(.lit) .fsbody .lca.nw{stroke:#4ade80}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <span class="brand-badge" style="background:linear-gradient(135deg,#0f766e,#2dd4bf)">03</span>
+      <span>
+        <span class="brand-s">CSE-2321 · Segment 5 · Class 3</span>
+        <span class="brand-t">Priority Queues</span>
+      </span>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-tab="lesson">Lesson</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="exam">Exam &amp; Interview</button>
+    </div>
+  </div>
+  <div class="rail"><i id="rail"></i></div>
+</div>
+
+<section class="panel" id="p-lesson">
+
+<header class="hero" style="background:linear-gradient(160deg,#0f172a 0%,#134e4a 55%,#0f766e 100%)">
+  <div class="wrap">
+    <p class="eyebrow" style="color:#5eead4">Data Structures · Segment 5 · Class 3</p>
+    <h1>Priority <em>queues</em></h1>
+    <p class="hero-lede">A queue serves whoever came first. A priority queue serves whoever <b>matters most</b> &mdash; and among equals, whoever came first.</p>
+    <div class="arc">
+      <span>What it is</span><span>Boarding a plane</span><span>Three representations</span><span>Queue recap</span><span>2D array</span><span>Array of queues</span><span>Linked list</span><span>Which to pick</span>
+    </div>
+    <div class="hero-meta">
+      <div><b>5 of 8</b>finals ask about it</div>
+      <div><b>2</b>representations built today</div>
+      <div><b>80 min</b>10 sections</div>
+    </div>
+    <div class="byline">
+      <span class="av">JA</span>
+      <span class="who">Jamil As-ad<span>Lecturer, Dept. of CSE &middot; International Islamic University Chittagong</span></span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<div class="prog" id="prog">
+  <span class="pk">Your progress</span>
+  <span class="pbar"><i id="pbar"></i></span>
+  <span class="pn" id="pnum">0 / 4</span>
+  <button id="preset" type="button">Clear</button>
+</div>
+
+<div class="box bad" style="margin-bottom:1.5rem">
+  <p class="bt">🎓 Read this before anything else</p>
+  <p style="margin:0">A priority queue question is on <b>five of the eight finals</b> we have on file. It always asks the same few things: <b>what a priority queue is</b>, the <b>one-way list</b> representation, the <b>2D array</b> representation, <b>add and remove procedures with their time complexity</b>, and <b>compare the two</b>. Today covers every one of them. The Exam tab has the questions word for word.</p>
+</div>
+
+<div class="goals">
+  <p class="gh"><i>🎯</i><b>By the end of this class you will be able to</b></p>
+  <ol>
+    <li>State the <b>two rules</b> that decide who a priority queue serves next</li>
+    <li>Draw a priority queue as a <b>2D array</b>, a <b>linked list</b> and a <b>heap</b></li>
+    <li>Build the 2D-array version as an <b>array of Queue objects</b></li>
+    <li>Write <b>push</b> and <b>pop</b> for both, and give each its <b>time complexity</b></li>
+    <li>Fill in the comparison table and <b>pick a representation</b> for a job</li>
+  </ol>
+</div>
+
+<!-- ============ 1 · WHAT IT IS ============ -->
+<article class="card numbered" id="s1" style="--accent:#0f766e" data-min="5" data-key="Smaller priority number = served first. Same number = arrival order (FIFO).">
+  <span class="badge">1</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 1</p><h2>A queue that lets some go first</h2></div>
+    <span class="timechip">⏱ 5 min</span>
+  </div>
+
+  <p>An ordinary queue has one rule: first in, first out. A priority queue gives every element one more piece of information &mdash; its <b>priority</b> &mdash; and serves by that first.</p>
+
+  <div class="box info">
+    <p class="bt">Definition</p>
+    <p>A <b>priority queue</b> is a collection of elements in which each element has a priority, and elements are deleted and processed by two rules:</p>
+    <ol class="tight" style="margin-bottom:0">
+      <li>An element of <b>higher priority</b> is processed before any element of lower priority.</li>
+      <li>Two elements with the <b>same priority</b> are processed in the order they were added.</li>
+    </ol>
+  </div>
+
+  <div class="box">
+    <p class="bt">The convention: a smaller number is a higher priority</p>
+    <p style="margin:0">Priorities are written as <b>priority numbers</b>. Priority <b>1</b> is served before priority <b>2</b>. This is the textbook's convention and the exam's.</p>
+  </div>
+
+  <h3>How to picture it</h3>
+  <figure class="prqfig">
+    <svg viewBox="0 0 880 260" role="img" aria-label="An ordinary queue as one line, and a priority queue as one line per priority number">
+      <defs><marker id="ah-s1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker></defs>
+      <rect x="8" y="8" width="414" height="244" rx="14" fill="#f8fafc" stroke="#e2e8f0"/>
+      <text class="svgt" x="26" y="38" font-size="11" font-weight="800" letter-spacing="2" fill="#64748b">ORDINARY QUEUE</text>
+      <text class="svgt" x="26" y="58" font-size="13" fill="#475569">one line, arrival order</text>
+      <text class="svgt" x="130" y="100" font-size="11" font-weight="700" fill="#64748b" text-anchor="middle">front</text>
+      <text class="svgt" x="354" y="100" font-size="11" font-weight="700" fill="#64748b" text-anchor="middle">rear</text>
+      <circle class="b3" cx="130" cy="132" r="22" stroke-width="2"/><text class="svgt f3" x="130" y="138" font-size="17" font-weight="800" text-anchor="middle">3</text>
+      <circle class="b1" cx="186" cy="132" r="22" stroke-width="2"/><text class="svgt f1" x="186" y="138" font-size="17" font-weight="800" text-anchor="middle">1</text>
+      <circle class="b4" cx="242" cy="132" r="22" stroke-width="2"/><text class="svgt f4" x="242" y="138" font-size="17" font-weight="800" text-anchor="middle">4</text>
+      <circle class="b1" cx="298" cy="132" r="22" stroke-width="2"/><text class="svgt f1" x="298" y="138" font-size="17" font-weight="800" text-anchor="middle">1</text>
+      <circle class="b2" cx="354" cy="132" r="22" stroke-width="2"/><text class="svgt f2" x="354" y="138" font-size="17" font-weight="800" text-anchor="middle">2</text>
+      <text class="svgt" x="130" y="174" font-size="11" fill="#94a3b8" text-anchor="middle">#1</text>
+      <text class="svgt" x="186" y="174" font-size="11" fill="#94a3b8" text-anchor="middle">#2</text>
+      <text class="svgt" x="242" y="174" font-size="11" fill="#94a3b8" text-anchor="middle">#3</text>
+      <text class="svgt" x="298" y="174" font-size="11" fill="#94a3b8" text-anchor="middle">#4</text>
+      <text class="svgt" x="354" y="174" font-size="11" fill="#94a3b8" text-anchor="middle">#5</text>
+      <line x1="104" y1="132" x2="44" y2="132" stroke="#475569" stroke-width="2" marker-end="url(#ah-s1)"/>
+      <text class="svgt" x="74" y="122" font-size="11" font-weight="700" fill="#475569" text-anchor="middle">out</text>
+      <text class="svgt" x="215" y="220" font-size="13" fill="#475569" text-anchor="middle">served #1, #2, #3, #4, #5 — priority ignored</text>
+
+      <rect x="446" y="8" width="426" height="244" rx="14" fill="#f8fafc" stroke="#e2e8f0"/>
+      <text class="svgt" x="464" y="38" font-size="11" font-weight="800" letter-spacing="2" fill="#64748b">PRIORITY QUEUE</text>
+      <text class="svgt" x="464" y="58" font-size="13" fill="#475569">one line per priority number</text>
+      <rect x="556" y="76" width="236" height="32" rx="16" fill="#fef3c7" opacity=".55"/>
+      <rect x="556" y="116" width="236" height="32" rx="16" fill="#ede9fe" opacity=".55"/>
+      <rect x="556" y="156" width="236" height="32" rx="16" fill="#ccfbf1" opacity=".55"/>
+      <rect x="556" y="196" width="236" height="32" rx="16" fill="#dbeafe" opacity=".55"/>
+      <rect class="b1" x="808" y="79" width="26" height="26" rx="6" stroke-width="1.5"/><text class="svgt f1" x="821" y="97" font-size="14" font-weight="800" text-anchor="middle">1</text>
+      <rect class="b2" x="808" y="119" width="26" height="26" rx="6" stroke-width="1.5"/><text class="svgt f2" x="821" y="137" font-size="14" font-weight="800" text-anchor="middle">2</text>
+      <rect class="b3" x="808" y="159" width="26" height="26" rx="6" stroke-width="1.5"/><text class="svgt f3" x="821" y="177" font-size="14" font-weight="800" text-anchor="middle">3</text>
+      <rect class="b4" x="808" y="199" width="26" height="26" rx="6" stroke-width="1.5"/><text class="svgt f4" x="821" y="217" font-size="14" font-weight="800" text-anchor="middle">4</text>
+      <circle class="b1" cx="582" cy="92" r="15" stroke-width="2"/><text class="svgt f1" x="582" y="97" font-size="14" font-weight="800" text-anchor="middle">1</text>
+      <text class="svgt" x="600" y="80" font-size="10" fill="#94a3b8">#2</text>
+      <circle class="b1" cx="630" cy="92" r="15" stroke-width="2"/><text class="svgt f1" x="630" y="97" font-size="14" font-weight="800" text-anchor="middle">1</text>
+      <text class="svgt" x="648" y="80" font-size="10" fill="#94a3b8">#4</text>
+      <circle class="b2" cx="582" cy="132" r="15" stroke-width="2"/><text class="svgt f2" x="582" y="137" font-size="14" font-weight="800" text-anchor="middle">2</text>
+      <text class="svgt" x="600" y="120" font-size="10" fill="#94a3b8">#5</text>
+      <circle class="b3" cx="582" cy="172" r="15" stroke-width="2"/><text class="svgt f3" x="582" y="177" font-size="14" font-weight="800" text-anchor="middle">3</text>
+      <text class="svgt" x="600" y="160" font-size="10" fill="#94a3b8">#1</text>
+      <circle class="b4" cx="582" cy="212" r="15" stroke-width="2"/><text class="svgt f4" x="582" y="217" font-size="14" font-weight="800" text-anchor="middle">4</text>
+      <text class="svgt" x="600" y="200" font-size="10" fill="#94a3b8">#3</text>
+      <line x1="552" y1="92" x2="482" y2="92" stroke="#475569" stroke-width="2" marker-end="url(#ah-s1)"/>
+      <text class="svgt" x="512" y="82" font-size="11" font-weight="700" fill="#475569" text-anchor="middle">out</text>
+      <text class="svgt" x="520" y="140" font-size="11" fill="#64748b" text-anchor="middle">look at</text>
+      <text class="svgt" x="520" y="155" font-size="11" fill="#64748b" text-anchor="middle">line 1 first,</text>
+      <text class="svgt" x="520" y="170" font-size="11" fill="#64748b" text-anchor="middle">then 2, 3, 4</text>
+    </svg>
+    <figcaption>The same five arrivals (#1 to #5) both ways. On the right, serve from the first line that is not empty. Each line is an ordinary queue, so the two 1s still leave in arrival order: #2 before #4.</figcaption>
+  </figure>
+</article>
+
+<!-- ============ 2 · BOARDING A PLANE ============ -->
+<article class="card numbered" id="s2" style="--accent:#b45309" data-min="8" data-key="VVIP 1 · CIP 2 · VIP 3 · Normal 4. <b>pop()</b> boards the front of the first line that is not empty.">
+  <span class="badge">2</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 2</p><h2>Boarding a plane</h2></div>
+    <span class="timechip">⏱ 8 min</span>
+  </div>
+
+  <p>An airline boards four classes of passenger. Each class has a priority number:</p>
+  <div class="prqcls">
+    <div class="k1"><b><em>1</em>VVIP</b><span>Head of state, minister</span></div>
+    <div class="k2"><b><em>2</em>CIP</b><span>Commercially important person</span></div>
+    <div class="k3"><b><em>3</em>VIP</b><span>Very important person</span></div>
+    <div class="k4"><b><em>4</em>Normal</b><span>Everyone else</span></div>
+  </div>
+
+  <div class="box">
+    <p class="bt">Two operations</p>
+    <p><span class="prqx">push(pr, id)</span> &mdash; passenger <b>id</b> joins the back of line <b>pr</b>.</p>
+    <p style="margin:0"><span class="prqx">pop()</span> &mdash; the next passenger boards. It takes no argument: the queue decides who.</p>
+  </div>
+
+  <p>Five passengers arrive, in this order:</p>
+  <p class="prqinl">
+    <span><span class="prqp k1">13<i>1</i></span><span class="prqx">push(1, 13)</span></span>
+    <span><span class="prqp k2">17<i>2</i></span><span class="prqx">push(2, 17)</span></span>
+    <span><span class="prqp k1">3<i>1</i></span><span class="prqx">push(1, 3)</span></span>
+    <span><span class="prqp k1">5<i>1</i></span><span class="prqx">push(1, 5)</span></span>
+    <span><span class="prqp k4">33<i>4</i></span><span class="prqx">push(4, 33)</span></span>
+  </p>
+  <p class="subtle">The same five passengers are used for the rest of the class.</p>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <ol>
+        <li>Then <span class="prqx">pop()</span> runs five times. In what order do they board?</li>
+        <li>17 arrived before 3 and 5. Why do 3 and 5 board first?</li>
+        <li>13, 3 and 5 are all VVIP. What decides their order?</li>
+      </ol>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p><b>1. 13, 3, 5, 17, 33.</b></p>
+      <p><b>2.</b> Rule 1. VVIP (1) is served before CIP (2). Arrival order only decides between equals.</p>
+      <p style="margin:0"><b>3.</b> Rule 2. Same priority, so arrival order: 13, then 3, then 5.</p>
+    </div>
+  </div>
+
+  <p>Now watch it. Each line is one class, with its front on the left, nearest the plane. <span class="prqx">pop()</span> always takes the front of the first line that is not empty.</p>
+
+  <div class="sim" id="gate-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">The boarding gate</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+      <div class="prqgrid">
+        <div class="prqstage">
+          <div class="prqgate">
+            <div class="gtrow gtbrd"><span class="gtl">&#9992; Boarded</span><div class="gtq" id="gt-brd"></div></div>
+            <div class="gtsep"></div>
+            <div class="gtrow gtlane k1" data-k="1"><span class="gtl">1 · VVIP</span><div class="gtq"></div></div>
+            <div class="gtrow gtlane k2" data-k="2"><span class="gtl">2 · CIP</span><div class="gtq"></div></div>
+            <div class="gtrow gtlane k3" data-k="3"><span class="gtl">3 · VIP</span><div class="gtq"></div></div>
+            <div class="gtrow gtlane k4" data-k="4"><span class="gtl">4 · Normal</span><div class="gtq"></div></div>
+          </div>
+        </div>
+        <div class="prqside"><pre class="code prqcode" data-src="gate"></pre></div>
+      </div>
+      <div class="simrail"></div>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#b45309">Next &#9656;</button>
+        <button class="btn ghost sm" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 1</span>
+      </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">1</span><p></p></div>
+    </div>
+  </div>
+
+  <div class="quiz" data-q="q1">
+    <div class="qh">Check yourself — 1 of 4</div>
+    <div class="qq">In this order: <span class="prqx">push(4, 61)</span>, <span class="prqx">push(3, 62)</span>, <span class="prqx">push(2, 63)</span>, <span class="prqx">push(4, 64)</span>. Who boards <b>third</b>?</div>
+    <div class="qopts">
+      <button class="qopt" data-a="0">64</button>
+      <button class="qopt" data-a="1" data-ok="1">61</button>
+      <button class="qopt" data-a="2">62</button>
+      <button class="qopt" data-a="3">63</button>
+    </div>
+    <div class="qexp"><b>61.</b> 63 (CIP, 2) boards first, then 62 (VIP, 3). The two Normal passengers come last, in arrival order: 61 before 64.</div>
+  </div>
+</article>
+
+<!-- ============ 3 · THREE REPRESENTATIONS ============ -->
+<article class="card numbered" id="s3" style="--accent:#7c3aed" data-min="8" data-key="Three ways to store one priority queue: a row per priority (2D array), one list sorted by priority, or a heap.">
+  <span class="badge">3</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 3</p><h2>Three ways to store it</h2></div>
+    <span class="timechip">⏱ 8 min</span>
+  </div>
+
+  <p>Four other passengers this time: <span class="prqx">push(3, 8)</span>, <span class="prqx">push(1, 21)</span>, <span class="prqx">push(4, 40)</span>, <span class="prqx">push(1, 22)</span>. Here they are stored three ways. The contents are the same; the cost of each operation is not.</p>
+
+  <div class="prqrep">
+    <h4><span>1</span>2D array &mdash; one row per priority</h4>
+    <div class="prqarrwrap" data-fig="2d"></div>
+    <p>Row <b>k</b> is an ordinary queue holding only the priority-k passengers, with its own <b>f</b> (front) and <b>r</b> (rear). Row 0 is not used, so row k is priority k. f = r = −1 means the row is empty.</p>
+  </div>
+
+  <div class="prqrep">
+    <h4><span>2</span>Linked list &mdash; sorted by priority</h4>
+    <div class="prqfig" style="margin:0"><div class="prqsvg" data-fig="ll"></div></div>
+    <p>Each node holds the <b>priority</b>, the <b>passenger</b> and the <b>link</b>. It is the four lines joined end to end: VVIP first, Normal last, and equal priorities in arrival order, so 21 comes before 22.</p>
+  </div>
+
+  <div class="prqrep">
+    <h4><span>3</span>Heap &mdash; a tree with the smallest number on top</h4>
+    <figure class="prqfig" style="margin:0">
+      <svg viewBox="0 0 380 214" style="max-width:380px" role="img" aria-label="The four passengers in a heap: 21 at the root, 22 and 40 below it, 8 below 22">
+        <line class="hpe" x1="190" y1="42" x2="110" y2="112"/><line class="hpe" x1="190" y1="42" x2="270" y2="112"/>
+        <line class="hpe" x1="110" y1="112" x2="60" y2="180"/>
+        <g class="hp k1"><circle class="b1" cx="190" cy="42" r="25"/><text class="f1" x="190" y="48" font-size="17">21</text><circle class="hpk" cx="210" cy="22" r="9"/><text class="hpkt" x="210" y="26">1</text></g>
+        <g class="hp k1"><circle class="b1" cx="110" cy="112" r="25"/><text class="f1" x="110" y="118" font-size="17">22</text><circle class="hpk" cx="130" cy="92" r="9"/><text class="hpkt" x="130" y="96">1</text></g>
+        <g class="hp k4"><circle class="b4" cx="270" cy="112" r="25"/><text class="f4" x="270" y="118" font-size="17">40</text><circle class="hpk" cx="290" cy="92" r="9"/><text class="hpkt" x="290" y="96">4</text></g>
+        <g class="hp k3"><circle class="b3" cx="60" cy="180" r="25"/><text class="f3" x="60" y="186" font-size="17">8</text><circle class="hpk" cx="80" cy="160" r="9"/><text class="hpkt" x="80" y="164">3</text></g>
+      </svg>
+    </figure>
+    <p class="prqhold">How a heap is built and kept in shape is for the Trees &amp; Heaps classes. It is here only so the table below has its third row.</p>
+  </div>
+
+  <h3>The table we will fill</h3>
+  <p>Three operations matter. <b>push</b> adds a passenger with a priority. <b>pop</b> removes the one served next. <b>front</b> looks at who is next without removing them.</p>
+
+  <div class="prqcmp" data-show=""></div>
+
+  <p>Copy it into your notes. Sections 6 to 9 earn the first two rows. The heap row waits for the Trees &amp; Heaps classes.</p>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>Before measuring anything: look at the 2D array and the linked list above. Which operation has to <b>search</b> for something in each?</p>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p style="margin:0"><b>2D array: pop and front.</b> They must find the first row that is not empty. <b>Linked list: push.</b> It must find the place where the new node belongs. Everything else goes straight to the right spot.</p>
+    </div>
+  </div>
+
+  <div class="quiz" data-q="q2">
+    <div class="qh">Check yourself — 2 of 4</div>
+    <div class="qq"><span class="prqx">push(3, 9)</span>: a new VIP. Where does 9 go in the linked list above?</div>
+    <div class="qopts">
+      <button class="qopt" data-a="0">Between 22 and 8</button>
+      <button class="qopt" data-a="1" data-ok="1">Between 8 and 40</button>
+      <button class="qopt" data-a="2">At the end, after 40</button>
+      <button class="qopt" data-a="3">At the head</button>
+    </div>
+    <div class="qexp"><b>Between 8 and 40.</b> 9 has the same priority as 8 and arrived after it, so it goes behind 8. 40 is Normal, so 9 goes before it.</div>
+  </div>
+</article>
+
+<!-- ============ 4 · THE PLAIN QUEUE ============ -->
+<article class="card numbered" id="s4" style="--accent:#0284c7" data-min="9" data-key="Plain queue: f = r = −1 is empty. push: <b>arr[++r] = item</b>. pop: <b>f++</b>, and once f is past r the queue is empty again. Each object has its own arr, f and r.">
+  <span class="badge">4</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 4</p><h2>Recap: a plain queue class</h2></div>
+    <span class="timechip">⏱ 9 min</span>
+  </div>
+
+  <p>Each line at the gate is an ordinary queue. Here is the plain queue class: no wrap-around and no overflow check, so the idea stays in view. f and r start at −1, which means empty. main makes <b>two</b> objects, a and b, and works on both.</p>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>Read the code in the simulator below. Before you press Next: what does the last <span class="prqx">cout</span> print?</p>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p style="margin:0"><b>1 0.</b> a still holds 3, so its size is 1. b is empty, and size() returns 0 for an empty queue. That is what the <span class="prqx">if(f == -1)</span> line in size() is for: r − f + 1 would give −1 + 1 + 1 = 1.</p>
+    </div>
+  </div>
+
+  <div class="sim" id="qc-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">two Queue objects</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+      <div class="prqgrid">
+        <div class="prqstage">
+          <div class="prqarrwrap" id="qc-arr"></div>
+          <div class="prqcon" id="qc-con"></div>
+        </div>
+        <div class="prqside"><pre class="code prqcode" data-src="qcls"></pre></div>
+      </div>
+      <div class="simrail"></div>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#0284c7">Next &#9656;</button>
+        <button class="btn ghost sm" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 1</span>
+      </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">1</span><p></p></div>
+    </div>
+  </div>
+
+  <div class="box">
+    <p class="bt">One object, one queue</p>
+    <p style="margin:0"><span class="prqx">a.push(13)</span> changed a's arr, f and r, and nothing of b's. Five objects would be five separate queues. That is the next idea.</p>
+  </div>
+
+  <div class="quiz" data-q="q3">
+    <div class="qh">Check yourself — 3 of 4</div>
+    <div class="qq"><span class="prqx">Queue q; q.push(8); q.push(9); q.pop();</span> What are f and r now?</div>
+    <div class="qopts">
+      <button class="qopt" data-a="0">f = 0, r = 0</button>
+      <button class="qopt" data-a="1" data-ok="1">f = 1, r = 1</button>
+      <button class="qopt" data-a="2">f = −1, r = −1</button>
+      <button class="qopt" data-a="3">f = 1, r = 0</button>
+    </div>
+    <div class="qexp"><b>f = 1, r = 1.</b> The pushes leave f = 0, r = 1. pop() makes f = 1, and 1 is not past r = 1, so one item is left: 9.</div>
+  </div>
+</article>
+
+<!-- ============ 5 · THE 2D ARRAY BY HAND ============ -->
+<article class="card numbered" id="s5" style="--accent:#b45309" data-min="8" data-key="2D array: row k is the priority-k queue, with its own f and r. push writes one cell past r in row pr; pop takes the front of the first row that is not empty.">
+  <span class="badge">5</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 5</p><h2>The 2D array, by hand</h2></div>
+    <span class="timechip">⏱ 8 min</span>
+  </div>
+
+  <p>Put the four lines one under another and you have a 2D array, <span class="prqx">a[5][100]</span>. Row k holds the priority-k passengers, and each row keeps its own f and r, just like a and b. Row 0 is not used, so that row 1 is priority 1.</p>
+
+  <figure class="prqfig"><div class="prqarrwrap" data-fig="h0"></div></figure>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>Run the five pushes by hand. Write the cell each one fills. The first is done.</p>
+      <div class="tw prqht"><table>
+        <thead><tr><th>Call</th><th>Cell</th></tr></thead>
+        <tbody>
+          <tr><td><span class="prqx">push(1, 13)</span></td><td><span class="prqx">a[1][0] = 13</span></td></tr>
+          <tr><td><span class="prqx">push(2, 17)</span></td><td><span class="prqq">?</span></td></tr>
+          <tr><td><span class="prqx">push(1, 3)</span></td><td><span class="prqq">?</span></td></tr>
+          <tr><td><span class="prqx">push(1, 5)</span></td><td><span class="prqq">?</span></td></tr>
+          <tr><td><span class="prqx">push(4, 33)</span></td><td><span class="prqq">?</span></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p><b>a[2][0] = 17, a[1][1] = 3, a[1][2] = 5, a[4][0] = 33.</b> Each push goes to row pr, one cell past that row's r.</p>
+      <div class="prqarrwrap" data-fig="h5"></div>
+      <p style="margin:0">Row 1 ends with f = 0, r = 2. Rows 2 and 4 have f = r = 0. Row 3 is still −1, −1.</p>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>Now <span class="prqx">pop()</span> twice, then <span class="prqx">push(1, 7)</span>.</p>
+      <ol>
+        <li>Who boards?</li>
+        <li>Which cell does 7 go into?</li>
+      </ol>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p><b>1. 13, then 3.</b> Row 1 is the first row that is not empty, both times. Its f moves 0 → 1 → 2. 13 and 3 stay in their cells, but they are outside f..r, so they are no longer in the queue.</p>
+      <p><b>2. a[1][3].</b> r moves from 2 to 3. Cells a[1][0] and a[1][1] are free again, but this plain row never goes back to them.</p>
+      <div class="prqarrwrap" data-fig="h7"></div>
+    </div>
+  </div>
+</article>
+
+<!-- ============ 6 · AN ARRAY OF QUEUES: PUSH ============ -->
+<article class="card numbered" id="s6" style="--accent:#16a34a" data-min="10" data-key="The 2D array as objects: <b>Queue pq[5]</b>. pq_push is one line, <b>pq[pr].push(item)</b>, so it is O(1).">
+  <span class="badge">6</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 6</p><h2>Five queues in an array: push</h2></div>
+    <span class="timechip">⏱ 10 min</span>
+  </div>
+
+  <p>A row with its own f and r is exactly a Queue object. So the 2D array is an array of five Queue objects: <span class="prqx">Queue pq[5];</span></p>
+
+  <div class="tw prqmap"><table>
+    <thead><tr><th>2D array (Section 5)</th><th>Array of Queue objects</th></tr></thead>
+    <tbody>
+      <tr><td>row k</td><td><span class="prqx">pq[k]</span></td></tr>
+      <tr><td><span class="prqx">a[k][c]</span></td><td><span class="prqx">pq[k].arr[c]</span></td></tr>
+      <tr><td>f and r of row k</td><td><span class="prqx">pq[k].f</span> and <span class="prqx">pq[k].r</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p><span class="prqx">pq[pr]</span> is the queue for priority pr. Write <span class="prqx">pq_push(int pr, int item)</span>. It needs one line.</p>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p style="margin:0"><span class="prqx">pq[pr].push(item);</span> The queue's own push moves its r, and its f too if it was empty.</p>
+    </div>
+  </div>
+
+  <p>The run below is the same five pushes, then <span class="prqx">pq_display()</span>. The dots beside a line count how many times it has run.</p>
+
+  <div class="sim" id="p2-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">pq_push into five queues</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+      <div class="prqgrid">
+        <div class="prqstage">
+          <div class="prqarrwrap" id="p2-arr"></div>
+          <div class="prqcon" id="p2-con"></div>
+        </div>
+        <div class="prqside"><pre class="code prqcode" data-src="pqpush"></pre></div>
+      </div>
+      <div class="simrail"></div>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#16a34a">Next &#9656;</button>
+        <button class="btn ghost sm" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 1</span>
+      </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">1</span><p></p></div>
+    </div>
+  </div>
+
+  <div class="bigo" style="--oc:#15803d;--ob:#f0fdf4">
+    <div class="bopair"><p class="bok">push · 2D array</p><p class="bov">O(1)</p></div>
+    <p class="bod">pq_push goes straight to <b>pq[pr]</b> and never looks at another queue. Every call ran the same lines &mdash; count the dots &mdash; whether 5 or 5,000 people are waiting.</p>
+  </div>
+
+  <div class="box bad">
+    <p class="bt">The price: space, reserved in advance</p>
+    <p style="margin:0">Every row is a whole <span class="prqx">arr[100]</span>, so four classes reserve 400 cells even with five passengers waiting. And this plain row never reuses the cells before f: in Section 5, 7 went to a[1][3] while a[1][0] and a[1][1] sat free. A real version checks for overflow and makes each row circular, as in the circular queue.</p>
+  </div>
+</article>
+
+<!-- ============ 7 · POP AND THE SCAN ============ -->
+<article class="card numbered" id="s7" style="--accent:#d97706" data-min="10" data-key="2D pop and front are <b>O(P)</b>: scan pq[1]…pq[P] for the first queue that is not empty. P is the number of priority levels.">
+  <span class="badge">7</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 7</p><h2>pop, and the scan</h2></div>
+    <span class="timechip">⏱ 10 min</span>
+  </div>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p><span class="prqx">pq_pop()</span> takes no argument. Which queue should it pop from, and how does it find that queue? Write the loop.</p>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p style="margin:0"><b>The first queue that is not empty, starting from pq[1].</b> Loop <span class="prqx">for(int i = 1; i &lt;= 4; i++)</span>; as soon as <span class="prqx">pq[i].size() != 0</span>, pop pq[i] and return.</p>
+    </div>
+  </div>
+
+  <p>Five pops, starting where Section 6 left off. The meter counts the queues checked in the current call.</p>
+
+  <div class="sim" id="o2-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">pq_pop: the scan</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+      <div class="prqgrid">
+        <div class="prqstage">
+          <div class="prqarrwrap" id="o2-arr"></div>
+        </div>
+        <div class="prqside"><pre class="code prqcode" data-src="pqpop"></pre></div>
+      </div>
+      <div class="simrail"></div>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#d97706">Next &#9656;</button>
+        <button class="btn ghost sm" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="simmeter">queues checked <b>0</b></span>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 1</span>
+      </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">1</span><p></p></div>
+    </div>
+  </div>
+
+  <p>The five pops side by side:</p>
+  <div class="prqtally">
+    <div><span class="prqp k1">13<i>1</i></span><b>1</b><span>queue checked</span></div>
+    <div><span class="prqp k1">3<i>1</i></span><b>1</b><span>queue checked</span></div>
+    <div><span class="prqp k1">5<i>1</i></span><b>1</b><span>queue checked</span></div>
+    <div><span class="prqp k2">17<i>2</i></span><b>2</b><span>queues checked</span></div>
+    <div><span class="prqp k4">33<i>4</i></span><b>4</b><span>queues checked</span></div>
+  </div>
+
+  <div class="bigo" style="--oc:#b45309;--ob:#fffbeb">
+    <div class="bopair"><p class="bok">pop · 2D array</p><p class="bov">O(P)</p></div>
+    <p class="bod">The scan checks at most <b>P</b> queues. P is the number of <b>priority levels</b>, the largest priority number: 4 here. It is not the number of passengers. A pop never checks more than four queues, whether 5 or 500 are waiting.</p>
+  </div>
+
+  <p><b>front</b> asks who is next without removing them. It needs the same scan, stopping before the pop.</p>
+  <div class="bigo" style="--oc:#b45309;--ob:#fffbeb">
+    <div class="bopair"><p class="bok">front · 2D array</p><p class="bov">O(P)</p></div>
+    <p class="bod">Finding who is next costs the same scan as pop.</p>
+  </div>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>Everyone has boarded. Call <span class="prqx">pq_pop()</span> once more. How many queues does it check, and what happens?</p>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p style="margin:0"><b>All 4.</b> Every size() is 0, so the loop runs out and pq_pop returns having done nothing. This plain version prints no Underflow message; a full version would.</p>
+    </div>
+  </div>
+
+  <div class="quiz" data-q="q4">
+    <div class="qh">Check yourself — 4 of 4</div>
+    <div class="qq">A 2D-array priority queue has 10 priority levels. 1,000 people are waiting, all with priority 10. How many queues does one pop check?</div>
+    <div class="qopts">
+      <button class="qopt" data-a="0">1</button>
+      <button class="qopt" data-a="1" data-ok="1">10</button>
+      <button class="qopt" data-a="2">1,000</button>
+      <button class="qopt" data-a="3">1,010</button>
+    </div>
+    <div class="qexp"><b>10.</b> Queues 1 to 9 are empty and queue 10 is not. How many people queue 10 holds makes no difference.</div>
+  </div>
+
+  <div class="turn" data-cmp>
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>Fill in the 2D-array row of the table.</p>
+      <div class="prqcmp" data-show="" data-ask="arr"></div>
+    </div>
+    <button class="tbtn" type="button" data-label="Fill it in">Fill it in</button>
+    <div class="ta">
+      <p style="margin:0">pq_push goes straight to its queue; pop and front scan up to P queues.</p>
+    </div>
+  </div>
+
+  <div class="digwrap">
+    <details class="dig" style="--accent:#d97706">
+      <summary>The whole 2D-array program, to copy and run</summary>
+      <div>
+        <div class="prqcw">
+          <button class="prqcp" type="button" data-src="full2d">Copy</button>
+          <pre class="code prqcode free" data-src="full2d"></pre>
+        </div>
+        <p style="margin:.6rem 0 0">It prints the four queues: <span class="prqx">1 : 13 3 5</span>, <span class="prqx">2 : 17</span>, <span class="prqx">3 : ---</span>, <span class="prqx">4 : 33</span>. After two pops it prints them again, with queue 1 down to <span class="prqx">5</span>.</p>
+      </div>
+    </details>
+  </div>
+</article>
+
+<!-- ============ 8 · LIST PUSH ============ -->
+<article class="card numbered" id="s8" style="--accent:#7c3aed" data-min="12" data-key="Linked-list push is <b>O(n)</b>: walk while <b>cur->pr ≤ pr</b>, then insert between prev and cur. The ≤ keeps equals in arrival order.">
+  <span class="badge">8</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 8</p><h2>The linked list: push</h2></div>
+    <span class="timechip">⏱ 12 min</span>
+  </div>
+
+  <p>Now one list instead of four rows: the four lines joined end to end, as in Section 3. Each node carries the priority, the passenger, and the link:</p>
+  <div class="prqcw">
+    <pre class="code prqcode free" data-src="node"></pre>
+  </div>
+  <p>The list stays sorted: the smallest priority number at the head, and equal priorities in arrival order. So the head is always the next to board.</p>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>The list is <b>13(1) → 3(1) → 17(2) → 33(4)</b>, and <span class="prqx">push(1, 5)</span> arrives.</p>
+      <ol>
+        <li>Between which two nodes does 5 go?</li>
+        <li>A pointer <span class="prqx">cur</span> walks from head, and <span class="prqx">prev</span> follows one node behind. Write the test that keeps them walking.</li>
+        <li>Should it compare priorities with <span class="prqx">&lt;</span> or <span class="prqx">&lt;=</span>? Try it with 5.</li>
+      </ol>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p><b>1. Between 3 and 17.</b></p>
+      <p><b>2.</b> <span class="prqx">cur != nullptr &amp;&amp; cur-&gt;pr &lt;= pr</span>. They stop with prev on 3 and cur on 17. Then 5 goes between prev and cur.</p>
+      <p style="margin:0"><b>3. <span class="prqx">&lt;=</span>.</b> 5 must go behind 13 and 3, which have the same priority. With <span class="prqx">&lt;</span>, the walk would stop at 13 and 5 would jump ahead of both, breaking rule 2.</p>
+    </div>
+  </div>
+
+  <p>One more case. If the walk never moves, prev is still <span class="prqx">nullptr</span>: the list was empty, or the new node outranks the head. Then the new node becomes the head.</p>
+
+  <div class="sim" id="pl-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">push into the linked list</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+      <div class="prqgrid tall">
+        <div class="prqstage"><div class="prqsvg" id="pl-svg"></div></div>
+        <div class="prqside"><pre class="code prqcode" data-src="llpush"></pre></div>
+      </div>
+      <div class="simrail"></div>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#7c3aed">Next &#9656;</button>
+        <button class="btn ghost sm" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="simmeter">nodes walked <b>0</b></span>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 1</span>
+      </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">1</span><p></p></div>
+    </div>
+  </div>
+
+  <div class="bigo" style="--oc:#be123c;--ob:#fff1f2">
+    <div class="bopair"><p class="bok">push · linked list</p><p class="bov">O(n)</p></div>
+    <p class="bod">In the worst case the new passenger belongs at the end, so cur walks past all <b>n</b> nodes: 33 walked past 4. A new head costs O(1), but the exam asks for the worst case.</p>
+  </div>
+</article>
+
+<!-- ============ 9 · LIST POP ============ -->
+<article class="card numbered" id="s9" style="--accent:#0f766e" data-min="6" data-key="Linked-list pop and front are <b>O(1)</b>: the head is always the next to board.">
+  <span class="badge">9</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 9</p><h2>The linked list: pop and front</h2></div>
+    <span class="timechip">⏱ 6 min</span>
+  </div>
+
+  <p>The list is already in boarding order, so the next passenger is always the <b>head</b>. pop deletes the first node. Five pops:</p>
+
+  <div class="sim" id="ol-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">pop from the linked list</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+      <div class="prqgrid tall">
+        <div class="prqstage"><div class="prqsvg" id="ol-svg"></div></div>
+        <div class="prqside"><pre class="code prqcode" data-src="llpop"></pre></div>
+      </div>
+      <div class="simrail"></div>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#0f766e">Next &#9656;</button>
+        <button class="btn ghost sm" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 1</span>
+      </div>
+      <div class="simwatch"></div>
+      <div class="simmsg"><span class="smn">1</span><p></p></div>
+    </div>
+  </div>
+
+  <div class="bigo" style="--oc:#15803d;--ob:#f0fdf4">
+    <div class="bopair"><p class="bok">pop · linked list</p><p class="bov">O(1)</p></div>
+    <p class="bod">pq_pop never walks. Whatever n is, it moves one pointer and frees one node.</p>
+  </div>
+
+  <p><b>front</b> is a single read: <span class="prqx">head-&gt;data</span>.</p>
+  <div class="bigo" style="--oc:#15803d;--ob:#f0fdf4">
+    <div class="bopair"><p class="bok">front · linked list</p><p class="bov">O(1)</p></div>
+    <p class="bod">The answer is at the head. One read.</p>
+  </div>
+
+  <div class="turn" data-cmp>
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>Fill in the linked-list row.</p>
+      <div class="prqcmp" data-show="arr" data-ask="list"></div>
+    </div>
+    <button class="tbtn" type="button" data-label="Fill it in">Fill it in</button>
+    <div class="ta">
+      <p style="margin:0">push walks to find the place; pop and front read the head.</p>
+    </div>
+  </div>
+
+  <div class="digwrap">
+    <details class="dig" style="--accent:#0f766e">
+      <summary>The whole linked-list program, to copy and run</summary>
+      <div>
+        <div class="prqcw">
+          <button class="prqcp" type="button" data-src="fullll">Copy</button>
+          <pre class="code prqcode free" data-src="fullll"></pre>
+        </div>
+        <p style="margin:.6rem 0 0">It prints <span class="prqx">13(1) 3(1) 5(1) 17(2) 33(4)</span>, then <span class="prqx">5(1) 17(2) 33(4)</span> after two pops.</p>
+      </div>
+    </details>
+  </div>
+</article>
+
+<!-- ============ 10 · WHICH ONE ============ -->
+<article class="card numbered" id="s10" style="--accent:#4f46e5" data-min="4" data-key="Push-heavy job: 2D array. Pop-heavy job: linked list. Both heavy: a heap, O(log n) each way.">
+  <span class="badge">10</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 10</p><h2>The table, filled &mdash; and which one to pick</h2></div>
+    <span class="timechip">⏱ 4 min</span>
+  </div>
+
+  <div class="prqcmp" data-show="arr,list" data-heap></div>
+  <p class="subtle">The heap row is a preview. The Trees &amp; Heaps classes show why it holds.</p>
+
+  <p>Each representation is cheap at one end and pays at the other. Which one to pick depends on the job.</p>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>A print server receives thousands of jobs a minute, each with one of three priorities. The printer takes one job a minute. Which representation?</p>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p style="margin:0"><b>The 2D array.</b> Pushes far outnumber pops, and push is O(1) there. Each pop scans only three queues.</p>
+    </div>
+  </div>
+
+  <div class="prqvs">
+    <div class="box warn">
+      <p class="bt">2D array</p>
+      <ul>
+        <li>push <b>O(1)</b>; pop and front <b>O(P)</b></li>
+        <li>Space is reserved up front: P rows of fixed size</li>
+        <li>Needs a small, known set of priority numbers</li>
+        <li>Good for a <b>push-heavy</b> job</li>
+      </ul>
+    </div>
+    <div class="box info">
+      <p class="bt">Linked list</p>
+      <ul>
+        <li>push <b>O(n)</b>; pop and front <b>O(1)</b></li>
+        <li>Grows one node at a time; any priority number works</li>
+        <li>Each node also stores its priority and a link</li>
+        <li>Good for a <b>pop-heavy</b> job</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="box">
+    <p class="bt">A priority queue against an ordinary queue</p>
+    <p><b>Advantage:</b> urgent elements do not wait behind earlier, less important ones. A VVIP does not queue behind 200 Normal passengers.</p>
+    <p style="margin:0"><b>Disadvantages:</b> every element must carry a priority; one operation now has to scan or walk, where an ordinary queue does both in O(1); and a low-priority element can wait forever if higher ones keep arriving.</p>
+  </div>
+
+  <div class="bridge" style="--accent:#4f46e5">
+    <p class="lbl">The heap row</p>
+    <p class="say">A job heavy on both ends wants neither of these.</p>
+    <p style="margin:0">The heap makes push and pop both <b>O(log n)</b>. How it manages that is the job of the Trees &amp; Heaps classes.</p>
+  </div>
+</article>
+
+<nav class="pagenav" aria-label="Course navigation">
+  <span class="pgn pv off"><span class="ar">&#8592;</span><span class="tx"><em>Previous</em><b>The circular queue</b></span></span>
+  <a class="pgn home" href="../../index.html"><span class="ar">&#9776;</span><b>All classes</b></a>
+  <span class="pgn nx off"><span class="ar">&#8594;</span><span class="tx"><em>Next</em><b>Sorting</b></span></span>
+</nav>
+</main>
+</section>
+
+<!-- ======================= EXAM ======================= -->
+<section class="panel" id="p-exam" hidden>
+<header class="hero" style="background:linear-gradient(160deg,#0f172a 0%,#4c0519 55%,#881337 100%)">
+  <div class="wrap">
+    <p class="eyebrow" style="color:#fda4af">Exam · Priority queues</p>
+    <h1>What the finals <em>ask</em></h1>
+    <p class="hero-lede">Four printings of the question, word for word, and the answers to write.</p>
+  </div>
+</header>
+<main class="wrap">
+
+<article class="card" style="--accent:#e11d48">
+  <div class="hdr-row"><div><p class="kicker">The questions</p><h2>As they were set</h2></div></div>
+  <div class="pastq">
+    <div class="pqh"><span class="pqs">Final</span><span class="pqw">Spring 2025 · Q2 a [OR] and Q2 b</span><span class="pqm">4 + 1 marks</span></div>
+    <p class="pqt">What is <b>priority queue</b>? Suppose a priority queue is maintained by a <b>one way list</b> or <b>two-dimensional array</b>. i) Write a procedure which adds an ITEM with priority number M to the queue. ii) Write a procedure which removes an element from the queue and assigns the element to the variable ITEM. What is the time complexity of these operations? &mdash; and, compulsory: Compare the <b>one-way list</b> and <b>array</b> representations of priority queues.</p>
+  </div>
+  <div class="pastq">
+    <div class="pqh"><span class="pqs">Final</span><span class="pqw">Autumn 2025 · Q2 a [OR]</span><span class="pqm">3 marks</span></div>
+    <p class="pqt">What is <b>priority queue</b>? Discuss the <b>one way list</b> representation of a priority queue. Compare the one way list and array representation of priority queues.</p>
+  </div>
+  <div class="pastq">
+    <div class="pqh"><span class="pqs">Final</span><span class="pqw">Spring 2023 · Q1 a [OR]</span><span class="pqm">4 marks</span></div>
+    <p class="pqt">What is <b>priority queue</b>? Discuss the <b>one way list</b> representation of a priority queue. Compare the one way list and array representation of priority queues.</p>
+  </div>
+  <div class="pastq">
+    <div class="pqh"><span class="pqs">Final</span><span class="pqw">Spring 2024 · Q1 c [OR]</span><span class="pqm">4 marks</span></div>
+    <p class="pqt">Explain the <b>two dimensional array</b> representation of priority queue. Explain the advantages and disadvantages of priority queue over the general queue.</p>
+  </div>
+  <p class="subtle" style="margin:0">The fifth final, Spring 2026, is not yet in the transcript.</p>
+</article>
+
+<article class="card" style="--accent:#4f46e5">
+  <div class="hdr-row"><div><p class="kicker">Model answers</p><h2>What to write</h2></div></div>
+
+  <h3 style="margin-top:0">What is a priority queue?</h3>
+  <p>A collection of elements in which each element has a priority, processed by two rules: (1) an element of higher priority is processed before any element of lower priority; (2) two elements of the same priority are processed in the order they were added. A smaller priority number means a higher priority.</p>
+
+  <h3>One-way list representation</h3>
+  <p>Each node has three fields: INFO, PRN (priority number) and LINK &mdash; <span class="prqx">data</span>, <span class="prqx">pr</span> and <span class="prqx">next</span> in our code. The list is sorted by PRN, and nodes with equal PRN are in the order they were added. The front of the queue is the first node.</p>
+  <div class="box">
+    <p class="bt">Add ITEM with priority number M &mdash; O(n)</p>
+    <p>1. Traverse the list until finding a node X whose priority number is greater than M.</p>
+    <p>2. Insert ITEM in front of X. If no such node is found, insert ITEM as the last node.</p>
+    <p style="margin:0">3. Exit.</p>
+  </div>
+  <div class="box">
+    <p class="bt">Remove into ITEM &mdash; O(1)</p>
+    <p>1. If START = NULL, write UNDERFLOW and exit.</p>
+    <p>2. Set ITEM := INFO[START], and delete the first node.</p>
+    <p style="margin:0">3. Exit.</p>
+  </div>
+
+  <h3>Two-dimensional array representation</h3>
+  <p>One queue per priority number. Row K of QUEUE holds the priority-K elements; FRONT[K] and REAR[K] are its front and rear, and NULL (−1) when the row is empty. In C++ this is an array of Queue objects, <span class="prqx">pq[K]</span>.</p>
+  <div class="box">
+    <p class="bt">Add ITEM with priority number M &mdash; O(1)</p>
+    <p>1. Insert ITEM as the rear element of row M (OVERFLOW if row M is full).</p>
+    <p style="margin:0">2. Exit.</p>
+  </div>
+  <div class="box">
+    <p class="bt">Remove into ITEM &mdash; O(P), P = number of priority levels</p>
+    <p>1. Find the smallest K such that FRONT[K] ≠ NULL. If there is none, write UNDERFLOW and exit.</p>
+    <p>2. Delete the front element of row K into ITEM.</p>
+    <p style="margin:0">3. Exit.</p>
+  </div>
+
+  <h3>Compare the two</h3>
+  <div class="prqcmp" data-show="arr,list" data-noheap></div>
+  <p>The array reserves space for every row up front, but adds in O(1). The list uses only what it needs and removes in O(1), but adds in O(n). The list stores a PRN and a LINK with every element.</p>
+
+  <h3>Advantages and disadvantages over a general queue</h3>
+  <p style="margin:0"><b>Advantage:</b> urgent elements are served first instead of waiting behind earlier ones. <b>Disadvantages:</b> every element needs a priority; add or remove is no longer O(1) at both ends; low-priority elements can wait indefinitely.</p>
+</article>
+</main>
+</section>
+
+<footer class="pagefoot">
+  <div class="wrap fin">
+    <div class="fw">
+      <span class="av">JA</span>
+      <span class="nm">Jamil As-ad<span>Lecturer, Dept. of CSE</span></span>
+    </div>
+    <p class="dept"><a href="../../index.html">&larr; All classes</a> &nbsp;·&nbsp; Data Structures · CSE-2321 · International Islamic University Chittagong</p>
+  </div>
+</footer>
+
+<script src="../assets/sim.js?v=3"></script>
+<script>
+/* ================= PRIORITY QUEUES · THIS PAGE =================
+   Every listing on the page is written once, as plain C++, in SRC. The
+   panels are generated from it, and every step names its line by the line's
+   own text, so a listing and its simulator cannot drift apart. The steps are
+   produced by running the code on a model, never typed out by hand.
+   One run of instructions carries the whole class: push(1, 13), push(2, 17),
+   push(1, 3), push(1, 5), push(4, 33), then pop until everyone has boarded. */
+(function(){
+"use strict";
+var $=function(s,r){return (r||document).querySelector(s);};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+var CLS={1:'VVIP',2:'CIP',3:'VIP',4:'Normal'};
+var RUN=[[1,13],[2,17],[1,3],[1,5],[4,33]];       /* push(pr, item), in arrival order */
+var PR={}; RUN.forEach(function(c){ PR[c[1]]=c[0]; });
+var ORD=['1st','2nd','3rd','4th','5th'];
+var C=4;                                            /* cells drawn per row: arr[0..3] of 100 */
+
+/*SRC-BEGIN*/
+var SRC={
+gate:[
+'push(1, 13);',
+'push(2, 17);',
+'push(1, 3);',
+'push(1, 5);',
+'push(4, 33);',
+'pop();      // 1st',
+'pop();      // 2nd',
+'pop();      // 3rd',
+'pop();      // 4th',
+'pop();      // 5th'
+],
+qcls:[
+'class Queue {',
+'    int arr[100], f, r;',
+'public:',
+'    Queue() {',
+'        f = r = -1;',
+'    }',
+'    void push(int item) {',
+'        arr[++r] = item;',
+'        if(f == -1) f = 0;',
+'    }',
+'    void pop() {',
+'        f++;',
+'        if(f > r) f = r = -1;',
+'    }',
+'    void display() {',
+'        if(f == -1) {',
+'            cout << "---" << endl;',
+'            return;',
+'        }',
+'        for(int i = f; i <= r; i++)',
+'            cout << arr[i] << " ";',
+'        cout << endl;',
+'    }',
+'    int size() {',
+'        if(f == -1) return 0;',
+'        return r - f + 1;',
+'    }',
+'};',
+'',
+'int main() {',
+'    Queue a, b;',
+'    a.push(13);',
+'    a.push(3);',
+'    b.push(17);',
+'    a.pop();',
+'    b.pop();',
+'    a.display();',
+'    b.display();',
+'    cout << a.size() << " " << b.size() << endl;',
+'    return 0;',
+'}'
+],
+pqpush:[
+'// class Queue from Section 4',
+'Queue pq[5];    // pq[0] unused',
+'',
+'void pq_push(int pr, int item) {',
+'    pq[pr].push(item);',
+'}',
+'',
+'void pq_display() {',
+'    for(int i = 1; i <= 4; i++) {',
+'        cout << i << " : ";',
+'        pq[i].display();',
+'    }',
+'}',
+'',
+'int main() {',
+'    pq_push(1, 13);',
+'    pq_push(2, 17);',
+'    pq_push(1, 3);',
+'    pq_push(1, 5);',
+'    pq_push(4, 33);',
+'    pq_display();',
+'    return 0;',
+'}'
+],
+pqpop:[
+'void pq_pop() {',
+'    for(int i = 1; i <= 4; i++) {',
+'        if(pq[i].size() != 0) {',
+'            pq[i].pop();',
+'            return;',
+'        }',
+'    }',
+'}',
+'',
+'int main() {',
+'    // the five pushes of Section 6',
+'    pq_pop();       // 1st',
+'    pq_pop();       // 2nd',
+'    pq_pop();       // 3rd',
+'    pq_pop();       // 4th',
+'    pq_pop();       // 5th',
+'    return 0;',
+'}'
+],
+full2d:[
+'#include <iostream>',
+'using namespace std;',
+'',
+'class Queue {',
+'    int arr[100], f, r;',
+'public:',
+'    Queue() {',
+'        f = r = -1;',
+'    }',
+'    void push(int item) {',
+'        arr[++r] = item;',
+'        if(f == -1) f = 0;',
+'    }',
+'    void pop() {',
+'        f++;',
+'        if(f > r) f = r = -1;',
+'    }',
+'    void display() {',
+'        if(f == -1) {',
+'            cout << "---" << endl;',
+'            return;',
+'        }',
+'        for(int i = f; i <= r; i++)',
+'            cout << arr[i] << " ";',
+'        cout << endl;',
+'    }',
+'    int size() {',
+'        if(f == -1) return 0;',
+'        return r - f + 1;',
+'    }',
+'};',
+'',
+'Queue pq[5];    // pq[0] unused',
+'',
+'void pq_push(int pr, int item) {',
+'    pq[pr].push(item);',
+'}',
+'',
+'void pq_pop() {',
+'    for(int i = 1; i <= 4; i++) {',
+'        if(pq[i].size() != 0) {',
+'            pq[i].pop();',
+'            return;',
+'        }',
+'    }',
+'}',
+'',
+'void pq_display() {',
+'    for(int i = 1; i <= 4; i++) {',
+'        cout << i << " : ";',
+'        pq[i].display();',
+'    }',
+'}',
+'',
+'int main() {',
+'    pq_push(1, 13);',
+'    pq_push(2, 17);',
+'    pq_push(1, 3);',
+'    pq_push(1, 5);',
+'    pq_push(4, 33);',
+'    pq_display();',
+'    pq_pop();',
+'    pq_pop();',
+'    pq_display();',
+'    return 0;',
+'}'
+],
+node:[
+'struct Node {',
+'    int pr;             // priority',
+'    int data;',
+'    Node* next;',
+'};',
+'Node* head = nullptr;'
+],
+llpush:[
+'void pq_push(int pr, int item) {',
+'    Node* nw = new Node;',
+'    nw->pr = pr;',
+'    nw->data = item;',
+'    Node* prev = nullptr;',
+'    Node* cur = head;',
+'    while(cur != nullptr && cur->pr <= pr) {',
+'        prev = cur;',
+'        cur = cur->next;',
+'    }',
+'    nw->next = cur;',
+'    if(prev == nullptr) head = nw;',
+'    else prev->next = nw;',
+'}',
+'',
+'int main() {',
+'    pq_push(1, 13);',
+'    pq_push(2, 17);',
+'    pq_push(1, 3);',
+'    pq_push(1, 5);',
+'    pq_push(4, 33);',
+'    return 0;',
+'}'
+],
+llpop:[
+'void pq_pop() {',
+'    if(head == nullptr) return;',
+'    Node* temp = head;',
+'    head = head->next;',
+'    delete temp;',
+'}',
+'',
+'int main() {',
+'    // the five pushes of Section 8',
+'    pq_pop();       // 1st',
+'    pq_pop();       // 2nd',
+'    pq_pop();       // 3rd',
+'    pq_pop();       // 4th',
+'    pq_pop();       // 5th',
+'    return 0;',
+'}'
+],
+fullll:[
+'#include <iostream>',
+'using namespace std;',
+'',
+'struct Node {',
+'    int pr;             // priority',
+'    int data;',
+'    Node* next;',
+'};',
+'Node* head = nullptr;',
+'',
+'void pq_push(int pr, int item) {',
+'    Node* nw = new Node;',
+'    nw->pr = pr;',
+'    nw->data = item;',
+'    Node* prev = nullptr;',
+'    Node* cur = head;',
+'    while(cur != nullptr && cur->pr <= pr) {',
+'        prev = cur;',
+'        cur = cur->next;',
+'    }',
+'    nw->next = cur;',
+'    if(prev == nullptr) head = nw;',
+'    else prev->next = nw;',
+'}',
+'',
+'void pq_pop() {',
+'    if(head == nullptr) return;',
+'    Node* temp = head;',
+'    head = head->next;',
+'    delete temp;',
+'}',
+'',
+'void pq_display() {',
+'    Node* cur = head;',
+'    while(cur != nullptr) {',
+'        cout << cur->data << "(" << cur->pr << ") ";',
+'        cur = cur->next;',
+'    }',
+'    cout << endl;',
+'}',
+'',
+'int main() {',
+'    pq_push(1, 13);',
+'    pq_push(2, 17);',
+'    pq_push(1, 3);',
+'    pq_push(1, 5);',
+'    pq_push(4, 33);',
+'    pq_display();',
+'    pq_pop();',
+'    pq_pop();',
+'    pq_display();',
+'    return 0;',
+'}'
+]
+};
+/*SRC-END*/
+
+/* ---------- a small C++ highlighter, so the listings stay plain text ---------- */
+var KW=/^(if|else|while|for|return|const|struct|class|public|new|delete|nullptr|using|namespace|include)$/;
+var TY=/^(int|char|void|bool|Node|Queue)$/;
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function hl(src){
+  var out='', i=0, n=src.length, m;
+  while(i<n){
+    var c=src.charAt(i), rest=src.slice(i);
+    if(rest.indexOf('//')===0){ out+='<span class="c">'+esc(rest)+'</span>'; break; }
+    if(c==='"'||c==="'"){
+      var j=i+1;
+      while(j<n && src.charAt(j)!==c){ if(src.charAt(j)==='\\') j++; j++; }
+      j++;
+      out+='<span class="s">'+esc(src.slice(i,j))+'</span>'; i=j; continue;
+    }
+    if(c==='#'){ m=/^#\w+/.exec(rest); out+='<span class="k">'+m[0]+'</span>'; i+=m[0].length; continue; }
+    m=/^[A-Za-z_]\w*/.exec(rest);
+    if(m){
+      var w=m[0], after=src.slice(i+w.length);
+      if(KW.test(w)) out+='<span class="k">'+w+'</span>';
+      else if(TY.test(w)) out+='<span class="t">'+w+'</span>';
+      else if(/^\s*\(/.test(after)) out+='<span class="f">'+w+'</span>';
+      else out+=w;
+      i+=w.length; continue;
+    }
+    m=/^\d+/.exec(rest);
+    if(m){ out+='<span class="n">'+m[0]+'</span>'; i+=m[0].length; continue; }
+    out+=esc(c); i++;
+  }
+  return out;
+}
+function plain(key){ return SRC[key].join('\n')+'\n'; }
+
+/* One element per line: gutter number, the code, and a third column that
+   holds one dot per pass when the listing belongs to a simulator. */
+function listing(pre,key){
+  var src=SRC[key], h='';
+  for(var i=0;i<src.length;i++){
+    var t=src[i], blank=!/\S/.test(t);
+    h+='<span class="prql'+(blank?' bl inert':'')+'" data-i="'+i+'"><span class="g">'+(i+1)+'</span>'+
+       '<span class="x">'+(blank?' ':hl(t))+'</span><span class="pp"></span></span>';
+  }
+  pre.innerHTML=h;
+}
+$$('pre.prqcode[data-src]').forEach(function(pre){
+  listing(pre,pre.getAttribute('data-src'));
+  if(!pre.closest('.sim')) $$('.prql',pre).forEach(function(l){ l.classList.add('inert'); });
+});
+
+/* copy buttons: the plain text, never the markup */
+$$('.prqcp').forEach(function(b){
+  b.addEventListener('click',function(){
+    var txt=plain(b.getAttribute('data-src'));
+    function done(){ b.textContent='Copied'; setTimeout(function(){ b.textContent='Copy'; },1300); }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(done,function(){ fallback(txt); done(); });
+    } else { fallback(txt); done(); }
+  });
+});
+function fallback(txt){
+  var ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); }catch(e){}
+  document.body.removeChild(ta);
+}
+
+/* A step names its line by its text: the whole trimmed line if exactly one
+   line is that, otherwise a piece that appears exactly once. Anything else
+   stops the build here rather than drawing a wrong picture that looks fine. */
+function finder(key){
+  var src=SRC[key];
+  return function(sub){
+    var hit=-1, i;
+    for(i=0;i<src.length;i++) if(src[i].trim()===sub){
+      if(hit>=0){ hit=-2; break; }
+      hit=i;
+    }
+    if(hit>=0) return hit;
+    hit=-1;
+    for(i=0;i<src.length;i++) if(src[i].indexOf(sub)>=0){
+      if(hit>=0) throw new Error('line "'+sub+'" is not unique in '+key);
+      hit=i;
+    }
+    if(hit<0) throw new Error('no line "'+sub+'" in '+key);
+    return hit;
+  };
+}
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+function fmt(v){ return v===-1 ? '−1' : String(v); }
+function andList(a){ return a.length<2 ? a.join('') : a.slice(0,-1).join(', ')+' and '+a[a.length-1]; }
+
+/* ---------- folding: a function the run is not inside shows as one line ----------
+   A foldable block is a function at the top level, a class or struct, or a
+   method directly inside a class; main never folds, because the call has to
+   stay in view. While folding is on, every block the current line is inside
+   is open and the rest are closed. The caret in the gutter, or the
+   ⋯ chip on a closed header, opens or closes one block by hand. */
+function blocksOf(src){
+  var out=[], stack=[];
+  src.forEach(function(raw,i){
+    var t=raw.replace(/\/\/.*$/,'').replace(/"(\\.|[^"\\])*"/g,'""').replace(/'(\\.|[^'\\])*'/g,"''");
+    for(var c=0;c<t.length;c++){
+      var ch=t.charAt(c);
+      if(ch==='{'){
+        var parent=stack[stack.length-1], cls=/^\s*(class|struct)\b/.test(t);
+        var head=(/\)\s*\{\s*$/.test(t) || cls) && !/\bmain\s*\(/.test(t) && !/^\s*(if|for|while|else|switch|do)\b/.test(t);
+        stack.push({h:i,cls:cls,fold:head && (!parent || parent.cls)});
+      } else if(ch==='}'){
+        var b=stack.pop();
+        if(b && b.fold) out.push({h:b.h,e:i});
+      }
+    }
+  });
+  return out.sort(function(a,b){ return a.h-b.h; });
+}
+
+/* ---------- a stepped simulator driving a generated listing ---------- */
+var SIMS=[];
+function codeSim(o){
+  var root=$(o.el); if(!root) return null;
+  var pre=$('pre.prqcode',root), lines=$$('.prql',pre), steps=o.steps;
+  var key=pre.getAttribute('data-src'), blocks=blocksOf(SRC[key]), foldOn=blocks.length>0, ov={}, api=null;
+  if(blocks.length) pre.classList.add('hasfold');
+  var used={}, runs={}, most=1;
+  steps.forEach(function(s){ used[s.l]=1; if(!s.np){ runs[s.l]=(runs[s.l]||0)+1; most=Math.max(most,runs[s.l]); } });
+  pre.style.setProperty('--pipw', (Math.min(most,13)*8+14)+'px');
+  lines.forEach(function(ln,i){ if(!used[i]) ln.classList.add('inert'); });
+  function pips(i){
+    var cnt={};
+    for(var j=0;j<=i;j++){ var s=steps[j]; if(!s.np) cnt[s.l]=(cnt[s.l]||0)+1; }
+    lines.forEach(function(ln,k){
+      var c=cnt[k]||0, h='';
+      if(c>12) h='<b>'+c+'&times;</b>';
+      else for(var q=0;q<c;q++) h+='<i></i>';
+      ln.lastChild.innerHTML=h;
+    });
+  }
+
+  /* folding */
+  blocks.forEach(function(b,k){
+    var hd=lines[b.h];
+    var fc=document.createElement('i'); fc.className='fc'; fc.setAttribute('data-b',k); fc.title='Fold or unfold';
+    $('.g',hd).appendChild(fc);
+    var fz=document.createElement('em'); fz.className='prqfz'; fz.setAttribute('data-b',k);
+    fz.textContent='\u22EF '+SRC[key][b.e].trim();
+    $('.x',hd).appendChild(fz);
+    [fc,fz].forEach(function(el){
+      el.addEventListener('click',function(e){
+        e.stopPropagation();
+        var cur=api?steps[api.index()].l:null, closed=hd.classList.contains('fold');
+        if(!closed && cur!==null && b.h<=cur && cur<=b.e) return;      /* the run is inside it */
+        ov[k]=closed?'open':'closed';
+        fold(cur);
+      });
+    });
+  });
+  function isOpen(k,cur){
+    var b=blocks[k];
+    if(cur!==null && b.h<=cur && cur<=b.e) return true;
+    if(ov[k]) return ov[k]==='open';
+    return !foldOn;
+  }
+  function fold(cur){
+    if(!blocks.length) return;
+    var open=blocks.map(function(b,k){ return isOpen(k,cur); });
+    lines.forEach(function(ln,i){
+      var hid=false;
+      for(var k=0;k<blocks.length;k++) if(!open[k] && i>blocks[k].h && i<=blocks[k].e){ hid=true; break; }
+      ln.classList.toggle('fh',hid);
+    });
+    blocks.forEach(function(b,k){
+      lines[b.h].classList.toggle('fold',!open[k]);
+      $('.fc',lines[b.h]).textContent=open[k]?'\u25BE':'\u25B8';
+    });
+  }
+  /* The pane keeps the height of the tallest listing any step will show, so
+     a function opening or closing never moves the buttons below it. */
+  function contentH(){
+    var vis=lines.filter(function(l){ return !l.classList.contains('fh'); });
+    if(!vis.length) return 0;
+    var a=vis[0].getBoundingClientRect(), z=vis[vis.length-1].getBoundingClientRect();
+    if(!a.height) return 0;
+    var cs=getComputedStyle(pre);
+    return z.bottom-a.top+parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom)+parseFloat(cs.borderTopWidth)+parseFloat(cs.borderBottomWidth);
+  }
+  function reserve(){
+    if(!blocks.length || !api) return;
+    var keep=steps[api.index()].l, seen={}, best=0;
+    pre.style.minHeight='';
+    steps.forEach(function(s){
+      var k=blocks.map(function(b,j){ return isOpen(j,s.l)?1:0; }).join('');
+      if(seen[k]) return; seen[k]=1;
+      fold(s.l); best=Math.max(best,contentH());
+    });
+    fold(keep);
+    if(!best) return;
+    var mx=parseFloat(getComputedStyle(pre).maxHeight);
+    pre.style.minHeight=Math.ceil(isNaN(mx)?best:Math.min(best,mx))+'px';
+  }
+  var fb=null;
+  if(blocks.length){
+    fb=document.createElement('button');
+    fb.type='button'; fb.className='btn ghost sm prqfold';
+    var at=$('.simmeter',root)||$('.simkeys',root);
+    at.parentNode.insertBefore(fb,at);
+    fb.addEventListener('click',function(){
+      foldOn=!foldOn; ov={}; label();
+      fold(steps[api.index()].l); reserve();
+    });
+  }
+  function label(){
+    if(!fb) return;
+    fb.textContent=foldOn?'Show all code':'Fold code';
+    fb.setAttribute('aria-pressed',foldOn?'true':'false');
+  }
+  label();
+
+  api=Sim.make({el:root, name:o.name, steps:steps, play:o.play||950,
+    lines:o.el+' .prql',
+    group:function(s){ return s.g; },
+    render:function(s,i,a){ fold(s.l); pips(i); o.render(s,i,a); },
+    onFit:function(a){ if(o.onFit) o.onFit(a); reserve(); }
+  });
+  lines.forEach(function(ln,k){
+    if(!used[k]) return;
+    ln.addEventListener('click',function(){
+      var i=api.index(), j;
+      for(j=i+1;j<steps.length;j++) if(steps[j].l===k){ api.go(j); return; }
+      for(j=0;j<=i;j++) if(steps[j].l===k){ api.go(j); return; }
+    });
+  });
+  fold(steps[api.index()].l);
+  reserve();
+  SIMS.push(api);
+  return api;
+}
+
+/* A board too wide for its column shrinks to fit rather than scrolling, down
+   to 62%; past that (a phone) the strip scrolls. CSS zoom re-lays the board
+   out at the smaller size, so text stays sharp and the box keeps its height. */
+function fitBoard(wrap){
+  var bd=wrap && wrap.firstElementChild; if(!bd) return;
+  bd.style.zoom='';
+  var avail=wrap.clientWidth, need=bd.offsetWidth;
+  if(avail<=0 || !need) return;
+  if(need>avail) bd.style.zoom=String(Math.max(0.62,(avail-2)/need));
+}
+function fitAll(){ $$('.prqarrwrap').forEach(fitBoard); }
+if(window.ResizeObserver){
+  var ro=new ResizeObserver(function(es){
+    es.forEach(function(e){ var w=e.target, cw=w.clientWidth; if(w._fw!==cw){ w._fw=cw; fitBoard(w); } });
+  });
+  $$('.prqarrwrap').forEach(function(w){ ro.observe(w); });
+}
+var rsT=null;
+window.addEventListener('resize',function(){
+  clearTimeout(rsT);
+  rsT=setTimeout(function(){ fitAll(); SIMS.forEach(function(a){ a.refit(); }); },150);
+});
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ fitAll(); SIMS.forEach(function(a){ a.refit(); }); });
+
+/* the console reserves the height of the most it will ever print, so the
+   buttons under the picture never move when a line is added */
+function conReserve(el,steps){
+  if(!el) return;
+  var most=1;
+  steps.forEach(function(s){ most=Math.max(most,(s.out||'').replace(/\n$/,'').split('\n').length); });
+  el.style.setProperty('--conl',most);
+}
+function con(el,out){
+  if(!el) return;
+  el.innerHTML='<em>console</em>'+(out ? '<span>'+esc(out)+'</span>' : '<span class="none">nothing printed yet</span>');
+}
+
+/* =================== QUEUES, DRAWN AS ROWS ===================
+   One model and one drawing serve every queue on the page: the objects a and
+   b of Section 4, the hand-filled 2D array of Section 5, and the five Queue
+   objects of Sections 6 and 7. The model is the plain class itself. */
+function Q(){ return {arr:[],f:-1,r:-1,ok:true}; }          /* after the constructor */
+function qpush(q,it){ q.r++; q.arr[q.r]=it; if(q.f===-1) q.f=0; }
+function qpop(q){ q.f++; if(q.f>q.r){ q.f=-1; q.r=-1; } }
+function qsize(q){ return q.f===-1 ? 0 : q.r-q.f+1; }
+function qshow(q){
+  if(q.f===-1) return '---\n';
+  var s=''; for(var i=q.f;i<=q.r;i++) s+=q.arr[i]+' ';
+  return s+'\n';
+}
+function qlive(q,c){ return q.f!==-1 && c>=q.f && c<=q.r; }
+
+/* A row is the −1 slot (where f and r point while it is empty), then cells
+   0..3 of arr[100]. Under it, a lane holds f, r and i as badges under the
+   box each one indexes. A value outside f..r is greyed: still in the cell,
+   no longer in the queue.
+   v: on = the row a call works in · seen = rows found empty · mk = text
+   beside a row · w = cell just written · pick = cell just popped ·
+   rd = cell being printed · i = {key, c} · chg = badges that just moved */
+function boardHTML(rows,v,o){
+  v=v||{}; o=o||{};
+  var chg=v.chg||[], seen=v.seen||[], lanes=o.lanes||2;
+  var h='<div class="prqbd'+(o.marks?' mk':'')+'" style="--c:'+(C+1)+';--ln:'+lanes+'">'+
+        '<span class="prqbh"></span><span class="prqbh">'+(o.head||'')+'</span><span class="prqbh">−1</span>';
+  for(var c=0;c<C;c++) h+='<span class="prqbh">'+c+'</span>';
+  h+='<span class="prqbh">…</span>';
+  rows.forEach(function(rw){
+    var q=rw.q, key=rw.key, cls='prqbr'+(rw.k?' k'+rw.k:' k0')+(rw.unused?' unu':'')+
+        (v.on===key?' on':'')+(seen.indexOf(key)>=0?' seen':'');
+    h+='<div class="'+cls+'">';
+    h+='<span class="prqbm">'+(v.mk && v.mk[key] ? v.mk[key] : '')+'</span>';
+    h+='<span class="prqbl"><b>'+rw.lab+'</b>'+(rw.sub?'<em>'+rw.sub+'</em>':'')+'</span>';
+    h+='<span class="prqbc gh"></span>';
+    for(var c=0;c<C;c++){
+      var val=(rw.unused || q.arr[c]===undefined || q.arr[c]===null) ? '' : q.arr[c], cc='prqbc';
+      if(val!=='' && !qlive(q,c)) cc+=' dead';
+      if(v.w===key+'_'+c) cc+=' w';
+      if(v.pick===key+'_'+c) cc+=' pick';
+      if(v.rd===key+'_'+c) cc+=' rd';
+      h+='<span class="'+cc+'">'+val+'</span>';
+    }
+    h+='<span class="prqbx">…</span></div>';
+    if(rw.unused) return;
+    var at={};
+    function put(col,txt,kind,ch){ (at[col]=at[col]||[]).push('<i class="prqbb '+kind+(ch?' chg':'')+'">'+txt+'</i>'); }
+    if(q.ok){
+      put(q.f,'f = '+fmt(q.f),'bf',chg.indexOf('f:'+key)>=0);
+      put(q.r,'r = '+fmt(q.r),'br',chg.indexOf('r:'+key)>=0);
+    }
+    if(v.i && v.i.key===key) put(v.i.c,'i = '+v.i.c,'bi',false);
+    h+='<div class="prqbr ln'+(rw.k?' k'+rw.k:' k0')+'"><span></span><span></span>';
+    for(var col=-1;col<C;col++) h+='<span class="prqbn">'+(at[col]||[]).join('')+'</span>';
+    h+='<span></span></div>';
+  });
+  return h+'</div>';
+}
+function pqRows(Qs,named){
+  var rows=[{key:'0',lab:named?'pq[0]':'row 0',sub:'unused',unused:true,q:Qs[0]}];
+  for(var k=1;k<=4;k++) rows.push({key:String(k),lab:named?'pq['+k+']':'row '+k,sub:CLS[k],k:k,q:Qs[k]});
+  return rows;
+}
+function five(){ return [Q(),Q(),Q(),Q(),Q()]; }
+function after5(){ var Qs=five(); RUN.forEach(function(c){ qpush(Qs[c[0]],c[1]); }); return Qs; }
+function mk(i){ var o={}; o[String(i)]='i = '+i+' ▸'; return o; }
+
+/* ---------- 4 · the plain queue: two objects ---------- */
+function genQcls(){
+  var L=finder('qcls'), steps=[], O={a:{arr:[],f:-1,r:-1,ok:false}, b:{arr:[],f:-1,r:-1,ok:false}};
+  var out='', obj=null, G='start';
+  function rows(){ return [{key:'a',lab:'a',sub:'Queue',q:O.a},{key:'b',lab:'b',sub:'Queue',q:O.b}]; }
+  function W(){
+    var o=obj?O[obj]:null;
+    function val(x){ return !o ? '—' : (o.ok ? fmt(x) : '?'); }
+    return [['object',obj||'—'],['f',val(o&&o.f)],['r',val(o&&o.r)]];
+  }
+  function S(l,msg,v,extra){
+    var s={l:l,msg:msg,rows:clone(rows()),v:v||{},w:W(),out:out,g:G};
+    if(extra) for(var x in extra) s[x]=extra[x];
+    steps.push(s);
+  }
+  S(L('int main() {'),'main starts.');
+  S(L('Queue a, b;'),'Two Queue objects, <b>a</b> and <b>b</b>.');
+  S(L('int arr[100], f, r;'),'Each object gets its <b>own</b> arr[100], f and r. Nothing is in them yet.');
+  ['a','b'].forEach(function(nm){
+    obj=nm;
+    S(L('Queue() {'),'The constructor runs for <b>'+nm+'</b>.',{on:nm});
+    O[nm].ok=true; O[nm].f=-1; O[nm].r=-1;
+    S(L('f = r = -1;'),nm+'.f = '+nm+'.r = −1: '+nm+' is empty. Both point at −1, just left of cell 0.',
+      {on:nm,chg:['f:'+nm,'r:'+nm]});
+  });
+  function push(nm,it){
+    G=nm+'.push('+it+')'; obj=null;
+    S(L(nm+'.push('+it+');'),'main calls <b>'+nm+'.push('+it+')</b>.');
+    obj=nm; var q=O[nm];
+    S(L('void push(int item) {'),'item = '+it+'. Inside push, f and r are <b>'+nm+'</b>’s.',{on:nm});
+    q.r++; q.arr[q.r]=it;
+    S(L('arr[++r] = item;'),'r goes up to '+q.r+', then arr['+q.r+'] = '+it+'.',{on:nm,w:nm+'_'+q.r,chg:['r:'+nm]});
+    var emp=(q.f===-1); if(emp) q.f=0;
+    S(L('if(f == -1) f = 0;'), emp ? 'f was −1, so '+nm+' was empty: f = 0. '+it+' is the front.'
+                                   : 'f = '+q.f+', not −1. The front stays where it is.',
+      {on:nm,chg:emp?['f:'+nm]:[]},{cond:{ok:emp}});
+  }
+  function pop(nm){
+    G=nm+'.pop()'; obj=null;
+    S(L(nm+'.pop();'),'main calls <b>'+nm+'.pop()</b>.');
+    obj=nm; var q=O[nm];
+    S(L('void pop() {'),'Inside pop, f and r are '+nm+'’s.',{on:nm});
+    var gone=q.arr[q.f], f0=q.f; q.f++;
+    S(L('f++;'),'f = '+q.f+'. '+gone+' is no longer between f and r, so it has left the queue. It is still in arr['+f0+'], greyed out.',
+      {on:nm,pick:nm+'_'+f0,chg:['f:'+nm]});
+    var fv=q.f, rv=q.r, emp=(q.f>q.r);
+    if(emp){ q.f=-1; q.r=-1; }
+    S(L('if(f > r) f = r = -1;'), emp ? 'f = '+fv+' is past r = '+rv+': nothing is left. f = r = −1, so '+nm+' is empty again.'
+                                      : 'f = '+fv+' is not past r = '+rv+': '+(rv-fv+1)+' item'+(rv>fv?'s':'')+' left.',
+      {on:nm,chg:emp?['f:'+nm,'r:'+nm]:[]},{cond:{ok:emp}});
+  }
+  function display(nm){
+    G=nm+'.display()'; obj=null;
+    S(L(nm+'.display();'),'main calls <b>'+nm+'.display()</b>.');
+    obj=nm; var q=O[nm];
+    S(L('void display() {'),'display prints '+nm+' from f to r.',{on:nm});
+    var emp=(q.f===-1);
+    S(L('if(f == -1) {'), emp ? 'f = −1: '+nm+' is empty.' : 'f = '+q.f+': '+nm+' is not empty.',{on:nm},{cond:{ok:emp}});
+    if(emp){
+      out+='---\n';
+      S(L('cout << "---" << endl;'),'Prints ---.',{on:nm});
+      S(L('return;'),'display returns here. The loop never runs.',{on:nm});
+      return;
+    }
+    var i=q.f;
+    while(true){
+      var go=(i<=q.r);
+      S(L('for(int i = f; i <= r; i++)'),(i===q.f?'i starts at f = '+i+'. ':'i = '+i+'. ')+(go ? i+' ≤ r = '+q.r+': print arr['+i+'].' : i+' > r = '+q.r+': stop.'),
+        {on:nm,i:{key:nm,c:i},rd:go?nm+'_'+i:null},{cond:{ok:go}});
+      if(!go) break;
+      out+=q.arr[i]+' ';
+      S(L('cout << arr[i] << " ";'),'Prints '+q.arr[i]+'.',{on:nm,i:{key:nm,c:i},rd:nm+'_'+i});
+      i++;
+    }
+    out+='\n';
+    S(L('cout << endl;'),'Ends the line.',{on:nm});
+  }
+  push('a',13); push('a',3); push('b',17);
+  pop('a'); pop('b');
+  display('a'); display('b');
+  G='size()'; obj=null;
+  S(L('cout << a.size()'),'main asks a.size(), then b.size().');
+  ['a','b'].forEach(function(nm){
+    obj=nm; var q=O[nm];
+    S(L('int size() {'),'size() runs for <b>'+nm+'</b>.',{on:nm});
+    var emp=(q.f===-1);
+    S(L('if(f == -1) return 0;'), emp ? 'f = −1: '+nm+' is empty, so size() returns 0. Without this line, r − f + 1 = −1 + 1 + 1 = 1.'
+                                      : 'f = '+q.f+': '+nm+' is not empty.',{on:nm},{cond:{ok:emp}});
+    if(!emp) S(L('return r - f + 1;'),'r − f + 1 = '+q.r+' − '+q.f+' + 1 = <b>'+(q.r-q.f+1)+'</b>.',{on:nm});
+  });
+  obj=null; out+=qsize(O.a)+' '+qsize(O.b)+'\n';
+  S(L('cout << a.size()'),'Prints <b>'+qsize(O.a)+' '+qsize(O.b)+'</b>.',{},{np:true});
+  S(L('return 0;'),'main ends.');
+  return steps;
+}
+
+/* ---------- 6 · pq_push, five calls ---------- */
+function genPQPush(){
+  var L=finder('pqpush'), steps=[], Qs=five(), out='', G='start', pr=null, item=null, ii=null;
+  function W(){ return [['pr',pr===null?'—':pr],['item',item===null?'—':item],['i',ii===null?'—':ii]]; }
+  function S(l,msg,v,extra){
+    var s={l:l,msg:msg,rows:clone(pqRows(Qs,true)),v:v||{},w:W(),out:out,g:G};
+    if(extra) for(var x in extra) s[x]=extra[x];
+    steps.push(s);
+  }
+  S(L('Queue pq[5];'),'Before main starts, five Queue objects are made, and each constructor sets f = r = −1. pq[0] is never used, so pq[1] can be priority 1.');
+  S(L('int main() {'),'main starts. All four queues are empty.');
+  RUN.forEach(function(c){
+    var k=c[0], it=c[1];
+    G='pq_push('+k+', '+it+')'; pr=null; item=null;
+    S(L('pq_push('+k+', '+it+');'),'main calls <b>pq_push('+k+', '+it+')</b>: a '+CLS[k]+' passenger.');
+    pr=k; item=it;
+    S(L('void pq_push('),'pr = '+k+', item = '+it+'. pr picks the queue: pq['+k+'].',{on:String(k)});
+    var q=Qs[k], was=(q.f===-1); qpush(q,it);
+    S(L('pq[pr].push(item);'),'<b>pq['+k+'].push('+it+')</b>: r moves to '+q.r+' and arr['+q.r+'] = '+it+(was?'. f was −1, so f = 0':'')+'. No other queue was looked at.',
+      {on:String(k),w:k+'_'+q.r,chg:was?['f:'+k,'r:'+k]:['r:'+k]});
+  });
+  G='pq_display()'; pr=null; item=null;
+  S(L('pq_display();'),'main calls <b>pq_display()</b>.');
+  S(L('void pq_display() {'),'It prints the four queues, one line each.');
+  for(var i=1;i<=5;i++){
+    ii=i; var go=(i<=4);
+    S(L('for(int i = 1;'), go ? (i===1?'i starts at 1. ':'')+'i = '+i+' ≤ 4.' : 'i = 5 > 4: all four printed.',{mk:go?mk(i):{}},{cond:{ok:go}});
+    if(!go) break;
+    out+=i+' : ';
+    S(L('cout << i << " : ";'),'Prints “'+i+' : ”.',{mk:mk(i),on:String(i)});
+    out+=qshow(Qs[i]);
+    S(L('pq[i].display();'),'pq['+i+'].display() prints '+(Qs[i].f===-1?'---: nobody is '+CLS[i]+'.':qshow(Qs[i]).trim()+'.'),{mk:mk(i),on:String(i)});
+  }
+  ii=null;
+  S(L('return 0;'),'main ends.');
+  return steps;
+}
+
+/* ---------- 7 · pq_pop, five calls ---------- */
+function genPQPop(){
+  var L=finder('pqpop'), steps=[], Qs=after5(), G='start', ii=null, checks=0, brd=[];
+  function W(){ return [['i',ii===null?'—':ii],['boarded',brd.length?brd.join(' '):'—']]; }
+  function S(l,msg,v,extra){
+    var s={l:l,msg:msg,rows:clone(pqRows(Qs,true)),v:v||{},w:W(),g:G,meter:checks};
+    if(extra) for(var x in extra) s[x]=extra[x];
+    steps.push(s);
+  }
+  S(L('int main() {'),'main has already run the five pushes of Section 6. pq[1] holds 13 3 5, pq[2] holds 17, pq[4] holds 33.');
+  for(var n=0;n<5;n++){
+    G='pop '+(n+1); checks=0; ii=null;
+    S(L('// '+ORD[n]),'main calls <b>pq_pop()</b>.');
+    S(L('void pq_pop() {'),'No argument: pq_pop has to find the queue itself.');
+    var seen=[], i=1;
+    while(true){
+      ii=i;
+      S(L('for(int i = 1;'),(i===1?'i starts at 1, the highest priority. ':'')+'i = '+i+' ≤ 4.',{mk:mk(i),seen:seen.slice()},{cond:{ok:true}});
+      var sz=qsize(Qs[i]); checks++;
+      S(L('if(pq[i].size() != 0) {'),'pq['+i+'].size() = '+sz+'. '+(sz ? 'Somebody is waiting here.' : 'No '+CLS[i]+' is waiting. Next queue.'),
+        {mk:mk(i),seen:seen.slice(),on:sz?String(i):null},{cond:{ok:sz!==0}});
+      if(sz) break;
+      seen.push(String(i)); i++;
+    }
+    var q=Qs[i], f0=q.f, id=q.arr[q.f]; qpop(q); brd.push(id);
+    S(L('pq[i].pop();'),'<b>pq['+i+'].pop()</b>: '+id+' boards. '+(q.f===-1 ? 'It was the last '+CLS[i]+', so f = r = −1.' : 'f moves to '+q.f+'.'),
+      {mk:mk(i),seen:seen.slice(),on:String(i),pick:i+'_'+f0,chg:q.f===-1?['f:'+i,'r:'+i]:['f:'+i]});
+    S(L('return;'),'pq_pop returns after checking <b>'+checks+'</b> queue'+(checks>1?'s':'')+'.',{mk:mk(i),seen:seen.slice(),on:String(i)});
+  }
+  ii=null;
+  S(L('return 0;'),'Everyone has boarded, in the order 13, 3, 5, 17, 33.');
+  return steps;
+}
+
+function makeBoard(id,gen,name,lanes,marks){
+  var steps=gen(), arr=$('#'+id+'-arr'), cn=$('#'+id+'-con');
+  conReserve(cn,steps);
+  codeSim({el:'#'+id+'-sim', name:name, steps:steps, onFit:function(){ fitBoard(arr); }, render:function(s,i,a){
+    arr.innerHTML=boardHTML(s.rows,s.v,{lanes:lanes||2,marks:marks}); fitBoard(arr);
+    a.msg(s.msg); a.watch(s.w); con(cn,s.out);
+    if(s.meter!==undefined) a.meter(s.meter);
+  }});
+}
+
+/* =================== THE LINKED LIST =================== */
+/* Nodes are [pr | data | next], left to right, one slot of room each. A node
+   that is not in the list (new, or just cut out) sits BELOW the slot it is
+   about to take or has just left, and the row keeps that slot open (`gap`)
+   until the function returns, so nothing slides while links are rewired.
+   A link field shows what has been assigned and nothing more: ? unwritten,
+   a dot holding an address, a cross for a null held outside the row.
+   prev holding nullptr points at its own NULL plate, left of the row. */
+var LG={NW:94,PRW:26,DW:40,NH:44,GAP:34,PLX:12,PLW:46,HY:16,RY:42,NULLW:46};
+function listSVG(st,o){
+  o=o||{};
+  var NW=LG.NW, NH=LG.NH, RY=LG.RY, STEP=NW+LG.GAP, PRW=LG.PRW, DW=LG.DW;
+  var X0=o.plate?78:22, CY=RY+NH+28, BY=CY+26, LY=BY+NH+22;
+  /* slots = the most node positions a run ever needs, a held-open gap
+     included; the NULL box sits in the position after the last of them */
+  var W=X0+o.slots*STEP+LG.NULLW+16;
+  var H=o.low ? LY+16 : (o.groups ? RY+NH+46 : RY+NH+16);
+  var chg=o.chg||[], hlc=o.hl||{}, uid=o.uid||'f', ch=st.ch||{};
+  function lx(i){ return X0+i*STEP; }
+  var pos={}, gap=st.gap;
+  st.row.forEach(function(id,i){ pos[id]={x:lx(gap>=0 && i>=gap ? i+1 : i), y:RY}; });
+  var gapX=lx(gap>=0?gap:0);
+  if(st.below!==null && st.below!==undefined) pos[st.below]={x:gapX,y:BY};
+  var nRow=st.row.length, last=nRow?String(st.row[nRow-1]):null;     /* ids are numbers; keys are strings */
+  var nullLi=nRow+((gap>=0 && gap<=nRow)?1:0), nullX=lx(nullLi);
+  var showNull=(st.head===null) || (last!==null && st.nodes[last].next===null) || ch.cur===null;
+  var mid=RY+NH/2;
+  var s='<svg viewBox="0 0 '+W+' '+H+'" style="--w:'+W+'px" role="img" aria-label="A linked list sorted by priority">'+
+    '<defs><marker id="lah-'+uid+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="lah" d="M0,0 L10,5 L0,10 z"/></marker>'+
+    '<marker id="lac-'+uid+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="lac" d="M0,0 L10,5 L0,10 z"/></marker></defs>';
+  var arrows='', nodes='', chips='', grp='';
+  function A(d,c){ arrows+='<path class="la'+(c?' chg':'')+'" d="'+d+'" marker-end="url(#'+(c?'lac-':'lah-')+uid+')"/>'; }
+
+  Object.keys(pos).forEach(function(id){
+    var n=st.nodes[id], a=pos[id], x=a.x, y=a.y, inRow=(y===RY);
+    var cls='ln'+(n.pr?' k'+n.pr:'')+(hlc[id]?' '+hlc[id]:'');
+    nodes+='<g class="'+cls+'">';
+    nodes+='<rect class="lb" x="'+x+'" y="'+y+'" width="'+NW+'" height="'+NH+'" rx="6"/>';
+    nodes+='<rect class="lpb" x="'+(x+1.5)+'" y="'+(y+1.5)+'" width="'+(PRW-1.5)+'" height="'+(NH-3)+'" rx="4.5"/>';
+    if(chg.indexOf('pr:'+id)>=0)   nodes+='<rect class="lchg" x="'+(x+2)+'" y="'+(y+2)+'" width="'+(PRW-3)+'" height="'+(NH-4)+'" rx="4"/>';
+    if(chg.indexOf('data:'+id)>=0) nodes+='<rect class="lchg" x="'+(x+PRW+1)+'" y="'+(y+2)+'" width="'+(DW-2)+'" height="'+(NH-4)+'"/>';
+    if(chg.indexOf('next:'+id)>=0) nodes+='<rect class="lchg" x="'+(x+PRW+DW+1)+'" y="'+(y+2)+'" width="'+(NW-PRW-DW-3)+'" height="'+(NH-4)+'" rx="4"/>';
+    nodes+='<line class="ld" x1="'+(x+PRW)+'" y1="'+y+'" x2="'+(x+PRW)+'" y2="'+(y+NH)+'"/>';
+    nodes+='<line class="ld" x1="'+(x+PRW+DW)+'" y1="'+y+'" x2="'+(x+PRW+DW)+'" y2="'+(y+NH)+'"/>';
+    nodes+='<text class="lp" x="'+(x+PRW/2)+'" y="'+(y+NH/2+5)+'">'+n.pr+'</text>';
+    nodes+='<text class="li" x="'+(x+PRW+DW/2)+'" y="'+(y+NH/2+6)+'">'+n.data+'</text>';
+    var cx=x+PRW+DW+(NW-PRW-DW)/2, cy=y+NH/2;
+    if(n.next==='?') nodes+='<text class="lq" x="'+cx+'" y="'+(cy+5)+'">?</text>';
+    else if(n.next===null && !(inRow && id===last && showNull)) nodes+='<path class="lx" d="M'+(cx-5)+' '+(cy-5)+' L'+(cx+5)+' '+(cy+5)+' M'+(cx+5)+' '+(cy-5)+' L'+(cx-5)+' '+(cy+5)+'"/>';
+    else nodes+='<circle class="ldot" cx="'+cx+'" cy="'+cy+'" r="4"/>';
+    nodes+='</g>';
+
+    var nx=n.next, c=chg.indexOf('next:'+id)>=0;
+    if(nx==='?') return;
+    if(nx===null){ if(inRow && id===last && showNull) A('M'+cx+' '+cy+' H'+(nullX-3),c); return; }
+    var b=pos[nx]; if(!b) return;
+    if(inRow && b.y===RY) A('M'+cx+' '+cy+' H'+(b.x-3),c);
+    else if(inRow){                         /* down into the node waiting below */
+      var tx=b.x+20, ty=BY-3;
+      A('M'+cx+' '+cy+' C'+(cx+30)+' '+cy+' '+tx+' '+(ty-50)+' '+tx+' '+ty,c);
+    } else {                                /* up out of it, into the row */
+      var ux=b.x+14, uy=RY+NH+3;
+      A('M'+cx+' '+cy+' C'+(cx+34)+' '+cy+' '+ux+' '+(uy+50)+' '+ux+' '+uy,c);
+    }
+  });
+
+  if(showNull) nodes+='<g class="lnull"><rect x="'+nullX+'" y="'+(mid-15)+'" width="'+LG.NULLW+'" height="30" rx="5"/>'+
+                      '<text x="'+(nullX+LG.NULLW/2)+'" y="'+(mid+4)+'">NULL</text></g>';
+  if(o.plate && ch.prev===null)
+    nodes+='<g class="lnull pl"><rect x="'+LG.PLX+'" y="'+(mid-15)+'" width="'+LG.PLW+'" height="30" rx="5"/>'+
+           '<text x="'+(LG.PLX+LG.PLW/2)+'" y="'+(mid+4)+'">NULL</text></g>';
+
+  /* the four lines, joined end to end: a bar under each run of one priority */
+  if(o.groups){
+    var i=0;
+    while(i<nRow){
+      var k=st.nodes[st.row[i]].pr, j=i;
+      while(j+1<nRow && st.nodes[st.row[j+1]].pr===k) j++;
+      var x1=pos[st.row[i]].x, x2=pos[st.row[j]].x+NW;
+      grp+='<g class="lgrp k'+k+'"><rect x="'+x1+'" y="'+(RY+NH+9)+'" width="'+(x2-x1)+'" height="5" rx="2.5"/>'+
+           '<text x="'+((x1+x2)/2)+'" y="'+(RY+NH+31)+'">'+CLS[k]+' line</text></g>';
+      i=j+1;
+    }
+  }
+
+  function chip(name,cx,cy,cls,ax,ay,c){
+    var w=Math.max(34,name.length*8.4+16);
+    chips+='<g class="lchip '+cls+(c?' chg':'')+'"><rect x="'+(cx-w/2)+'" y="'+(cy-11)+'" width="'+w+'" height="22" rx="6"/>'+
+           '<text x="'+cx+'" y="'+(cy+4.5)+'">'+name+'</text></g>';
+    if(ax!==null) chips+='<line class="lca '+cls.split(' ')[0]+'" x1="'+cx+'" y1="'+(ay<cy?cy-11:cy+11)+'" x2="'+ax+'" y2="'+ay+'" marker-end="url(#lah-'+uid+')"/>';
+  }
+  /* head, above the row */
+  if(o.head!==false){
+    var hc=chg.indexOf('head')>=0;
+    if(st.head===null) chip('head',nullX+LG.NULLW/2,LG.HY,'head',nullX+LG.NULLW/2,mid-18,hc);
+    else { var hp=pos[st.head]; chip('head',hp.x+NW/2,LG.HY,'head',hp.x+NW/2,hp.y-3,hc); }
+  }
+  /* prev, cur, temp: in the lane under the row, or under the node parked
+     below it; nw: always under the parked node */
+  var spots=[], on={};
+  ['prev','cur','temp','nw'].forEach(function(nm){
+    var id=ch[nm]; if(id===undefined) return;
+    var c=chg.indexOf(nm)>=0;
+    if(id==='freed'){ chip(nm+' (freed)',gapX+NW/2,LY,'temp freed',null,null,false); return; }
+    var sp;
+    if(id===null) sp=(nm==='prev') ? {x:LG.PLX+LG.PLW/2,lane:CY,ay:mid+18,at:'plate'}
+                                    : {x:nullX+LG.NULLW/2,lane:CY,ay:mid+18,at:'null'};
+    else { var a=pos[id]; if(!a) return; sp={x:a.x+NW/2,lane:(a.y===RY)?CY:LY,ay:a.y+NH+3,at:id}; }
+    sp.nm=nm; sp.c=c; spots.push(sp);
+    on[sp.at+'@'+sp.lane]=(on[sp.at+'@'+sp.lane]||0)+1;
+  });
+  /* two pointers on one node (prev = cur, for one step) fan out, so both
+     chips and both arrows stay visible */
+  var seenAt={};
+  spots.forEach(function(sp){
+    var key=sp.at+'@'+sp.lane, k=seenAt[key]||0; seenAt[key]=k+1;
+    var off=on[key]>1 ? (k===0?-26:26) : 0;
+    chip(sp.nm,sp.x+off,sp.lane,sp.nm,sp.x+off,sp.ay,sp.c);
+  });
+  return s+grp+arrows+nodes+chips+'</svg>';
+}
+function LL(){ return {nodes:{},row:[],gap:-1,below:null,head:null,ch:{}}; }
+function listOf(pairs){
+  var st=LL();
+  pairs.forEach(function(p,i){ st.nodes[p[1]]={pr:p[0],data:p[1],next:null}; if(i) st.nodes[pairs[i-1][1]].next=p[1]; st.row.push(p[1]); });
+  st.head=pairs.length?pairs[0][1]:null;
+  return st;
+}
+function joinBelow(st){
+  if(st.below===null) return;
+  st.row.splice(st.gap,0,st.below);
+  st.below=null; st.gap=-1;
+}
+function pv(x){ return x===undefined ? '—' : (x===null ? 'nullptr' : '→ '+x); }
+
+/* ---------- 8 · push, five calls ---------- */
+function genLLPush(){
+  var L=finder('llpush'), steps=[], st=LL(), G='start', pr=null, item=null, walked=0;
+  function W(){ return [['pr',pr===null?'—':pr],['item',item===null?'—':item],['prev',pv(st.ch.prev)],['cur',pv(st.ch.cur)]]; }
+  function S(l,msg,chg,extra){
+    var hl={};
+    if(st.ch.cur!==undefined && st.ch.cur!==null) hl[st.ch.cur]='walk';
+    if(st.below!==null) hl[st.below]='new';
+    var s={l:l,msg:msg,st:clone(st),chg:chg||[],hl:hl,w:W(),g:G,meter:walked};
+    if(extra) for(var x in extra) s[x]=extra[x];
+    steps.push(s);
+  }
+  S(L('int main() {'),'The list starts empty: head is nullptr.');
+  RUN.forEach(function(c){
+    var k=c[0], it=c[1];
+    G='pq_push('+k+', '+it+')'; pr=null; item=null; walked=0;
+    S(L('pq_push('+k+', '+it+');'),'main calls <b>pq_push('+k+', '+it+')</b>: a '+CLS[k]+' passenger.');
+    pr=k; item=it;
+    S(L('void pq_push('),'pr = '+k+', item = '+it+'.');
+    st.nodes[it]={pr:'',data:'',next:'?'}; st.below=it; st.gap=-1; st.ch.nw=it;
+    S(L('Node* nw = new Node;'),'A new node, with nothing written in it yet. It is <b>not in the list</b>: nothing points at it.',['nw']);
+    st.nodes[it].pr=k;
+    S(L('nw->pr = pr;'),'nw->pr = '+k+'.',['pr:'+it]);
+    st.nodes[it].data=it;
+    S(L('nw->data = item;'),'nw->data = '+it+'.',['data:'+it]);
+    st.ch.prev=null;
+    S(L('Node* prev = nullptr;'),'prev = nullptr: nothing is behind cur yet.',['prev']);
+    st.ch.cur=st.head;
+    S(L('Node* cur = head;'), st.head===null ? 'cur = head, which is nullptr: the list is empty.' : 'cur starts at the head, '+st.head+'.',['cur']);
+    while(true){
+      var cu=st.ch.cur, go=(cu!==null && st.nodes[cu].pr<=k);
+      if(!go) st.gap=(cu===null ? st.row.length : st.row.indexOf(cu));
+      var where=(st.ch.prev===null ? 'at the head' : 'after '+st.ch.prev);
+      S(L('while(cur'), cu===null ? 'cur is nullptr: the end of the list. Stop. '+it+' goes '+where+'.'
+        : 'cur is '+cu+', priority '+st.nodes[cu].pr+'. '+(go ? st.nodes[cu].pr+' ≤ '+k+', so '+it+' belongs after '+cu+'. Keep walking.'
+                                                          : st.nodes[cu].pr+' > '+k+', so '+it+' belongs before '+cu+'. Stop: it goes '+where+'.'),
+        [],{cond:{ok:go}});
+      if(!go) break;
+      st.ch.prev=cu;
+      S(L('prev = cur;'),'prev = cur: prev moves to '+cu+'.',['prev']);
+      st.ch.cur=st.nodes[cu].next; walked++;
+      S(L('cur = cur->next;'), st.ch.cur===null ? 'cur = cur->next, which is nullptr.' : 'cur moves on to '+st.ch.cur+'.',['cur']);
+    }
+    st.nodes[it].next=st.ch.cur;
+    S(L('nw->next = cur;'), st.ch.cur===null ? 'nw->next = cur, which is nullptr: '+it+' will be the last node.'
+                                            : 'nw->next = cur: '+it+' points at '+st.ch.cur+'. Nothing in the list has changed yet.',['next:'+it]);
+    var atHead=(st.ch.prev===null);
+    if(atHead) st.head=it;
+    S(L('if(prev == nullptr)'), atHead ? 'prev is nullptr: '+it+' goes at the front. head = nw.'
+                                      : 'prev is '+st.ch.prev+', not nullptr. '+it+' goes after it.',
+      atHead?['head']:[],{cond:{ok:atHead}});
+    if(!atHead){
+      var p=st.ch.prev; st.nodes[p].next=it;
+      S(L('else prev->next = nw;'),'prev->next = nw: '+p+' now points at '+it+'. That one assignment puts '+it+' in the list.',['next:'+p]);
+    }
+    joinBelow(st); st.ch={};
+    S(L('else prev->next = nw;')+1,'pq_push returns. prev, cur and nw are gone; the list keeps the node. cur walked past <b>'+walked+'</b> node'+(walked===1?'':'s')+'.');
+  });
+  G='end';
+  S(L('return 0;'),'The list is 13 3 5 17 33: boarding order.');
+  return steps;
+}
+
+/* ---------- 9 · pop, five calls ---------- */
+function genLLPop(){
+  var L=finder('llpop'), steps=[], st=listOf([[1,13],[1,3],[1,5],[2,17],[4,33]]), G='start', brd=[];
+  function W(){ return [['head',pv(st.head)],['temp',st.ch.temp==='freed'?'freed':pv(st.ch.temp)],['boarded',brd.length?brd.join(' '):'—']]; }
+  function S(l,msg,chg,extra){
+    var hl={};
+    if(st.below!==null) hl[st.below]='cut';
+    var s={l:l,msg:msg,st:clone(st),chg:chg||[],hl:hl,w:W(),g:G};
+    if(extra) for(var x in extra) s[x]=extra[x];
+    steps.push(s);
+  }
+  S(L('int main() {'),'main has already run the five pushes of Section 8. The list is 13 3 5 17 33.');
+  for(var n=0;n<5;n++){
+    G='pop '+(n+1); st.gap=-1; st.ch={};
+    S(L('// '+ORD[n]),'main calls <b>pq_pop()</b>.');
+    S(L('void pq_pop() {'),'No argument: the next passenger is wherever head points.');
+    S(L('if(head == nullptr)'),'head points at '+st.head+': the list is not empty.',[],{cond:{ok:false}});
+    var h=st.head; st.ch.temp=h;
+    S(L('Node* temp = head;'),'temp holds on to '+h+', so it can still be deleted after head moves on.',['temp']);
+    st.head=st.nodes[h].next; st.row.splice(0,1); st.gap=0; st.below=h;
+    S(L('head = head->next;'),(st.head===null ? 'head = head->next, which is nullptr: the list is empty now. ' : 'head = head->next: the list now starts at '+st.head+'. ')+
+      h+' is cut out; only temp still points at it.',['head']);
+    delete st.nodes[h]; st.below=null; st.ch.temp='freed'; brd.push(h);
+    S(L('delete temp;'),h+' boards and its node is freed. One pointer moved; nothing was walked.');
+  }
+  G='end'; st.gap=-1; st.ch={};
+  S(L('return 0;'),'Everyone has boarded: 13, 3, 5, 17, 33. head is nullptr.');
+  return steps;
+}
+
+function makeLL(id,gen,name,o){
+  var steps=gen(), box=$('#'+id+'-svg');
+  codeSim({el:'#'+id+'-sim', name:name, steps:steps, render:function(s,i,a){
+    box.innerHTML=listSVG(s.st,{slots:o.slots,low:true,plate:o.plate,chg:s.chg,hl:s.hl,uid:id});
+    a.msg(s.msg); a.watch(s.w);
+    if(s.meter!==undefined) a.meter(s.meter);
+  }});
+}
+
+/* =================== 2 · THE BOARDING GATE =================== */
+function genGate(){
+  var L=finder('gate'), steps=[], lanes={1:[],2:[],3:[],4:[]}, brd=[], told=false;
+  function waiting(){ return lanes[1].length+lanes[2].length+lanes[3].length+lanes[4].length; }
+  var G='arrivals';
+  function S(l,msg,v){ steps.push({l:l,msg:msg,lanes:clone(lanes),brd:brd.slice(),v:v||{},g:G,w:[['waiting',waiting()],['boarded',brd.length]]}); }
+  RUN.forEach(function(c){
+    var k=c[0], id=c[1], q=lanes[k];
+    q.push(id);
+    S(L('push('+k+', '+id+');'),'<b>'+id+'</b> is '+CLS[k]+', priority '+k+'. '+
+      (q.length>1 ? 'It joins line '+k+' behind '+q[q.length-2]+'.' : 'Line '+k+' was empty, so '+id+' is its front.'),{hot:id,lane:k});
+  });
+  G='boarding';
+  for(var n=0;n<5;n++){
+    var k=1, skip=[];
+    while(!lanes[k].length){ skip.push(k); k++; }
+    var id=lanes[k].shift(); brd.push(id);
+    var msg='pop(): '+(skip.length ? 'line'+(skip.length>1?'s ':' ')+andList(skip)+(skip.length>1?' are':' is')+' empty. ' : '')+
+            'Line '+k+' ('+CLS[k]+') is the first with anyone in it, so its front, <b>'+id+'</b>, boards.';
+    var ahead=[];
+    RUN.forEach(function(c,j){
+      var stillWaiting=lanes[c[0]].indexOf(c[1])>=0;
+      if(stillWaiting && c[0]>k && j<RUN.map(function(x){return x[1];}).indexOf(id)) ahead.push(c[1]);
+    });
+    if(ahead.length && !told){ msg+=' '+andList(ahead)+' arrived earlier, but arrival only decides between equals.'; told=true; }
+    if(n===4) msg+=' Everyone is on board.';
+    S(L('// '+ORD[n]),msg,{hot:id,lane:k,served:true});
+  }
+  return steps;
+}
+function pchip(id,cls){ return '<span class="prqp k'+PR[id]+(cls?' '+cls:'')+'">'+id+'<i>'+PR[id]+'</i></span>'; }
+function makeGate(){
+  var root=$('#gate-sim'); if(!root) return;
+  var steps=genGate(), brdEl=$('#gt-brd'), lanes=$$('.gtlane',root);
+  codeSim({el:'#gate-sim', name:'The boarding gate', steps:steps, render:function(s,i,a){
+    brdEl.innerHTML=s.brd.length ? s.brd.map(function(id){ return pchip(id, s.v.served && id===s.v.hot ? 'hot' : ''); }).join('')
+                                 : '<span class="gtnone">nobody yet</span>';
+    lanes.forEach(function(ln){
+      var k=+ln.getAttribute('data-k'), q=s.lanes[k];
+      $('.gtq',ln).innerHTML=q.length ? q.map(function(id,j){ return pchip(id,(j===0?'fr':'')+(!s.v.served && id===s.v.hot?' hot':'')); }).join('')
+                                      : '<span class="gtnone">empty</span>';
+      ln.classList.toggle('next',s.v.lane===k);
+    });
+    a.msg(s.msg); a.watch(s.w);
+  }});
+}
+
+/* =================== THE STATIC FIGURES =================== */
+/* Section 3 uses four other passengers, so that the later "Your turn"
+   questions about 13, 17, 3, 5 and 33 are not answered in advance. */
+var OTHER=[[3,8],[1,21],[4,40],[1,22]];
+$$('[data-fig]').forEach(function(el){
+  var f=el.getAttribute('data-fig'), Qs=five();
+  if(f==='2d'){ OTHER.forEach(function(c){ qpush(Qs[c[0]],c[1]); }); el.innerHTML=boardHTML(pqRows(Qs,false),{},{}); }
+  else if(f==='h0'){ el.innerHTML=boardHTML(pqRows(Qs,false),{},{}); }
+  else if(f==='h5'){ el.innerHTML=boardHTML(pqRows(after5(),false),{},{}); }
+  else if(f==='h7'){
+    Qs=after5(); qpop(Qs[1]); qpop(Qs[1]); qpush(Qs[1],7);
+    el.innerHTML=boardHTML(pqRows(Qs,false),{w:'1_3'},{});
+  }
+  else if(f==='ll'){
+    var st=listOf([[1,21],[1,22],[3,8],[4,40]]);
+    el.innerHTML=listSVG(st,{slots:4,groups:true,uid:'fig'});
+  }
+});
+
+fitAll();
+
+/* =================== THE COMPARISON TABLE =================== */
+var CMP=[
+  {key:'arr', name:'2D array',    note:'P = number of priority levels', v:['O(1)','O(P)','O(P)'], t:['g','m','m']},
+  {key:'list',name:'Linked list', note:'n = number of passengers',      v:['O(n)','O(1)','O(1)'], t:['b','g','g']},
+  {key:'heap',name:'Heap',        note:'Trees &amp; Heaps classes',     v:['O(log n)','O(log n)','O(1)'], t:['m','m','g']}
+];
+$$('.prqcmp').forEach(function(box){
+  var show=(box.getAttribute('data-show')||'').split(','), ask=box.getAttribute('data-ask')||'';
+  var noheap=box.hasAttribute('data-noheap'), heap=box.hasAttribute('data-heap');
+  var h='<div class="tw"><table><thead><tr><th>Representation</th><th>push</th><th>pop</th><th>front</th></tr></thead><tbody>';
+  CMP.forEach(function(r){
+    if(r.key==='heap' && noheap) return;
+    h+='<tr class="'+(r.key===ask?'ask':'')+(r.key==='heap'?' heap':'')+'"><td><b>'+r.name+'</b><span class="cn">'+r.note+'</span></td>';
+    for(var c=0;c<3;c++){
+      var cell;
+      if(r.key==='heap') cell=heap ? '<span class="ov pre">'+r.v[c]+'</span>' : '<span class="later">later</span>';
+      else if(show.indexOf(r.key)>=0) cell='<span class="ov '+r.t[c]+'">'+r.v[c]+'</span>';
+      else if(r.key===ask) cell='<span class="prqq">?</span><span class="prqa ov '+r.t[c]+'">'+r.v[c]+'</span>';
+      else cell='<span class="prqq">?</span>';
+      h+='<td>'+cell+'</td>';
+    }
+    h+='</tr>';
+  });
+  box.innerHTML=h+'</tbody></table></div>';
+});
+$$('.turn[data-cmp]').forEach(function(t){
+  var b=$('.tbtn',t), tbl=$('.prqcmp',t);
+  if(b && tbl) b.addEventListener('click',function(){ tbl.classList.toggle('on'); });
+});
+
+/* =================== THE SIMULATORS =================== */
+makeGate();
+makeBoard('qc',genQcls,'two Queue objects',3);
+makeBoard('p2',genPQPush,'pq_push into five queues',2,true);
+makeBoard('o2',genPQPop,'pq_pop: the scan',2,true);
+makeLL('pl',genLLPush,'push into the linked list',{slots:5,plate:true});
+makeLL('ol',genLLPop,'pop from the linked list',{slots:5});
+})();
+</script>
+<script>
+(function(){
+"use strict";
+var $=function(s,r){return (r||document).querySelector(s);};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+var el=function(t,c,h){var n=document.createElement(t);if(c)n.className=c;if(h!==undefined)n.innerHTML=h;return n;};
+
+/* TABS */
+$$('.tab').forEach(function(t){t.addEventListener('click',function(){
+  $$('.tab').forEach(function(x){x.setAttribute('aria-selected','false');});
+  t.setAttribute('aria-selected','true');
+  $$('.panel').forEach(function(p){p.hidden=true;});
+  $('#p-'+t.dataset.tab).hidden=false;
+  document.body.classList.toggle('onexam', t.dataset.tab!=='lesson'); window.scrollTo({top:0,behavior:'instant'});
+});});
+
+/* RAIL */
+window.addEventListener('scroll',function(){
+  var h=document.documentElement,m=h.scrollHeight-h.clientHeight;
+  $('#rail').style.right=(100-(m>0?(h.scrollTop/m)*100:0))+'%';
+},{passive:true});
+
+function jump(d){
+  var s=$$('.panel:not([hidden]) .card'); if(!s.length)return;
+  var y=window.scrollY, cur=0, i;
+  for(i=0;i<s.length;i++){ if(s[i].offsetTop-120<=y) cur=i; }
+  var t=cur+d;
+  if(d<0 && y>s[cur].offsetTop-60) t=cur;      /* scrolled inside a card -> snap to its top first */
+  if(t<0){window.scrollTo({top:0,behavior:'smooth'});return;}
+  if(t>s.length-1)t=s.length-1;
+  window.scrollTo({top:Math.max(s[t].offsetTop-80,0),behavior:'smooth'});
+}
+window.cardJump=jump;
+
+/* ---------- YOUR TURN: ask before showing ----------
+   The question comes first and the answer is one button away. It is never
+   hidden from someone revising at home — the reveal is a prompt, not a gate. */
+(function(){
+  $$('.turn').forEach(function(t){
+    var btn=t.querySelector('.tbtn'), ans=t.querySelector('.ta');
+    if(!btn||!ans) return;
+    btn.addEventListener('click',function(){
+      var on=ans.classList.toggle('on');
+      btn.textContent = on ? 'Hide it again' : (btn.dataset.label||'Show me');
+    });
+  });
+})();
+
+
+/* ================= THE TAKEAWAY RAIL =================
+   Each lesson card carries one sentence in data-key. As you reach a card the
+   sentence is added to a rail on the right — forward only, so going back to
+   re-explain something never removes it. By the end it is the revision list. */
+(function(){
+  var cards=$$('#p-lesson .card[data-key]');
+  if(!cards.length) return;
+  var KEY='cse2321-s5c3-keys';
+  var rail=el('div','keyrail');
+  rail.innerHTML='<div class="krhd" role="button" tabindex="0" aria-expanded="true">'+
+      '<span class="kt">So far</span><span class="kn" id="kr-n">0</span>'+
+      '<span class="kv">&#9662;</span></div>'+
+    '<div class="kbody" id="kr-body"></div>';
+  document.body.appendChild(rail);
+  var kbody=$('#kr-body'), num=$('#kr-n'), hd=$('.krhd',rail);
+
+  var shown=0;
+  try{ if(localStorage.getItem(KEY)==='hid') rail.classList.add('hid'); }catch(e){}
+
+  function add(upto){
+    if(upto<=shown) return;
+    for(var i=shown;i<upto;i++){
+      var c=cards[i];
+      var b=(c.querySelector('.badge')||{}).textContent||String(i+1);
+      kbody.appendChild(el('div','kitem new','<span class="kx">'+b+'</span>'+c.getAttribute('data-key')));
+    }
+    shown=upto;
+    num.textContent=shown;
+    $$('.kitem',kbody).forEach(function(k,i){ k.classList.toggle('new',i===shown-1); });
+    kbody.scrollTop=kbody.scrollHeight;
+  }
+  hd.addEventListener('click',function(){
+    rail.classList.toggle('hid');
+    hd.setAttribute('aria-expanded', rail.classList.contains('hid')?'false':'true');
+    try{ localStorage.setItem(KEY, rail.classList.contains('hid')?'hid':'open'); }catch(e){}
+  });
+  hd.addEventListener('keydown',function(e){
+    if(e.key==='Enter'||e.key===' '){ e.preventDefault(); hd.click(); }
+  });
+
+  /* A card's takeaway IS its answer. Where a card carries a "Your turn", hold
+     the takeaway back until the reader has scrolled past the question —
+     otherwise the rail answers it before anyone has had a chance to think. */
+  function trigger(c){
+    var t=c.querySelector('.turn'), r=(t||c).getBoundingClientRect();
+    return t ? r.bottom : r.top;
+  }
+  var tick=null;
+  function scan(){
+    var y=window.innerHeight*0.55, n=0;
+    for(var i=0;i<cards.length;i++) if(trigger(cards[i])<=y) n=i+1;
+    add(n);
+  }
+  window.addEventListener('scroll',function(){
+    if(tick) return;
+    tick=setTimeout(function(){ tick=null; scan(); },180);
+  },{passive:true});
+  scan();
+})();
+
+/* ---------- QUIZZES, WITH PROGRESS ----------
+   Which checks have been answered is remembered, so someone coming back to
+   revise sees where they got to rather than a blank page. The count shows in
+   the ribbon under the hero and again as a chip in the tab bar. */
+(function(){
+  var KEY='cse2321-s5c3-quiz';
+  var done={}; try{done=JSON.parse(localStorage.getItem(KEY)||'{}');}catch(e){done={};}
+  var QS=$$('.quiz'), total=QS.length;
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(done));}catch(e){}}
+
+  var qc=null, tabs=document.querySelector('.tabs');
+  if(tabs){ qc=el('span','qchip','<i></i>Quiz <b>0/'+total+'</b>'); tabs.appendChild(qc); }
+
+  function show(){
+    var n=Object.keys(done).length;
+    var bar=$('#pbar'), num=$('#pnum');
+    if(bar) bar.style.width=(total?Math.round(n/total*100):0)+'%';
+    if(num) num.textContent=n+' / '+total;
+    if(qc) qc.innerHTML='<i></i>Quiz <b>'+n+'/'+total+'</b>';
+  }
+  QS.forEach(function(q){
+    var id=q.dataset.q, o=$$('.qopt',q), e=$('.qexp',q);
+    function lock(picked){
+      o.forEach(function(x){x.disabled=true; if(x.dataset.ok)x.classList.add('ok');});
+      if(picked!==null && picked>=0 && o[picked] && !o[picked].dataset.ok) o[picked].classList.add('no');
+      e.classList.add('show');
+    }
+    if(done[id]) lock(done[id].p===undefined?-1:done[id].p);
+    o.forEach(function(b,i){b.addEventListener('click',function(){
+      done[id]={ok:!!b.dataset.ok,p:i}; save(); show(); lock(i);
+    });});
+  });
+  var rb=$('#preset');
+  if(rb) rb.onclick=function(){
+    done={}; save(); show();
+    QS.forEach(function(q){
+      $$('.qopt',q).forEach(function(x){x.disabled=false;x.classList.remove('ok','no');});
+      $('.qexp',q).classList.remove('show');
+    });
+  };
+  show();
+})();
+
+document.addEventListener('keydown',function(e){
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+  if(e.key==='j'||e.key==='ArrowDown'){e.preventDefault();jump(1);}
+  if(e.key==='k'||e.key==='ArrowUp'){e.preventDefault();jump(-1);}
+});
+})();
+
+
+/* ---------- FLOATING JUMP DRAWER ---------- */
+(function(){
+  var CLASSES=[
+    ['1','The queue ADT',''],
+    ['2','The circular queue',''],
+    ['3','Priority queues','03-priority-queues.html']
+  ];
+  var here=(location.pathname.split('/').pop()||'');
+  var base = '';
+  var root = /2321-theory|2322-lab/.test(location.pathname) ? '../../index.html' : '../index.html';
+
+  var scrim=document.createElement('div'); scrim.className='scrim';
+  var dr=document.createElement('aside'); dr.className='drawer';
+  dr.setAttribute('aria-hidden','true');
+
+  var secs='';
+  var cards=document.querySelectorAll('.panel:not([hidden]) .card');
+  for(var i=0;i<cards.length;i++){
+    var h=cards[i].querySelector('h2');
+    if(!h)continue;
+    var b=cards[i].querySelector('.badge');
+    secs+='<button class="dl dsec" data-jump="'+i+'"><span class="dn2">'+(b?b.textContent:(i+1))+'</span>'+
+          h.textContent.trim()+'</button>';
+  }
+
+  var links=CLASSES.map(function(c){
+    var on = c[2] && here===c[2];
+    if(!c[2]) return '<span class="dl" style="opacity:.45;cursor:default"><span class="dn2">'+c[0]+'</span>'+c[1]+' — soon</span>';
+    return '<a class="dl'+(on?' here':'')+'" href="'+base+c[2]+'"><span class="dn2">'+c[0]+'</span>'+c[1]+'</a>';
+  }).join('');
+
+  dr.innerHTML='<div class="dh"><p>CSE-2321 · Segment 5</p><b>Jump to</b>'+
+    '<button class="dx" aria-label="Close">✕</button></div>'+
+    '<div class="db">'+
+      '<a class="dl home2" href="'+root+'">☰ &nbsp;All classes &amp; the full course</a>'+
+      '<p class="grp">Segment 5 · Queues<span></span></p>'+links+
+      (secs?'<p class="grp">On this page<span></span></p>'+secs:'')+
+    '</div>';
+
+  var fab=document.createElement('div'); fab.className='fab';
+  fab.innerHTML='<button class="fup" aria-label="Previous section">↑</button>'+
+                '<button class="fdn" aria-label="Next section">↓</button>'+
+                '<button class="fmenu" aria-label="Open navigation">☰</button>';
+  document.body.appendChild(scrim); document.body.appendChild(dr); document.body.appendChild(fab);
+
+  function open(v){
+    dr.classList.toggle('on',v); scrim.classList.toggle('on',v);
+    dr.setAttribute('aria-hidden', v?'false':'true');
+    document.body.style.overflow = v?'hidden':'';
+  }
+  fab.querySelector('.fmenu').onclick=function(){open(!dr.classList.contains('on'));};
+  fab.querySelector('.fup').onclick=function(){window.cardJump(-1);};
+  fab.querySelector('.fdn').onclick=function(){window.cardJump(1);};
+  dr.querySelector('.dx').onclick=function(){open(false);};
+  scrim.onclick=function(){open(false);};
+  dr.addEventListener('click',function(e){
+    var b=e.target.closest('[data-jump]'); if(!b)return;
+    open(false);
+    var c=document.querySelectorAll('.panel:not([hidden]) .card')[+b.dataset.jump];
+    if(c) setTimeout(function(){window.scrollTo({top:Math.max(c.offsetTop-80,0),behavior:'smooth'});},180);
+  });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') open(false); });
+})();
+
+
+/* ---------- CODE THEME TOGGLE ---------- */
+(function(){
+  var KEY='dsa-code-theme';
+  var saved=null; try{saved=localStorage.getItem(KEY);}catch(e){}
+  if(saved!=='dark') document.body.classList.add('codelight');
+  var tabs=document.querySelector('.tabs');
+  if(!tabs)return;
+  var b=document.createElement('button');
+  b.className='codetog'; b.type='button';
+  function label(){ b.textContent = document.body.classList.contains('codelight') ? '🌙 Dark code' : '☀ Light code'; }
+  label();
+  window.__syncCodeTog=label;
+  b.addEventListener('click',function(){
+    document.body.classList.toggle('codelight');
+    try{localStorage.setItem(KEY, document.body.classList.contains('codelight')?'light':'dark');}catch(e){}
+    label();
+    if(window.__syncFsTheme) window.__syncFsTheme();
+  });
+  tabs.appendChild(b);
+})();
+
+/* ---------- REVISION MODE ----------
+   Every "Show the answer" on the page, opened at once and remembered. The
+   details blocks holding model answers are opened too, but never re-closed:
+   turning the switch off should not shut something the reader opened. */
+(function(){
+  var KEY='dsa-reveal-all';
+  var host=document.querySelector('.tabs')||document.querySelector('.topbar-in')||document.querySelector('.topbar');
+  var solo=false;
+  if(!host){ host=document.querySelector('main.wrap'); solo=true; }
+  if(!host) return;
+  var b=document.createElement('button');
+  b.className='revtog'+(solo?' solo':''); b.type='button';
+  b.title='Open every hidden answer on this page';
+  function paint(){
+    var on=document.body.classList.contains('revealall');
+    b.classList.toggle('on',on);
+    b.setAttribute('aria-pressed',on?'true':'false');
+    b.textContent = on ? '\uD83D\uDC41 Answers shown' : '\uD83D\uDC41 Show all answers';
+    if(on) Array.prototype.forEach.call(document.querySelectorAll('details.dig'),function(d){d.open=true;});
+  }
+  var saved=null; try{saved=localStorage.getItem(KEY);}catch(e){}
+  if(saved==='on') document.body.classList.add('revealall');
+  paint();
+  b.addEventListener('click',function(){
+    var on=document.body.classList.toggle('revealall');
+    try{localStorage.setItem(KEY,on?'on':'off');}catch(e){}
+    paint();
+  });
+  if(solo) host.insertBefore(b, host.firstChild); else host.appendChild(b);
+})();
+
+
+/* ---------- HIDE THE BAR ON THE WAY DOWN ---------- */
+(function(){
+  var bar=document.querySelector('.topbar'); if(!bar) return;
+  function measure(){ document.documentElement.style.setProperty('--barh', bar.offsetHeight+'px'); }
+  measure(); window.addEventListener('resize',measure);
+  var last=window.scrollY, tick=null;
+  function upd(){
+    tick=null;
+    var y=window.scrollY, dy=y-last;
+    if(Math.abs(dy)<6) return;                       /* ignore the jitter */
+    last=y;
+    /* never tuck it away over an open overlay, drawer, or near the top */
+    var blocked=document.body.classList.contains('fsopen')||
+                document.body.classList.contains('noscroll')||
+                document.querySelector('.drawer.on');
+    if(blocked){ bar.classList.remove('tucked'); return; }
+    var away = dy>0 && y>bar.offsetHeight+40;
+    bar.classList.toggle('tucked', away);
+    document.body.classList.toggle('tucked', away);
+  }
+  window.addEventListener('scroll',function(){
+    if(!tick) tick=requestAnimationFrame(upd);
+  },{passive:true});
+})();
+</script>
+</body>
+</html>
