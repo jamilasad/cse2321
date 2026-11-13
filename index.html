@@ -566,19 +566,30 @@ var SEGMENTS = [
   ], lab:[]
 },
 {
-  wk:'Wk 7–8', title:'Stacks &amp; Recursion', sub:'Stacks in week 7, recursion in week 8',
+  wk:'Wk 7–8', title:'Stacks &amp; Recursion', sub:'Stacks in week 7, recursion in week 8, plus one extra class',
   topics:'<b>Stacks (week 7):</b> representation and applications · PUSH and POP · Polish and reverse Polish notation · evaluating a postfix expression · transforming infix into postfix · balanced parentheses · next greater element.<br><b>Recursion (week 8):</b> factorial · Fibonacci · palindrome checking · 3n+1 · printing star patterns · array sum · the Ackermann function · Towers of Hanoi · tail call optimisation',
-  theory:[], lab:[]
+  theory:[
+    { t:'5 · Recursion: watch it run', d:'Count the row · fact(4) box by box, calls down and answers up · no base case, stack overflow · Fibonacci as a tree · 3n + 1 · array sum · the exam’s G(N): unfold, then substitute', h:'2321-theory/04-stacks-and-recursion/05-recursion-trace.html', k:'lesson' },
+    { t:'6 · Recursion: the magical function', d:'Name it, play with it, trust a smaller call, use it · the base case last, found by tracing down · the two properties · ways to shrink · fib, sum, count digits, 3n + 1, GCD', h:'2321-theory/04-stacks-and-recursion/06-recursion-magic.html', k:'lesson' },
+    { t:'7 · Recursion: magic that does something (extra)', d:'A magical function that prints · move one line, flip the triangle · the exam’s rec(n) · palindrome · Tower of Hanoi in three lines, 2ⁿ − 1 · Ackermann', h:'2321-theory/04-stacks-and-recursion/07-recursion-patterns.html', k:'lesson' }
+  ], lab:[]
 },
 {
   wk:'Wk 9', title:'Queues', sub:'One week',
   topics:'Queue representation · insertion and deletion · circular queues · deques (double-ended queues) · priority queues — linked representation and 2D array representation',
-  theory:[], lab:[]
+  theory:[
+    { t:'3 · Priority queues', d:'Boarding a plane by class · push(pr, ID) and pop() · a plain Queue class, two objects · the 2D array by hand · Queue pq[5] and the scan on pop · the sorted linked list with prev and cur · the table, and which one to pick', h:'2321-theory/05-queues/03-priority-queues.html', k:'lesson' }
+  ], lab:[]
 },
 {
   wk:'Wk 10', title:'Sorting', sub:'One week',
   topics:'Insertion sort · selection sort · counting sort (stable implementation) · radix sort. <b>Quick sort and merge sort are outside this syllabus.</b>',
-  theory:[], lab:[]
+  theory:[
+    { t:'1 · Selection sort', d:'Find the smallest, put it in place · every pass as the exam wants it · exchanges for your own N · why it always costs n(n−1)/2 · expensive swaps · not stable', h:'2321-theory/06-sorting/01-selection-sort.html', k:'lesson' },
+    { t:'2 · Insertion sort', d:'Cards in your hand · every pass, the same seven numbers · shifts = bubble sort’s D · O(n) sorted, O(n²) reversed · the −∞ sentinel · stable', h:'2321-theory/06-sorting/02-insertion-sort.html', k:'lesson' },
+    { t:'3 · Counting sort', d:'Sorting without comparing · the tally · the plain code · what it loses · the stable version, built from the plain one · O(n + k)', h:'2321-theory/06-sorting/03-counting-sort.html', k:'lesson' },
+    { t:'4 · Radix sort', d:'Ten buckets, one digit at a time · the Spring 2026 trace · why every pass must be stable · O(d(n + 10)) · which sort when', h:'2321-theory/06-sorting/04-radix-sort.html', k:'lesson' }
+  ], lab:[]
 },
 {
   wk:'Wk 11', title:'Searching', sub:'One week',
