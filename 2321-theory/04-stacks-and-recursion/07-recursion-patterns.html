@@ -1217,6 +1217,83 @@ body.codelight .srtcp{background:#fff;border-color:#cbd5e1;color:#475569}
   .rftree .rfbox{padding:.2rem .15rem}
   .rfhd{font-size:.64rem}
 }
+/* ==================================================================
+   HANOI · the board shared by Recursion 3 and Recursion 4: three pegs,
+   the disks, a sealed-block outline, the role of each peg, a stack of
+   rows beside it (hnfr) and the moves printed below (hntape).
+   ================================================================== */
+.hnboard{min-width:0}
+/* room above the rods for a lifted block of three and its label */
+.hnpegs{--dh:1.1rem;--N:3;position:relative;height:calc(var(--dh) * 9.4 + .45rem);overflow:visible}
+.hnbase{position:absolute;left:1%;right:1%;bottom:0;height:.45rem;border-radius:.3rem;background:#d97706}
+.hnrod{position:absolute;bottom:.45rem;left:calc((var(--p) + .5) * 100% / 3);width:.42rem;margin-left:-.21rem;height:calc(var(--dh) * 4.7);
+  border-radius:.25rem .25rem 0 0;background:#f59e0b}
+.hndisk{position:absolute;z-index:1;bottom:calc(.45rem + var(--l,0) * var(--dh));left:calc((var(--p,0) + .5) * 100% / 3);transform:translateX(-50%);
+  width:calc((100% / 3 - .4rem) * (.3 + .7 * var(--s,1) / var(--N)));height:calc(var(--dh) - 2px);border-radius:999px;box-sizing:border-box;
+  display:grid;place-items:center;font-family:var(--mono);font-size:.68rem;font-weight:800;color:#fff;line-height:1}
+.hndisk[data-d="4"]{background:#4c1d95}
+.hndisk[data-d="3"]{background:#6d28d9}
+.hndisk[data-d="2"]{background:#8b5cf6}
+.hndisk[data-d="1"]{background:#c4b5fd;color:#3b0764}
+.hndisk.off{display:none}
+.hnblk{position:absolute;z-index:2;pointer-events:none;bottom:calc(.45rem + var(--l,0) * var(--dh) - 3px);left:calc((var(--p,0) + .5) * 100% / 3);
+  transform:translateX(-50%);width:calc(100% / 3 - .15rem);height:calc(var(--k,1) * var(--dh) + 4px);box-sizing:border-box;
+  border:2px dashed #7c3aed;border-radius:.6rem;background:rgba(124,58,237,.10);opacity:0;transition:opacity .3s}
+.hnblk.on{opacity:1}
+.hnblk span{position:absolute;left:50%;top:-1.05rem;transform:translateX(-50%);font-size:.6rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#7c3aed;white-space:nowrap}
+.hnroles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:.25rem}
+.hnpeg{display:flex;flex-direction:column;align-items:center;gap:.05rem}
+.hnpeg > b{font-family:var(--mono);font-size:.85rem;font-weight:800;color:#334155}
+.hnpeg .mk{font-size:.62rem}
+.mk.hnbeg{--mkc:#0369a1}
+.mk.hnaux{--mkc:#64748b}
+.mk.hnend{--mkc:#0f766e}
+.mk.hnnone{--mkc:transparent;visibility:hidden}
+.hnstack{min-width:0}
+#hn-fr{display:flex;flex-direction:column;gap:4px}
+.hnfr{height:2.55rem;box-sizing:border-box;border:1.5px dashed #e2e8f0;border-radius:.5rem;padding:.2rem .5rem;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.hnfr b,.hnfr em{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25}
+.hnfr b{font-family:var(--mono);font-size:.74rem;font-weight:800;color:#1e293b}
+.hnfr em{font-style:normal;font-size:.68rem;font-weight:600;color:#64748b}
+.hnfr.on{border-style:solid;border-color:#94a3b8;background:#fff}
+.hnfr.cur{border-color:#4f46e5;box-shadow:0 0 0 3px rgba(79,70,229,.15)}
+.hnfr.seal{border-style:dashed;border-color:#7c3aed;background:#f5f3ff}
+.hnfr.seal em{color:#6d28d9}
+.hntape{display:grid;grid-template-columns:repeat(auto-fill,minmax(3.3rem,1fr));gap:3px}
+.hnmv{height:1.65rem;display:grid;place-items:center;border:1px solid #c4b5fd;border-radius:.35rem;background:#fff;
+  font-family:var(--mono);font-size:.72rem;font-weight:700;color:#3b0764;white-space:nowrap}
+.hnmv.wait{border-style:dashed;border-color:#e2e8f0;background:transparent}
+.hnmv.seal{border:1px dashed #7c3aed;background:repeating-linear-gradient(135deg,#ede9fe 0 5px,#f5f3ff 5px 10px)}
+.hnmv.new{border-color:#f59e0b;background:#fffbeb;box-shadow:0 0 0 2px rgba(245,158,11,.25)}
+.hnmv.none{visibility:hidden}
+@media(max-width:600px){
+  .hnfr b{font-size:.7rem}
+}
+/* Focus: the drawing grows */
+.fsbody .hnpegs{--dh:1.35rem}
+.fsbody .hndisk{font-size:.85rem}
+.fsbody .hnpeg > b{font-size:1.05rem}
+.fsbody .hnpeg .mk{font-size:.8rem}
+.fsbody .hnfr{height:3.1rem}
+.fsbody .hnfr b{font-size:.95rem}
+.fsbody .hnfr em{font-size:.84rem}
+.fsbody .hnmv{height:1.85rem;font-size:.92rem}
+.fsbody .hntape{grid-template-columns:repeat(auto-fill,minmax(4.2rem,1fr))}
+/* the dark bench */
+.fsov:not(.lit) .fsbody .hnpeg > b{color:#e6e9f7}
+.fsov:not(.lit) .fsbody .hnfr{border-color:#2b3554}
+.fsov:not(.lit) .fsbody .hnfr.on{background:#1b2238;border-color:#4b5788}
+.fsov:not(.lit) .fsbody .hnfr.cur{border-color:#818cf8;box-shadow:0 0 0 3px rgba(129,140,248,.25)}
+.fsov:not(.lit) .fsbody .hnfr.seal{background:#241a45;border-color:#a78bfa}
+.fsov:not(.lit) .fsbody .hnfr b{color:#e6e9f7}
+.fsov:not(.lit) .fsbody .hnfr em{color:#a5b0d6}
+.fsov:not(.lit) .fsbody .hnfr.seal em{color:#c4b5fd}
+.fsov:not(.lit) .fsbody .hnmv{background:#1b2238;border-color:#6d28d9;color:#e9d5ff}
+.fsov:not(.lit) .fsbody .hnmv.wait{background:transparent;border-color:#2b3554}
+.fsov:not(.lit) .fsbody .hnmv.seal{border-color:#a78bfa;background:repeating-linear-gradient(135deg,#2e1f5c 0 5px,#241a45 5px 10px)}
+.fsov:not(.lit) .fsbody .hnmv.new{background:#3a2a10;border-color:#f59e0b;color:#fcd34d}
+.fsov:not(.lit) .fsbody .hnblk{background:rgba(167,139,250,.14);border-color:#a78bfa}
+.fsov:not(.lit) .fsbody .hnblk span{color:#c4b5fd}
 
 /* ==================================================================
    RECURSION 3 · page-only styles. Every name starts r3, tr, rb, hn or ak,
@@ -1304,50 +1381,6 @@ body.codelight .srtl[class*="r3c-"]{background:var(--r3b)}
   .fsbody #hn-sim .hnstack{grid-column:2}
   .fsbody #hn-sim .srtstage > .r3con{grid-column:1 / -1}
 }
-.hnboard{min-width:0}
-/* room above the rods for a lifted block of three and its label */
-.hnpegs{--dh:1.1rem;--N:3;position:relative;height:calc(var(--dh) * 9.4 + .45rem);overflow:visible}
-.hnbase{position:absolute;left:1%;right:1%;bottom:0;height:.45rem;border-radius:.3rem;background:#d97706}
-.hnrod{position:absolute;bottom:.45rem;left:calc((var(--p) + .5) * 100% / 3);width:.42rem;margin-left:-.21rem;height:calc(var(--dh) * 4.7);
-  border-radius:.25rem .25rem 0 0;background:#f59e0b}
-.hndisk{position:absolute;z-index:1;bottom:calc(.45rem + var(--l,0) * var(--dh));left:calc((var(--p,0) + .5) * 100% / 3);transform:translateX(-50%);
-  width:calc((100% / 3 - .4rem) * (.3 + .7 * var(--s,1) / var(--N)));height:calc(var(--dh) - 2px);border-radius:999px;box-sizing:border-box;
-  display:grid;place-items:center;font-family:var(--mono);font-size:.68rem;font-weight:800;color:#fff;line-height:1}
-.hndisk[data-d="4"]{background:#4c1d95}
-.hndisk[data-d="3"]{background:#6d28d9}
-.hndisk[data-d="2"]{background:#8b5cf6}
-.hndisk[data-d="1"]{background:#c4b5fd;color:#3b0764}
-.hndisk.off{display:none}
-.hnblk{position:absolute;z-index:2;pointer-events:none;bottom:calc(.45rem + var(--l,0) * var(--dh) - 3px);left:calc((var(--p,0) + .5) * 100% / 3);
-  transform:translateX(-50%);width:calc(100% / 3 - .15rem);height:calc(var(--k,1) * var(--dh) + 4px);box-sizing:border-box;
-  border:2px dashed #7c3aed;border-radius:.6rem;background:rgba(124,58,237,.10);opacity:0;transition:opacity .3s}
-.hnblk.on{opacity:1}
-.hnblk span{position:absolute;left:50%;top:-1.05rem;transform:translateX(-50%);font-size:.6rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#7c3aed;white-space:nowrap}
-.hnroles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:.25rem}
-.hnpeg{display:flex;flex-direction:column;align-items:center;gap:.05rem}
-.hnpeg > b{font-family:var(--mono);font-size:.85rem;font-weight:800;color:#334155}
-.hnpeg .mk{font-size:.62rem}
-.mk.r3beg{--mkc:#0369a1}
-.mk.r3aux{--mkc:#64748b}
-.mk.r3end{--mkc:#0f766e}
-.mk.r3none{--mkc:transparent;visibility:hidden}
-.hnstack{min-width:0}
-#hn-fr{display:flex;flex-direction:column;gap:4px}
-.hnfr{height:2.55rem;box-sizing:border-box;border:1.5px dashed #e2e8f0;border-radius:.5rem;padding:.2rem .5rem;display:flex;flex-direction:column;justify-content:center;min-width:0}
-.hnfr b,.hnfr em{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25}
-.hnfr b{font-family:var(--mono);font-size:.74rem;font-weight:800;color:#1e293b}
-.hnfr em{font-style:normal;font-size:.68rem;font-weight:600;color:#64748b}
-.hnfr.on{border-style:solid;border-color:#94a3b8;background:#fff}
-.hnfr.cur{border-color:#4f46e5;box-shadow:0 0 0 3px rgba(79,70,229,.15)}
-.hnfr.seal{border-style:dashed;border-color:#7c3aed;background:#f5f3ff}
-.hnfr.seal em{color:#6d28d9}
-.hntape{display:grid;grid-template-columns:repeat(auto-fill,minmax(3.3rem,1fr));gap:3px}
-.hnmv{height:1.65rem;display:grid;place-items:center;border:1px solid #c4b5fd;border-radius:.35rem;background:#fff;
-  font-family:var(--mono);font-size:.72rem;font-weight:700;color:#3b0764;white-space:nowrap}
-.hnmv.wait{border-style:dashed;border-color:#e2e8f0;background:transparent}
-.hnmv.seal{border:1px dashed #7c3aed;background:repeating-linear-gradient(135deg,#ede9fe 0 5px,#f5f3ff 5px 10px)}
-.hnmv.new{border-color:#f59e0b;background:#fffbeb;box-shadow:0 0 0 2px rgba(245,158,11,.25)}
-.hnmv.none{visibility:hidden}
 
 /* ---- ak-sim: the definition, and one substitution line a press ---- */
 .akdef{border:1px solid #e2e8f0;border-radius:.55rem;background:#fff;padding:.35rem .5rem;display:flex;flex-direction:column;gap:2px}
@@ -1369,7 +1402,6 @@ body.codelight .srtl[class*="r3c-"]{background:var(--r3b)}
   .aksp{display:none}
   .akx{font-size:.78rem}
   .akdef p{font-size:.78rem}
-  .hnfr b{font-size:.7rem}
   .trrow em{font-size:.64rem}
 }
 
@@ -1398,15 +1430,6 @@ body.codelight .srtl[class*="r3c-"]{background:var(--r3b)}
 .fsbody .rbres{font-size:1rem;min-height:1.6rem}
 .fsbody .r3xin{font-size:.9rem}
 .fsbody .r3xin input{font-size:1.05rem;width:4.2rem}
-.fsbody .hnpegs{--dh:1.35rem}
-.fsbody .hndisk{font-size:.85rem}
-.fsbody .hnpeg > b{font-size:1.05rem}
-.fsbody .hnpeg .mk{font-size:.8rem}
-.fsbody .hnfr{height:3.1rem}
-.fsbody .hnfr b{font-size:.95rem}
-.fsbody .hnfr em{font-size:.84rem}
-.fsbody .hnmv{height:1.85rem;font-size:.92rem}
-.fsbody .hntape{grid-template-columns:repeat(auto-fill,minmax(4.2rem,1fr))}
 .fsbody .akdef p{font-size:1.05rem}
 .fsbody .aklog{height:calc(8 * 2.05rem + .8rem)}
 .fsbody .akl{min-height:2.05rem}
@@ -1425,20 +1448,6 @@ body.codelight .srtl[class*="r3c-"]{background:var(--r3b)}
 .fsov:not(.lit) .fsbody .r3dg{background:#3a2a10;border-color:#d97706;color:#fcd34d}
 .fsov:not(.lit) .fsbody .r3xin{color:#c3cbe4}
 .fsov:not(.lit) .fsbody .srtc.r3bad b{background:#2c0f1a;border-color:#e11d48;color:#fda4af}
-.fsov:not(.lit) .fsbody .hnpeg > b{color:#e6e9f7}
-.fsov:not(.lit) .fsbody .hnfr{border-color:#2b3554}
-.fsov:not(.lit) .fsbody .hnfr.on{background:#1b2238;border-color:#4b5788}
-.fsov:not(.lit) .fsbody .hnfr.cur{border-color:#818cf8;box-shadow:0 0 0 3px rgba(129,140,248,.25)}
-.fsov:not(.lit) .fsbody .hnfr.seal{background:#241a45;border-color:#a78bfa}
-.fsov:not(.lit) .fsbody .hnfr b{color:#e6e9f7}
-.fsov:not(.lit) .fsbody .hnfr em{color:#a5b0d6}
-.fsov:not(.lit) .fsbody .hnfr.seal em{color:#c4b5fd}
-.fsov:not(.lit) .fsbody .hnmv{background:#1b2238;border-color:#6d28d9;color:#e9d5ff}
-.fsov:not(.lit) .fsbody .hnmv.wait{background:transparent;border-color:#2b3554}
-.fsov:not(.lit) .fsbody .hnmv.seal{border-color:#a78bfa;background:repeating-linear-gradient(135deg,#2e1f5c 0 5px,#241a45 5px 10px)}
-.fsov:not(.lit) .fsbody .hnmv.new{background:#3a2a10;border-color:#f59e0b;color:#fcd34d}
-.fsov:not(.lit) .fsbody .hnblk{background:rgba(167,139,250,.14);border-color:#a78bfa}
-.fsov:not(.lit) .fsbody .hnblk span{color:#c4b5fd}
 .fsov:not(.lit) .fsbody .akdef p{color:#c3cbe4}
 .fsov:not(.lit) .fsbody .akdef p b{color:#7dd3fc}
 .fsov:not(.lit) .fsbody .akdef p.on{background:#0b2233;color:#e0f2fe}
@@ -2079,15 +2088,15 @@ body.codelight .srtl[class*="r3c-"]{background:var(--r3b)}
 
   <div class="bridge" style="--accent:#7c3aed">
     <p class="lbl">Next</p>
-    <p class="say">Queues.</p>
-    <p style="margin:0">Recursion ran on a stack: the last call in was the first one out. A queue is the other way round: first in, first out.</p>
+    <p class="say">A bonus class: why recursion?</p>
+    <p style="margin:0">Most of these functions can also be written with a loop. The bonus class asks when recursion is worth it, and runs Tower of Hanoi on a stack you write yourself. Queues come after it.</p>
   </div>
 </article>
 
 <nav class="pagenav" aria-label="Course navigation">
   <a class="pgn pv" href="06-recursion-magic.html"><span class="ar">&#8592;</span><span class="tx"><em>Previous</em><b>The magical function</b></span></a>
   <a class="pgn home" href="../../index.html"><span class="ar">&#9776;</span><b>All classes</b></a>
-  <span class="pgn nx" aria-disabled="true" style="opacity:.45"><span class="ar">&#8594;</span><span class="tx"><em>Next</em><b>Queues — soon</b></span></span>
+  <a class="pgn nx" href="08-why-recursion.html"><span class="ar">&#8594;</span><span class="tx"><em>Next</em><b>Why recursion? (bonus)</b></span></a>
 </nav>
 </main>
 </section>
@@ -3044,6 +3053,91 @@ var RF={
   val:function(v){ return '<span class="rfval">'+v+'</span>'; }
 };
 
+/* =================== HANOI · the shared board ===================
+   Recursion 3 and Recursion 4 draw the same pegs. hanoiBoard() builds the
+   board once and returns draw(s, anim, N): s.pegs holds the disks on each
+   peg (bottom first), s.block the sealed outline or null, s.role the
+   {b, a, e} pegs of the call or job that is running. hanoiTape() prints the
+   moves, one slot each, the slots this n does not use kept but hidden. */
+function hanoiBoard(pegsEl,rolesEl,NMAX){
+  var disks={}, blk, rod, d, N=NMAX;
+  /* the board is drawn once: three pegs, NMAX disks, one block outline */
+  var h='<div class="hnbase"></div>';
+  for(var p=0;p<3;p++) h+='<div class="hnrod" style="--p:'+p+'"></div>';
+  for(d=1;d<=NMAX;d++) h+='<div class="hndisk" data-d="'+d+'">'+d+'</div>';
+  h+='<div class="hnblk"><span>sealed</span></div>';
+  pegsEl.innerHTML=h;
+  for(d=1;d<=NMAX;d++) disks[d]=$('.hndisk[data-d="'+d+'"]',pegsEl);
+  blk=$('.hnblk',pegsEl);
+  rod=$('.hnrod',pegsEl);
+  function place(s){
+    pegsEl.style.setProperty('--N',N);
+    for(var dd=1;dd<=NMAX;dd++){ disks[dd].classList.toggle('off',dd>N); disks[dd].classList.remove('seal'); }
+    s.pegs.forEach(function(a,p){
+      a.forEach(function(dd,l){ var e=disks[dd]; e.style.setProperty('--p',p); e.style.setProperty('--l',l); e.style.setProperty('--s',dd); });
+    });
+    var b=s.block;
+    if(b){
+      var base=s.pegs[b.peg].length-b.k;
+      blk.style.setProperty('--p',b.peg); blk.style.setProperty('--l',base); blk.style.setProperty('--k',b.k);
+      blk.classList.toggle('on',!b.hide);
+      if(!b.hide) s.pegs[b.peg].slice(base).forEach(function(dd){ disks[dd].classList.add('seal'); });
+    } else blk.classList.remove('on');
+  }
+  /* lift, carry, lower: every element that changed peg moves as one rigid group */
+  function animate(old){
+    var top=rod.getBoundingClientRect().top, mov=[], low=null;
+    Object.keys(old).forEach(function(k){
+      var e=old[k].el, a=old[k].r, b=e.getBoundingClientRect();
+      if(Math.abs(a.left-b.left)<1 && Math.abs(a.top-b.top)<1) return;
+      mov.push({e:e,dx:a.left-b.left,dy:a.top-b.top,b:b});
+      if(!low || b.bottom>low.b.bottom) low=mov[mov.length-1];
+    });
+    if(!mov.length || !low) return;
+    var H1=(low.b.bottom+low.dy)-top+6, H2=low.b.bottom-top+6;
+    mov.forEach(function(m){
+      if(!m.e.animate) return;
+      m.e.animate([
+        {transform:'translateX(-50%) translate('+m.dx+'px,'+m.dy+'px)'},
+        {transform:'translateX(-50%) translate('+m.dx+'px,'+(m.dy-H1)+'px)',offset:.3},
+        {transform:'translateX(-50%) translate(0px,'+(-H2)+'px)',offset:.7},
+        {transform:'translateX(-50%) translate(0px,0px)'}
+      ],{duration:700,easing:'ease-in-out'});
+    });
+  }
+  function draw(s,anim,n){
+    var old={};
+    N=n;
+    if(anim){
+      Object.keys(disks).forEach(function(k){ var e=disks[k]; if(e.getAnimations) e.getAnimations().forEach(function(x){ x.finish(); }); old['d'+k]={el:e,r:e.getBoundingClientRect()}; });
+      /* the block is laid out (unseen) on the step before it seals, so it
+         travels with its disks instead of appearing at the far peg */
+      if(blk.style.getPropertyValue('--p')!==''){ if(blk.getAnimations) blk.getAnimations().forEach(function(x){ x.finish(); }); old.b={el:blk,r:blk.getBoundingClientRect()}; }
+    }
+    place(s);
+    if(anim) animate(old);
+    /* the roles of the pegs in the call that is running */
+    var lane=['','',''];
+    if(s.role){ lane[{A:0,B:1,C:2}[s.role.b]]='beg'; lane[{A:0,B:1,C:2}[s.role.a]]='aux'; lane[{A:0,B:1,C:2}[s.role.e]]='end'; }
+    rolesEl.innerHTML=lane.map(function(t,i){
+      return '<span class="hnpeg"><b>'+'ABC'.charAt(i)+'</b>'+(t?'<em class="mk tip hn'+t+'">'+t+'</em>':'<em class="mk tip hnnone">&nbsp;</em>')+'</span>';
+    }).join('');
+  }
+  return {draw:draw};
+}
+function hanoiTape(el,tape,N,NMAX){
+  var tot=Math.pow(2,N)-1, th='';
+  for(var q=0;q<Math.pow(2,NMAX)-1;q++){
+    var o=tape[q], c='hnmv';
+    if(q>=tot) c+=' none';
+    else if(!o) c+=' wait';
+    else if(o.seal) c+=' seal';
+    else if(q===tape.length-1) c+=' new';
+    th+='<b class="'+c+'">'+(o&&!o.seal?o.t:'')+'</b>';
+  }
+  el.innerHTML=th;
+}
+
 /* =================== RECURSION 3 · SHARED PIECES =================== */
 function stars(k){ return new Array(k+1).join('*'); }
 function starsH(k){ return '<span class="r3st">'+stars(k)+'</span>'; }
@@ -3455,67 +3549,10 @@ function genHanoi(N,open){
 }
 (function(){
   var root=$('#hn-sim'); if(!root) return;
-  var NMAX=4, N=3, open=false, last=-1, api, pegsEl=$('#hn-pegs'), disks={}, blk, d;
-  /* the board is drawn once: three pegs, four disks, one block outline */
-  var h='<div class="hnbase"></div>';
-  for(var p=0;p<3;p++) h+='<div class="hnrod" style="--p:'+p+'"></div>';
-  for(d=1;d<=NMAX;d++) h+='<div class="hndisk" data-d="'+d+'">'+d+'</div>';
-  h+='<div class="hnblk"><span>sealed</span></div>';
-  pegsEl.innerHTML=h;
-  for(d=1;d<=NMAX;d++) disks[d]=$('.hndisk[data-d="'+d+'"]',pegsEl);
-  blk=$('.hnblk',pegsEl);
-  var rod=$('.hnrod',pegsEl);
-  function place(s){
-    pegsEl.style.setProperty('--N',N);
-    for(var dd=1;dd<=NMAX;dd++){ disks[dd].classList.toggle('off',dd>N); disks[dd].classList.remove('seal'); }
-    s.pegs.forEach(function(a,p){
-      a.forEach(function(dd,l){ var e=disks[dd]; e.style.setProperty('--p',p); e.style.setProperty('--l',l); e.style.setProperty('--s',dd); });
-    });
-    var b=s.block;
-    if(b){
-      var base=s.pegs[b.peg].length-b.k;
-      blk.style.setProperty('--p',b.peg); blk.style.setProperty('--l',base); blk.style.setProperty('--k',b.k);
-      blk.classList.toggle('on',!b.hide);
-      if(!b.hide) s.pegs[b.peg].slice(base).forEach(function(dd){ disks[dd].classList.add('seal'); });
-    } else blk.classList.remove('on');
-  }
-  /* lift, carry, lower: every element that changed peg moves as one rigid group */
-  function animate(old){
-    var R=pegsEl.getBoundingClientRect(), top=rod.getBoundingClientRect().top, mov=[], low=null;
-    Object.keys(old).forEach(function(k){
-      var e=old[k].el, a=old[k].r, b=e.getBoundingClientRect();
-      if(Math.abs(a.left-b.left)<1 && Math.abs(a.top-b.top)<1) return;
-      mov.push({e:e,dx:a.left-b.left,dy:a.top-b.top,b:b});
-      if(!low || b.bottom>low.b.bottom) low=mov[mov.length-1];
-    });
-    if(!mov.length || !low) return;
-    var H1=(low.b.bottom+low.dy)-top+6, H2=low.b.bottom-top+6;
-    mov.forEach(function(m){
-      if(!m.e.animate) return;
-      m.e.animate([
-        {transform:'translateX(-50%) translate('+m.dx+'px,'+m.dy+'px)'},
-        {transform:'translateX(-50%) translate('+m.dx+'px,'+(m.dy-H1)+'px)',offset:.3},
-        {transform:'translateX(-50%) translate(0px,'+(-H2)+'px)',offset:.7},
-        {transform:'translateX(-50%) translate(0px,0px)'}
-      ],{duration:700,easing:'ease-in-out'});
-    });
-  }
+  var NMAX=4, N=3, open=false, last=-1, api;
+  var board=hanoiBoard($('#hn-pegs'),$('#hn-roles'),NMAX);
   function draw(s,anim){
-    var old={};
-    if(anim){
-      Object.keys(disks).forEach(function(k){ var e=disks[k]; if(e.getAnimations) e.getAnimations().forEach(function(x){ x.finish(); }); old['d'+k]={el:e,r:e.getBoundingClientRect()}; });
-      /* the block is laid out (unseen) on the step before it seals, so it
-         travels with its disks instead of appearing at the far peg */
-      if(blk.style.getPropertyValue('--p')!==''){ if(blk.getAnimations) blk.getAnimations().forEach(function(x){ x.finish(); }); old.b={el:blk,r:blk.getBoundingClientRect()}; }
-    }
-    place(s);
-    if(anim) animate(old);
-    /* the roles of the pegs in the call that is running */
-    var lane=['','',''];
-    if(s.role){ lane[{A:0,B:1,C:2}[s.role.b]]='beg'; lane[{A:0,B:1,C:2}[s.role.a]]='aux'; lane[{A:0,B:1,C:2}[s.role.e]]='end'; }
-    $('#hn-roles').innerHTML=lane.map(function(t,i){
-      return '<span class="hnpeg"><b>'+'ABC'.charAt(i)+'</b>'+(t?'<em class="mk tip r3'+t+'">'+t+'</em>':'<em class="mk tip r3none">&nbsp;</em>')+'</span>';
-    }).join('');
+    board.draw(s,anim,N);
     /* the frames: one row a call on the stack, four rows always */
     var fh='';
     for(var q=0;q<NMAX;q++){
@@ -3525,16 +3562,7 @@ function genHanoi(N,open){
     }
     $('#hn-fr').innerHTML=fh;
     /* the output: 15 slots, the ones this n does not use kept but hidden */
-    var tot=Math.pow(2,N)-1, th='';
-    for(q=0;q<Math.pow(2,NMAX)-1;q++){
-      var o=s.tape[q], c='hnmv';
-      if(q>=tot) c+=' none';
-      else if(!o) c+=' wait';
-      else if(o.seal) c+=' seal';
-      else if(q===s.tape.length-1) c+=' new';
-      th+='<b class="'+c+'">'+(o&&!o.seal?o.t:'')+'</b>';
-    }
-    $('#hn-tape').innerHTML=th;
+    hanoiTape($('#hn-tape'),s.tape,N,NMAX);
   }
   api=twoSim({el:'#hn-sim', name:'Tower of Hanoi', steps:genHanoi(N,open), play:1100,
     render:function(s,i,a){
@@ -3807,7 +3835,8 @@ document.addEventListener('keydown',function(e){
     ['4','Stacks: infix to postfix, brackets, next greater','04-infix-to-postfix.html'],
     ['5','Recursion: watch it run','05-recursion-trace.html'],
     ['6','Recursion: the magical function','06-recursion-magic.html'],
-    ['7','Recursion: magic that does something','07-recursion-patterns.html']
+    ['7','Recursion: magic that does something','07-recursion-patterns.html'],
+    ['8','Recursion: why recursion? (bonus)','08-why-recursion.html']
   ];
   var here=(location.pathname.split('/').pop()||'');
   var base = '';
