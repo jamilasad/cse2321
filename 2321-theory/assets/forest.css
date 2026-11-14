@@ -1,0 +1,412 @@
+/* ==========================================================================
+   CSE-2321 · the forest pages (Segment 7, trees)
+   --------------------------------------------------------------------------
+   The subtle forest theme: four times of day as tokens on html[data-ft],
+   the furniture in forest colours, the tree drawings, the easter eggs, and
+   the quiet living things.
+   Linked after sim.css/sim.js by every page in 08-trees-and-heaps/. Bump the
+   ?v= on every tree page when this file changes, as for the shell.
+   ========================================================================== */
+/* =====================================================================
+   SEGMENT 7 · THE FOREST THEME (subtle). Four times of day, set on <html>
+   as data-ft by the theme menu. Only accents and surfaces change; the
+   condition colours (TRUE green, FALSE red) and the code panels keep the
+   shell's own values. Night is the only dark one, and never the default:
+   a projector cannot draw black.
+   ===================================================================== */
+html[data-ft]{
+  --f-bg:#faf9f4; --f-panel:#ffffff; --f-ink:#1f2d24; --f-soft:#3d4a40; --f-mute:#57614f;
+  --f-line:#dde3d6; --f-line2:#cbd3c2; --f-acc:#476a2e; --f-acc2:#5b7f3a; --f-bark:#8a6240;
+  --f-sage:#edf2e8; --f-sage2:#dfe9d4; --f-amber:#e0a33a; --f-amb-bg:#fbefd2;
+  --f-bar:rgba(250,249,244,.94); --f-hero:#f4f2e9; --f-node:#fdfbf4; --f-ring:#d9ccb6;
+  --f-edge:#9c7a57; --f-pine:#1f3d2b;
+}
+html[data-ft="afternoon"]{
+  --f-bg:#fbf5e6; --f-panel:#fffdf8; --f-ink:#33301f; --f-soft:#4f4733; --f-mute:#655a42;
+  --f-line:#e6dcc4; --f-line2:#d8ccb0; --f-acc:#5d6b1e; --f-acc2:#6f7f25; --f-sage:#f1f0dd; --f-sage2:#e5e6c6;
+  --f-bar:rgba(251,245,230,.94); --f-hero:#f6eedb; --f-node:#fffaf0;
+}
+html[data-ft="evening"]{
+  --f-bg:#f3e8da; --f-panel:#fbf5ee; --f-ink:#3a2c25; --f-soft:#57443a; --f-mute:#654e42;
+  --f-line:#dfccba; --f-line2:#d2bca7; --f-acc:#7a4a2a; --f-acc2:#8d5734; --f-sage:#efe2d2; --f-sage2:#e5d2bd;
+  --f-bar:rgba(243,232,218,.95); --f-hero:#eedfcd; --f-node:#fbf3ea; --f-amber:#d9822b; --f-amb-bg:#f6dcc0;
+}
+html[data-ft="night"]{
+  --f-bg:#141f1a; --f-panel:#1c2a23; --f-ink:#e7ede4; --f-soft:#c9d4c8; --f-mute:#a9b9ab;
+  --f-line:#2e4136; --f-line2:#3b5144; --f-acc:#a9c98f; --f-acc2:#b9d6a0; --f-bark:#b08e6a;
+  --f-sage:#22342a; --f-sage2:#2a3f33; --f-amber:#e7b453; --f-amb-bg:#3d3220;
+  --f-bar:rgba(20,31,26,.95); --f-hero:#16231d; --f-node:#24362c; --f-ring:#3f5848; --f-edge:#8f7356;
+}
+
+html[data-ft] body{--bg:var(--f-bg);--panel:var(--f-panel);--ink:var(--f-ink);--ink-soft:var(--f-soft);
+  --ink-mute:var(--f-mute);--line:var(--f-line);--line-strong:var(--f-line2);background:var(--f-bg);color:var(--f-ink);
+  transition:background-color .5s ease,color .5s ease}
+
+/* ---- the bar ---- */
+html[data-ft] .topbar{background:var(--f-bar);border-bottom:1px solid var(--f-line);color:var(--f-ink)}
+html[data-ft] .brand-s{color:var(--f-mute)}
+html[data-ft] .brand-t{color:var(--f-ink)}
+html[data-ft] .brand-badge{background:linear-gradient(135deg,#5b7f3a,#1f3d2b)}
+html[data-ft] .tab{color:var(--f-mute)}
+html[data-ft] .tab[aria-selected="true"]{background:var(--f-sage2);color:var(--f-ink)}
+html[data-ft] .revtog,html[data-ft] .qchip,html[data-ft] .ftbtn{border-color:var(--f-line2);color:var(--f-soft);background:transparent}
+html[data-ft] .qchip b{color:var(--f-ink)}
+html[data-ft] .qchip i{background:var(--f-acc2)}
+html[data-ft] .revtog.on{background:var(--f-sage2);color:var(--f-ink)}
+html[data-ft] .rail i,html[data-ft] #rail{background:var(--f-acc2)}
+html[data-ft] .rail{background:var(--f-line)}
+html[data-ft] .fab .fup,html[data-ft] .fab .fdn{background:rgba(31,61,43,.92);color:#e7ede4}
+
+/* the time-of-day menu (one control for the whole theme, as before) */
+.ftwrap{position:relative;flex:0 0 auto}
+.ftbtn{appearance:none;border:1px solid var(--f-line2,#334155);border-radius:999px;font-family:inherit;font-size:.68rem;
+  font-weight:700;padding:.3rem .7rem;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:.35rem}
+.ftbtn:hover,.ftbtn[aria-expanded="true"]{background:var(--f-sage2);color:var(--f-ink)}
+.ftbtn .chev{font-size:.6rem;transition:transform .18s}
+.ftbtn[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.ftmenu{position:fixed;width:208px;padding:6px;border-radius:12px;z-index:80;
+  background:var(--f-panel);border:1px solid var(--f-line);box-shadow:0 14px 34px -12px rgba(20,30,24,.45)}
+.ftmenu[hidden]{display:none}
+.ftopt{display:flex;align-items:center;gap:.6rem;width:100%;border:0;background:transparent;border-radius:8px;
+  padding:.45rem .55rem;cursor:pointer;font-family:inherit;text-align:left;color:var(--f-ink)}
+.ftopt:hover{background:var(--f-sage)}
+.ftopt.on{background:var(--f-sage2)}
+.ftopt .ic{width:1.3rem;text-align:center;font-size:.95rem}
+.ftopt b{display:block;font-size:.78rem}
+.ftopt small{display:block;font-size:.66rem;color:var(--f-mute)}
+
+/* ---- the hero: cream, quiet, a faint treeline along the foot ---- */
+.fhero{position:relative;background:var(--f-hero);color:var(--f-ink);padding:3rem 0 3.2rem;overflow:hidden;
+  border-bottom:1px solid var(--f-line);transition:background-color .5s ease}
+.fhero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:70px;pointer-events:none;opacity:.07;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 70' preserveAspectRatio='none'%3E%3Cpath fill='%231f3d2b' d='M0 70V48l14-14 10 10 12-22 12 22 10-12 14 20 12-30 14 30 10-8 12 16 14-26 12 26 12-18 12 18 16-34 14 34 10-10 12 12 14-24 12 24 12-16 14 16 12-28 14 28 10-6 12 12 16-30 12 30 12-14 14 14 12-24 12 24 10-8 14 18 12-26 14 26 12-16 12 16 14-30 12 30 10-10 14 14 12-22 12 22 12-12 14 16 12-28 14 28 10-8 12 14 14-24 12 24 12-14 16 14V70z'/%3E%3C/svg%3E") repeat-x bottom/600px 70px}
+html[data-ft="night"] .fhero::after{opacity:.35}
+.fhero .eyebrow{color:var(--f-acc)}
+.fhero h1{color:var(--f-pine)}
+html[data-ft="night"] .fhero h1{color:var(--f-ink)}
+.fhero h1 em{background:none;-webkit-background-clip:initial;background-clip:initial;color:var(--f-acc2)}
+.fhero .hero-lede{color:var(--f-soft)}
+.fhero .arc span{color:var(--f-soft);background:var(--f-panel);border-color:var(--f-line2)}
+.fhero .hero-meta{color:var(--f-mute)}
+.fhero .hero-meta b{color:var(--f-ink)}
+.fhero .byline .av{background:var(--f-sage2);border-color:var(--f-line2);color:var(--f-ink)}
+.fhero .byline .who{color:var(--f-ink)}
+.fhero .byline .who span{color:var(--f-mute)}
+.fhero .heroart{background:var(--f-hero);border:1px solid var(--f-line);box-shadow:0 20px 40px -26px rgba(20,30,24,.55);position:relative}
+.fhero .heroart img{transition:opacity .6s ease,filter .6s ease}
+.fhero .heroart img.hn{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0}
+html[data-ft="night"] .fhero .heroart img.hn{opacity:1}
+html[data-ft="afternoon"] .fhero .heroart img.hm{filter:sepia(.18) saturate(1.08) brightness(1.02)}
+html[data-ft="evening"] .fhero .heroart img.hm{filter:sepia(.42) saturate(.95) brightness(.95) hue-rotate(-8deg)}
+
+/* ---- page furniture in forest colours ---- */
+html[data-ft] .prog{background:var(--f-panel);border-color:var(--f-line)}
+html[data-ft] .prog .pk{color:var(--f-mute)}
+html[data-ft] .prog .pn{color:var(--f-acc)}
+html[data-ft] .prog button{background:var(--f-panel);border-color:var(--f-line2);color:var(--f-mute)}
+/* egg 1 · the progress twig: a thin branch, a leaf per answered check, a flower at the end */
+html[data-ft] .prog .pbar{position:relative;height:16px;background:transparent;overflow:visible}
+html[data-ft] .prog .pbar::before{content:"";position:absolute;left:0;right:0;top:7px;height:2px;border-radius:2px;background:var(--f-line2)}
+html[data-ft] .prog .pbar i{position:absolute;left:0;top:6px;height:4px;border-radius:3px;background:linear-gradient(90deg,var(--f-bark),#a0784f)}
+.twl{position:absolute;top:-1px;width:13px;height:9px;margin-left:-4px;transform-origin:2px 8px;pointer-events:none}
+.twl.up{top:-3px;transform:rotate(-28deg)}
+.twl.dn{top:9px;transform:rotate(28deg) scaleY(-1)}
+.twl.grow{animation:twgrow .55s cubic-bezier(.3,1.4,.5,1) both}
+@keyframes twgrow{from{opacity:0;scale:.2}to{opacity:1;scale:1}}
+.twf{position:absolute;right:-9px;top:-3px;width:20px;height:20px;pointer-events:none}
+
+html[data-ft] .card{background:var(--f-panel);box-shadow:0 1px 2px rgba(20,30,24,.06),0 14px 34px -26px rgba(20,30,24,.45)}
+html[data-ft] .timechip{background:var(--f-sage);color:var(--f-mute);border-color:var(--f-line)}
+/* egg 2 · tree-ring badges: as many faint rings as the section's number (set by the script) */
+html[data-ft] .card.numbered>.badge{color:var(--f-pine);border-color:var(--f-bg);text-shadow:0 0 3px #f6ecd8;
+  box-shadow:0 0 0 1px #b99b73 inset}
+html[data-ft] .goals{border-color:var(--f-line2);background:linear-gradient(180deg,var(--f-sage),var(--f-panel))}
+html[data-ft] .goals .gh i{background:var(--f-acc2)}
+html[data-ft] .goals .gh b{color:var(--f-acc)}
+html[data-ft] .goals li::before{background:var(--f-panel);border-color:var(--f-acc2);color:var(--f-acc)}
+html[data-ft] .turn{border-color:var(--f-line2);background:linear-gradient(180deg,var(--f-sage),var(--f-panel))}
+html[data-ft] .turn .th{border-bottom-color:var(--f-line2);background:transparent}
+html[data-ft] .turn .th b{color:var(--f-acc)}
+html[data-ft] .turn .tbtn{border-color:var(--f-acc2);background:var(--f-panel);color:var(--f-acc)}
+html[data-ft] .turn .tbtn:hover{background:var(--f-sage)}
+html[data-ft] .turn .hint{color:var(--f-acc)}
+html[data-ft] .turn .ta .mono{background:var(--f-sage);border-color:var(--f-line2);color:var(--f-acc)}
+html[data-ft] .box:not(.warn):not(.bad):not(.good){background:var(--f-sage);border-color:var(--f-line)}
+html[data-ft] .box.info{background:var(--f-sage);border-color:var(--f-line2)}
+html[data-ft] .box.info .bt{color:var(--f-acc)}
+html[data-ft] .bridge{background:linear-gradient(135deg,#1f3d2b,#2b4a36);color:#d6e3d3}
+html[data-ft] .bridge .lbl{color:#b9d6a0}
+html[data-ft] .quiz{border-color:var(--f-line);background:var(--f-panel)}
+html[data-ft] .quiz .qh{background:var(--f-sage);border-bottom-color:var(--f-line);color:var(--f-mute)}
+html[data-ft] .qopt{background:var(--f-panel);border-color:var(--f-line);color:var(--f-soft)}
+html[data-ft] .pgn{background:var(--f-panel);border-color:var(--f-line)}
+html[data-ft] .pgn .ar{color:var(--f-acc2)}
+html[data-ft] .kitem{background:var(--f-panel);border-color:var(--f-line);color:var(--f-soft)}
+html[data-ft] .kitem b{color:var(--f-ink)}
+html[data-ft] .kitem .kx{background:var(--f-sage2);color:var(--f-acc)}
+html[data-ft] .drawer{background:var(--f-panel)}
+html[data-ft] .drawer .dh{background:linear-gradient(140deg,#1f3d2b,#3d5c3a)}
+html[data-ft] .drawer .dh p{color:#b9d6a0}
+html[data-ft] .drawer a.dl,html[data-ft] .drawer button.dl{background:var(--f-panel);border-color:var(--f-line);color:var(--f-soft)}
+html[data-ft] .drawer a.dl.here{background:var(--f-sage2);border-color:var(--f-acc2);color:var(--f-ink)}
+html[data-ft] .drawer a.dl.here .dn2{background:var(--f-acc2)}
+html[data-ft] .fab .fmenu{background:var(--f-acc2)}
+html[data-ft] details.dig{background:var(--f-panel)}
+html[data-ft] .mono{color:inherit}
+html[data-ft] .srtart img{border-color:var(--f-line)}
+html[data-ft="night"] .box.warn{background:#3a3020;border-color:#5a4a2a}
+html[data-ft="night"] .box.bad{background:#3a2226;border-color:#5a3036}
+html[data-ft="night"] .box.good{background:#1f3a2a;border-color:#2f5a3e}
+html[data-ft="night"] .qopt.ok{background:#1f3a2a;color:#8fd6a5}
+html[data-ft="night"] .qopt.no{background:#3a2226;color:#f1a7b1}
+html[data-ft="night"] .sim{background:#18241e;border-color:var(--f-line)}
+html[data-ft="night"] .simhd{border-bottom-color:var(--f-line)}
+
+/* egg 6 · a right answer lets one leaf drift down */
+.leafdrop{position:absolute;width:16px;height:12px;pointer-events:none;z-index:5;animation:leafdrop 1.1s ease-in forwards}
+@keyframes leafdrop{0%{opacity:0;transform:translate(0,-6px) rotate(-30deg)}15%{opacity:.95}
+  100%{opacity:0;transform:translate(-26px,46px) rotate(70deg)}}
+/* egg 7 · Dig deeper's marker is an acorn; opened, it splits */
+html[data-ft] details.dig .dicon{font-size:0;color:transparent;background:#efe4cf url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9c0-3 3-5 6-5s6 2 6 5z' fill='%238a6240'/%3E%3Cpath d='M7 9h10c0 6-2.5 10-5 11-2.5-1-5-5-5-11z' fill='%23c79a5b'/%3E%3Cpath d='M12 4V2' stroke='%235b4027' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") center/18px no-repeat;
+  box-shadow:0 0 0 1px #c9b28c inset}
+html[data-ft] details.dig[open] .dicon{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 7c0-3 3-5 6-5' fill='none' stroke='%238a6240' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M6 11h5c0 5-1.5 8-3 9-1.5-1-2-4-2-9z' fill='%23c79a5b'/%3E%3Cpath d='M13 11h5c0 5-.5 8-2 9-1.5-1-3-4-3-9z' fill='%23d7ae72'/%3E%3C/svg%3E")}
+
+@media (prefers-reduced-motion:reduce){
+  .leafdrop,.twl.grow{animation:none}
+  html[data-ft] body,.fhero,.fhero .heroart img{transition:none}
+}
+
+/* =====================================================================
+   TREE DRAWINGS (every tree page). Nodes are plain cream circles with one faint
+   inner ring; edges are thin bark lines; the one highlight is amber.
+   ===================================================================== */
+.tvw{overflow-x:auto;overflow-y:hidden}
+.tvw svg{display:block;margin:0 auto;height:auto;max-width:100%}
+.tv-ed{stroke:var(--f-edge,#9c7a57);stroke-width:2.2;stroke-linecap:round;transition:stroke .35s,stroke-width .35s,opacity .35s}
+.tv-nd circle.o{fill:var(--f-node,#fdfbf4);stroke:#b8a58c;stroke-width:2;transition:fill .35s,stroke .35s,stroke-width .35s}
+.tv-nd circle.i{fill:none;stroke:var(--f-ring,#d9ccb6);stroke-width:1.1}
+.tv-nd text{font-family:var(--sans);font-weight:800;font-size:15px;fill:var(--f-ink,#1f2d24);text-anchor:middle;dominant-baseline:central}
+.tv-nd,.tv-ed{transition:opacity .35s}
+.tv-nd.on circle.o{fill:var(--f-amb-bg,#fbefd2);stroke:var(--f-amber,#e0a33a);stroke-width:3.2}
+.tv-nd.mk circle.o{fill:var(--f-sage2,#dfe9d4);stroke:var(--f-acc2,#5b7f3a);stroke-width:3}
+.tv-nd.sel circle.o{stroke:var(--f-pine,#1f3d2b);stroke-width:3.4}
+html[data-ft="night"] .tv-nd.sel circle.o{stroke:#e7ede4}
+.tv-nd.dim,.tv-ed.dim{opacity:.28}
+.tv-ed.on{stroke:var(--f-amber,#e0a33a);stroke-width:4}
+.tv-ed.mk{stroke:var(--f-acc2,#5b7f3a);stroke-width:3.6}
+.tv-lvl{font-family:var(--mono);font-size:11px;fill:var(--f-mute,#66705f);text-anchor:end;dominant-baseline:central;transition:opacity .35s}
+.tv-lvl.on{fill:var(--f-acc,#476a2e);font-weight:800}
+.tv-lvl.hid{opacity:0}
+.tv-band{fill:var(--f-sage,#edf2e8);opacity:0;transition:opacity .35s}
+.tv-band.on{opacity:1}
+.tv-ghost{fill:none;stroke:var(--f-line2,#cbd3c2);stroke-width:1.6;stroke-dasharray:4 4}
+.tv-ghost.gap{stroke:#dc2626;stroke-width:2.2;stroke-dasharray:5 4}
+.tv-pos{font-family:var(--mono);font-size:10.5px;fill:var(--f-mute,#66705f);text-anchor:middle;dominant-baseline:central}
+.tv-pos.on{fill:var(--f-acc,#476a2e);font-weight:800}
+/* egg 5 · an empty subtree is a cut stump */
+.tv-stump .st1{fill:#b48a5e}.tv-stump .st2{fill:#d9b98c}.tv-stump .st3{fill:none;stroke:#8a6240;stroke-width:1}
+.tv-stump text{font-family:var(--mono);font-size:10px;fill:var(--f-mute,#66705f);text-anchor:middle}
+.tv-edx{stroke:var(--f-line2,#cbd3c2);stroke-width:2;stroke-dasharray:4 4}
+
+/* ---- §4 · four trees, complete and full ---- */
+.kdtabs{display:flex;flex-wrap:wrap;gap:.35rem;justify-content:center}
+.kdtabs button,.kdchk button{appearance:none;font-family:inherit;font-size:.76rem;font-weight:700;border-radius:.5rem;cursor:pointer;
+  padding:.36rem .75rem;border:1.5px solid var(--f-line2,#cbd3c2);background:var(--f-panel,#fff);color:var(--f-soft,#3d4a40)}
+.kdtabs button.on{background:var(--f-sage2,#dfe9d4);border-color:var(--f-acc2,#5b7f3a);color:var(--f-ink,#1f2d24)}
+.kdchk{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+.kdchk button.on{border-color:var(--f-acc,#476a2e);color:var(--f-acc,#476a2e)}
+.kdv{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;min-height:2.1rem}
+.kdv span{font-size:.78rem;font-weight:800;padding:.3rem .7rem;border-radius:999px;border:1.5px solid var(--f-line2,#cbd3c2);color:var(--f-mute,#66705f)}
+.kdv span.yes{border-color:#16a34a;color:#15803d;background:#f0fdf4}
+.kdv span.no{border-color:#dc2626;color:#b91c1c;background:#fff1f2}
+html[data-ft="night"] .kdv span.yes{background:#1f3a2a;color:#8fd6a5}
+html[data-ft="night"] .kdv span.no{background:#3a2226;color:#f1a7b1}
+
+/* ---- the page to keep ---- */
+.keep3{display:grid;gap:1rem}
+@media(min-width:760px){.keep3{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.keep3>div{border:1px solid var(--f-line,#dde3d6);border-radius:.8rem;padding:.9rem 1rem;background:var(--f-sage,#edf2e8)}
+.keep3 h3{margin:0 0 .5rem;font-size:.92rem}
+.keep3 p,.keep3 li{font-size:.84rem;line-height:1.55}
+.keep3 ul{margin:0;padding-left:1.05rem}
+
+/* Focus: the drawings grow for the back of the room */
+.fsbody .tvw svg{max-width:min(100%,980px)}
+.fsbody .tv-nd text{font-size:16px}
+
+/* ---- the shared simulator frame, in forest colours (on the page only; Focus keeps its bench) ---- */
+html[data-ft] main .sim{background:var(--f-panel);border-color:var(--f-line);box-shadow:0 14px 32px -26px rgba(20,30,24,.45)}
+html[data-ft] main .sim .simhd{border-bottom-color:var(--f-line)}
+html[data-ft] main .sim .simttl{color:var(--f-mute)}
+html[data-ft] main .sim .simnm{color:var(--f-soft)}
+html[data-ft] main .sim .focusb:hover{border-color:var(--f-acc2);color:var(--f-acc)}
+html[data-ft] main .sim.simon{border-color:var(--f-acc2);box-shadow:0 0 0 2px color-mix(in srgb,var(--f-acc2) 22%,transparent),0 14px 32px -26px rgba(20,30,24,.45)}
+html[data-ft] main .simrail{background:var(--f-sage)}
+html[data-ft] main .simrail .sg{background:var(--f-sage2)}
+html[data-ft] main .simrail .sg:hover{background:var(--f-line2)}
+html[data-ft] main .simrail .sg.done{background:#9fbf86}
+html[data-ft] main .simrail .sg.now{background:var(--f-acc);box-shadow:0 0 0 2px color-mix(in srgb,var(--f-acc) 25%,transparent)}
+html[data-ft] main .simmsg{background:var(--f-sage);border-color:var(--f-line)}
+html[data-ft] main .simmsg .smn{background:var(--f-acc)}
+html[data-ft="night"] main .simmsg .smn{color:#14201a}
+html[data-ft] main .wch{border-color:var(--f-line)}
+html[data-ft] main .wch .wn{background:var(--f-sage);color:var(--f-mute);border-right-color:var(--f-line)}
+html[data-ft] main .wch .wv{color:var(--f-ink);background:var(--f-panel)}
+html[data-ft] main .simkeys,html[data-ft] main .simkeys kbd{color:var(--f-mute)}
+/* night: nothing on the page may stay page-white or ink-dark */
+html[data-ft="night"] main .simmsg p{color:var(--f-soft)}
+html[data-ft="night"] main .simmsg b,html[data-ft="night"] main .simmsg strong{color:var(--f-ink)}
+html[data-ft="night"] main .sim .focusb{background:transparent;color:var(--f-soft);border-color:var(--f-line2)}
+html[data-ft="night"] main .btn.ghost{background:var(--f-panel) !important;color:var(--f-soft) !important;border-color:var(--f-line2) !important}
+html[data-ft="night"] .fab .fmenu{color:#14201a}
+html[data-ft="night"] .card b,html[data-ft="night"] .card strong{color:var(--f-ink)}
+html[data-ft="night"] .qexp{color:var(--f-soft)}
+
+/* contrast fixes found by the audit (every theme, every text element, 4.5 : 1, 3 : 1 for large) */
+html[data-ft] .prog span.pn{color:var(--f-acc)}
+html[data-ft] main .sim .focusb{color:var(--f-soft)}
+html[data-ft] main .simcnt{color:var(--f-mute)}
+html[data-ft="night"] .card .kicker{color:var(--f-acc)}
+html[data-ft="night"] .box.bad .bt{color:#f1a7b1}
+html[data-ft="night"] .box.warn .bt{color:#f3c776}
+html[data-ft="night"] .box.good .bt{color:#8fd6a5}
+html[data-ft="night"] .box.info .bt{color:var(--f-acc)}
+html[data-ft="night"] main .simkeys kbd{background:transparent;border-color:var(--f-line2)}
+html[data-ft]:not([data-ft="night"]) .card .kicker{color:color-mix(in srgb,var(--accent) 78%,#000)}
+html[data-ft="night"] .freqr{border-color:var(--f-line);background:transparent}
+html[data-ft="night"] .freqr.top{background:var(--f-sage)}
+html[data-ft="night"] .freqr .fqn{color:var(--f-ink)}
+html[data-ft="night"] .freqr .fqw{color:var(--f-mute)}
+html[data-ft="night"] #p-exam th,html[data-ft="night"] #p-exam td{color:var(--f-soft)}
+html[data-ft="night"] .pastq{background:var(--f-sage);border-color:var(--f-line2)}
+html[data-ft="night"] .pastq .pqt{color:var(--f-ink)}
+html[data-ft="night"] #p-exam th{background:var(--f-sage2);color:var(--f-ink)}
+html[data-ft="night"] .pastq .pqh{background:var(--f-sage2);border-color:var(--f-line2)}
+html[data-ft="night"] .pastq .pqh .pqw{color:var(--f-soft)}
+html[data-ft="night"] .pastq .pqh .pqm{background:transparent;color:var(--f-amber);border-color:var(--f-line2)}
+html[data-ft="night"] .pastq .pqh .pqs{background:var(--f-acc);color:#14201a}
+
+/* the tab strip over a listing */
+html[data-ft] .srttabs{background:var(--f-sage,#edf2e8);border-bottom-color:var(--f-line,#dde3d6)}
+/* =====================================================================
+   THE FOREST IS ALIVE (forest.js §life). Quiet, low-contrast, and gone
+   for prefers-reduced-motion. None of it sits inside a simulator.
+   ===================================================================== */
+html[data-ft]{--f-gut:#1f3d2b;--f-gut-o:.09;--f-gut-h:.16}
+html[data-ft="evening"]{--f-gut:#4a2f1f;--f-gut-o:.1;--f-gut-h:.18}
+html[data-ft="night"]{--f-gut:#2b4236;--f-gut-o:.75;--f-gut-h:.95}
+
+/* the sky over the hero */
+.fz-sky{position:absolute;left:0;top:0;pointer-events:none;z-index:0}
+.fhero .wrap{position:relative;z-index:1}
+.fz-heroleaf{z-index:3}
+
+/* the forest in the margins: rooted at the bottom of the window, only where
+   there is margin to fill. Scrolling leans it (--fz-wind, set by the gust). */
+.fz-gut{position:fixed;bottom:0;width:calc((100vw - 1080px) / 2 - 18px);max-width:260px;height:92vh;
+  pointer-events:none;z-index:0;color:var(--f-gut);display:none;transition:color .6s}
+.fz-gut.l{left:0}
+.fz-gut.r{right:0}
+.fz-gut.r svg{transform:scaleX(-1)}
+.fz-gut svg{width:100%;height:100%;display:block;overflow:visible}
+@media(min-width:1320px){.fz-gut{display:block}}
+body.fsopen .fz-gut{display:none}
+.fz-gut svg>path{opacity:var(--f-gut-o)}
+.fz-tree{pointer-events:visiblePainted;opacity:var(--f-gut-o);transition:opacity .5s;transform-origin:50% 100%;transform-box:fill-box}
+.fz-tree:hover{opacity:var(--f-gut-h)}
+.fz-lean{transform-origin:50% 100%;transform-box:fill-box;transform:rotate(calc(var(--fz-wind,0) * var(--k,1) * 1deg))}
+.fz-sway{transform-origin:50% 100%;transform-box:fill-box;animation:fzsway 9s ease-in-out infinite alternate}
+@keyframes fzsway{from{transform:rotate(-1.1deg)}to{transform:rotate(1.1deg)}}
+.fz-tree.fz-rustle{animation:fzrustle .7s ease-out}
+.fz-tree.fz-rustle2{animation:fzrustle2 1.1s ease-out}
+@keyframes fzrustle{0%,100%{transform:none}20%{transform:rotate(1.6deg)}45%{transform:rotate(-1.2deg)}70%{transform:rotate(.6deg)}}
+@keyframes fzrustle2{0%,100%{transform:none}12%{transform:rotate(3deg)}30%{transform:rotate(-2.6deg)}48%{transform:rotate(1.8deg)}66%{transform:rotate(-1deg)}84%{transform:rotate(.4deg)}}
+main.wrap,.panel>main{position:relative;z-index:1}
+/* the owl in the tall pine: only at night, blinking now and then */
+.fz-owl{display:none;fill:#e8b04a}
+html[data-ft="night"] .fz-owl{display:inline;animation:fzblink 7s infinite}
+.fz-owl circle{transform-box:fill-box;transform-origin:center}
+.fz-owl.blink{animation:fzblink2 .9s}
+@keyframes fzblink{0%,90%,100%{opacity:1}93%,95%{opacity:.05}}
+@keyframes fzblink2{0%,100%{opacity:1}25%,45%{opacity:.05}}
+/* what leaves a margin tree: a leaf that falls to the ground, a bird */
+.fz-mleaf{position:fixed;z-index:0;width:13px;height:10px;pointer-events:none}
+.fz-mleaf svg,.fz-mbird svg{width:100%;height:100%;display:block}
+.fz-mbird{position:fixed;z-index:0;width:24px;height:12px;pointer-events:none;color:#2c4a37}
+html[data-ft="night"] .fz-mbird{color:#9fbf86}
+
+/* cards rise into place once; their rings grow */
+.card.fz-rise{opacity:0;transform:translateY(18px)}
+.card.fz-rise.fz-in{opacity:1;transform:none;transition:opacity .6s ease,transform .7s cubic-bezier(.2,.8,.2,1)}
+.card.fz-in>.badge{animation:fzring .9s cubic-bezier(.3,1.4,.5,1) both}
+@keyframes fzring{from{transform:scale(.55) rotate(-25deg)}to{transform:none}}
+
+/* a vine leaf rides the head of the scroll rail */
+html[data-ft] .rail i{position:relative}
+html[data-ft] .rail i::after{content:"";position:absolute;right:-7px;top:-5px;width:12px;height:9px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 13 9'%3E%3Cpath d='M1 8C2 3 6 1 12 1c-1 5-4 7-11 7z' fill='%236f9a48'/%3E%3C/svg%3E") center/contain no-repeat}
+
+/* the bird on every "Your turn": hops when the pointer comes, flutters when touched */
+.turn .th{position:relative}
+.fz-bird{position:absolute;right:14px;bottom:-3px;width:28px;height:21px;cursor:default;
+  animation:fzbob 3.6s ease-in-out infinite}
+.fz-bird svg{width:100%;height:100%;display:block}
+.fz-bird:hover{animation:fzhop .55s ease-out}
+.fz-bird.flut{animation:fzflut 1s ease-in-out}
+.fz-bird.flut .wing{animation:fzwing .12s linear 6 alternate;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes fzbob{0%,86%,100%{transform:none}90%{transform:translateY(-2px) rotate(-6deg)}94%{transform:rotate(3deg)}}
+@keyframes fzhop{0%,100%{transform:none}40%{transform:translateY(-6px) rotate(-4deg)}70%{transform:translateY(0) rotate(2deg)}}
+@keyframes fzflut{0%,100%{transform:none}35%{transform:translate(-10px,-22px) rotate(-10deg)}65%{transform:translate(-4px,-16px) rotate(6deg)}}
+@keyframes fzwing{from{transform:none}to{transform:scaleY(-1)}}
+.fz-bird.gone{animation:fzfly 1.1s cubic-bezier(.5,0,.7,.4) forwards;pointer-events:none}
+@keyframes fzfly{0%{transform:none;opacity:1}30%{transform:translate(8px,-10px) rotate(-12deg)}
+  100%{transform:translate(120px,-70px) rotate(-20deg) scale(.7);opacity:0}}
+body.revealall .fz-bird{display:none}
+
+/* the forest floor at the end of a lesson */
+.fz-floor{position:relative;height:74px;margin:1.6rem 0 0;color:var(--f-sage2,#dfe9d4);overflow:hidden;cursor:default}
+.fz-ground{position:absolute;left:0;right:0;bottom:0;width:100%;height:46px}
+.fz-grass{position:absolute;left:0;right:0;bottom:22px;height:0}
+.fz-blade{position:absolute;bottom:0;width:2px;border-radius:2px 2px 0 0;background:#9fbf86;opacity:.75;
+  transform-origin:50% 100%;transform:rotate(calc(var(--r,0deg) + var(--p,0deg)));transition:transform .35s cubic-bezier(.3,1.5,.5,1)}
+html[data-ft="night"] .fz-blade{background:#4f6f58}
+html[data-ft="evening"] .fz-blade{background:#b9a46a}
+.fz-mush,.fz-fern{position:absolute;bottom:18px;width:24px;height:24px}
+.fz-mush.sm{width:16px;height:16px}
+.fz-fern{width:30px;height:30px;bottom:16px;transform-origin:50% 100%}
+.fz-fern:hover{animation:fzfern 1.2s ease-in-out}
+@keyframes fzfern{0%,100%{transform:none}25%{transform:rotate(-7deg)}55%{transform:rotate(5deg)}80%{transform:rotate(-2deg)}}
+.fz-mush svg,.fz-fern svg,.fz-hog svg{width:100%;height:100%;display:block}
+.fz-mush .cap{transform-box:fill-box;transform-origin:50% 100%}
+.fz-mush.puff .cap{animation:fzsquish .6s cubic-bezier(.3,1.6,.5,1)}
+@keyframes fzsquish{0%,100%{transform:none}30%{transform:scale(1.15,.8)}60%{transform:scale(.94,1.08)}}
+.fz-spore{position:absolute;left:50%;top:20%;width:3px;height:3px;margin-left:-1.5px;border-radius:50%;background:#f3e3c6;pointer-events:none}
+html[data-ft="night"] .fz-spore{background:#ffe08a}
+.fz-hog{position:absolute;bottom:14px;left:-60px;width:44px;height:26px}
+.fz-hog .hball{display:none;position:absolute;left:9px;top:0;width:26px;height:26px}
+.fz-hog.curl .hb{display:none}
+.fz-hog.curl .hball{display:block;animation:fzroll .8s cubic-bezier(.3,.6,.4,1)}
+@keyframes fzroll{from{transform:rotate(0)}to{transform:rotate(300deg)}}
+.fz-floor.walk .fz-hog{animation:fzwalk 16s linear forwards}
+.fz-floor.back .fz-hog{animation:fzwalkb 16s linear forwards}
+.fz-floor.back .fz-hog .hb{transform:scaleX(-1)}
+.fz-floor.walk .fz-hog.curl,.fz-floor.back .fz-hog.curl{animation-play-state:paused}
+.fz-floor.walk .fz-hog .hb,.fz-floor.back .fz-hog .hb{animation:fzstep .45s ease-in-out infinite alternate}
+.fz-floor.back .fz-hog .hb{animation-name:fzstepb}
+@keyframes fzwalk{0%{left:-60px}46%{left:46%}54%{left:46%}100%{left:calc(100% + 60px)}}
+@keyframes fzwalkb{0%{left:calc(100% + 60px)}46%{left:56%}54%{left:56%}100%{left:-60px}}
+@keyframes fzstep{from{transform:translateY(0)}to{transform:translateY(-1.5px)}}
+@keyframes fzstepb{from{transform:scaleX(-1) translateY(0)}to{transform:scaleX(-1) translateY(-1.5px)}}
+/* fireflies over the floor, only at night */
+.fz-ffl{display:none;position:absolute;width:5px;height:5px;border-radius:50%;background:#ffe08a;
+  box-shadow:0 0 8px 3px rgba(255,224,138,.55);pointer-events:none}
+html[data-ft="night"] .fz-ffl{display:block;animation:fzglow 3.2s ease-in-out infinite,fzdrift 9s ease-in-out infinite alternate}
+@keyframes fzglow{0%,100%{opacity:.1}50%{opacity:.95}}
+@keyframes fzdrift{0%{transform:translate(0,0)}33%{transform:translate(18px,-10px)}66%{transform:translate(-10px,-18px)}100%{transform:translate(12px,4px)}}
+
+@media (prefers-reduced-motion:reduce){
+  .fz-sky,.fz-gut,.fz-ffl{display:none !important}
+  .card.fz-rise{opacity:1;transform:none}
+  .fz-bird,.fz-floor .fz-hog,.fz-floor .fz-hog svg,.fz-sway,.card.fz-in>.badge{animation:none !important}
+}
+@media print{.fz-sky,.fz-gut,.fz-floor,.fz-bird,.fz-mleaf,.fz-mbird{display:none}}
