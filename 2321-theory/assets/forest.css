@@ -307,11 +307,11 @@ html[data-ft="night"]{--f-gut:#2b4236;--f-gut-o:.75;--f-gut-h:.95}
   pointer-events:none;z-index:0;color:var(--f-gut);display:none;transition:color .6s}
 .fz-gut.l{left:0}
 .fz-gut.r{right:0}
-.fz-gut.r svg{transform:scaleX(-1)}
-.fz-gut svg{width:100%;height:100%;display:block;overflow:visible}
+.fz-gut.r>svg{transform:scaleX(-1)}
+.fz-gut>svg{width:100%;height:100%;display:block;overflow:visible}
 @media(min-width:1320px){.fz-gut{display:block}}
 body.fsopen .fz-gut{display:none}
-.fz-gut svg>path{opacity:var(--f-gut-o)}
+.fz-gut>svg>path{opacity:var(--f-gut-o)}
 .fz-tree{pointer-events:visiblePainted;transform-origin:50% 100%;transform-box:fill-box}
 /* the faintness is on the wood and the crown, so what perches in a tree keeps its own colour */
 .fz-sway>path,.fz-crown{opacity:var(--f-gut-o);transition:opacity .5s}
@@ -325,12 +325,13 @@ body.fsopen .fz-gut{display:none}
 @keyframes fzrustle2{0%,100%{transform:none}12%{transform:rotate(3deg)}30%{transform:rotate(-2.6deg)}48%{transform:rotate(1.8deg)}66%{transform:rotate(-1deg)}84%{transform:rotate(.4deg)}}
 main.wrap,.panel>main{position:relative;z-index:1}
 /* the owl in the tall pine: only at night, blinking now and then */
-.fz-owl{display:none;fill:#e8b04a;opacity:.8}
-html[data-ft="night"] .fz-owl{display:inline;animation:fzblink 7s infinite}
-.fz-owl circle{transform-box:fill-box;transform-origin:center}
-.fz-owl.blink{animation:fzblink2 .9s}
-@keyframes fzblink{0%,90%,100%{opacity:1}93%,95%{opacity:.05}}
-@keyframes fzblink2{0%,100%{opacity:1}25%,45%{opacity:.05}}
+/* an owl in the tall pine at night: a faceless silhouette, no eyes (Jamil, 2026-11-14) */
+.fz-owl{display:none;fill:#b48a5c;opacity:.9;transform-box:fill-box;transform-origin:50% 100%}
+.fz-owl .bl{fill:#d9b98c}
+html[data-ft="night"] .fz-owl{display:inline;animation:fzowlsway 8s ease-in-out infinite}
+.fz-owl.blink{animation:fzruffle .9s}
+@keyframes fzowlsway{0%,80%,100%{transform:none}86%{transform:rotate(-6deg)}93%{transform:rotate(4deg)}}
+@keyframes fzruffle{0%,100%{transform:none}30%{transform:scale(1.15,.9)}60%{transform:scale(.95,1.08)}}
 /* what leaves a margin tree: a leaf that falls to the ground, a bird */
 .fz-mleaf{position:fixed;z-index:0;width:13px;height:10px;pointer-events:none}
 .fz-mleaf svg,.fz-mbird svg{width:100%;height:100%;display:block}
@@ -431,7 +432,6 @@ body.fsopen .fz-canopy{display:none}
 /* a bird for each simulator finished: perched in a margin tree ... */
 .fz-pb{fill:#6f8a5a}
 .fz-pb .bk{fill:#e0a33a}
-.fz-pb .ey{fill:#1f2d24}
 .fz-pb .ft{fill:none;stroke:#8a6240;stroke-width:1.2}
 html[data-ft="night"] .fz-pb{fill:#8fae84}
 .fz-perch .fz-pb{animation:fzland 1.8s cubic-bezier(.25,.7,.3,1) both}
@@ -447,7 +447,6 @@ html[data-ft="night"] .fz-pb{fill:#8fae84}
 .fz-owlf .hd{transform-box:fill-box;transform-origin:50% 90%}
 .fz-owlf.opn .hd{animation:fznod 1.1s .5s ease-in-out 2}
 .fz-owlf:hover .hd{animation:fznod 1s ease-in-out}
-.fz-owlf .eyes{transform-box:fill-box;transform-origin:center;animation:fzoblink 6s infinite}
 @keyframes fznod{0%,100%{transform:none}30%{transform:rotate(-9deg)}55%{transform:translateY(1.5px)}80%{transform:rotate(6deg)}}
 @keyframes fzoblink{0%,93%,100%{transform:none}95%,97%{transform:scaleY(.1)}}
 /* new things on the floor wait as buds, and open when the floor comes into view */
@@ -479,14 +478,13 @@ html[data-ft="night"] .fz-pb{fill:#8fae84}
 .fz-deer .th{fill:#d9b48c}
 .fz-deer .ant{fill:none;stroke:#6b4a2c;stroke-width:1.4;stroke-linecap:round}
 .fz-deer .st{fill:none;stroke:#6b3f22;stroke-width:1}
-.fz-deer .ey,.fz-deer .ns{fill:#1f1a14}
+.fz-deer .ns{fill:#1f1a14}
 .fz-deer .ear{transform-box:fill-box;transform-origin:100% 100%;animation:fzear 3.4s ease-in-out infinite}
 .fz-deer.peek .hd{transform-box:fill-box;transform-origin:0 100%;animation:fzlook 5s 1.8s ease-in-out}
 @keyframes fzear{0%,84%,100%{transform:none}88%{transform:rotate(-16deg)}92%{transform:rotate(4deg)}}
 @keyframes fzlook{0%,100%{transform:none}30%,60%{transform:rotate(-7deg)}}
 html[data-ft="night"] .fz-deer .bd{fill:#7a4e33}
 html[data-ft="night"] .fz-deer .th{fill:#9a7b5c}
-html[data-ft="night"] .fz-deer .ey{fill:#ffd98a}
 
 /* the season */
 .fz-fog{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:3}
@@ -506,3 +504,235 @@ html[data-ft="night"] .fz-kash path:first-child{stroke:#6f7f62}
 .fz-frog{position:absolute;left:64%;bottom:13px;width:24px;height:17px;cursor:default}
 
 @media print{.fz-canopy,.fz-deer,.fz-doel,.fz-note,.fz-fog{display:none}}
+
+/* ---- one background egg per class (forest.js §more 11) ---- */
+.fz-sib .fz-pb{animation:fzland 1.8s cubic-bezier(.25,.7,.3,1) both}
+.fz-sib .sc .fz-pb{animation-delay:.4s}
+.fz-sib .sc.s2 .fz-pb{animation-delay:.8s}
+.fz-sib.feed .sp .fz-pb{animation:fzfeed 4.2s ease-in-out 2}
+.fz-sib.feed .sc .fz-pb{animation:fzchirp1 4.2s ease-in-out 2}
+.fz-sib.feed .sc.s2 .fz-pb{animation-name:fzchirp2}
+.fz-sib.go .fz-pb,.fz-sib.go .sc .fz-pb,.fz-sib.go .sp .fz-pb{animation:fzsibgo 1.8s ease-in forwards}
+@keyframes fzfeed{0%,35%,70%,100%{transform:none}15%,25%{transform:translate(-14px,26px) rotate(-14deg)}50%,60%{transform:translate(14px,26px) rotate(14deg)}}
+@keyframes fzchirp1{0%,12%,30%,100%{transform:none}20%{transform:translateY(-4px)}}
+@keyframes fzchirp2{0%,47%,65%,100%{transform:none}55%{transform:translateY(-4px)}}
+@keyframes fzsibgo{0%{transform:none;opacity:1}100%{transform:translate(-70px,-170px) scale(.8);opacity:0}}
+.fz-fsib{position:absolute;left:calc(46% - 24px);bottom:14px;width:78px;height:52px;pointer-events:none}
+.fz-fsib>span{position:absolute;display:block}
+.fz-fsib .sp{left:27px;bottom:30px;width:26px;height:17px}
+.fz-fsib .sc{left:0;bottom:0;width:17px;height:11px}
+.fz-fsib .sc.s2{left:auto;right:0}
+.fz-fsib svg{width:100%;height:100%;display:block;overflow:visible}
+.fz-fsib>span{animation:fzpop .6s cubic-bezier(.3,1.6,.5,1) both}
+.fz-fsib.feed .sp{animation:fzffeed 4.2s ease-in-out 2}
+.fz-fsib.feed .sc{animation:fzchirp1 4.2s ease-in-out 2}
+.fz-fsib.feed .sc.s2{animation-name:fzchirp2}
+.fz-fsib.go>span{animation:fzsibgo 1.8s ease-in forwards}
+@keyframes fzffeed{0%,35%,70%,100%{transform:none}15%,25%{transform:translate(-18px,22px) rotate(-14deg)}50%,60%{transform:translate(18px,22px) rotate(14deg)}}
+.fz-ant circle{fill:#2b1d14}
+.fz-ant path{fill:none;stroke:#2b1d14;stroke-width:.5}
+html[data-ft="night"] .fz-ant circle{fill:#d9cdb4}
+html[data-ft="night"] .fz-ant path{stroke:#d9cdb4}
+.fz-bst{position:absolute;left:36.5%;bottom:14px;width:80px;height:58px;margin-left:-40px;cursor:pointer}
+.fz-bst svg{width:100%;height:100%;display:block;overflow:visible;transform-origin:50% 0}
+.fz-bst .tw path{fill:none;stroke:#8a6240;stroke-width:1.6;stroke-linecap:round}
+.fz-bst .nb{fill:#c69a5b}
+.fz-bst .cp{fill:#8a6240}
+.fz-bst.shake svg{animation:fzrustle2 1.1s ease-out}
+html[data-ft="night"] .fz-bst .tw path{stroke:#a98a62}
+
+/* ---- the acorn hunt (forest.js §more 12) ---- */
+.fz-acorn{position:absolute;width:12px;height:14px;opacity:.6;z-index:2;cursor:default;transition:opacity .3s}
+.fz-acorn:hover{opacity:.95;animation:fzwig .6s ease-in-out}
+.fz-acorn.got{animation:fzgot .9s ease-out forwards;pointer-events:none}
+.fz-acorn svg{width:100%;height:100%;display:block}
+@keyframes fzwig{0%,100%{transform:none}30%{transform:rotate(-14deg)}65%{transform:rotate(10deg)}}
+@keyframes fzgot{0%{transform:none;opacity:1}100%{transform:translateY(-34px) scale(1.5);opacity:0}}
+.fz-acorn-slot{display:block;position:relative;height:16px}
+.fz-acorn-slot .fz-acorn{right:10px;bottom:2px}
+.fz-acorn-foot{position:relative;height:20px}
+.fz-acorn-foot .fz-acorn{right:12px;bottom:2px}
+.fz-den{position:absolute;left:1%;bottom:12px;width:48px;height:26px}
+.fz-den svg{width:100%;height:100%;display:block}
+.fz-den .door{display:none}
+.fz-den.open .door{display:inline}
+.fz-pile{position:absolute;left:calc(1% + 50px);bottom:13px;width:62px;height:34px;pointer-events:none}
+.fz-pile i{position:absolute;width:9px;height:10px}
+.fz-pile svg{width:100%;height:100%;display:block}
+@media print{.fz-acorn,.fz-acorn-slot,.fz-acorn-foot{display:none}}
+/* Trees 4, pruning: the dead twig drops and its only child moves up */
+.fz-prune{position:absolute;left:36.5%;bottom:14px;width:70px;height:56px;margin-left:-35px}
+.fz-prune svg{width:100%;height:100%;display:block;overflow:visible}
+.fz-prune .wd,.fz-prune .dead path{fill:none;stroke:#8a6240;stroke-width:2.2;stroke-linecap:round}
+.fz-prune .dead path{stroke:#a59a8a;stroke-dasharray:3 1.5}
+.fz-prune .dead circle{fill:#a59a8a}
+.fz-prune .dead{cursor:pointer;pointer-events:visiblePainted;transform-box:fill-box;transform-origin:0 100%}
+.fz-prune .dead:hover path{stroke:#8a7d6b}
+.fz-prune .lf{fill:#7aa352}
+.fz-prune .kid{transition:transform .9s cubic-bezier(.3,1.3,.5,1) .35s}
+.fz-prune.cut .dead{animation:fzsnap 1.1s ease-in forwards}
+.fz-prune.cut .kid{transform:translate(-17px,12px)}
+.fz-prune.grow .dead{animation:fzpop .8s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes fzsnap{0%{transform:none;opacity:1}25%{transform:rotate(18deg)}100%{transform:translate(6px,34px) rotate(70deg);opacity:0}}
+html[data-ft="night"] .fz-prune .wd{stroke:#a98a62}
+
+/* ---- a stage on a card's top edge (forest.js §more 11): seen on every screen ---- */
+.fz-edge{position:absolute;right:22px;top:-31px;width:130px;height:34px;pointer-events:none;z-index:2}
+.fz-edge svg{width:100%;height:100%;display:block;overflow:visible}
+.fz-edge .br{fill:none;stroke:#8a6240;stroke-width:2;stroke-linecap:round}
+.fz-edge .lf{fill:#7aa352}
+html[data-ft="night"] .fz-edge .br{stroke:#a98a62}
+.fz-sib2 .fz-pb{animation:fzland 1.6s cubic-bezier(.25,.7,.3,1) both}
+.fz-sib2 .sc .fz-pb{animation-delay:.45s}
+.fz-sib2 .sc.s2 .fz-pb{animation-delay:.9s}
+.fz-sib2.feed .sp .fz-pb{animation:fzefeed 4.2s ease-in-out 2}
+.fz-sib2.feed .sc .fz-pb{animation:fzchirp1 4.2s ease-in-out 2}
+.fz-sib2.feed .sc.s2 .fz-pb{animation-name:fzchirp2}
+.fz-sib2.go .fz-pb,.fz-sib2.go .sc .fz-pb,.fz-sib2.go .sp .fz-pb{animation:fzsibgo 1.8s ease-in forwards}
+@keyframes fzefeed{0%,35%,70%,100%{transform:none}12%,25%{transform:translate(-13px,8px) scaleX(-1) rotate(14deg)}47%,60%{transform:translate(12px,6px) rotate(18deg)}}
+.fz-doel.e{position:absolute;right:14px;bottom:2px;width:26px;height:21px;animation:fzdin 1.5s cubic-bezier(.25,.7,.3,1) both}
+.fz-doel.e.go{animation:fzdout 1.5s cubic-bezier(.5,0,.7,.5) forwards}
+.fz-deer.fd{bottom:4px}
+.fz-deer.fd.peek{left:-4px}
+
+/* ---- the review panel: only with ?fzreview in the address ---- */
+.fz-rev{position:fixed;left:12px;bottom:12px;z-index:300;width:min(330px,calc(100vw - 24px));max-height:calc(100vh - 24px);overflow:auto;
+  background:#fffdf7;color:#1f2d24;border:1.5px solid #8a6240;border-radius:.8rem;box-shadow:0 14px 40px -18px rgba(20,30,24,.6);
+  font:600 .78rem/1.35 var(--sans,system-ui);padding:.55rem .65rem .65rem}
+.fz-rev.min .fz-revb{display:none}
+.fz-rev h4{margin:0;display:flex;justify-content:space-between;align-items:center;font-size:.8rem;letter-spacing:.04em}
+.fz-rev h4 button{font:inherit;border:0;background:none;cursor:pointer;color:#8a6240;font-weight:800}
+.fz-rev p{margin:.5rem 0 .2rem;font-size:.66rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#6b5a48}
+.fz-rev .row{display:flex;flex-wrap:wrap;gap:.3rem}
+.fz-rev .row button,.fz-rev .row a{font:inherit;font-size:.74rem;padding:.22rem .55rem;border-radius:.45rem;border:1.5px solid #cbd3c2;background:#fff;color:#1f2d24;cursor:pointer;text-decoration:none}
+.fz-rev .row button:hover,.fz-rev .row a:hover{border-color:#5b7f3a}
+.fz-rev .row a.on{background:#dfe9d4;border-color:#5b7f3a}
+.fz-rev p.note{margin:.45rem 0 0;font-size:.7rem;font-weight:500;color:#57614f;text-transform:none;letter-spacing:0}
+.fz-acorn.reveal{opacity:1;outline:3px solid #e0a33a;outline-offset:3px;border-radius:50%}
+@media print{.fz-rev{display:none}}
+
+/* ---- the clay animals (forest.js §sprites): Gemini's poses, one sheet per animal in assets/forest-art/ ---- */
+.fz-spr{display:block;background-repeat:no-repeat;image-rendering:auto}
+.fz-bird.sp{width:auto;height:auto;right:10px;bottom:-5px}
+.fz-hog.sp{width:auto;height:auto;bottom:5px}
+.fz-fbird.sp{width:auto;height:auto;bottom:9px;margin-left:-14px}
+.fz-perch2{animation:fzland 1.6s cubic-bezier(.25,.7,.3,1) both}
+.fz-doel2{pointer-events:none}
+.fz-chick{animation:fzfadein .5s ease-out both}
+@keyframes fzfadein{from{opacity:0}to{opacity:1}}
+
+/* ---- the section creatures (Trees 1): twigs, a comb, a web, a log; the creatures are sprites ---- */
+.fz-edge .tw2{fill:none;stroke:#8a6240;stroke-width:1.6;stroke-linecap:round}
+.fz-edge .pad{stroke:#7aa352;stroke-width:2;stroke-linecap:round}
+.fz-edge .stump{fill:#d9b98c;stroke:#8a6240;stroke-width:.6}
+.fz-edge .lv{transform-box:fill-box;transform-origin:50% 100%}
+.fz-cell{fill:#f8efd4;stroke:#b98a3a;stroke-width:1.1;transition:fill .5s}
+.fz-cell.f{fill:#e8a93a;filter:drop-shadow(0 0 2px rgba(232,169,58,.6))}
+.fz-web{fill:none;stroke:#bdb6a2;stroke-width:.7}
+.fz-knot{fill:#eef4f6;stroke:#a9b6ba;stroke-width:.5}
+.fz-loose{transform-box:fill-box;transform-origin:50% 0;animation:fzswing 2.6s ease-in-out infinite alternate}
+.fz-loose.b{animation-delay:-1.3s}
+@keyframes fzswing{from{transform:rotate(-16deg)}to{transform:rotate(16deg)}}
+.fz-log{fill:#8a6240}
+.fz-log2{fill:none;stroke:#a47a52}
+ellipse.fz-log2{fill:#b08a5e;stroke:#6b4a2c;stroke-width:.6}
+.fz-hole{fill:#3a2a1c;transition:opacity .2s}
+.fz-chip{position:absolute;width:2.5px;height:2.5px;margin:-1px 0 0 -1px;border-radius:1px;background:#c69a5b;pointer-events:none}
+.fz-edge .fz-spr.tap{pointer-events:auto;cursor:pointer}
+.fz-edge.ants{clip-path:inset(-400px -3000px 3px -3000px)}   /* the ants leave down behind the card's edge */
+.fz-edge.tort{top:auto;bottom:4px;width:200px;height:30px}
+.fz-vst{position:relative;height:44px;margin:-20px 0 -20px;pointer-events:none;overflow:hidden}
+html[data-ft="night"] .fz-edge .tw2{stroke:#a98a62}
+html[data-ft="night"] .fz-cell{fill:#3b3627;stroke:#8a7440}
+html[data-ft="night"] .fz-cell.f{fill:#c48a2a}
+html[data-ft="night"] .fz-web{stroke:#7f8f86}
+html[data-ft="night"] .fz-knot{fill:#c9d6da;stroke:#7f8f86}
+html[data-ft="night"] .fz-log{fill:#6b4a2c}
+@media print{.fz-vst{display:none}}
+
+/* the floor in clay: the frog's own size holds its sprite; the deer's drawing gives way to its sprite */
+.fz-frog.sp{width:30px;height:26px}
+.fz-deer.sp{overflow:visible}
+.fz-flr{pointer-events:none}
+
+/* the clay plants and margin trees */
+.fz-plant{position:absolute;width:0;height:0;pointer-events:none}
+.fz-plant.pond::before{content:"";position:absolute;left:-26px;top:-7px;width:52px;height:12px;border-radius:50%;background:#9cc3c9;opacity:.7}
+.fz-pl{pointer-events:none}
+.fz-floor.clay .fz-fern{animation:none}
+.fz-gut.clay .fz-tree>.fz-lean>.fz-sway>path,.fz-gut.clay .fz-crown{opacity:0}
+.fz-gut.clay .fz-sprg{opacity:.82}
+html[data-ft="night"] .fz-gut.clay .fz-sprg{filter:brightness(.5) saturate(.7)}
+html[data-ft="evening"] .fz-gut.clay .fz-sprg{filter:brightness(.8)}
+html[data-ft="night"] .fz-pl{filter:brightness(.6)}
+.fz-floor.clay .fz-kash{display:none}   /* the clay kash takes its place */
+
+/* the floor's sky, and the branches out of four sections (wide screens only) */
+.fz-flsky{position:relative;height:0;z-index:2;pointer-events:none}
+.fz-flsky .fz-spr{pointer-events:auto}
+.fz-limb{position:absolute;left:-92px;top:96px;width:96px;height:44px;pointer-events:none;display:none;z-index:0}
+.fz-limb.r{left:auto;right:-92px;top:150px}
+.fz-limb svg{width:100%;height:100%;overflow:visible;display:block}
+.fz-limb .lb{fill:none;stroke:#8a6240;stroke-width:4.5;stroke-linecap:round}
+.fz-limb .lb.t{stroke-width:2.5}
+.fz-limb .lv{fill:#7aa352}
+html[data-ft="night"] .fz-limb .lb{stroke:#6b4a2c}
+html[data-ft="night"] .fz-limb .lv{fill:#3f5f45}
+@media(min-width:1240px){.fz-limb{display:block}}
+.fz-doel2.tap{cursor:pointer}
+.fz-vst .fz-spr.tap,.fz-flr.tap{pointer-events:auto;cursor:pointer}
+.fz-edge.comb{max-width:calc(100% - 70px)}   /* until the comb is laid out again for a new width */
+/* the earned birds in the margin trees: small silhouettes in the trees' own quiet colour */
+.fz-gut .fz-perch2{filter:brightness(0);opacity:.2}
+html[data-ft="night"] .fz-gut .fz-perch2{opacity:.55}
+.fz-edge.comb svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.fz-bloomf{pointer-events:none}
+/* the deer stands in front of the floor's ground and plants (Jamil, 2026-11-15) */
+.fz-floor .fz-deer{z-index:5}
+/* the deer, further in: past the den on the floor, clear of the edge in the margin (Jamil, 2026-11-15) */
+.fz-deer.peek{left:26px}
+.fz-floor .fz-deer.fd.peek{left:64px}
+/* the floor clips only at its sides now: a butterfly may rise above it, and nothing past the screen's edge shows */
+.fz-floor{overflow:visible;overflow-x:clip}
+.fz-deer.peek.duck,.fz-deer.peek.leave,.fz-floor .fz-deer.fd.peek.duck,.fz-floor .fz-deer.fd.peek.leave{left:-104px}   /* leaving still wins */
+
+/* ---- teacher mode, sound, night study, ant trails (2026-11-15) ---- */
+html.teach{font-size:118%}
+html.teach .fz-gut{opacity:.35}
+html.teach .fz-floor{opacity:.7}
+.fz-teachb{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:320;font:inherit;font-size:.78rem;font-weight:800;
+  padding:.35rem .8rem;border-radius:999px;border:0;background:#1f3d2b;color:#fff;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.fz-teachb[hidden]{display:none}
+.fz-toast{position:fixed;left:50%;bottom:58px;transform:translateX(-50%);z-index:330;max-width:min(520px,92vw);padding:.6rem 1rem;border-radius:.8rem;
+  background:#1f2d24;color:#fff;font-size:.86rem;line-height:1.4;box-shadow:0 8px 24px rgba(0,0,0,.2);transition:opacity .5s}
+.fz-toast.go{opacity:0}
+.fz-sndb{flex:0 0 auto;width:2rem;height:2rem;margin-left:.25rem;border-radius:.55rem;border:1.5px solid var(--f-line,#dde3d6);background:transparent;color:var(--f-soft,#3d4a40);cursor:pointer;display:grid;place-items:center;padding:0}
+.fz-sndb svg{width:1.1rem;height:1.1rem;fill:currentColor}
+.fz-sndb .w{fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;opacity:0}
+.fz-sndb.on{border-color:var(--f-acc,#476a2e);color:var(--f-acc,#476a2e)}
+.fz-sndb.on .w{opacity:1}
+.fz-sndb.wait{border-style:dashed}
+.fz-nflies{position:fixed;inset:0;pointer-events:none;z-index:1}
+.fz-nflies i{position:absolute;left:0;top:0;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#f6f0a0;
+  box-shadow:0 0 8px 3px rgba(246,240,140,.55);animation:fznfly 2.8s ease-in-out infinite alternate}
+@keyframes fznfly{0%{opacity:.15}60%{opacity:1}100%{opacity:.35}}
+.fz-gn{position:fixed;left:16px;bottom:96px;width:280px;height:80px;z-index:310;cursor:pointer}
+.fz-gnb{position:absolute;left:74px;top:4px;margin:0;padding:.55rem .75rem;border-radius:.8rem;background:#1b2a22;color:#e7ede4;border:1px solid #2c3d33;
+  font-size:.82rem;line-height:1.35;opacity:0;transform:translateY(6px);transition:opacity .5s,transform .5s;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+.fz-gn.say .fz-gnb{opacity:1;transform:none}
+.fz-gnowl{cursor:pointer}
+.antw{margin:1.1rem 0 1.3rem;padding:.8rem .9rem 1rem;border:1px solid var(--f-line,#dde3d6);border-radius:1rem;background:var(--f-panel,#fff)}
+.antbar{display:flex;flex-wrap:wrap;gap:.4rem .5rem;align-items:center;font-size:.9rem;color:var(--f-soft,#3d4a40)}
+.antbar span{flex:1 1 100%}
+.antbar button{font:inherit;font-size:.86rem;font-weight:700;padding:.35rem .8rem;border-radius:.55rem;border:1.5px solid var(--f-line2,#cbd3c2);background:var(--f-panel,#fff);color:var(--f-ink,#1f2d24);cursor:pointer}
+.antbar button.on{border-color:#a16207;background:#fff4dc}
+.antstage{margin-top:.5rem}
+.antlayer{position:absolute;inset:0;pointer-events:none}
+.antcr circle{fill:#c69a5b;stroke:#8a6240;stroke-width:1.2}
+.antcr text{font:800 10px var(--sans);fill:#fff;text-anchor:middle;dominant-baseline:central}
+.antcr{animation:fzpop .4s cubic-bezier(.3,1.6,.5,1) both;transform-box:fill-box;transform-origin:50% 50%}
+.tv-nd.ant-on .o{stroke:#a16207;stroke-width:3}
+.antout{margin:.4rem 0 0;font-size:.9rem;min-height:2.6em;text-align:center}
+html[data-ft="night"] .antbar button.on{background:#3b3627}
+@media print{.fz-sndb,.fz-teachb,.fz-nflies,.fz-gn{display:none}}
+.antstage svg{display:block;margin:0 auto;max-width:100%;height:auto}

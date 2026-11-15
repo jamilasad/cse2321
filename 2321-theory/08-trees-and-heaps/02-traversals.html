@@ -1304,7 +1304,7 @@ html[data-ft="night"] .psslot{background:#e9dcc2}
 #tr-sim .srtl{--pipw:.6rem}
 
 </style>
-<link rel="stylesheet" href="../assets/forest.css?v=4">
+<link rel="stylesheet" href="../assets/forest.css?v=21">
 <script>(function(){var d=document.documentElement,p;try{p=localStorage.getItem('cse2321-forest-time')||(localStorage.getItem('dsa-code-theme')==='dark'?'night':'morning');}catch(e){p='morning';}if(p==='auto'){var h=new Date().getHours();p=h>=5&&h<12?'morning':h<16?'afternoon':h<19?'evening':'night';}d.setAttribute('data-ft',p);})();</script>
 </head>
 <body>
@@ -1431,6 +1431,13 @@ html[data-ft="night"] .psslot{background:#e9dcc2}
     <div><b>Postorder (L R N)</b><ol><li>Traverse the left subtree of R in postorder.</li><li>Traverse the right subtree of R in postorder.</li><li>Process the root R.</li></ol></div>
   </div>
   <p>Preorder writes each node at its <b>first</b> pass, inorder at its <b>second</b>, postorder at its <b>third</b>.</p>
+
+  <figure class="antw" id="ant-trail">
+    <div class="antbar"><span><b>The ants' walk.</b> Pick a walk and say its order out loud. Then watch: the ants go round the tree and drop a numbered crumb at each node's first, second or third pass.</span>
+      <button type="button" data-o="pre">Preorder</button><button type="button" data-o="in">Inorder</button><button type="button" data-o="post">Postorder</button></div>
+    <div class="antstage"></div>
+    <p class="antout" aria-live="polite">Pick a walk.</p>
+  </figure>
 
   <div class="turn">
     <div class="th"><b>Your turn</b></div>
@@ -1817,7 +1824,7 @@ html[data-ft="night"] .psslot{background:#e9dcc2}
 </section>
 
 <script src="../assets/sim.js?v=3"></script>
-<script src="../assets/tree-lib.js?v=4"></script>
+<script src="../assets/tree-lib.js?v=21"></script>
 <script>(function(){
 "use strict";
 var $=function(s,r){return (r||document).querySelector(s);};
@@ -2481,7 +2488,7 @@ document.addEventListener('keydown',function(e){
     ['1','What a tree is','01-trees-and-storage.html'],
     ['2','Three walks, and the expression tree','02-traversals.html'],
     ['3','Binary search trees: search and insert','03-bst-search-insert.html'],
-    ['4','Deleting from a BST, and two walks',''],
+    ['4','Deleting from a BST, and two walks','04-bst-delete.html'],
     ['5','Heaps',''],
     ['6','Heapsort and the priority queue','']
   ];
@@ -2602,6 +2609,6 @@ document.addEventListener('keydown',function(e){
   },{passive:true});
 })();
 </script>
-<script src="../assets/forest.js?v=4"></script>
+<script src="../assets/forest.js?v=21"></script>
 </body>
 </html>

@@ -1312,7 +1312,7 @@ html[data-ft="night"] .bbin em.no{background:#7f1d1d;color:#fee2e2}
 .fsbody .bbown input{font-size:1rem}
 
 </style>
-<link rel="stylesheet" href="../assets/forest.css?v=4">
+<link rel="stylesheet" href="../assets/forest.css?v=21">
 <script>(function(){var d=document.documentElement,p;try{p=localStorage.getItem('cse2321-forest-time')||(localStorage.getItem('dsa-code-theme')==='dark'?'night':'morning');}catch(e){p='morning';}if(p==='auto'){var h=new Date().getHours();p=h>=5&&h<12?'morning':h<16?'afternoon':h<19?'evening':'night';}d.setAttribute('data-ft',p);})();</script>
 </head>
 <body>
@@ -1809,7 +1809,7 @@ html[data-ft="night"] .bbin em.no{background:#7f1d1d;color:#fee2e2}
 <nav class="pagenav" aria-label="Course navigation">
   <a class="pgn pv" href="02-traversals.html"><span class="ar">&#8592;</span><span class="tx"><em>Previous</em><b>Three walks, and the expression tree</b></span></a>
   <a class="pgn home" href="../../index.html"><span class="ar">&#9776;</span><b>All classes</b></a>
-  <span class="pgn nx off"><span class="ar">&#8594;</span><span class="tx"><em>Next</em><b>Deleting from a BST, and two walks</b></span></span>
+  <a class="pgn nx" href="04-bst-delete.html"><span class="ar">&#8594;</span><span class="tx"><em>Next</em><b>Deleting from a BST, and two walks</b></span></a>
 </nav>
 </main>
 </section>
@@ -1832,7 +1832,7 @@ html[data-ft="night"] .bbin em.no{background:#7f1d1d;color:#fee2e2}
     <div class="freqr top"><span class="fqn">Insert a list into an empty BST</span><span class="fqc">4 finals</span><span class="fqw">Spring 2023 · Autumn 2023 · Autumn 2022 [OR] · Spring 2026 [OR]</span></div>
     <div class="freqr"><span class="fqn">"What is a binary search tree?", asked with the above</span><span class="fqc">4 finals</span><span class="fqw">Spring 2023 · Spring 2025 · Autumn 2025 · Spring 2026</span></div>
     <div class="freqr"><span class="fqn">Average O(log n) against worst O(n), and when the worst happens</span><span class="fqc">1 final</span><span class="fqw">Spring 2026 Q4 (b)</span></div>
-    <div class="freqr"><span class="fqn">Deleting from a BST</span><span class="fqc">5 finals</span><span class="fqw">answered in Trees 4</span></div>
+    <div class="freqr"><span class="fqn">Deleting from a BST</span><span class="fqc">4 finals</span><span class="fqw">answered in Trees 4</span></div>
     <div class="freqr"><span class="fqn">Write FIND or INSBST, or trace a search on its own</span><span class="fqc">never</span><span class="fqw">the C++ is here for the lab</span></div>
   </div>
 </article>
@@ -1890,7 +1890,7 @@ html[data-ft="night"] .bbin em.no{background:#7f1d1d;color:#fee2e2}
 </section>
 
 <script src="../assets/sim.js?v=3"></script>
-<script src="../assets/tree-lib.js?v=4"></script>
+<script src="../assets/tree-lib.js?v=21"></script>
 <script>(function(){
 "use strict";
 var $=function(s,r){return (r||document).querySelector(s);};
@@ -2754,7 +2754,7 @@ document.addEventListener('keydown',function(e){
     ['1','What a tree is','01-trees-and-storage.html'],
     ['2','Three walks, and the expression tree','02-traversals.html'],
     ['3','Binary search trees: search and insert','03-bst-search-insert.html'],
-    ['4','Deleting from a BST, and two walks',''],
+    ['4','Deleting from a BST, and two walks','04-bst-delete.html'],
     ['5','Heaps',''],
     ['6','Heapsort and the priority queue','']
   ];
@@ -2875,6 +2875,6 @@ document.addEventListener('keydown',function(e){
   },{passive:true});
 })();
 </script>
-<script src="../assets/forest.js?v=4"></script>
+<script src="../assets/forest.js?v=21"></script>
 </body>
 </html>
