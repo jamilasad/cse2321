@@ -1782,8 +1782,8 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
 
 /* =================== TEACHER MODE, SOUND, NIGHT STUDY, ANT TRAILS (2026-11-15) ===================
    Teacher mode (the T key, or ?teach=1): larger text, a quieter forest, and no animal
-   comes by itself; the panel calls one when the teacher wants it. Sound: off until the
-   speaker button is pressed; birdsong by day, crickets at night, rain in the monsoon,
+   comes by itself; the panel calls one when the teacher wants it. Sound: on by default
+   (from the first click or key, which browsers ask for), off with the speaker button; birdsong by day, crickets at night, rain in the monsoon,
    all very quiet, made by the browser (no sound files). Night study: after 10 pm, the
    fireflies gather round the section being read, and once a night a small owl says
    goodnight. Ant trails (Trees 2): ants walk round a tree and leave numbered crumbs in
@@ -1814,19 +1814,19 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
   });
   if(/[?&]teach=1/.test(Q) || store(TKEY)==='1') teach(true,true);
 
-  /* ---- 2 · sound, off until asked for ---- */
+  /* ---- 2 · sound, on by default; the speaker button turns it off, and the choice is remembered ---- */
   var SKEY='cse2321-forest-sound', AC=null, master=null, sOn=false, rainSrc=null, tB=null, tC=null, sbtn=null;
   if(host && !RM){
     sbtn=document.createElement('button'); sbtn.type='button'; sbtn.className='fz-sndb'; sbtn.setAttribute('aria-pressed','false');
     sbtn.setAttribute('aria-label','Forest sounds'); sbtn.title='Forest sounds (quiet)';
     sbtn.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="w" d="M16 9c1.5 1.5 1.5 4.5 0 6M18.5 6.5c3 3 3 8 0 11"/></svg>';
     host.insertBefore(sbtn,$('.ftwrap').nextSibling);
-    sbtn.addEventListener('click',function(){ snd(!sOn,true); });
+    sbtn.addEventListener('click',function(){ if(sbtn.classList.contains('wait')){ sbtn.classList.remove('wait'); snd(false,true); return; } snd(!sOn,true); });
   }
   function snd(on,user){
     if(on && root.classList.contains('teach')) on=false;
     sOn=on; if(sbtn){ sbtn.setAttribute('aria-pressed',on?'true':'false'); sbtn.classList.toggle('on',on); }
-    if(user) store(SKEY,on?'on':null);
+    if(user) store(SKEY,on?'on':'off');
     if(!on){ if(master && AC) master.gain.setTargetAtTime(0,AC.currentTime,.5); clearTimeout(tB); clearTimeout(tC); return; }
     try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return; }
     if(AC.state==='suspended') AC.resume();
@@ -1914,8 +1914,12 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
   /* a tap on any creature gets a small answer, if the sound is on */
   document.addEventListener('click',function(e){ if(!sOn || !AC || !e.target.closest) return; var c=e.target.closest('.fz-spr.tap,.fz-hog,.fz-frog,.fz-x');
     if(c) tone(place(0,.6),AC.currentTime+.02,'sine',[2600,3400,2900],.16,.18); },true);
-  /* a returning listener who chose sound: it waits for their first click (browsers ask for one) */
-  if(store(SKEY)==='on' && sbtn){ sbtn.classList.add('wait'); document.addEventListener('pointerdown',function f(){ document.removeEventListener('pointerdown',f); sbtn.classList.remove('wait'); snd(true); }); }
+  /* sound is on unless the reader turned it off: it waits for their first click or key (browsers ask for one).
+     A first press on the speaker itself means "off", so it is left to the button's own click. */
+  if(store(SKEY)!=='off' && sbtn && !root.classList.contains('teach')){ sbtn.classList.add('wait','on'); sbtn.setAttribute('aria-pressed','true');
+    var first=function(e){ document.removeEventListener('pointerdown',first,true); document.removeEventListener('keydown',first,true);
+      if(e.target && sbtn.contains(e.target)) return; if(!sbtn.classList.contains('wait')) return; sbtn.classList.remove('wait'); snd(true); };
+    document.addEventListener('pointerdown',first,true); document.addEventListener('keydown',first,true); }
 
   /* ---- 3 · night study ---- */
   var NF=/[?&]fznight=1/.test(Q);
