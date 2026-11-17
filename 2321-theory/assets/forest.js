@@ -2031,7 +2031,7 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
     top.forEach(function(r,i){ if(i) x+=top[i-1].w/2+r.gap+r.w/2; else x+=r.w/2; put(st,r,x,i,quiet); });
     card._resX=top.map(function(r,i){ return st.children[i]._x; });
     /* an actor fills the edge (Trees 1 on a phone): the rest stand on the moss below the card, clear of the next card's own */
-    var low=cast.slice(top.length,top.length+Math.max(0,2-top.length)), nx=card.nextElementSibling;
+    var low=[], nx=card.nextElementSibling;   /* no moss strip between cards any more (Jamil, 2026-11-17): only the top edge */
     if(low.length && nx && nx.matches('.card.numbered')){
       var ls=stage(card,'low'), lw=width(low), a=W*.1, b=W*.9-lw, lx=a;
       for(var t=0;t<10;t++){ lx=a+(b-a)*rnd(); if(!FZ.resIn(nx,lx,lx+lw)) break; }

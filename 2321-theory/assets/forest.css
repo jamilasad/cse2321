@@ -109,25 +109,7 @@ html[data-ft] .fab .fup,html[data-ft] .fab .fdn{background:var(--f-fab);color:#e
 .fhero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:70px;pointer-events:none;opacity:.07;
   background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 70' preserveAspectRatio='none'%3E%3Cpath fill='%231f3d2b' d='M0 70V48l14-14 10 10 12-22 12 22 10-12 14 20 12-30 14 30 10-8 12 16 14-26 12 26 12-18 12 18 16-34 14 34 10-10 12 12 14-24 12 24 12-16 14 16 12-28 14 28 10-6 12 12 16-30 12 30 12-14 14 14 12-24 12 24 10-8 14 18 12-26 14 26 12-16 12 16 14-30 12 30 10-10 14 14 12-22 12 22 12-12 14 16 12-28 14 28 10-8 12 14 14-24 12 24 12-14 16 14V70z'/%3E%3C/svg%3E") repeat-x bottom/600px 70px}
 html[data-ft="night"] .fhero::after{opacity:.35}
-/* the hero sky (Jamil's Gemini clay skies, 2026-11-16): one per time of day, its quiet left half
-   behind the words, its clouds, sun or moon and treeline on the right; the drawn treeline steps aside */
-html[data-ft="morning"]{--f-sky:url(forest-art/sky-morning.webp)}
-html[data-ft="afternoon"]{--f-sky:url(forest-art/sky-afternoon.webp)}
-html[data-ft="evening"]{--f-sky:url(forest-art/sky-evening.webp)}
-html[data-ft="night"]{--f-sky:url(forest-art/sky-night.webp)}
-html[data-ft] .fhero{background:linear-gradient(180deg,transparent 55%,var(--f-skyfoot,transparent)),var(--f-sky) right bottom/cover no-repeat,var(--f-herobg)}
-html[data-ft="night"]{--f-skyfoot:rgba(7,19,26,.72)}
-/* the byline's small line sits on the sky's lowest, busiest part: one step stronger */
-html[data-ft] .fhero .byline span{color:var(--f-soft)}
-html[data-ft="night"] .fhero .byline span{color:#d3e2e6}
-html[data-ft="evening"] .fhero .eyebrow{color:#62301f}
-html[data-ft="evening"] .fhero .byline span{color:var(--f-ink)}
-html[data-ft] .fhero::after{opacity:0}
-/* on a narrow screen the hero is tall: the sky keeps its own shape and sits low, behind the picture,
-   so no cloud or tree comes behind the words; the plain top of the hero is the sky's own colour */
-@media(max-width:760px){html[data-ft] .fhero{background:linear-gradient(180deg,transparent 55%,var(--f-skyfoot,transparent)),linear-gradient(180deg,var(--f-skytop) calc(100% - 62vw),transparent calc(100% - 40vw)),var(--f-sky) right bottom/240% auto no-repeat,var(--f-skytop)}}
-html[data-ft="morning"]{--f-skytop:#c8dfe4} html[data-ft="afternoon"]{--f-skytop:#eddcba}
-html[data-ft="evening"]{--f-skytop:#c7b1a7} html[data-ft="night"]{--f-skytop:#04151c}
+/* the hero sky pictures were tried and taken out (Jamil, 2026-11-17: "too busy; the previous image only was better") */
 .fhero .eyebrow{color:var(--f-acc)}
 .fhero h1{color:var(--f-pine)}
 html[data-ft="night"] .fhero h1{color:var(--f-ink)}
@@ -846,6 +828,9 @@ html[data-ft="night"] .fz-floor .fz-pl.bk{filter:brightness(.48) saturate(.7)}
 html[data-ft="evening"] .fz-floor .fz-pl.bk{filter:brightness(.78) saturate(.85)}
 html[data-ft="night"] .fz-floor .fz-flr.res{filter:brightness(.7)}
 @media print{.fz-res,.fz-moss{display:none}}
+
+/* the moss strip floated in the gap between cards, touching neither (Jamil, 2026-11-17): taken out */
+.fz-moss{display:none}
 
 /* ---- teacher mode, sound, night study, ant trails (2026-11-15) ---- */
 html.teach{font-size:118%}
