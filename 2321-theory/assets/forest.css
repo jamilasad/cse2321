@@ -19,27 +19,55 @@ html[data-ft]{
   --f-line:#dde3d6; --f-line2:#cbd3c2; --f-acc:#476a2e; --f-acc2:#5b7f3a; --f-bark:#8a6240;
   --f-sage:#edf2e8; --f-sage2:#dfe9d4; --f-amber:#e0a33a; --f-amb-bg:#fbefd2;
   --f-bar:rgba(250,249,244,.94); --f-hero:#f4f2e9; --f-node:#fdfbf4; --f-ring:#d9ccb6;
-  --f-edge:#9c7a57; --f-pine:#1f3d2b;
+  --f-edge:#9c7a57; --f-pine:#1f3d2b; --f-bg2:var(--f-bg); --f-herobg:var(--f-hero);
+  --f-dk1:#1f3d2b; --f-dk2:#2b4a36; --f-dkt:#d6e3d3; --f-dkl:#b9d6a0; --f-fab:rgba(31,61,43,.92);
+  --f-tint:transparent; --f-sim:var(--f-panel); --f-blade:#9fbf86; --f-glow:transparent;
 }
+/* DAY (data-ft="morning"; Jamil 2026-11-16: two times only, Day and Night, and Day is the first, greenish
+   palette): cream page, white cards, forest-green accents, the morning sky behind the hero. */
+html[data-ft="morning"]{
+  --f-bg:#faf9f4; --f-bg2:#f3f6ee; --f-panel:#ffffff; --f-ink:#1f2d24; --f-soft:#3d4a40; --f-mute:#57614f;
+  --f-line:#dde3d6; --f-line2:#cbd3c2; --f-acc:#476a2e; --f-acc2:#5b7f3a; --f-bark:#8a6240;
+  --f-sage:#edf2e8; --f-sage2:#dfe9d4; --f-amber:#e0a33a; --f-amb-bg:#fbefd2;
+  --f-bar:rgba(250,249,244,.94); --f-hero:#f4f2e9; --f-herobg:linear-gradient(180deg,#e6efe8 0%,#f4f2e9 100%);
+  --f-node:#fdfbf4; --f-ring:#d9ccb6; --f-edge:#9c7a57; --f-pine:#1f3d2b;
+  --f-dk1:#1f3d2b; --f-dk2:#2b4a36; --f-dkt:#d6e3d3; --f-dkl:#b9d6a0; --f-fab:rgba(31,61,43,.92);
+  --f-tint:transparent; --f-blade:#9fbf86;
+}
+/* AFTERNOON: warm and bright, softly: a sunlit cream page, a pale gold hero, olive accents. */
 html[data-ft="afternoon"]{
-  --f-bg:#fbf5e6; --f-panel:#fffdf8; --f-ink:#33301f; --f-soft:#4f4733; --f-mute:#655a42;
-  --f-line:#e6dcc4; --f-line2:#d8ccb0; --f-acc:#5d6b1e; --f-acc2:#6f7f25; --f-sage:#f1f0dd; --f-sage2:#e5e6c6;
-  --f-bar:rgba(251,245,230,.94); --f-hero:#f6eedb; --f-node:#fffaf0;
+  --f-bg:#f8f2e2; --f-bg2:#f3e9d0; --f-panel:#fffcf4; --f-ink:#33301f; --f-soft:#4f4733; --f-mute:#62573e;
+  --f-line:#e6dcc2; --f-line2:#d8caa8; --f-acc:#5f5a14; --f-acc2:#736c1c; --f-bark:#8a6638;
+  --f-sage:#f3eed9; --f-sage2:#e9e1c3; --f-amber:#e0952a; --f-amb-bg:#fbe9c4;
+  --f-bar:rgba(248,242,226,.95); --f-hero:#f4ead0; --f-herobg:linear-gradient(180deg,#f2e2b8 0%,#f6ecd2 60%,#f8f2e2 100%);
+  --f-node:#fffaee; --f-ring:#dccc9f; --f-edge:#9c7a57; --f-pine:#3a3518;
+  --f-dk1:#3b3a1e; --f-dk2:#555226; --f-dkt:#f2ecd4; --f-dkl:#ddd08e; --f-fab:rgba(59,58,30,.92);
+  --f-tint:rgba(255,200,100,.07); --f-blade:#b3ae6c;
 }
+/* EVENING: dusk, softly: a faded rose-sepia page, a warm hero, rust accents. */
 html[data-ft="evening"]{
-  --f-bg:#f3e8da; --f-panel:#fbf5ee; --f-ink:#3a2c25; --f-soft:#57443a; --f-mute:#654e42;
-  --f-line:#dfccba; --f-line2:#d2bca7; --f-acc:#7a4a2a; --f-acc2:#8d5734; --f-sage:#efe2d2; --f-sage2:#e5d2bd;
-  --f-bar:rgba(243,232,218,.95); --f-hero:#eedfcd; --f-node:#fbf3ea; --f-amber:#d9822b; --f-amb-bg:#f6dcc0;
+  --f-bg:#f2e7df; --f-bg2:#ebdbd1; --f-panel:#fcf7f2; --f-ink:#3a2a25; --f-soft:#56413a; --f-mute:#654f48;
+  --f-line:#e1cdc1; --f-line2:#d3baab; --f-acc:#7a3f2c; --f-acc2:#8b4b35; --f-bark:#7e5a43;
+  --f-sage:#f1e3da; --f-sage2:#e7d3c6; --f-amber:#d9822b; --f-amb-bg:#f5dcc6;
+  --f-bar:rgba(242,231,223,.95); --f-hero:#eddcd2; --f-herobg:linear-gradient(180deg,#e7d2d0 0%,#eedcd2 55%,#f2e7df 100%);
+  --f-node:#fbf3ed; --f-ring:#d6bcad; --f-edge:#8a6650; --f-pine:#4a2a20;
+  --f-dk1:#4a2e26; --f-dk2:#62402f; --f-dkt:#f3e4da; --f-dkl:#e8bf9e; --f-fab:rgba(74,46,38,.92);
+  --f-tint:rgba(180,110,120,.07); --f-blade:#b89a7a; --f-sim:#fdf8f3;
 }
+/* NIGHT: dark blue-green, moonlit. Light text. */
 html[data-ft="night"]{
-  --f-bg:#141f1a; --f-panel:#1c2a23; --f-ink:#e7ede4; --f-soft:#c9d4c8; --f-mute:#a9b9ab;
-  --f-line:#2e4136; --f-line2:#3b5144; --f-acc:#a9c98f; --f-acc2:#b9d6a0; --f-bark:#b08e6a;
-  --f-sage:#22342a; --f-sage2:#2a3f33; --f-amber:#e7b453; --f-amb-bg:#3d3220;
-  --f-bar:rgba(20,31,26,.95); --f-hero:#16231d; --f-node:#24362c; --f-ring:#3f5848; --f-edge:#8f7356;
+  --f-bg:#07131a; --f-bg2:#0c2128; --f-panel:#10222b; --f-ink:#e6f0f2; --f-soft:#c4d5da; --f-mute:#9db6bd;
+  --f-line:#203c47; --f-line2:#2d4d5a; --f-acc:#8fd3c6; --f-acc2:#a6e2d6; --f-bark:#b08e6a;
+  --f-sage:#142f39; --f-sage2:#1b3f4b; --f-amber:#e9c36c; --f-amb-bg:#3a3420;
+  --f-bar:rgba(7,19,26,.95); --f-hero:#0a1a22; --f-herobg:linear-gradient(180deg,#040b11 0%,#0a1c25 100%);
+  --f-node:#183440; --f-ring:#33596a; --f-edge:#8f7356; --f-pine:#e6f0f2;
+  --f-dk1:#0b2a33; --f-dk2:#123a45; --f-dkt:#cfe2e6; --f-dkl:#9fd9cc; --f-fab:rgba(27,63,75,.95);
+  --f-tint:rgba(10,20,50,.10); --f-sim:#0b1b23; --f-blade:#3f6a70; --f-glow:rgba(150,190,255,.10);
 }
 
 html[data-ft] body{--bg:var(--f-bg);--panel:var(--f-panel);--ink:var(--f-ink);--ink-soft:var(--f-soft);
   --ink-mute:var(--f-mute);--line:var(--f-line);--line-strong:var(--f-line2);background:var(--f-bg);color:var(--f-ink);
+  background:linear-gradient(180deg,var(--f-bg) 0,var(--f-bg2) 100%) fixed,var(--f-bg);
   transition:background-color .5s ease,color .5s ease}
 
 /* ---- the bar ---- */
@@ -55,7 +83,7 @@ html[data-ft] .qchip i{background:var(--f-acc2)}
 html[data-ft] .revtog.on{background:var(--f-sage2);color:var(--f-ink)}
 html[data-ft] .rail i,html[data-ft] #rail{background:var(--f-acc2)}
 html[data-ft] .rail{background:var(--f-line)}
-html[data-ft] .fab .fup,html[data-ft] .fab .fdn{background:rgba(31,61,43,.92);color:#e7ede4}
+html[data-ft] .fab .fup,html[data-ft] .fab .fdn{background:var(--f-fab);color:#eef5f2}
 
 /* the time-of-day menu (one control for the whole theme, as before) */
 .ftwrap{position:relative;flex:0 0 auto}
@@ -76,11 +104,30 @@ html[data-ft] .fab .fup,html[data-ft] .fab .fdn{background:rgba(31,61,43,.92);co
 .ftopt small{display:block;font-size:.66rem;color:var(--f-mute)}
 
 /* ---- the hero: cream, quiet, a faint treeline along the foot ---- */
-.fhero{position:relative;background:var(--f-hero);color:var(--f-ink);padding:3rem 0 3.2rem;overflow:hidden;
+.fhero{position:relative;background:var(--f-herobg);color:var(--f-ink);padding:3rem 0 3.2rem;overflow:hidden;
   border-bottom:1px solid var(--f-line);transition:background-color .5s ease}
 .fhero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:70px;pointer-events:none;opacity:.07;
   background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 70' preserveAspectRatio='none'%3E%3Cpath fill='%231f3d2b' d='M0 70V48l14-14 10 10 12-22 12 22 10-12 14 20 12-30 14 30 10-8 12 16 14-26 12 26 12-18 12 18 16-34 14 34 10-10 12 12 14-24 12 24 12-16 14 16 12-28 14 28 10-6 12 12 16-30 12 30 12-14 14 14 12-24 12 24 10-8 14 18 12-26 14 26 12-16 12 16 14-30 12 30 10-10 14 14 12-22 12 22 12-12 14 16 12-28 14 28 10-8 12 14 14-24 12 24 12-14 16 14V70z'/%3E%3C/svg%3E") repeat-x bottom/600px 70px}
 html[data-ft="night"] .fhero::after{opacity:.35}
+/* the hero sky (Jamil's Gemini clay skies, 2026-11-16): one per time of day, its quiet left half
+   behind the words, its clouds, sun or moon and treeline on the right; the drawn treeline steps aside */
+html[data-ft="morning"]{--f-sky:url(forest-art/sky-morning.webp)}
+html[data-ft="afternoon"]{--f-sky:url(forest-art/sky-afternoon.webp)}
+html[data-ft="evening"]{--f-sky:url(forest-art/sky-evening.webp)}
+html[data-ft="night"]{--f-sky:url(forest-art/sky-night.webp)}
+html[data-ft] .fhero{background:linear-gradient(180deg,transparent 55%,var(--f-skyfoot,transparent)),var(--f-sky) right bottom/cover no-repeat,var(--f-herobg)}
+html[data-ft="night"]{--f-skyfoot:rgba(7,19,26,.72)}
+/* the byline's small line sits on the sky's lowest, busiest part: one step stronger */
+html[data-ft] .fhero .byline span{color:var(--f-soft)}
+html[data-ft="night"] .fhero .byline span{color:#d3e2e6}
+html[data-ft="evening"] .fhero .eyebrow{color:#62301f}
+html[data-ft="evening"] .fhero .byline span{color:var(--f-ink)}
+html[data-ft] .fhero::after{opacity:0}
+/* on a narrow screen the hero is tall: the sky keeps its own shape and sits low, behind the picture,
+   so no cloud or tree comes behind the words; the plain top of the hero is the sky's own colour */
+@media(max-width:760px){html[data-ft] .fhero{background:linear-gradient(180deg,transparent 55%,var(--f-skyfoot,transparent)),linear-gradient(180deg,var(--f-skytop) calc(100% - 62vw),transparent calc(100% - 40vw)),var(--f-sky) right bottom/240% auto no-repeat,var(--f-skytop)}}
+html[data-ft="morning"]{--f-skytop:#c8dfe4} html[data-ft="afternoon"]{--f-skytop:#eddcba}
+html[data-ft="evening"]{--f-skytop:#c7b1a7} html[data-ft="night"]{--f-skytop:#04151c}
 .fhero .eyebrow{color:var(--f-acc)}
 .fhero h1{color:var(--f-pine)}
 html[data-ft="night"] .fhero h1{color:var(--f-ink)}
@@ -96,8 +143,13 @@ html[data-ft="night"] .fhero h1{color:var(--f-ink)}
 .fhero .heroart img{transition:opacity .6s ease,filter .6s ease}
 .fhero .heroart img.hn{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0}
 html[data-ft="night"] .fhero .heroart img.hn{opacity:1}
-html[data-ft="afternoon"] .fhero .heroart img.hm{filter:sepia(.18) saturate(1.08) brightness(1.02)}
-html[data-ft="evening"] .fhero .heroart img.hm{filter:sepia(.42) saturate(.95) brightness(.95) hue-rotate(-8deg)}
+html[data-ft="morning"] .fhero .heroart img.hm{filter:none}
+html[data-ft="afternoon"] .fhero .heroart img.hm{filter:sepia(.16) saturate(1.06) brightness(1.02)}
+html[data-ft="evening"] .fhero .heroart img.hm{filter:sepia(.36) saturate(.96) brightness(.95) hue-rotate(-8deg)}
+/* a colour wash over the hero picture, so the time reads even before the text */
+.fhero .heroart::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:2;background:var(--f-tint);mix-blend-mode:multiply;transition:background-color .6s}
+html[data-ft="night"] .fhero .heroart::after{mix-blend-mode:normal}
+html[data-ft="evening"] .fhero .heroart::after{background:linear-gradient(180deg,rgba(150,70,110,.1),rgba(230,130,70,.08))}
 
 /* ---- page furniture in forest colours ---- */
 html[data-ft] .prog{background:var(--f-panel);border-color:var(--f-line)}
@@ -134,19 +186,19 @@ html[data-ft] .turn .ta .mono{background:var(--f-sage);border-color:var(--f-line
 html[data-ft] .box:not(.warn):not(.bad):not(.good){background:var(--f-sage);border-color:var(--f-line)}
 html[data-ft] .box.info{background:var(--f-sage);border-color:var(--f-line2)}
 html[data-ft] .box.info .bt{color:var(--f-acc)}
-html[data-ft] .bridge{background:linear-gradient(135deg,#1f3d2b,#2b4a36);color:#d6e3d3}
-html[data-ft] .bridge .lbl{color:#b9d6a0}
+html[data-ft] .bridge{background:linear-gradient(135deg,var(--f-dk1),var(--f-dk2));color:var(--f-dkt)}
+html[data-ft] .bridge .lbl{color:var(--f-dkl)}
 html[data-ft] .quiz{border-color:var(--f-line);background:var(--f-panel)}
 html[data-ft] .quiz .qh{background:var(--f-sage);border-bottom-color:var(--f-line);color:var(--f-mute)}
 html[data-ft] .qopt{background:var(--f-panel);border-color:var(--f-line);color:var(--f-soft)}
 html[data-ft] .pgn{background:var(--f-panel);border-color:var(--f-line)}
-html[data-ft] .pgn .ar{color:var(--f-acc2)}
+html[data-ft] .pgn .ar{color:var(--f-acc)}
 html[data-ft] .kitem{background:var(--f-panel);border-color:var(--f-line);color:var(--f-soft)}
 html[data-ft] .kitem b{color:var(--f-ink)}
 html[data-ft] .kitem .kx{background:var(--f-sage2);color:var(--f-acc)}
 html[data-ft] .drawer{background:var(--f-panel)}
-html[data-ft] .drawer .dh{background:linear-gradient(140deg,#1f3d2b,#3d5c3a)}
-html[data-ft] .drawer .dh p{color:#b9d6a0}
+html[data-ft] .drawer .dh{background:linear-gradient(140deg,var(--f-dk1),var(--f-dk2))}
+html[data-ft] .drawer .dh p{color:var(--f-dkl)}
 html[data-ft] .drawer a.dl,html[data-ft] .drawer button.dl{background:var(--f-panel);border-color:var(--f-line);color:var(--f-soft)}
 html[data-ft] .drawer a.dl.here{background:var(--f-sage2);border-color:var(--f-acc2);color:var(--f-ink)}
 html[data-ft] .drawer a.dl.here .dn2{background:var(--f-acc2)}
@@ -159,7 +211,7 @@ html[data-ft="night"] .box.bad{background:#3a2226;border-color:#5a3036}
 html[data-ft="night"] .box.good{background:#1f3a2a;border-color:#2f5a3e}
 html[data-ft="night"] .qopt.ok{background:#1f3a2a;color:#8fd6a5}
 html[data-ft="night"] .qopt.no{background:#3a2226;color:#f1a7b1}
-html[data-ft="night"] .sim{background:#18241e;border-color:var(--f-line)}
+html[data-ft="night"] .sim{background:var(--f-sim);border-color:var(--f-line)}
 html[data-ft="night"] .simhd{border-bottom-color:var(--f-line)}
 
 /* egg 6 · a right answer lets one leaf drift down */
@@ -288,13 +340,83 @@ html[data-ft="night"] .pastq .pqh .pqs{background:var(--f-acc);color:#14201a}
 
 /* the tab strip over a listing */
 html[data-ft] .srttabs{background:var(--f-sage,#edf2e8);border-bottom-color:var(--f-line,#dde3d6)}
+
+/* =====================================================================
+   WP2 · CARDS: THE MEASURE, THE BADGE, THE MICRO-TYPE FLOOR (2026-11-16)
+   Jamil: prose in a card is capped at 72 characters; simulators, code panels,
+   tables, figures and two-column blocks keep the card's full width. Only the
+   card's DIRECT p/ul/ol are capped, so a simulator's own p is never caught.
+   ===================================================================== */
+html[data-ft] main .card>p,html[data-ft] main .card>ul,html[data-ft] main .card>ol,
+html[data-ft] main .card .turn .tq{max-width:72ch}
+/* the section badge: 38 → 44 px, its number 16 → 18 px; centred on the card's top edge as before.
+   The 3 px it now reaches higher is given back above the card, so the air over the first badge holds. */
+html[data-ft] main .card.numbered>.badge{width:44px;height:44px;top:-21px;font-size:18px}
+html[data-ft] main .card.numbered{margin-top:calc(2.6rem + 3px)}
+html[data-ft] #p-lesson>.card.numbered:first-of-type,html[data-ft] #p-exam>.card.numbered:first-of-type,
+html[data-ft] .panel>main.wrap>.card.numbered:first-of-type,html[data-ft] main.wrap>.card.numbered:first-of-type{margin-top:calc(2.6rem + 3px)}
+@media(max-width:420px){
+  html[data-ft] main .card.numbered>.badge{width:38px;height:38px;top:-19px;font-size:15px}
+}
+/* the floor: no reading text under 12 px (key hints stay small, they are decoration) */
+html[data-ft] .card .kicker{font-size:12px;letter-spacing:.12em}
+html[data-ft] .fhero .eyebrow{font-size:12px;letter-spacing:.14em}
+html[data-ft] .fhero .byline .who span{font-size:12px}
+html[data-ft] .fhero .hero-meta{font-size:max(12px,.8rem)}
+html[data-ft] main .sim .simttl{font-size:11.5px;letter-spacing:.14em;color:var(--f-mute)}
+html[data-ft] main .sim .simcnt{font-size:12px}
+/* one rank for the uppercase labels: the kicker carries the accent, the rest are muted */
+html[data-ft] .timechip,html[data-ft] .quiz .qh,html[data-ft] .prog .pk{color:var(--f-mute)}
+
+/* =====================================================================
+   WP1 · THE HERO CHIPS. A laptop keeps them to two rows at most; below
+   760 px they are ONE row that scrolls sideways, fading at the right edge
+   (the fade lifts when the row is scrolled to its end: extras.js adds .end).
+   ===================================================================== */
+@media(min-width:761px){
+  html[data-ft] .fhero .arc{gap:.35rem}
+  html[data-ft] .fhero .arc span{padding:.36rem .6rem;letter-spacing:.07em}
+}
+@media(max-width:760px){
+  html[data-ft] .fhero .herogrid>*{min-width:0}
+  html[data-ft] .fhero .arc{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;padding-right:28px;scroll-padding-right:28px;
+    -webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 40px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 40px),transparent)}
+  html[data-ft] .fhero .arc::-webkit-scrollbar{display:none}
+  html[data-ft] .fhero .arc span{flex:0 0 auto}
+  html[data-ft] .fhero .arc.end{-webkit-mask-image:none;mask-image:none}
+}
+
+/* WP11 · teacher mode holds Morning: the menu says so, and its choices rest */
+.ftnote{margin:0 0 4px;padding:.45rem .55rem;border-radius:8px;background:var(--f-amb-bg);color:var(--f-ink);font-size:12px;line-height:1.35}
+.ftnote[hidden]{display:none}
+.ftopt:disabled{cursor:default;opacity:.5}
+.ftopt:disabled:hover{background:transparent}
+.ftopt.on:disabled{background:var(--f-sage2)}
+.ftbtn .ftlock{font-size:.62rem;opacity:.75;margin-left:-.15rem}
+/* the badge is a cream tree-ring disc in every light, so its number stays dark bark-green (night had made it light on cream) */
+html[data-ft] main .card.numbered>.badge{color:#1f3d2b;-webkit-text-fill-color:#1f3d2b}
 /* =====================================================================
    THE FOREST IS ALIVE (forest.js §life). Quiet, low-contrast, and gone
    for prefers-reduced-motion. None of it sits inside a simulator.
    ===================================================================== */
 html[data-ft]{--f-gut:#1f3d2b;--f-gut-o:.09;--f-gut-h:.16}
-html[data-ft="evening"]{--f-gut:#4a2f1f;--f-gut-o:.1;--f-gut-h:.18}
-html[data-ft="night"]{--f-gut:#2b4236;--f-gut-o:.75;--f-gut-h:.95}
+html[data-ft="afternoon"]{--f-gut:#5a4e1c;--f-gut-o:.12;--f-gut-h:.2}
+html[data-ft="evening"]{--f-gut:#4a2a20;--f-gut-o:.14;--f-gut-h:.24}
+html[data-ft="night"]{--f-gut:#1d4a52;--f-gut-o:.85;--f-gut-h:1}
+
+/* the canopy light (drawn by more.js in gold) takes the time's own colour:
+   cool dew-light in the morning, strong sun at noon, rose and amber at dusk, a blue moon at night */
+html[data-ft="morning"] .fz-canopy{filter:none}
+html[data-ft="afternoon"] .fz-canopy{filter:saturate(1.1)}
+html[data-ft="evening"] .fz-canopy{filter:hue-rotate(-14deg) saturate(1)}
+html[data-ft="night"] .fz-canopy{filter:hue-rotate(-12deg) saturate(1.2)}
+/* a low sun or moon glow along the top of the window, behind the cards */
+body::before{content:"";position:fixed;left:0;right:0;top:0;height:46vh;z-index:-1;pointer-events:none;
+  background:radial-gradient(ellipse 70% 100% at 85% 0,var(--f-glow),transparent 70%)}
+html[data-ft="morning"]{--f-glow:transparent}
+html[data-ft="afternoon"]{--f-glow:rgba(255,210,110,.24)}
+html[data-ft="evening"]{--f-glow:rgba(235,150,120,.2)}
 
 /* the sky over the hero */
 .fz-sky{position:absolute;left:0;top:0;pointer-events:none;z-index:0}
@@ -336,7 +458,9 @@ html[data-ft="night"] .fz-owl{display:inline;animation:fzowlsway 8s ease-in-out 
 .fz-mleaf{position:fixed;z-index:0;width:13px;height:10px;pointer-events:none}
 .fz-mleaf svg,.fz-mbird svg{width:100%;height:100%;display:block}
 .fz-mbird{position:fixed;z-index:0;width:24px;height:12px;pointer-events:none;color:#2c4a37}
-html[data-ft="night"] .fz-mbird{color:#9fbf86}
+html[data-ft="night"] .fz-mbird{color:#9fd9cc}
+html[data-ft="evening"] .fz-mbird{color:#4a2a20}
+html[data-ft="afternoon"] .fz-mbird{color:#4a4420}
 
 /* cards rise into place once; their rings grow */
 .card.fz-rise{opacity:0;transform:translateY(18px)}
@@ -370,10 +494,8 @@ body.revealall .fz-bird{display:none}
 .fz-floor{position:relative;height:74px;margin:1.6rem 0 0;color:var(--f-sage2,#dfe9d4);overflow:hidden;cursor:default}
 .fz-ground{position:absolute;left:0;right:0;bottom:0;width:100%;height:46px}
 .fz-grass{position:absolute;left:0;right:0;bottom:22px;height:0}
-.fz-blade{position:absolute;bottom:0;width:2px;border-radius:2px 2px 0 0;background:#9fbf86;opacity:.75;
+.fz-blade{position:absolute;bottom:0;width:2px;border-radius:2px 2px 0 0;background:var(--f-blade,#9fbf86);opacity:.8;
   transform-origin:50% 100%;transform:rotate(calc(var(--r,0deg) + var(--p,0deg)));transition:transform .35s cubic-bezier(.3,1.5,.5,1)}
-html[data-ft="night"] .fz-blade{background:#4f6f58}
-html[data-ft="evening"] .fz-blade{background:#b9a46a}
 .fz-mush,.fz-fern{position:absolute;bottom:18px;width:24px;height:24px}
 .fz-mush.sm{width:16px;height:16px}
 .fz-fern{width:30px;height:30px;bottom:16px;transform-origin:50% 100%}
@@ -639,9 +761,8 @@ ellipse.fz-log2{fill:#b08a5e;stroke:#6b4a2c;stroke-width:.6}
 .fz-hole{fill:#3a2a1c;transition:opacity .2s}
 .fz-chip{position:absolute;width:2.5px;height:2.5px;margin:-1px 0 0 -1px;border-radius:1px;background:#c69a5b;pointer-events:none}
 .fz-edge .fz-spr.tap{pointer-events:auto;cursor:pointer}
-.fz-edge.ants{clip-path:inset(-400px -3000px 3px -3000px)}   /* the ants leave down behind the card's edge */
 .fz-edge.tort{top:auto;bottom:4px;width:200px;height:30px}
-.fz-vst{position:relative;height:44px;margin:-20px 0 -20px;pointer-events:none;overflow:hidden}
+.fz-vst{position:relative;height:52px;margin:-24px 0 -24px;pointer-events:none;overflow:hidden}   /* taller: its visitors are larger now */
 html[data-ft="night"] .fz-edge .tw2{stroke:#a98a62}
 html[data-ft="night"] .fz-cell{fill:#3b3627;stroke:#8a7440}
 html[data-ft="night"] .fz-cell.f{fill:#c48a2a}
@@ -695,6 +816,36 @@ html[data-ft="night"] .fz-gut .fz-perch2{opacity:.55}
 /* the floor clips only at its sides now: a butterfly may rise above it, and nothing past the screen's edge shows */
 .fz-floor{overflow:visible;overflow-x:clip}
 .fz-deer.peek.duck,.fz-deer.peek.leave,.fz-floor .fz-deer.fd.peek.duck,.fz-floor .fz-deer.fd.peek.leave{left:-104px}   /* leaving still wins */
+/* the night owl in clay, on a branch like the doel (Jamil, 2026-11-15): the margin pine's silhouette owl gives way to it */
+html.fz-owlc .fz-gut .fz-owl{display:none}
+.fz-owlv{pointer-events:auto;cursor:pointer}
+
+/* ---- the residents (2026-11-16): a stage along each section card's top edge; its ground (y 44) is the card's top ---- */
+.fz-res{position:absolute;left:0;right:0;top:-44px;height:44px;pointer-events:none;z-index:2}
+.fz-res .fz-spr.tap{pointer-events:auto;cursor:pointer}
+.fz-res.low{top:100%;height:26px;z-index:1}   /* on the moss strip below the card (an actor has its whole top edge) */
+html[data-ft="night"] .fz-res .fz-spr{filter:brightness(.88) saturate(.9)}
+
+/* ---- the moss strip in each gap between cards (WP2 · F1): a thin clay band across the gap, a few tufts, now and then an ant ---- */
+.fz-moss{position:absolute;left:7%;right:7%;top:100%;height:40px;pointer-events:none;overflow:hidden;z-index:1}
+.fz-moss .band{position:absolute;left:0;right:0;top:22px;height:5px;border-radius:3px;
+  background:linear-gradient(180deg,#a9c78f,#8fb276 60%,#7a9d62);box-shadow:0 1px 0 rgba(90,70,40,.18);
+  -webkit-mask:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);mask:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);opacity:.85}
+.fz-moss .fz-pl{opacity:.92}
+html[data-ft="evening"] .fz-moss .band{opacity:.6}
+html[data-ft="night"] .fz-moss .band{background:linear-gradient(180deg,#5d7b55,#4b6a46 60%,#3e5a3b);opacity:.55}
+html[data-ft="night"] .fz-moss .fz-spr{filter:brightness(.62) saturate(.8)}
+html.teach .fz-moss{opacity:.6}
+
+/* ---- the floor (WP5, Jamil 2026-11-16: 120 px and denser): a back hill with its own row, in front of it the old ground ---- */
+html[data-ft] .fz-floor{height:120px}
+.fz-hill{position:absolute;left:0;bottom:0;width:100%;height:120px;pointer-events:none}
+.fz-hill path{fill:currentColor;opacity:.5}
+.fz-floor .fz-pl.bk{opacity:.78;filter:saturate(.8) brightness(1.04)}
+html[data-ft="night"] .fz-floor .fz-pl.bk{filter:brightness(.48) saturate(.7)}
+html[data-ft="evening"] .fz-floor .fz-pl.bk{filter:brightness(.78) saturate(.85)}
+html[data-ft="night"] .fz-floor .fz-flr.res{filter:brightness(.7)}
+@media print{.fz-res,.fz-moss{display:none}}
 
 /* ---- teacher mode, sound, night study, ant trails (2026-11-15) ---- */
 html.teach{font-size:118%}
@@ -736,3 +887,12 @@ html.teach .fz-floor{opacity:.7}
 html[data-ft="night"] .antbar button.on{background:#3b3627}
 @media print{.fz-sndb,.fz-teachb,.fz-nflies,.fz-gn{display:none}}
 .antstage svg{display:block;margin:0 auto;max-width:100%;height:auto}
+/* =================== CLICK-ME CUE (2026-11-15) ===================
+   A control that does nothing until clicked (sim Next, unseen tabs, pickers, Show the answer)
+   breathes a soft ring of the accent colour until the reader clicks it or its group (extras.js §5).
+   Not in Focus or teacher mode, nor once the page itself selects it; a still, faint ring under reduced motion. */
+html:not(.teach) body:not(.fsopen) .fz-cue:not(.on):not([aria-selected=true]){animation:fzcue 2.8s ease-in-out infinite}
+@keyframes fzcue{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--f-acc,#476a2e) 0%,transparent)}
+  50%{box-shadow:0 0 0 3px color-mix(in srgb,var(--f-acc,#476a2e) 34%,transparent),0 0 12px 2px color-mix(in srgb,var(--f-acc,#476a2e) 30%,transparent)}}
+@media (prefers-reduced-motion:reduce){html:not(.teach) body:not(.fsopen) .fz-cue:not(.on):not([aria-selected=true]){animation:none;box-shadow:0 0 0 2px color-mix(in srgb,var(--f-acc,#476a2e) 22%,transparent)}}
+@media print{.fz-cue{animation:none !important}}

@@ -1485,10 +1485,21 @@ table.mlg .sr{color:#1f2d24;background:#fff}
 table.mlg th{background:transparent !important;color:var(--f-soft,#3d4a40)}
 html[data-ft="night"] table.mlg th,html[data-ft="night"] table.mlg thead button{color:#c9d4c4}
 html[data-ft="night"] table.mlg thead button.on{color:#ffd98a}
+/* the morning grid's key: one line per row, small pictures, wraps on a phone */
+.mlkey{margin:.55rem 0 0;font-size:.74rem;line-height:1.3;color:var(--f-soft,#3d4a40)}
+.mlkey p{margin:0 0 .3rem;font-size:.74rem}
+.mlkey dl{display:grid;grid-template-columns:auto 1fr;gap:.18rem .55rem;margin:0;align-items:center}
+.mlkey dt{font-size:.62rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;text-align:right;white-space:nowrap}
+.mlkey dd{margin:0;display:flex;flex-wrap:wrap;gap:.1rem .7rem;min-width:0}
+.mlkey span{display:inline-flex;align-items:center;gap:.22rem}
+.mlkey .ico{flex:0 0 auto}
+.mlkey span.yes,.mlkey span.no{padding:0 .35rem 0 .15rem;border-radius:.4rem}
+.mlkey span.yes{background:#d9edc9}.mlkey span.no{background:#f6d4cd}
+html[data-ft="night"] .mlkey span.yes{background:#2c4a2a}html[data-ft="night"] .mlkey span.no{background:#55302a}
 
 </style>
-<link rel="stylesheet" href="../assets/forest.css?v=22">
-<script>(function(){var d=document.documentElement,p;try{p=localStorage.getItem('cse2321-forest-time')||(localStorage.getItem('dsa-code-theme')==='dark'?'night':'morning');}catch(e){p='morning';}if(p==='auto'){var h=new Date().getHours();p=h>=5&&h<12?'morning':h<16?'afternoon':h<19?'evening':'night';}d.setAttribute('data-ft',p);})();</script>
+<link rel="stylesheet" href="../assets/forest.css?v=28">
+<script>(function(){var d=document.documentElement,p;try{p=localStorage.getItem('cse2321-forest-time')||'auto';}catch(e){p='auto';}if(p==='afternoon'||p==='evening')p='morning';if(p==='auto'){var h=new Date().getHours();p=h>=6&&h<18?'morning':'night';}d.setAttribute('data-ft',p);})();</script>
 </head>
 <body>
 <div class="topbar">
@@ -1516,7 +1527,7 @@ html[data-ft="night"] table.mlg thead button.on{color:#ffd98a}
       <div>
         <p class="eyebrow">Data Structures · Segment 7 · Trees 1</p>
         <h1>What a <em>tree</em> is</h1>
-        <p class="hero-lede">A list puts things in a line. A tree shows <b>who is under whom</b>. Today: the words, three kinds of tree, and two ways to store one.</p>
+        <p class="hero-lede">A list is a line. A tree shows <b>who is under whom</b>.</p>
         <div class="arc">
           <span>Who is under whom</span><span>The words</span><span>The definition</span><span>Full, complete, 2-tree</span><span>Stored with links</span><span>Stored in an array</span><span>The page to keep</span>
         </div>
@@ -1654,10 +1665,11 @@ html[data-ft="night"] table.mlg thead button.on{color:#ffd98a}
     <span class="timechip">⏱ 12 min</span>
   </div>
 
-  <p>Two words come before all the others.</p>
+  <p>Three words come before all the others.</p>
   <div class="ne-row">
     <div class="tvw" id="ne-tv"></div>
     <ul class="ne-list">
+      <li><b>Root</b>: the one node at the top. It has no parent, and the whole tree hangs from it.</li>
       <li><b>Node</b>: one item in the tree, drawn as a circle. It holds the data.</li>
       <li><b>Edge</b>: the line from a node to a node directly under it.</li>
       <li>Every node except the root has exactly one edge up to its parent. So a tree with <b>n</b> nodes has <b>n − 1</b> edges.</li>
@@ -2073,7 +2085,7 @@ html[data-ft="night"] table.mlg thead button.on{color:#ffd98a}
 </section>
 
 <script src="../assets/sim.js?v=3"></script>
-<script src="../assets/tree-lib.js?v=22"></script>
+<script src="../assets/tree-lib.js?v=28"></script>
 <script>(function(){
 "use strict";
 var $=function(s,r){return (r||document).querySelector(s);};
@@ -2498,6 +2510,13 @@ var T=window.TreeLib, sv=T.sv, parseT=T.parseT, index=T.index, depthOf=T.depthOf
     var COLS=['Sky','Temp','Humidity','Wind','Bees out?'];
     mt.insertAdjacentHTML('beforeend','<thead><tr><th></th>'+D.map(function(r,i){ return '<th><button type="button" data-i="'+i+'" aria-label="Morning '+(i+1)+'">'+(i+1)+'</button></th>'; }).join('')+'</tr></thead><tbody>'+
       COLS.map(function(c,j){ return '<tr'+(j===4?' class="ans"':'')+'><th scope="row">'+c+'</th>'+D.map(function(r,i){ return '<td data-i="'+i+'"'+(j===4?' class="'+r[j].toLowerCase()+'"':'')+' title="Morning '+(i+1)+': '+r[j]+'">'+icon(r[j],j===4?22:21)+'<span class="sr">'+r[j]+'</span></td>'; }).join('')+'</tr>'; }).join('')+'</tbody>');
+    /* the key: what each row asks and what each picture means (Jamil, 2026-11-15: "at least a legend") */
+    var KEY=[['Sky',[['Sunny','sunny'],['Cloudy','cloudy'],['Rain','rain']]],['Temp',[['Hot','hot'],['Mild','mild'],['Cool','cool']]],
+             ['Humidity',[['High','damp air'],['Normal','normal']]],['Wind',[['Strong','strong'],['Weak','light']]],
+             ['Bees out?',[['Yes','yes, they went out to forage','yes'],['No','no, they stayed in','no']]]];
+    mt.parentNode.insertAdjacentHTML('afterend','<div class="mlkey" id="ml-key" aria-label="Key to the pictures"><p>Each <b>column</b> is one morning. The first four rows are what the beekeeper saw; the last row is what the bees did, the answer the tree learns to predict.</p><dl>'+
+      KEY.map(function(k){ return '<dt>'+k[0]+'</dt><dd>'+k[1].map(function(v){ return '<span'+(v[2]?' class="'+v[2]+'"':'')+'>'+icon(v[0],16)+v[1]+'</span>'; }).join('')+'</dd>'; }).join('')+'</dl></div>');
+    mt.setAttribute('data-cue','thead button:not(.on)');   /* the shared click-me glow (extras.js) on the morning numbers, until a morning is clicked */
     if(false) mt.insertAdjacentHTML('beforeend','<thead><tr><th>Day</th><th>Sky</th><th>Temp</th><th>Humidity</th><th>Wind</th><th>Bees out?</th></tr></thead><tbody>'+
       D.map(function(r,i){ return '<tr tabindex="0" data-i="'+i+'"><td>'+(i+1)+'</td>'+r.map(function(c,j){ return '<td'+(j===4?' class="'+c.toLowerCase()+'"':'')+'>'+(IC[c]!=null?icon(c,22):'')+'<span>'+c+'</span></td>'; }).join('')+'</tr>'; }).join('')+'</tbody>');
     function leaf(v,e){ return N(v,[],{elab:e,cls:'leaf '+v.toLowerCase()}); }
@@ -2519,11 +2538,12 @@ var T=window.TreeLib, sv=T.sv, parseT=T.parseT, index=T.index, depthOf=T.depthOf
 (function(){
   var host=$('#ne-tv'); if(!host) return;
   var V=drawTree(host,'A(B,C)',{xg:70,r:18,yg:62,mx:70,padB:4,label:'A node A with two edges down to B and C'});
-  /* two labels with arrows: one on a node, one on an edge */
+  /* three labels with arrows: the root, a node, an edge */
   var ax=V.W/2, svg=V.svg;
   function lab(x,y,t,tx,ty){ sv('line',{'class':'ne-arw',x1:x,y1:y,x2:tx,y2:ty},svg); var e=sv('text',{'class':'ne-lab',x:x,y:y-4},svg); e.textContent=t; }
   var a=V.all[0], b=V.all[1];
-  lab(ax+62,22,'node',ax+20,26);
+  lab(ax+62,22,'root',ax+20,26);
+  lab(ax+122,114,'node',ax+90,112);
   var mx=(V.xy&&0)||0;
   lab(28,64,'edge',(70+ax)/2-8,(30+92)/2+4);
 })();
@@ -3102,6 +3122,6 @@ document.addEventListener('keydown',function(e){
   },{passive:true});
 })();
 </script>
-<script src="../assets/forest.js?v=22"></script>
+<script src="../assets/forest.js?v=28"></script>
 </body>
 </html>

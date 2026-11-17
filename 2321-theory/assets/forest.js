@@ -22,14 +22,17 @@ var LEAFSVG='<svg viewBox="0 0 16 12"><path d="M1 11C2 4 8 1 15 1c-1 6-5 10-14 1
    the rest of the site agree with it.                                      */
 (function(){
   var KEY='cse2321-forest-time', CODE='dsa-code-theme', root=document.documentElement;
-  var OPTS=[['auto','◷','Auto','follows the clock'],['morning','☀︎','Morning','light'],
-            ['afternoon','⛅︎','Afternoon','warm'],['evening','◒','Evening','sepia'],
+  /* two times only (Jamil, 2026-11-16): Day keeps the old key 'morning', so every rule written for it still holds */
+  var OPTS=[['auto','◷','Auto','follows the clock'],['morning','☀︎','Day','light'],
             ['night','☾','Night','dark, for reading at home']];
   function get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
   function put(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
-  var pref=get(KEY) || (get(CODE)==='dark' ? 'night' : 'morning');
-  function clock(){ var h=new Date().getHours(); return h>=5&&h<12?'morning':h<16?'afternoon':h<19?'evening':'night'; }
-  function eff(p){ return p==='auto' ? clock() : p; }
+  var pref=get(KEY) || 'auto'; if(pref==='afternoon'||pref==='evening') pref='morning';   /* an old four-times choice */
+  function clock(){ var h=new Date().getHours(); return h>=6&&h<18?'morning':'night'; }
+  /* teacher mode (extras.js, html.teach) holds Morning whatever the reader chose, Auto included;
+     their own choice is never rewritten, and comes back when teacher mode is left (WP11) */
+  function held(){ return root.classList.contains('teach'); }
+  function eff(p){ return held() ? 'morning' : p==='auto' ? clock() : p; }
   var host=document.querySelector('.tabs'); if(!host) return;
   var wrap=document.createElement('div'); wrap.className='ftwrap';
   var btn=document.createElement('button'); btn.type='button'; btn.className='ftbtn';
@@ -39,20 +42,28 @@ var LEAFSVG='<svg viewBox="0 0 16 12"><path d="M1 11C2 4 8 1 15 1c-1 6-5 10-14 1
     var b=document.createElement('button'); b.type='button'; b.className='ftopt';
     b.setAttribute('role','menuitemradio'); b.setAttribute('data-t',o[0]);
     b.innerHTML='<span class="ic" aria-hidden="true">'+o[1]+'</span><span><b>'+o[2]+'</b><small>'+o[3]+'</small></span>';
-    b.addEventListener('click',function(){ pref=o[0]; put(KEY,pref); apply(); close(); btn.focus(); });
+    b.addEventListener('click',function(){ if(held()) return; pref=o[0]; put(KEY,pref); apply(); close(); btn.focus(); });
     menu.appendChild(b);
   });
+  var note=document.createElement('p'); note.className='ftnote'; note.hidden=true;
+  note.textContent='Teacher mode holds Day. Press T to leave it; your own choice comes back.';
+  menu.insertBefore(note,menu.firstChild);
   function apply(){
     var t=eff(pref);
-    root.setAttribute('data-ft',t);
+    var h=held();
+    if(root.getAttribute('data-ft')!==t) root.setAttribute('data-ft',t);
     document.body.classList.toggle('codelight', t!=='night');
-    put(CODE, t==='night' ? 'dark' : 'light');
+    if(!h) put(CODE, t==='night' ? 'dark' : 'light');
     var o=OPTS.filter(function(x){ return x[0]===pref; })[0]||OPTS[1];
-    btn.innerHTML='<span aria-hidden="true">'+o[1]+'</span>'+o[2]+'<span class="chev" aria-hidden="true">▾</span>';
-    btn.setAttribute('aria-label','Theme: '+o[2]+(pref==='auto'?' ('+t+')':''));
-    Array.prototype.forEach.call(menu.children,function(c){
+    if(h){ btn.innerHTML='<span aria-hidden="true">☀︎</span>Day<span class="ftlock" aria-hidden="true">· T</span><span class="chev" aria-hidden="true">▾</span>';
+      btn.setAttribute('aria-label','Theme: Day, held by teacher mode (your choice: '+o[2]+')'); }
+    else { btn.innerHTML='<span aria-hidden="true">'+o[1]+'</span>'+o[2]+'<span class="chev" aria-hidden="true">▾</span>';
+      btn.setAttribute('aria-label','Theme: '+o[2]+(pref==='auto'?' ('+t+')':'')); }
+    btn.classList.toggle('held',h); note.hidden=!h;
+    Array.prototype.forEach.call(menu.querySelectorAll('.ftopt'),function(c){
       var on=c.getAttribute('data-t')===pref;
       c.classList.toggle('on',on); c.setAttribute('aria-checked',on?'true':'false');
+      c.disabled=h; c.setAttribute('aria-disabled',h?'true':'false');
     });
   }
   /* the tab strip scrolls sideways on a phone, so it clips anything that hangs
@@ -69,7 +80,8 @@ var LEAFSVG='<svg viewBox="0 0 16 12"><path d="M1 11C2 4 8 1 15 1c-1 6-5 10-14 1
   document.addEventListener('keydown',function(e){ if(e.key==='Escape' && !menu.hidden) close(); });
   window.addEventListener('resize',function(){ if(!menu.hidden) place(); });
   window.addEventListener('scroll',function(){ if(!menu.hidden) close(); },{passive:true});
-  setInterval(function(){ if(pref==='auto') apply(); },60000);
+  setInterval(function(){ if(pref==='auto') apply(); },60000);   /* apply() itself keeps teacher mode's Morning */
+  window.__ftime={apply:apply, pref:function(){ return pref; }};
   wrap.appendChild(btn); wrap.appendChild(menu);
   var rv=host.querySelector('.revtog'); if(rv) host.insertBefore(wrap,rv); else host.appendChild(wrap);
   apply();
@@ -520,6 +532,56 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
     fl.addEventListener('pointermove',function(e){ gx0=e.clientX; if(!gTick) gTick=requestAnimationFrame(bend); });
     fl.addEventListener('pointerleave',function(){ gx0=null; if(!gTick) gTick=requestAnimationFrame(bend); });
   }
+
+  /* ---- 6 · the moss strip in each gap between section cards (WP2 · F1, 2026-11-16) ----
+     A thin clay band across each gap, with a few tufts, seeded by the card so it is the same
+     every visit. It hangs from the card above (no new box between the cards, so the spacing holds).
+     Now and then a resident crosses one in view: an ant with a crumb, an ant, or the caterpillar;
+     it comes out from behind a tuft and goes again the same way, fading. Never in teacher mode. */
+  var MC=$$('#p-lesson .card.numbered').filter(function(c){ var n=c.nextElementSibling; return n && n.matches('.card.numbered'); }), MOSS=[];
+  function mseed(s){ var h=2166136261; for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); }
+    return function(){ h=Math.imul(h^(h>>>15),2246822507); h^=h>>>13; return (h>>>0)/4294967296; }; }
+  function mossGap(c){ var n=c.nextElementSibling; return Math.max(18,Math.round(n.offsetTop-(c.offsetTop+c.offsetHeight))); }
+  function moss(c){
+    var m=$('.fz-moss',c); if(m) m.remove();
+    if(getComputedStyle(c).position==='static') c.style.position='relative';
+    m=document.createElement('div'); m.className='fz-moss'; m.setAttribute('aria-hidden','true'); m.style.height=mossGap(c)+'px';
+    m.innerHTML='<i class="band"></i>'; c.appendChild(m); m._c=c;
+    if(FZ.spr && FZ.ART.flora){ var r=mseed('moss'+c.id), W=m.clientWidth||c.clientWidth*.86, x=14+r()*30;
+      while(x<W-14){ var k=r(), pose=k<.5?'grass':k<.72?'fern':k<.86?'daisy':'pink', e=FZ.spr('flora',pose==='fern'?15:pose==='grass'?13:12,'fz-pl');
+        e.style.position='absolute'; m.appendChild(e); FZ.frame(e,pose); FZ.place(e,x,26); x+=56+r()*(window.innerWidth<700?50:96); } }
+    return m;
+  }
+  MC.forEach(function(c){ MOSS.push(moss(c)); });
+  var mW=window.innerWidth;
+  window.addEventListener('resize',function(){ if(window.innerWidth===mW) return; mW=window.innerWidth; MOSS=MC.map(moss); });
+  /* the gaps move when a card above changes height (a tab, an answer): keep each strip's height true */
+  if(window.ResizeObserver) new ResizeObserver(function(){ MOSS.forEach(function(m){ if(m.isConnected) m.style.height=mossGap(m._c)+'px'; }); }).observe($('#p-lesson')||document.body);
+  /* the crossers */
+  var crossing=false;
+  async function cross(force){
+    if(crossing || !FZ.spr || !FZ.ART.ant) return; if(!force && (busy() || (FZ.quiet && FZ.quiet()))) return;
+    var vis=MOSS.filter(function(m){ var r=m.getBoundingClientRect(); return m.isConnected && r.top>60 && r.bottom<window.innerHeight-20; });
+    if(!vis.length) return; crossing=true;
+    var m=vis[Math.floor(Math.random()*vis.length)], W=m.clientWidth, k=Math.random(), cat=k>.72 && FZ.ART.cat,
+        e=cat?FZ.spr('cat',10,'fz-cross tap'):FZ.spr('ant',11,'fz-cross tap'), walk=cat?['c1','c2','c3','c2']:k<.4?['a8','a9']:['a1','a2','a3','a4'];
+    e.style.position='absolute'; m.appendChild(e);
+    var dir=Math.random()<.5?1:-1, len=Math.min(W*.5,rnd(150,280)), x0=dir>0?rnd(20,W*.4):W-rnd(20,W*.4), x1=x0+dir*len, v=cat?7:15;
+    FZ.place(e,x0,26); FZ.face(e,dir); FZ.frame(e,walk[0]);
+    e.addEventListener('click',function(ev){ ev.stopPropagation(); e.animate([{translate:'0 0'},{translate:'0 -3px'},{translate:'0 0'}],{duration:300}); });
+    try{
+      e.animate([{opacity:0},{opacity:1}],{duration:900,fill:'backwards'});
+      var mid=x0+dir*len*rnd(.35,.6); await FZ.walk(e,mid,26,v,walk,cat?4:10);
+      if(e.isConnected){ FZ.frame(e,cat?'c4':'a6'); await FZ.wait(cat?1400:900); }
+      var go=FZ.walk(e,x1,26,v,walk,cat?4:10);
+      await FZ.wait(Math.max(0,(Math.abs(x1-mid)/v)*1000-1800)); if(e.isConnected) e.animate([{opacity:1},{opacity:0}],{duration:1800,fill:'forwards'});
+      await go;
+    }catch(x){}
+    e.remove(); crossing=false;
+  }
+  (function again(){ setTimeout(function(){ cross(); again(); },rnd(22,42)*1000); })();
+  setTimeout(function(){ cross(); },rnd(7,12)*1000);
+  FZ.mossCross=cross;
 })();
 
 
@@ -531,7 +593,7 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
    same rules as above: nothing in Focus, nothing inside a simulator, nothing
    for reduced motion, nothing explained on the page.
    For a preview: ?fzseason=winter|spring|summer|monsoon|autumn and
-   ?fzvisit=doel|deer|star|rain|sib|ant|den.                                 */
+   ?fzvisit=doel|owl|deer|star|rain|sib|ant|den.                                 */
 (function(){
   if(RM) return;
   var root=document.documentElement, Q=location.search;
@@ -795,9 +857,10 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
   document.addEventListener('click',function(e){ if(e.target.closest && e.target.closest('.qopt,#preset')) setTimeout(sync,30); });
   sync();
 
-  /* ---- 9 · rare visitors ----
-     The doel (magpie-robin) by day, about one visit in eight: it lands,
-     sings, and goes. A shooting star at night, every three minutes or so.
+  /* ---- 9 · visitors ----
+     The doel (magpie-robin) by day and the clay owl at dusk and by night: each
+     lands on a branch (a card's edge on a narrow screen), stays a while, and
+     goes; the first one 10-16 s after the page opens, then every 30-50 s. A shooting star at night, every three minutes or so.
      A barking deer, about one visit in two on a wide screen: it peeks in at
      the left edge and ducks back if the pointer comes near.               */
   /* teacher mode (extras.js): nothing comes by itself, only on demand from the panel */
@@ -816,7 +879,7 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
   /* when a card's top-edge stage is fully in view below the sticky top bar: reading down the page always passes this */
   function edgeSeen(card,name,fn){
     if(!card) return; var st=edge(card,name), bar=$('.topbar'), top=bar?Math.round(bar.getBoundingClientRect().height):0;
-    var ob=new IntersectionObserver(function(es){ if(es[0].isIntersecting){ ob.disconnect(); fn(); } },{rootMargin:(-top)+'px 0px 0px 0px',threshold:1});
+    var ob=new IntersectionObserver(function(es){ if(es[0].isIntersecting && es[0].intersectionRatio>.97){ ob.disconnect(); fn(); } },{rootMargin:(-top)+'px 0px 0px 0px',threshold:.98});   /* not 1: a scaled stage's box is fractional and never reaches it */
     ob.observe(st);
   }
   FZ.edge=edge; FZ.edgeSeen=edgeSeen; FZ.later=later; FZ.topSeen=topSeen; FZ.onSeen=onSeen;   /* for the section creatures */
@@ -848,30 +911,41 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
     FZ.face(d,dir); await FZ.seq(d,['flare','touch','p1'],9);
     var R=[['p2',600],['p4',900,1],['p1',300],['p3',750],['p1',250],['p4',900,1],['p6',320],['p1',500]];
     for(var i=0;i<R.length && d.isConnected;i++){ FZ.frame(d,R[i][0]); if(R[i][2]) notesAt(d); await FZ.wait(R[i][1]); }
+    /* and it stays a while (Jamil, 2026-11-15): it looks round, flicks its tail, and sings again now and then */
+    for(var n=Math.round(rnd(5,7));n>0 && d.isConnected;n--){ await FZ.wait(rnd(1300,2300)); var r=R[Math.floor(Math.random()*R.length)];
+      FZ.frame(d,r[0]); if(r[2]) notesAt(d); await FZ.wait(Math.max(700,r[1])); FZ.frame(d,'p1'); }
     await FZ.seq(d,['crouch'],10);
     if(!fixed) to=offTo(host,to[0]<x?-1:1);
     await FZ.fly(d,[x,y],[x+(to[0]-x)*.3,y-50],[to[0]-(to[0]-x)*.2,to[1]+40],to,fixed?1100:offMs([x,y],to),['w1','w2','w3','w4','w5','w6'],22);
     d.remove();
   }
   function notesAt(d){ sing(d,null,2); }
+  /* where a bird can land now: a branch out of a section in view (wide screens), else the floor (the doel only),
+     else the top edge of a card in view: its right corner, or past its number badge when a creature has the corner */
+  function sideBusy(c,right){ return $$('.fz-edge',c).some(function(e){ return !/\bdoel\b/.test(e.className) && /\bcomb\b/.test(e.className)!==right && (e.childNodes.length || e.on); }); }
+  function cardPerch(c){ var W=c.clientWidth, rs=FZ.resIn||function(){ return false; },   /* not onto a resident (residents.js) */
+      r=!sideBusy(c,true) && !rs(c,W-152,W-22); if(!r && (sideBusy(c,false) || rs(c,64,194))) return null;
+    var st=edge(c,'doel'); st.style.left=r?'':'64px'; st.style.right=r?'':'auto'; var w=st.clientWidth||130;
+    return {host:st,x:r?w-24:30,y:33,side:r?1:-1}; }
+  function perch(isOwl){
+    var L=(FZ.limbs||[]).filter(function(l){ var r=l.getBoundingClientRect(); return getComputedStyle(l).display!=='none' && r.top>60 && r.bottom<window.innerHeight; });
+    if(L.length){ var l=L[Math.floor(Math.random()*L.length)]; return {host:l,x:l._px,y:l._py,side:l.classList.contains('r')?1:-1}; }
+    var fl2=!isOwl && FZ.flsky && inView(fl);
+    if(fl2 && WIDE.matches) return {floor:1};
+    for(var i=0;i<CARDS.length;i++) if(topSeen(CARDS[i])){ var p=cardPerch(CARDS[i]); if(p) return p; }
+    return fl2?{floor:1}:null;
+  }
   function doel(force,card){
-    if(doelOn || (!day() && !force)) return; doelOn=true;
+    if(doelOn || (!day() && !force)) return false;
     if(FZ.spr){
-      var done=function(){ doelOn=false; };
-      /* not on the margin silhouettes any more (Jamil, 2026-11-15): on a branch that grows out of a section in view, else on the floor */
-      var limb=(FZ.limbs||[]).filter(function(l){ var r=l.getBoundingClientRect(); return getComputedStyle(l).display!=='none' && r.top>60 && r.bottom<window.innerHeight; })[0];
-      if(limb && !card){ doelVisit(limb,limb._px,limb._py,[0,0],[-1,0],false).then(done); }
-      else if(WIDE.matches && FZ.flsky && inView(fl)){ var fx=fl.clientWidth*.46+34; doelVisit(FZ.flsky,fx,floorY(),[fx+200,0],[fx-200,0],false).then(done); }
-      else if(card){
-        var st=edge(card,'doel'), w=st.clientWidth||130;
-        doelVisit(st,w-24,33,[w+90,-150],[w+120,-170],false).then(done);
-      } else if(fl){
-        var ob=new IntersectionObserver(function(es){ if(!es[0].isIntersecting) return; ob.disconnect();
-          var fx=fl.clientWidth*.46+34; doelVisit(FZ.flsky||fl,fx,floorY(),[fx+120,-10],[fx-160,-20],false).then(done); },{threshold:.6});
-        ob.observe(fl);
-      } else doelOn=false;
-      return;
+      /* not on the margin silhouettes any more (Jamil, 2026-11-15): on a branch that grows out of a section in view, else on the floor or a card's edge */
+      var p=card?cardPerch(card):perch(false); if(!p) return false; doelOn=true;
+      var done=function(){ doelOn=false; birdGone(); };
+      if(p.floor){ var fx=fl.clientWidth*.46+34; doelVisit(FZ.flsky,fx,floorY(),[fx+200,0],[fx-200,0],false).then(done); }
+      else doelVisit(p.host,p.x,p.y,[p.x+p.side,0],[p.x+p.side,0],false).then(done);
+      return true;
     }
+    doelOn=true;
     var d=document.createElement('span'); d.className='fz-doel'; d.setAttribute('aria-hidden','true'); d.innerHTML=DOEL;
     function leave(){ d.classList.add('go'); setTimeout(function(){ d.remove(); doelOn=false; },1600); }
     if(WIDE.matches && FZ.guts){
@@ -894,6 +968,33 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
       ob.observe(fl);
     } else doelOn=false;
   }
+  /* the clay owl, at dusk and by night, perches where the doel would (Jamil, 2026-11-15: "on the branches like the doel");
+     it stays longer and hardly moves: it turns its head, looks behind, tucks in for a nap, fluffs up when touched */
+  var owlOn=false;   /* nowl: the night owl's visit (owl is the earned one on the floor) */
+  if(FZ.spr && FZ.ART.owl) root.classList.add('fz-owlc');   /* the margin pine's silhouette owl gives way to it */
+  async function owlVisit(host,x,y,side){
+    var o=FZ.spr('owl',28,'fz-owlv'); o.style.position='absolute'; o.style.zIndex='3'; host.appendChild(o);
+    o.addEventListener('click',async function(e){ e.stopPropagation(); if(o._t) return; o._t=1; FZ.frame(o,'o4');
+      o.animate([{translate:'0 0'},{translate:'0 -5px'},{translate:'0 0'}],{duration:360}); await FZ.wait(800); FZ.frame(o,'o1'); o._t=0; });
+    var from=offTo(host,side), to=offTo(host,side);
+    await FZ.fly(o,from,[from[0]-side*60,from[1]+40],[x+side*70,y-60],[x,y],offMs(from,[x,y]),['o6','o7'],7);
+    FZ.frame(o,'o8'); await FZ.wait(300); FZ.frame(o,'o1');
+    for(var n=Math.round(rnd(7,10));n>0 && o.isConnected;n--){ await FZ.wait(rnd(2500,4500)); if(o._t) continue;
+      var r=[['o3',1300],['o10',1600],['o2',900],['o9',2800],['o3',900]][Math.floor(Math.random()*5)]; FZ.frame(o,r[0]); await FZ.wait(r[1]); if(!o._t) FZ.frame(o,'o1'); }
+    FZ.frame(o,'o5'); await FZ.wait(350);
+    await FZ.fly(o,[x,y],[x+side*20,y-50],[to[0]-side*60,to[1]+60],to,offMs([x,y],to),['o6','o7'],7);
+    o.remove();
+  }
+  function nowl(force,card){
+    if(owlOn || !FZ.spr || !FZ.ART.owl || (day() && !force)) return false;
+    var p=card?cardPerch(card):perch(true); if(!p) return false; owlOn=true;
+    owlVisit(p.host,p.x,p.y,p.side).then(function(){ owlOn=false; birdGone(); }); return true;
+  }
+  /* their clock: seconds of reading (not Focus, a hidden tab or teacher mode) until the next bird; with nowhere in view to land, it tries again in 3 s */
+  var birdAt=rnd(10,16);
+  function birdGone(){ birdAt=rnd(30,50); }
+  setInterval(function(){ if(busy() || FZ.quiet() || doelOn || owlOn || (birdAt-=1)>0) return;
+    birdAt=(day()?doel(false):nowl(false))?Infinity:3; },1000);
   var DEER='<svg viewBox="0 0 70 58"><g class="bd"><ellipse cx="18" cy="35" rx="22" ry="10.5"/><path d="M31 31l9-15 8 3-7 16z"/>'+
     '<path d="M36 41h3.4v17H36zM42.5 40h3.4v18h-3.4z"/></g><path class="th" d="M38 33l6-13 3 1-5 13z"/>'+
     '<g class="hd"><path class="bd" d="M42 12c3-3 9-3 12 0l9 7c1.4 1.2.6 3.2-1.2 3.2l-9.8-.6c-4 0-8-2-10-5z"/>'+
@@ -935,12 +1036,10 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
   /* the floor's ground line, in the floor's sky layer (which sits above the floor's top margin) */
   function floorY(){ var s=FZ.flsky; return (s?fl.getBoundingClientRect().top-s.getBoundingClientRect().top:0)+fl.clientHeight-14; }
   function inView(el){ if(!el) return false; var r=el.getBoundingClientRect(); return r.bottom>0 && r.top<window.innerHeight; }
-  function freeCard(){ return CARDS.filter(function(c){ return topSeen(c) && !$$('.fz-edge',c).some(function(e){ return !/\b(doel|comb)\b/.test(e.className) && (e.childNodes.length || e.on); }); })[0]; }
   var vturn=0;
   (function again(){ later(rnd(75,105),function(){
     var wide=WIDE.matches && FZ.guts, k=vturn++%2;
-    if(k===0 && day()){ if(wide) doel(false); else { var c=freeCard(); if(c) doel(false,c); else if(inView(fl)) doel(false); } }
-    else if(wide || inView(fl)) deer();
+    if(!(k===0 && day()) && (wide || inView(fl))) deer();   /* the doel keeps its own clock now (§9, above) */
     again(); }); })();
   var nightFor=0, starAt=15;
   setInterval(function(){
@@ -948,6 +1047,7 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
     if(ft()==='night'){ nightFor++; if(nightFor>=starAt){ star(); starAt=nightFor+180; } } else { nightFor=0; starAt=15; }
   },1000);
   if(FORCE==='doel') later(2,function(){ doel(true); });
+  if(FORCE==='owl') later(2,function(){ nowl(true); });
   if(FORCE==='deer') later(2,deer);
   if(FORCE==='star') later(2,star);
 
@@ -1252,7 +1352,7 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
     var EGG={'1':['Siblings, on the edge of Section 2','sibs'],'2':['The ant, on the edge of Section 1','ant'],'3':['Drop an acorn (floor)','bst'],'4':['Prune the twig (floor)','prune']}[PG];
     R.innerHTML='<h4>Forest review <button type="button" data-a="min">hide</button></h4><div class="fz-revb">'+
       '<p>Season</p><div class="row">'+['winter','spring','summer','monsoon','autumn'].map(function(x){ return '<a href="'+qs('&fzseason='+x)+'" class="'+(x===season?'on':'')+'">'+x+'</a>'; }).join('')+'</div>'+
-      '<p>Visitors</p><div class="row"><button data-a="doel">Doel</button><button data-a="deer">Deer</button><button data-a="star">Shooting star</button>'+(season==='monsoon'?'<button data-a="rain">Rain</button>':'')+'</div>'+
+      '<p>Visitors</p><div class="row"><button data-a="doel">Doel</button><button data-a="owl">Owl</button><button data-a="deer">Deer</button><button data-a="star">Shooting star</button>'+(season==='monsoon'?'<button data-a="rain">Rain</button>':'')+'</div>'+
       (EGG?'<p>The egg on this page</p><div class="row"><button data-a="'+EGG[1]+'">'+EGG[0]+'</button></div>':'')+
       '<p>Earned</p><div class="row"><button data-a="sims">Finish every simulator</button><button data-a="quiz">Answer every check</button><button data-a="clear">Clear the checks</button></div>'+
       '<p>Acorn hunt</p><div class="row"><button data-a="show">Show where</button><button data-a="all">Find all 18</button><button data-a="reset">Reset</button></div>'+
@@ -1262,7 +1362,7 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
     R.addEventListener('click',function(e){
       var b=e.target.closest('button'); if(!b) return; var a=b.dataset.a;
       if(a==='min'){ R.classList.toggle('min'); b.textContent=R.classList.contains('min')?'show':'hide'; return; }
-      if(a==='doel') doel(true); if(a==='deer'){ deerOn=false; deer(); } if(a==='star') star(); if(a==='rain' && FZ.rainNow) FZ.rainNow();
+      if(a==='doel') doel(true); if(a==='owl') nowl(true); if(a==='deer'){ deerOn=false; deer(); } if(a==='star') star(); if(a==='rain' && FZ.rainNow) FZ.rainNow();
       if(a==='sibs') sibs(); if(a==='ant') ant(); if(a==='bst' && FZ.bstDrop) FZ.bstDrop(); if(a==='prune' && FZ.prune) FZ.prune();
       if(a==='sims'){ Sim.all().forEach(function(s){ if(s.count && s.count()>1) s.go(s.count()-1); }); $$('#p-lesson .sim').forEach(function(sim){ if(!$('.simcnt',sim)) for(var k=0;k<4;k++) $('.simbd',sim).click(); }); }
       if(a==='quiz') $$('.quiz').forEach(function(q){ var o=$('.qopt[data-ok]',q); if(o && !o.disabled) o.click(); });
@@ -1278,7 +1378,7 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
   }
   FZ.buildRev=buildRev; if(/[?&]fzreview/.test(Q)) buildRev();
 
-  window.__forest={season:season, arrive:arrive, sync:sync, star:star, doel:doel, deer:deer, sibs:sibs, ant:ant,
+  window.__forest={season:season, arrive:arrive, sync:sync, star:star, doel:doel, owl:nowl, birdAt:function(){ return birdAt; }, deer:deer, sibs:sibs, ant:ant,
     bstDrop:function(){ if(FZ.bstDrop) FZ.bstDrop(); }, acorns:function(){ return found.slice(); },
     state:function(){ return {arrivals:arrivals, flowers:flowers.length, owl:!!owl, bed:bed?bed.children.length:0, gusts:gusts, tumbling:tumb.length,
       perched:$$('.fz-perch,.fz-perch2').length, doel:!!$('.fz-doel'), deer:!!$('.fz-deer'), shooting:!!shoot}; }};
@@ -1306,6 +1406,8 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
   var sky=document.createElement('div'); sky.className='fz-flsky'; sky.setAttribute('aria-hidden','true'); fl.parentNode.insertBefore(sky,fl); FZ.flsky=sky;
   function bleed2(){ sky.style.marginLeft=fl.style.marginLeft; sky.style.width=fl.style.width; }
   bleed(); bleed2(); window.addEventListener('resize',function(){ bleed(); bleed2(); });
+  /* teacher mode moves the page a little: measured again then, or the floor ends past the right edge */
+  new MutationObserver(function(){ bleed(); bleed2(); }).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
 
   /* ---- branches growing out of four sections, on wide screens: somewhere for the doel to land ---- */
   var cards=$$('#p-lesson .card.numbered'); FZ.limbs=[];
@@ -1350,6 +1452,9 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
     if(season==='spring'||season==='summer') S.push([.4,'flora','pink',20],[.86,'flora','daisy',20]);
     if(season==='winter') S.push([.4,'season','stump',30]);
     if(season==='monsoon') S.push([.3,'season','lily3',30]);
+    /* denser (Jamil, 2026-11-16): about one thing every 90 px on a laptop */
+    S.push([.135,'flora','fern',24,'fernb'],[.25,'season','mush',17],[.5,'flora','grass',14,'grassb'],[.6,'season','pebble',17],[.7,'flora','daisy',17],
+           [.795,'flora','fern',23,'fernb'],[.935,'flora','bush',19]);
     S.sort(function(a,b){ return a[0]-b[0]; }).forEach(function(s){
       var x=s[0]*W; if(x<125 || x>W-16 || used.some(function(u){ return Math.abs(u-x)<26; })) return;   /* clear of the den and the acorn pile, and of each other */
       used.push(x); var w=document.createElement('span'); w.className='fz-plant'+(s[2]==='lily3'?' pond':''); w.style.left=(s[0]*100)+'%'; w.style.bottom=ground+'px';
@@ -1360,6 +1465,47 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
       sway.forEach(function(p){ var r=p.getBoundingClientRect(), c=r.left-R.left+r.width/2; if(Math.abs(c-x)<38 && !p._bent){ p._bent=true; FZ.frame(p,p._b);
         setTimeout(function(){ FZ.frame(p,p._s); p._bent=false; },650); } }); });
   }
+
+  /* ---- the floor as a place (WP5, Jamil 2026-11-16: 120 px, denser): a back hill with its own row of plants, and residents
+     who live here: a squirrel and a hedgehog up on the hill, a frog, two ants and (by day) a butterfly in front. They idle
+     only, never leave; still in teacher mode, in Focus and in a hidden tab; a click is a hop and a chirp (extras.js). ---- */
+  var HILL=function(f){ return 58+8*Math.sin(f*13.8+.7)+5*Math.sin(f*33.3+1.9); };   /* the hill's top, px above the floor's bottom */
+  var hill=document.createElementNS('http://www.w3.org/2000/svg','svg'); hill.setAttribute('class','fz-hill'); hill.setAttribute('viewBox','0 0 1000 120'); hill.setAttribute('preserveAspectRatio','none');
+  var hp='M0 120'; for(var hi=0;hi<=50;hi++) hp+='L'+(hi*20)+' '+(120-HILL(hi/50)).toFixed(1); hill.innerHTML='<path d="'+hp+'L1000 120z"/>';
+  var fg=$('.fz-ground',fl); fl.insertBefore(hill,fg);
+  var BK=[];   /* the back row: each at a fraction of the width (_hf), on the hill */
+  function back(e,f,dy){ e.style.position='absolute'; fl.insertBefore(e,fg); e._hf=f; e._dy=dy||0; BK.push(e); return e; }
+  function lay(){ var W=fl.clientWidth, H=fl.clientHeight; BK.forEach(function(e){ FZ.place(e,Math.max(e._min||0,e._hf*W),H-HILL(e._hf)+e._dy); }); }
+  if(FZ.ART.flora){
+    var hr=(function(s){ var h=2166136261; for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); }
+      return function(){ h=Math.imul(h^(h>>>15),2246822507); h^=h>>>13; return (h>>>0)/4294967296; }; })('hill'+location.pathname);
+    var BP=[['flora','fern',26],['flora','bush',24],['flora','grass',18],['flora','fern',22],['flora','pink',16],['flora','bush',20],['flora','grass',16],['season','mush',15],['flora','daisy',15]];
+    for(var bf=.015+hr()*.02;bf<.99;bf+=.035+hr()*.03){
+      if(Math.abs(bf-.27)<.03 || Math.abs(bf-.62)<.03) continue;   /* the hedgehog's and the squirrel's spots */
+      var bp=BP[Math.floor(hr()*BP.length)], pe=FZ.spr(bp[0],bp[2]*(window.innerWidth<700?.85:1),'fz-pl bk'); FZ.frame(pe,bp[1]); back(pe,bf,1);
+    }
+  }
+  var RES=[];
+  function dwell(e,rest,R,a,b){ FZ.frame(e,rest); e._rest=rest; RES.push(e);
+    (async function(){ while(e.isConnected){ await wait(rnd(a,b)*1000); if(busy() || FZ.quiet() || !seen() || e._t) continue;
+      var r=R[Math.floor(Math.random()*R.length)]; for(var i=0;i<r.length && e.isConnected;i++){ if(FZ.quiet()) break; FZ.frame(e,r[i][0]); await wait(r[i][1]); } FZ.frame(e,e._rest); } })(); return e; }
+  function rtap(e,pose){ e.addEventListener('click',function(ev){ ev.stopPropagation(); if(e._t) return; e._t=1;
+    e.animate([{translate:'0 0'},{translate:'0 -7px'},{translate:'0 0'}],{duration:400,easing:'cubic-bezier(.3,1.6,.5,1)'}); FZ.frame(e,pose);
+    setTimeout(function(){ FZ.frame(e,e._rest); e._t=0; },700); }); e.classList.add('tap'); return e; }
+  var rsq=rtap(back(FZ.spr('squ',22,'fz-flr res bk'),.62,1),'q6'); FZ.face(rsq,-1);
+  dwell(rsq,'q3',[[['q4',600],['q5',320],['q4',320],['q5',320],['q4',600]],[['q6',700]],[['q7',1300]]],5,11);
+  var rhog=rtap(back(FZ.spr('hog',18,'fz-flr res bk'),.27,1),'h8'); rhog._min=150;
+  dwell(rhog,'h10',[[['h5',1300]],[['h6',1400]],[['h5',600],['h6',900]]],6,12);
+  lay();
+  function front(kind,h,f,dir,min){ var W=fl.clientWidth, e=FZ.spr(kind,h,'fz-flr res'); e.style.position='absolute'; fl.appendChild(e); e._ff=f; e._min=min||0; FZ.place(e,Math.max(e._min,f*W),G); FZ.face(e,dir); return e; }
+  if(!$('.fz-frog',fl)){ var rfr=rtap(front('frog',18,.715,-1),'p5'); dwell(rfr,'p1',[[['p2',280],['p3',420],['p2',280]],[['p9',1400]],[['p10',1500]]],5,10); }
+  var ra1=rtap(front('ant',11,.882,1),'a10'), ra2=rtap(front('ant',10,.905,-1),'a10');
+  dwell(ra1,'a5',[[['a6',900]],[['a7',500],['a6',600]]],5,10); dwell(ra2,'a8',[[['a9',300],['a8',300],['a9',300]],[['a10',800]]],6,11);
+  var rfl=rtap(front('fly',14,.552,1),'f7'); rfl.style.translate='0 -19px';   /* resting on top of the pink flowers */
+  dwell(rfl,'f5',[[['f6',200],['f7',260],['f6',200],['f5',260],['f6',200],['f7',260]]],4,9);
+  function dayfly(){ rfl.style.display=day()?'':'none'; } dayfly();
+  new MutationObserver(dayfly).observe(document.documentElement,{attributes:true,attributeFilter:['data-ft']});
+  window.addEventListener('resize',function(){ lay(); RES.forEach(function(e){ if(e._ff!=null) FZ.place(e,Math.max(e._min,e._ff*fl.clientWidth),G); }); });
 
   /* ---- the margin trees in clay: switched off (Jamil, 2026-11-15: too prominent; the silhouettes stay). Kept for a later try. ---- */
   if(false && FZ.ART.treeR && FZ.guts && FZ.svgSpr){
@@ -1433,7 +1579,11 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
    woodpecker pecks a row of holes (§6), the owl keeps the last card (§7), and a
    tortoise walks the Exam tab. Faceless sprites (sprites.js). One creature moves
    at a time; nothing for reduced motion or in Focus. ?fzreview lists them all,
-   ?fzcrea=<name> plays one.                                                      */
+   ?fzcrea=<name> plays one.
+   2026-11-15 (Jamil: "more visible and there almost all the time"): every stage is
+   drawn larger, and after its act each creature stays on its card's edge, resting,
+   with a small motion now and then while its section is in view (still in teacher
+   mode). A click still gets a hop and a pose.                                    */
 (function(){
   if(RM || !FZ.spr || !FZ.edge) return;
   var PG=(/\/0(\d)-[a-z-]+\.html/.exec(location.pathname)||[])[1]||'';
@@ -1444,14 +1594,32 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
   /* one creature at a time: each run waits for the one before */
   var chain=Promise.resolve();
   function q(fn){ chain=chain.then(fn).catch(function(){}); return chain; }
+  /* a section's act waits its turn only while its spot is on screen: passed by (a fast scroll, a jump from the contents), it waits
+     for the reader to come back; and an act whose spot has left the screen stops holding up the next one (it finishes on its own) */
+  function gone(st){ return new Promise(function(res){ (function f(){ if(!st.isConnected || !seen(st)) res(); else setTimeout(f,600); })(); }); }
+  function arm(card,name,fn,sec){ FZ.edgeSeen(card,name,function(){ FZ.later(sec,function(){ var st=$('.fz-edge.'+name,card);
+    chain=chain.then(function(){ if(st.on) return; if(!seen(st)) return arm(card,name,fn,sec); return acts(card,Promise.race([fn(),gone(st)])); }).catch(function(){}); }); }); }
+  /* while an act plays, its card's residents (residents.js) keep still */
+  function acts(card,p){ card._act=(card._act||0)+1; return p.finally(function(){ card._act=Math.max(0,card._act-1); }); }
 
+  /* larger on every screen (laptop, phone): a stage is scaled from where it meets the card's edge, so its ground stays on the border */
+  var BIG={ants:[1.5,1.35],sap:[1.35,1.25],comb:[1.3,1.2],web:[1.55,1.4],peck:[1.35,1.25],owl:[1.15,1.1],tort:[1.3,1.2]};
+  function K(name){ var b=BIG[name]; return b?b[window.innerWidth<700?1:0]:1; }
+  function big(st,name){ st.style.scale=K(name); st.style.transformOrigin=(name==='comb'?'0':'100%')+' calc(100% - 3px)'; return st; }
+  function combW(card){ return Math.round(Math.max(180,Math.min(400,(card.clientWidth-96)/K('comb')))); }   /* scaled, it still ends inside the card */
   /* a stage on a card's top edge, w wide and h tall; its ground (the card's border) is at y = h - 3 */
   function stage(card,name,w,h){
     var st=FZ.edge(card,name); st.style.width=w+'px';
     if(h){ st.style.height=h+'px'; st.style.top=(3-h)+'px'; }
     if(name==='comb'){ st.style.left='64px'; st.style.right='auto'; }   /* past the section's number badge; the doel's phone perch is the middle card's right corner */
-    return st;
+    return big(st,name);
   }
+  /* resting: now and then a small motion, while its spot is on screen; never in teacher mode (it keeps still), in Focus or a hidden tab */
+  function idle(e,fn,a,b){ (async function(){ while(e.isConnected){ await wait((a+Math.random()*(b-a))*1000);
+      if(e.isConnected && !e._busy && !e._t && seen(e) && !FZ.quiet()){ e._busy=1; try{ await fn(e); }catch(x){} e._busy=0; } } })(); return e; }
+  /* the same, from a list of short pose runs [[pose,ms],...]; it ends back in its resting pose */
+  function stay(e,rest,R,a,b){ FZ.frame(e,rest); e._rest=rest;
+    return idle(e,async function(){ var r=R[Math.floor(Math.random()*R.length)]; for(var i=0;i<r.length && e.isConnected;i++){ FZ.frame(e,r[i][0]); await wait(r[i][1]); } FZ.frame(e,e._rest); },a,b); }
   function svg(st,w,h,inner){ st.innerHTML='<svg viewBox="0 0 '+w+' '+h+'">'+inner+'</svg>'; return st.firstChild; }
   function put(st,kind,h,x,y,dir,pose){
     var e=FZ.spr(kind,h); e.style.position='absolute'; st.appendChild(e);
@@ -1512,42 +1680,39 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
     await Promise.all(A.map(function(a,i){ return wait(i*380).then(function(){ return walk(a,N[i][0],N[i][1],20,['a1','a2','a3','a4'],10); }).then(function(){ FZ.face(a,-1); FZ.frame(a,'a1'); }); }));
     FZ.frame(A[0],'a5'); await wait(900); FZ.frame(A[1],'a6'); FZ.frame(A[2],'a6'); await wait(1300);
     FZ.frame(A[0],'a10'); await wait(700); A.forEach(function(a){ FZ.frame(a,'a1'); }); await wait(900);
-    /* back into a line, and away */
-    await Promise.all(A.map(function(a,i){ return wait((4-i)*220).then(function(){ return walk(a,86+i*15,G,22,['a1','a2','a3','a4'],10); }); }));
-    /* to the left end, then down behind the card's edge, one after another */
-    await Promise.all(A.map(function(a,i){ return wait(i*420).then(function(){ return walk(a,22,G,26,['a1','a2','a3','a4'],10); })
-      .then(function(){ return walk(a,10,G+14,18,['a1','a2','a3','a4'],10,true); }); }));
-    A.forEach(function(a){ a.remove(); });
+    /* and they stay in their tree: now and then one of them looks round, or the root waves */
+    idle(A[0],async function(){ var a=A[Math.floor(Math.random()*5)], p=['a5','a6','a7','a10'][Math.floor(Math.random()*4)];
+      FZ.frame(a,p); await wait(900+Math.random()*800); FZ.frame(a,'a1'); },4,8);
   }
 
   /* ---- §2 · word visitors, in a strip under the explorer, once per word per visit ---- */
   var sim=$('#tw-sim'), vst=null, met={};
   if(sim){ vst=document.createElement('div'); vst.className='fz-vst'; vst.setAttribute('aria-hidden','true'); sim.parentNode.insertBefore(vst,sim.nextSibling); }
-  var VG=41, vchain=Promise.resolve();   /* the visitors have their own strip, so they wait only for each other */
+  var VG=49, VK=1.25, vchain=Promise.resolve();   /* the strip is taller now, and its visitors a quarter larger */   /* the visitors have their own strip, so they wait only for each other */
   function vq(fn){ vchain=vchain.then(fn).catch(function(){}); return vchain; }
-  async function mole(){   /* Root: it pushes up out of the ground, looks round, and goes back down */
-    vst.innerHTML=''; var m=tap(put(vst,'mole',27,44,VG,1,'m1'),'m7',800); await show(m,400);
-    var R=[['m1',500],['m2',420],['m3',600],['m4',800],['m5',650],['m6',650],['m3',300],['m7',800],['m3',400],['m8',380],['m9',380],['m10',900]];
+  /* each visitor now stays in the strip after its act, resting, until another word calls the next one */
+  async function mole(){   /* Root: it pushes up out of the ground, looks round, ducks back down, and comes up again to stay */
+    vst.innerHTML=''; var m=tap(put(vst,'mole',27*VK,44,VG,1,'m1'),'m7',800); await show(m,400);
+    var R=[['m1',500],['m2',420],['m3',600],['m4',800],['m5',650],['m6',650],['m3',300],['m7',800],['m3',400],['m8',380],['m9',380],['m10',1600],['m1',400]];
     for(var i=0;i<R.length && m.isConnected;i++){ FZ.frame(m,R[i][0]); await wait(R[i][1]); }
-    await m.animate([{opacity:1},{opacity:0}],{duration:1400,fill:'forwards'}).finished; m.remove();
+    stay(m,'m2',[[['m4',900]],[['m6',800]],[['m3',900]],[['m8',350],['m9',300],['m10',1800],['m1',350]]],5,10);
   }
-  async function caterpillar(){   /* Leaves: on its leaf it crawls, eats some of the leaf, curls up, and crawls off */
-    vst.innerHTML=''; var c=tap(put(vst,'cat',20,62,VG,1,'c1'),'c9',800); await show(c,500);
-    var R=[['c2',420],['c3',420],['c2',420],['c1',420],['c4',800],['c5',380],['c6',380],['c5',380],['c8',600],['c9',700],['c11',1500],['c9',400],['c1',400]];
+  async function caterpillar(rest){   /* Leaves: on its leaf it crawls, eats some of the leaf, curls up; then it rests there */
+    vst.innerHTML=''; var c=tap(put(vst,'cat',20*VK,62,VG,1,'c1'),'c9',800); await show(c,500);
+    var R=rest?[]:[['c2',420],['c3',420],['c2',420],['c1',420],['c4',800],['c5',380],['c6',380],['c5',380],['c8',600],['c9',700],['c11',1500],['c9',400],['c1',400]];
     for(var i=0;i<R.length && c.isConnected;i++){ FZ.frame(c,R[i][0]); await wait(R[i][1]); }
-    await walk(c,40,VG+22,7,['c1','c2','c3','c2'],3,true); c.remove();   /* down behind the Your-turn box */
+    stay(c,'c1',[[['c2',420],['c3',420],['c2',420]],[['c4',1000]],[['c5',380],['c6',380],['c5',380]],[['c9',600],['c11',2600],['c9',400]]],5,10);
   }
-  async function depth(){   /* Depth: the spider lets itself down from the explorer, one level at a time: five */
-    vst.innerHTML=''; var s=tap(put(vst,'spider',13,58,-8,1,'s6'));
-    for(var k=1;k<=5 && s.isConnected;k++){ await walk(s,58,-8+k*7,30,null,0,true); await wait(520); }
-    await wait(700);
-    await walk(s,58,-30,22,['s7','s8'],6,true); s.remove();
+  async function depth(){   /* Depth: the spider lets itself down from the explorer, one level at a time: five; and hangs there */
+    vst.innerHTML=''; var s=tap(put(vst,'spider',13*VK,58,-12,1,'s6'));
+    for(var k=1;k<=5 && s.isConnected;k++){ await walk(s,58,-12+k*7,30,null,0,true); await wait(520); }
+    idle(s,async function(){ if(Math.random()<.5){ for(var j=0;j<4;j++){ tilt(s,j%2?-6:6); await wait(450); } tilt(s,0); }
+      else { await walk(s,58,s._y-7,14,null,0,true); await wait(700); await walk(s,58,s._y+7,14,null,0,true); } },5,10);
   }
-  async function ancestors(){   /* Ancestors: the owl shows for a moment, looking back up the way it came */
-    vst.innerHTML=''; var o=tap(put(vst,'owl',25,96,VG,1,'o1'),'o4'); await show(o,500);
+  async function ancestors(){   /* Ancestors: the owl comes, looks back up the way it came, and stays */
+    vst.innerHTML=''; var o=tap(put(vst,'owl',25*VK,96,VG,1,'o1'),'o4'); await show(o,500);
     await wait(500); FZ.frame(o,'o10'); await wait(1100); FZ.frame(o,'o3'); await wait(600); FZ.frame(o,'o1'); await wait(500);
-    FZ.frame(o,'o5'); await wait(250);
-    await FZ.fly(o,[96,VG],[110,VG-12],[150,0],[175,-40],1300,['o6','o7'],8); o.remove();   /* up and behind the explorer */
+    stay(o,'o1',[[['o3',1200]],[['o10',1500]],[['o2',900]],[['o4',700]]],5,10);
   }
   var VIS={root:mole, leaves:caterpillar, depth:depth, ancestors:ancestors};
   var pick=$('#tw-pick');
@@ -1555,6 +1720,8 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
     var b=e.target.closest('button'), w=b&&b.dataset.w; if(!w || !VIS[w] || met[w] || !seen(vst)) return;
     met[w]=true; vq(VIS[w]);
   });
+  /* nobody has picked a word yet: the caterpillar is already resting on its leaf when the reader gets there */
+  if(vst) FZ.onSeen(vst,function(){ FZ.later(1,function(){ if(!vst.firstChild) vq(function(){ return vst.firstChild?0:caterpillar(true); }); }); },.6);
 
   /* ---- §3 · the sapling: a stem, then two, then two more and one that stops empty; a sparrow looks into the empty one ---- */
   async function sapling(force){
@@ -1578,7 +1745,7 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
     FZ.face(b,-1); FZ.frame(b,'b6'); await wait(160); FZ.frame(b,'b1'); await wait(500);
     for(var r=0;r<2 && b.isConnected;r++){ FZ.frame(b,'b4'); await wait(900); FZ.frame(b,'b1'); await wait(500); }
     FZ.frame(b,'b3'); await wait(600);
-    await flyOff(b,st,-1,['b7','b9'],14);
+    stay(b,'b1',[[['b4',900]],[['b2',800]],[['b5',600]],[['b3',700]],[['b4',600],['b1',300],['b4',600]]],4,9);   /* it stays by the empty one */
   }
 
   /* ---- §4 · the comb and the flowers. The comb, 1 + 2 + 4 cells, sits on a stump; flowers stand in grass along the edge.
@@ -1588,7 +1755,7 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
   var bee=null, beeW=0;
   var FH={daisy:.99,pink:.74,open:.95};   /* each flower's height against the sheet's reference pose, as cut */
   async function comb(force){
-    var card=$('#s4'); if(!card) return; beeW=Math.max(200,Math.min(400,card.clientWidth-96));
+    var card=$('#s4'); if(!card) return; beeW=combW(card);
     var st=stage(card,'comb',beeW,64); if(st.on && !force) return; st.on=true; bee=null; st._run=(st._run||0)+1; var run=st._run;
     st.innerHTML='';
     var G=61, r=7, CX=60, stump=FZ.spr('season',36,'fz-bloomf'); stump.style.position='absolute'; st.appendChild(stump); FZ.frame(stump,'stump'); FZ.place(stump,CX,G);
@@ -1648,7 +1815,7 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
   var combT=null;
   window.addEventListener('resize',function(){ clearTimeout(combT); combT=setTimeout(function(){
     var card=$('#s4'), st=card&&$('.fz-edge.comb',card); if(!st || !st.on) return;
-    var w=Math.max(200,Math.min(400,card.clientWidth-96)); if(Math.abs(w-beeW)<24) return;
+    var w=combW(card); big(st,'comb'); if(Math.abs(w-beeW)<24) return;
     st._run=(st._run||0)+1; bee=null; st.innerHTML=''; st.style.width=w+'px'; st.on=false; q(function(){ return comb(true); });
   },350); });
 
@@ -1658,7 +1825,7 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
   async function web(force){
     var card=$('#s5'); if(!card) return; var st=stage(card,'web',150,42); if(st.on && !force) return; st.on=true; spider=null;
     var G=39, T=[100,13], Lk=[84,29], Rk=[116,29], padR=parseFloat(getComputedStyle(card).paddingRight)||30,
-        HX=Math.round(150+22-padR/2);          /* the hanging spot: the middle of the card's right margin, clear of any text */
+        HX=Math.round(150+(22-padR/2)/K('web'));          /* the hanging spot: the middle of the card's right margin, clear of any text */
     var s=svg(st,150,42,'<path class="tw2" d="M128 '+G+'V4M94 4.5L'+(HX+4)+' 3.5"/><path class="lf" d="M118 4.3c-1-3 1-5 4-5 0 3-2 5-4 5z"/>'+
       '<path class="lf" d="M'+(HX+4)+' 3.5c3-2 6-1 7 1-3 1-5 1-7-1z"/>');
     s.animate([{opacity:0},{opacity:1}],{duration:700}); await wait(800);
@@ -1676,12 +1843,13 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
     }
     FZ.face(p,1); FZ.frame(p,'s9'); spider=p; p.classList.add('tap');
     p.addEventListener('click',function(){ hang(); });
+    idle(p,async function(){ var r=[['s5',900],['s10',1100],['s1',300],['s3',300]][Math.floor(Math.random()*4)]; FZ.frame(p,r[0]); await wait(r[1]); FZ.frame(p,'s9'); },6,12);
     setTimeout(hang,2500);   /* outside the queue: the next creature need not wait for the swing */
   }
   /* up to the branch, out to its tip over the card's margin, down a thread into the margin, a swing, and back */
   async function hang(){
     var p=spider; if(!p || p._busy || !p.isConnected) return; p._busy=true;
-    var st=p.parentNode, s=$('svg',st), card=st.parentNode, padR=parseFloat(getComputedStyle(card).paddingRight)||30, HX=Math.round(150+22-padR/2), T=[100,13];
+    var st=p.parentNode, s=$('svg',st), card=st.parentNode, padR=parseFloat(getComputedStyle(card).paddingRight)||30, HX=Math.round(150+(22-padR/2)/K('web')), T=[100,13];
     var WALK=['s1','s2','s3','s4'], drop=Math.min(70,Math.max(40,card.clientHeight*.06));
     await walk(p,100,5,10,['s7','s8'],6,true); FZ.frame(p,'s5');
     await walk(p,HX,4,16,WALK,9); FZ.frame(p,'s5'); await wait(300);
@@ -1717,7 +1885,13 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
       tilt(b,0); FZ.frame(b,'k1'); await wait(380);
     }
     FZ.frame(b,'k6'); await wait(700); FZ.frame(b,'k1'); await wait(300);
-    await flyOff(b,st,1,['k8','k9'],12);
+    /* it stays on its log: now and then it hops to a hole and taps it again, or looks round */
+    idle(b,async function(){
+      if(Math.random()<.55){ var x=H[Math.floor(Math.random()*H.length)]-19; if(Math.abs(x-b._x)>1){ FZ.frame(b,'k7'); await walk(b,x,top,50,null,0,false); }
+        FZ.frame(b,'k1'); await wait(200); for(var n=0;n<2;n++){ tilt(b,44); FZ.frame(b,'k3'); await wait(110); tilt(b,24); FZ.frame(b,'k4'); await wait(110); }
+        tilt(b,0); if(b._dir<0) FZ.face(b,1); }
+      else { FZ.frame(b,Math.random()<.5?'k6':'k10'); await wait(1000); }
+      FZ.frame(b,'k1'); },5,10);
   }
   function chip(st,x,y){ var c=document.createElement('i'); c.className='fz-chip'; c.style.left=x+'px'; c.style.top=y+'px'; st.appendChild(c);
     c.animate([{transform:'translate(0,0)',opacity:1},{transform:'translate('+(4+Math.random()*6)+'px,-9px)',opacity:1,offset:.5},{transform:'translate('+(8+Math.random()*6)+'px,6px)',opacity:0}],{duration:600,easing:'ease-out'}).onfinish=function(){ c.remove(); }; }
@@ -1731,6 +1905,8 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
     FZ.face(o,-1); FZ.frame(o,'o8'); await wait(260); FZ.frame(o,'o1'); await wait(700);
     FZ.frame(o,'o5'); await wait(600); FZ.frame(o,'o1');
     owl=o; o.classList.add('tap'); sleepy();
+    idle(o,async function(){ if(night()){ FZ.frame(o,'o4'); await wait(700); FZ.frame(o,'o9'); return; }
+      var r=[['o3',1300],['o10',1500],['o2',900]][Math.floor(Math.random()*3)]; FZ.frame(o,r[0]); await wait(r[1]); FZ.frame(o,'o1'); },7,14);
     o.addEventListener('click',async function(){ if(o._busy) return; o._busy=true; FZ.frame(o,'o4'); await wait(650); FZ.frame(o,night()?'o9':'o1'); o._busy=false; });
   }
   function sleepy(){ if(owl && !owl._busy) FZ.frame(owl,night()?'o9':'o1'); }
@@ -1743,21 +1919,22 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
 
   /* ---- Exam tab · a tortoise walks the bottom of the first card, slowly, and rests in the corner ---- */
   async function tortoise(force){
-    var card=$('#p-exam .card'); if(!card) return; var st=FZ.edge(card,'tort'); if(st.on && !force) return; st.on=true; st.innerHTML='';
+    var card=$('#p-exam .card'); if(!card) return; var st=FZ.edge(card,'tort'); if(st.on && !force) return; st.on=true; st.innerHTML=''; big(st,'tort');
     var t=put(st,'tort',22,14,28,1,'t1'); await show(t,600);
     await walk(t,168,28,9,['t1','t2','t3','t4'],4);
     FZ.frame(t,'t5'); await wait(900); FZ.frame(t,'t10');
     t.classList.add('tap');
+    stay(t,'t10',[[['t5',1400]],[['t6',1200]],[['t1',500],['t5',900]]],7,14);
     t.addEventListener('click',async function(){ if(t._busy) return; t._busy=true;
       FZ.frame(t,'t7'); await wait(260); FZ.frame(t,'t8'); await wait(1800); FZ.frame(t,'t9'); await wait(700); FZ.frame(t,'t10'); t._busy=false; });
   }
 
   /* the fixed moments: each when its spot is fully in view below the top bar */
   var RUN={ants:ants, sapling:sapling, comb:comb, web:web, pecker:pecker, keeper:keeper, tortoise:tortoise};
-  var AT={ants:['#s1','ants',210,42], sapling:['#s3','sap',150,42], comb:['#s4','comb',Math.max(200,Math.min(400,($('#s4')||{clientWidth:500}).clientWidth-96)),64], web:['#s5','web',150,42], pecker:['#s6','peck',170,44], keeper:['#s7','owl',130,0]};
+  var AT={ants:['#s1','ants',210,42], sapling:['#s3','sap',150,42], comb:['#s4','comb',combW($('#s4')||{clientWidth:500}),64], web:['#s5','web',150,42], pecker:['#s6','peck',170,44], keeper:['#s7','owl',130,0]};
   Object.keys(AT).forEach(function(k){ var a=AT[k], card=$(a[0]); if(!card) return; stage(card,a[1],a[2],a[3]);
-    FZ.edgeSeen(card,a[1],function(){ FZ.later(.5,function(){ q(RUN[k]); }); }); });
-  var ex=$('#p-exam .card'); if(ex){ FZ.edge(ex,'tort'); FZ.edgeSeen(ex,'tort',function(){ FZ.later(.8,function(){ q(tortoise); }); }); }
+    arm(card,a[1],RUN[k],.5); });
+  var ex=$('#p-exam .card'); if(ex){ big(FZ.edge(ex,'tort'),'tort'); arm(ex,'tort',tortoise,.8); }
 
   /* the review panel: one button each */
   var ALL={ants:'Ants · §1', mole:'Mole · Root', caterpillar:'Caterpillar · Leaves', depth:'Spider · Depth', ancestors:'Owl · Ancestors',
@@ -1767,7 +1944,7 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
     if(VIA[k]){ if(!vst) return; vst.scrollIntoView({block:'center'}); setTimeout(function(){ vq(VIS[VIA[k]]); },600); return; }
     if(k==='tortoise'){ var tb=$('[aria-controls="p-exam"]')||$$('.tabs button,[role=tab]').filter(function(b){ return /exam/i.test(b.textContent); })[0]; if(tb) tb.click(); }
     var a=AT[k], card=a?$(a[0]):$('#p-exam .card'), st=card&&$('.fz-edge.'+(a?a[1]:'tort'),card); if(!st) return;
-    st.innerHTML=''; st.on=true; st.scrollIntoView({block:'center'}); setTimeout(function(){ q(function(){ return RUN[k](true); }); },600);
+    st.innerHTML=''; st.on=true; st.scrollIntoView({block:'center'}); setTimeout(function(){ q(function(){ return acts(card,RUN[k](true)); }); },600);
   }
   FZ.onRev(function(REV){
     var at=$$('.fz-revb p',REV).filter(function(p){ return /Earned/.test(p.textContent); })[0], box=document.createElement('div');
@@ -1777,6 +1954,133 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
   });
   if(FORCE && ALL[FORCE]) FZ.later(1.5,function(){ play(FORCE); });
   window.__crea={hang:hang, play:play, met:met, owl:function(){ return owl; }, bee:function(){ return bee; }};
+})();
+
+
+/* =================== THE RESIDENTS (2026-11-16) ===================
+   Jamil, 2026-11-16: residents yes, 2-3 a section, on all four pages; a chirp on
+   click when the sound is on; still in teacher mode. Small clay animals live on
+   every section card's top edge (CROWDED-FOREST-IDEAS §1, §3): idle loops only (a
+   slow turn, a nibble, a preen, a short hop, a nap at night), and they never leave.
+   Each card's cast is fixed and its layout seeded by the page and the card, so the
+   page looks the same on every visit. They keep clear of the badge, the actors'
+   stages (.fz-edge) and the doel's perch; they freeze while an actor plays on their
+   card, and stand still in teacher mode, in Focus and in a hidden tab. A click: a
+   hop and a pose (extras.js chirps any .fz-spr.tap). ?fzreview lists them.      */
+(function(){
+  if(RM || !FZ.spr) return;
+  var PG=(/\/0(\d)-[a-z-]+\.html/.exec(location.pathname)||[])[1]||'', wait=FZ.wait, root=document.documentElement;
+  function night(){ return root.getAttribute('data-ft')==='night'; }
+  function phone(){ return window.innerWidth<700; }
+  /* the animals: [resting height px, rest pose, night pose, idle runs [[pose,ms],...], click pose, can hop] */
+  var K={
+    ant:   [16,'a5','a5',[[['a6',900]],[['a10',800]],[['a7',500],['a6',700]],[['a1',180],['a2',180],['a3',180],['a4',180],['a1',180]]],'a10',1],
+    bird:  [24,'b1','b10',[[['b2',1300]],[['b3',320],['b1',240],['b3',320]],[['b6',900]],[['b4',300],['b5',260],['b4',200]]],'b5',1],
+    frog:  [22,'p1','p1',[[['p2',280],['p3',420],['p2',280]],[['p9',1400]],[['p10',1500]]],'p5',1],
+    squ:   [26,'q3','q3',[[['q4',600],['q5',320],['q4',320],['q5',320],['q4',500]],[['q6',700]],[['q7',1300]]],'q6',1],
+    hog:   [22,'h10','h8',[[['h5',1300]],[['h6',1400]],[['h5',600],['h6',800]]],'h8',0],
+    fly:   [18,'f5','f5',[[['f6',200],['f7',260],['f6',200],['f5',260],['f6',200],['f7',260]]],'f7',1],
+    mole:  [23,'m3','m1',[[['m4',900]],[['m5',800]],[['m6',800]],[['m7',700]]],'m8',0],
+    cat:   [18,'c1','c11',[[['c5',380],['c6',380],['c7',380],['c5',380]],[['c4',1100]],[['c2',420],['c1',420],['c2',420]]],'c8',0],
+    tort:  [21,'t10','t8',[[['t5',1400]],[['t6',1300]],[['t7',500],['t9',700],['t10',300]]],'t7',0],
+    bee:   [17,'e6','e6',[[['e7',260],['e8',260],['e7',260],['e8',260]],[['e9',900]],[['e3',300],['e6',200],['e3',300]]],'e3',1],
+    spider:[16,'s5','s9',[[['s10',900]],[['s1',200],['s2',200],['s3',200],['s4',200]],[['s9',1600]]],'s10',1],
+    owl:   [25,'o1','o1',[[['o3',900]],[['o2',600]],[['o10',1300]],[['o4',900]]],'o5',0],
+    deer:  [28,'r5','r6',[[['r6',2200]],[['r7',1300]],[['r11',1800]]],'r8',1],
+    doel:  [25,'p1','p1',[[['p2',650]],[['p3',800]],[['p4',900]],[['p6',340]]],'flare',1]
+  };
+  /* the cast of each card (CROWDED-FOREST-IDEAS §3, from the sprites we have): kind[:height] */
+  var CAST={
+    '1':{s1:'bird fly', s2:'frog bird', s3:'squ fly', s4:'fly bird', sm:'ant ant tort', s5:'ant bird', s6:'squ bird', s7:'hog cat'},
+    '2':{s1:'ant ant fly', s2:'ant frog', s3:'mole squ', s4:'bird bird', s5:'bee bird', s6:'bird fly', s7:'hog squ', s8:'spider fly', s9:'tort cat'},
+    '3':{s1:'bird bird', s2:'frog cat', s3:'mole ant', s4:'doel bird', s5:'cat ant', s6:'deer fly', s7:'bird bird:18', s8:'tort hog'},
+    '4':{s1:'bird bird:18 squ', s2:'tort ant', s3:'bee bird', s4:'bird bird', s5:'ant ant tort', s6:'fly frog', s7:'squ hog', s8:'owl cat'}
+  }[PG];
+  if(!CAST) return;
+  var GY=44, LY=26, PERCH=166, ALL=[];   /* the top stage's ground line (the card's top), the moss's below a card; the right corner kept for the doel and the actors */
+  /* a small seeded random, so a card's layout is the same every visit */
+  function seed(s){ var h=2166136261; for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); }
+    return function(){ h=Math.imul(h^(h>>>15),2246822507); h=Math.imul(h^(h>>>13),3266489909); h^=h>>>16; return (h>>>0)/4294967296; }; }
+  /* an actor is playing on this card: a Trees 1 creature (creatures.js sets card._act), or Trees 2's ant trail walking */
+  function acting(card){ return !!card._act || $$('.antlayer .fz-spr',card).some(function(a){ return !a.getAnimations().length; }); }
+  function near(e){ var r=e.getBoundingClientRect(); return r.bottom>0 && r.top<window.innerHeight; }
+  /* the free stretches of the card's top edge: not the badge, not an actor's stage, not (unless nothing else is free) the right corner */
+  function spans(card,W,corner){
+    var R=card.getBoundingClientRect(), B=[[-99,14]], b=$('.badge',card);
+    if(b){ var r=b.getBoundingClientRect(); B.push([r.left-R.left-12,r.right-R.left+14]); }
+    $$('.fz-edge',card).forEach(function(e){ if(/\bdoel\b/.test(e.className)) return; var r=e.getBoundingClientRect(); if(r.width) B.push([r.left-R.left-10,r.right-R.left+10]); });
+    var pv=card.previousElementSibling; ((pv&&pv._lowX)||[]).forEach(function(x){ B.push([x-30,x+30]); });   /* the card above's residents on the moss */
+    B.push(corner?[W-14,W+99]:[W-PERCH,W+99]);
+    B.sort(function(a,b){ return a[0]-b[0]; });
+    var out=[], x=0; B.forEach(function(s){ if(s[0]>x) out.push([x,s[0]]); x=Math.max(x,s[1]); });
+    return out.sort(function(a,b){ return (b[1]-b[0])-(a[1]-a[0]); });
+  }
+  function build(card,quiet){
+    var spec=CAST[card.id]; if(!spec) return;
+    $$(':scope>.fz-res',card).forEach(function(o){ o.remove(); }); card._resR=0; card._lowX=[];
+    if(getComputedStyle(card).position==='static') card.style.position='relative';
+    var rnd=seed(PG+card.id), W=card.clientWidth, k=phone()?.86:window.innerWidth>=1100?1.15:1;   /* a little larger on a wide edge, never over 28 px */
+    var cast=spec.split(' ').map(function(s){ var p=s.split(':'), a=K[p[0]], h=Math.min(28,(+p[1]||a[0])*k), A=FZ.ART[p[0]];
+      return {kind:p[0], h:h, w:Math.max(10,A.cw*h/A.ref*.62), gap:(phone()?5:8)+rnd()*(phone()?8:30), dir:rnd()<.5?-1:1}; });
+    function width(c){ return c.reduce(function(s,r,i){ return s+r.w+(i?r.gap:0); },0); }
+    /* the widest free stretch of the top edge takes the group; drop one if it is tight; the right corner only when nothing else is free */
+    var sp=spans(card,W,false), room=sp[0]||[0,0], top=cast.slice();
+    while(top.length>2 && width(top)>room[1]-room[0]) top.pop();
+    if(width(top)>room[1]-room[0]){ sp=spans(card,W,true); room=sp[0]||[0,0]; card._resR=1; while(top.length && width(top)>room[1]-room[0]) top.pop(); }
+    var st=stage(card,''), x=room[0]+Math.max(0,room[1]-room[0]-width(top))*(.12+.76*rnd());
+    top.forEach(function(r,i){ if(i) x+=top[i-1].w/2+r.gap+r.w/2; else x+=r.w/2; put(st,r,x,i,quiet); });
+    card._resX=top.map(function(r,i){ return st.children[i]._x; });
+    /* an actor fills the edge (Trees 1 on a phone): the rest stand on the moss below the card, clear of the next card's own */
+    var low=cast.slice(top.length,top.length+Math.max(0,2-top.length)), nx=card.nextElementSibling;
+    if(low.length && nx && nx.matches('.card.numbered')){
+      var ls=stage(card,'low'), lw=width(low), a=W*.1, b=W*.9-lw, lx=a;
+      for(var t=0;t<10;t++){ lx=a+(b-a)*rnd(); if(!FZ.resIn(nx,lx,lx+lw)) break; }
+      low.forEach(function(r,i){ if(i) lx+=low[i-1].w/2+r.gap+r.w/2; else lx+=r.w/2; card._lowX.push(lx); put(ls,r,lx,i,quiet); });
+    }
+  }
+  function stage(card,cls){ var st=document.createElement('div'); st.className='fz-res'+(cls?' '+cls:''); st.setAttribute('aria-hidden','true'); card.appendChild(st); return st; }
+  function put(st,r,x,i,quiet){
+    var e=FZ.spr(r.kind,r.h,'tap'), card=st.parentNode; e.style.position='absolute'; st.appendChild(e);
+    e._kind=r.kind; e._card=card; e._rest=night()?K[r.kind][2]:K[r.kind][1]; FZ.frame(e,e._rest); FZ.place(e,x,st.classList.contains('low')?LY:GY); FZ.face(e,r.dir);
+    if(!quiet && !FZ.quiet()) e.animate([{opacity:0,scale:'.4'},{opacity:1,scale:'1'}],{duration:520,delay:i*180,easing:'cubic-bezier(.3,1.45,.5,1)',fill:'backwards'});
+    tap(e); life(e); ALL.push(e); return e;
+  }
+  /* a click: a hop (or a flutter), a pose for a moment, then rest again */
+  function tap(e){ e.addEventListener('click',function(ev){ ev.stopPropagation(); if(e._t) return; e._t=1; var a=K[e._kind];
+    FZ.frame(e,a[4]); e.animate([{translate:'0 0'},{translate:'0 '+(a[5]?-8:-4)+'px'},{translate:'0 0'}],{duration:a[5]?420:320,easing:'cubic-bezier(.3,1.6,.5,1)'});
+    setTimeout(function(){ FZ.frame(e,e._rest); e._t=0; },720); }); }
+  /* idle: now and then a short pose run, a slow turn or a small hop; never while an actor plays, in teacher mode, Focus or a hidden tab */
+  function still(e){ return !e.isConnected || e._t || FZ.quiet() || acting(e._card) || !near(e); }
+  function life(e){ (async function(){ var a=K[e._kind];
+    while(e.isConnected){ await wait((night()?9000:4200)+Math.random()*7000); if(still(e)) continue; e._busy=1;
+      var r=Math.random();
+      if(r<.2){ FZ.face(e,-e._dir); }   /* a slow turn */
+      else if(r<.32 && a[5] && !night()){ e.animate([{translate:'0 0'},{translate:'0 -4px'},{translate:'0 0'}],{duration:420,easing:'ease-out'}); }   /* a short hop */
+      else { var R=a[3][Math.floor(Math.random()*a[3].length)]; for(var i=0;i<R.length;i++){ if(still(e)) break; FZ.frame(e,R[i][0]); await wait(R[i][1]); } if(!e._t) FZ.frame(e,e._rest); }
+      e._busy=0; } })(); }
+  /* the night: the birds, the hedgehog and the caterpillar nap; morning wakes them */
+  new MutationObserver(function(){ ALL.forEach(function(e){ e._rest=night()?K[e._kind][2]:K[e._kind][1]; if(!e._t && !e._busy) FZ.frame(e,e._rest); }); })
+    .observe(root,{attributes:true,attributeFilter:['data-ft']});
+  /* each card's residents come when it nears the screen, and stay */
+  var CARDS=$$('#p-lesson .card.numbered').filter(function(c){ return CAST[c.id]; });
+  var ob=new IntersectionObserver(function(es){ es.forEach(function(en){ if(en.isIntersecting && !en.target._res){ en.target._res=1; ob.unobserve(en.target); build(en.target); } }); },{rootMargin:'300px 0px 300px 0px'});
+  CARDS.forEach(function(c){ ob.observe(c); });
+  /* a new width: the same cast, laid out again where it now fits */
+  var rt=null, lastW=window.innerWidth;
+  window.addEventListener('resize',function(){ if(window.innerWidth===lastW) return; lastW=window.innerWidth; clearTimeout(rt);
+    rt=setTimeout(function(){ CARDS.forEach(function(c){ if(c._res) build(c,true); }); ALL=ALL.filter(function(e){ return e.isConnected; }); },300); });
+  /* the doel asks before it lands on a card's edge: is a resident standing there? (x0..x1 in the card's own px) */
+  FZ.resIn=function(card,x0,x1){ var pv=card.previousElementSibling; return (card._resX||[]).concat((pv&&pv._lowX)||[]).some(function(x){ return x>x0-14 && x<x1+14; }); };
+  FZ.resActing=acting;
+  /* the review panel: the cast of each card */
+  FZ.onRev(function(REV){
+    var at=$$('.fz-revb p',REV).filter(function(p){ return /Earned/.test(p.textContent); })[0], box=document.createElement('div');
+    box.innerHTML='<p>Residents</p><div class="row fz-revres">'+CARDS.map(function(c){ return '<button type="button" data-r="'+c.id+'">'+c.id.replace('s','§')+' · '+CAST[c.id].replace(/:\d+/g,'')+'</button>'; }).join('')+'</div>';
+    if(at) while(box.firstChild) at.parentNode.insertBefore(box.firstChild,at); else REV.appendChild(box);
+    REV.addEventListener('click',function(e){ var b=e.target.closest('button[data-r]'); if(!b) return; var c=$('#'+b.dataset.r); if(!c) return;
+      if(!c._res){ c._res=1; build(c); } c.scrollIntoView({block:'center'}); });
+  });
+  window.__res={build:build, acting:acting, all:function(){ return ALL.filter(function(e){ return e.isConnected; }); }, cast:CAST};
 })();
 
 
@@ -1799,6 +2103,7 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
   var TKEY='cse2321-teach', badge=null;
   function teach(on,quietly){
     root.classList.toggle('teach',on); store(TKEY,on?'1':null);
+    if(window.__ftime) window.__ftime.apply();   /* teacher mode holds Morning; leaving it gives the reader's own time back (WP11) */
     if(on){ snd(false); if(FZ.buildRev){ var R=FZ.buildRev(); var h=$('h4',R); if(h && h.firstChild) h.firstChild.textContent='Teacher: call an animal '; } }
     else if(FZ.rev && !/[?&]fzreview/.test(Q)) FZ.rev.style.display='none';
     if(!badge){ badge=document.createElement('button'); badge.type='button'; badge.className='fz-teachb'; badge.addEventListener('click',function(){ teach(false); }); document.body.appendChild(badge); }
@@ -1816,6 +2121,12 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
 
   /* ---- 2 · sound, on by default; the speaker button turns it off, and the choice is remembered ---- */
   var SKEY='cse2321-forest-sound', AC=null, master=null, sOn=false, rainSrc=null, tB=null, tC=null, sbtn=null;
+  /* the master level: normal, and in Focus about 40 % of it, so the forest carries on quietly behind the
+     simulator (Jamil, 2026-11-16, Q4). Teacher mode still turns it off. A hidden tab makes no new voices. */
+  var GAIN=.07, FOCUSK=.4;
+  function focus(){ return document.body.classList.contains('fsopen'); }
+  function level(){ return GAIN*(focus()?FOCUSK:1); }
+  function quiet(){ return document.hidden; }
   if(host && !RM){
     sbtn=document.createElement('button'); sbtn.type='button'; sbtn.className='fz-sndb'; sbtn.setAttribute('aria-pressed','false');
     sbtn.setAttribute('aria-label','Forest sounds'); sbtn.title='Forest sounds (quiet)';
@@ -1831,7 +2142,7 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
     try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return; }
     if(AC.state==='suspended') AC.resume();
     if(!master) build();
-    master.gain.setTargetAtTime(.07,AC.currentTime,1.2);
+    master.gain.setTargetAtTime(level(),AC.currentTime,1.2);
     clearTimeout(tB); clearTimeout(tC); dayLoop(); nightLoop();
   }
   /* ---- the sound engine: everything is made here, nothing is loaded. One quiet bus, a gentle limiter,
@@ -1895,10 +2206,10 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
   var DAYW=[['doel',5],['bulbul',4],['tit',3],['rustle',3],['koel',1],['peck',1]], NIGHTW=[['cricket',6],['cricket2',3],['owl',1],['frog',2]], lastV='';
   function choose(W){ var tot=W.reduce(function(s,w){ return s+w[1]; },0), r; do{ r=Math.random()*tot; for(var i=0;i<W.length;i++){ r-=W[i][1]; if(r<0){ r=W[i][0]; break; } } }while(r===lastV && W.length>1); lastV=r; return r; }
   function dayLoop(){ clearTimeout(tB); if(!sOn) return;
-    var m=ft(); if(m!=='night' && !busy()){ var v=choose(DAYW); if(m==='evening' && (v==='tit'||v==='peck')) v='koel'; DAY[v](AC.currentTime+.05); }
+    var m=ft(); if(m!=='night' && !quiet()){ var v=choose(DAYW); if(m==='evening' && (v==='tit'||v==='peck')) v='koel'; DAY[v](AC.currentTime+.05); }
     tB=setTimeout(dayLoop,ft()==='evening'?rnd(2200,4200):rnd(1100,2800)); }
   function nightLoop(){ clearTimeout(tC); if(!sOn) return;
-    var m=ft(); if((m==='night'||m==='evening') && !busy()){ var v=choose(NIGHTW); if(m==='evening' && v!=='cricket') v='cricket'; NIGHT[v](AC.currentTime+.05); }
+    var m=ft(); if((m==='night'||m==='evening') && !quiet()){ var v=choose(NIGHTW); if(m==='evening' && v!=='cricket') v='cricket'; NIGHT[v](AC.currentTime+.05); }
     tC=setTimeout(nightLoop,m==='night'?rnd(700,1700):rnd(2500,5000)); }
   /* the bed under everything: a breeze that swells and fades, and rain in the monsoon */
   function breeze(){ var s=AC.createBufferSource(), b=AC.createBiquadFilter(), g=AC.createGain(), lfo=AC.createOscillator(), lg=AC.createGain();
@@ -1910,7 +2221,11 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
     rainSrc=AC.createBufferSource(); rainSrc.buffer=NOISE; rainSrc.loop=true;
     var lp=AC.createBiquadFilter(), hp=AC.createBiquadFilter(), g=AC.createGain(); lp.type='lowpass'; lp.frequency.value=2600; hp.type='highpass'; hp.frequency.value=400; g.gain.value=.16;
     rainSrc.connect(hp); hp.connect(lp); lp.connect(g); g.connect(dry); rainSrc.start();
-    (function thunder(){ setTimeout(function(){ if(sOn && !busy()){ var t=AC.currentTime+.05, out=place(rnd(-.6,.6),.5); noise(out,t,3.5,.35,'lowpass',140,.7); } thunder(); },rnd(40000,90000)); })(); }
+    (function thunder(){ setTimeout(function(){ if(sOn && !quiet()){ var t=AC.currentTime+.05, out=place(rnd(-.6,.6),.5); noise(out,t,3.5,.35,'lowpass',140,.7); } thunder(); },rnd(40000,90000)); })(); }
+  /* Focus opening or closing moves the level: down to 40 % in .5 s, back up in 1.2 s */
+  new MutationObserver(function(){ if(!sOn || !master || !AC) return; var f=focus();
+    if(f!==focus._was){ focus._was=f; master.gain.setTargetAtTime(level(),AC.currentTime,f?.5:1.2); } })
+    .observe(document.body,{attributes:true,attributeFilter:['class']});
   /* a tap on any creature gets a small answer, if the sound is on */
   document.addEventListener('click',function(e){ if(!sOn || !AC || !e.target.closest) return; var c=e.target.closest('.fz-spr.tap,.fz-hog,.fz-frog,.fz-x');
     if(c) tone(place(0,.6),AC.currentTime+.02,'sine',[2600,3400,2900],.16,.18); },true);
@@ -2004,7 +2319,30 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
     }
     AT.addEventListener('click',function(e){ var b=e.target.closest('button[data-o]'); if(!b) return; running++; walkIt(b.dataset.o,running); });
   }
-  window.__extras={teach:teach, snd:snd, late:late};
+  /* ---- 5 · click-me cue (2026-11-15): a control that does nothing until clicked glows softly (.fz-cue) until the reader
+     clicks it or anything in its group. Groups: [group, targets inside it]. A page marks its own with data-cue="targets".
+     The look, and off in Focus, teacher mode and reduced motion, is in extras.css. ---- */
+  var CUE=[['.apptabs','[role=tab][aria-selected=false]'],['.kdtabs','button:not(.on)'],['.twpick','button:not(.on)'],['.antbar','button[data-o]'],
+           ['.kdchk','button'],['.dpsw','button:not(.on)'],['.nbhot','.nbbox'],['.srttabs','button:not(.on)'],['.turn>.tbtn',''],['.appb','']];
+  function cueGroup(g,t){ if(g._fzc) return; g._fzc=1; var on=t?$$(t,g):[g]; if(!on.length) return; g._fzon=on; on.forEach(function(b){ b.classList.add('fz-cue'); }); }
+  function cues(){
+    CUE.forEach(function(c){ $$(c[0]).forEach(function(g){ cueGroup(g,c[1]); }); });
+    $$('[data-cue]').forEach(function(g){ cueGroup(g,g.getAttribute('data-cue')); });
+    /* a stepping sim: its Next glows until anything in the sim is clicked */
+    $$('.simctl').forEach(function(s){ var g=s.closest('[id$="-sim"]')||s; cueGroup(g,'.simctl>.btn:not(.ghost)'); });
+  }
+  document.addEventListener('click',function(e){ var t=e.target; if(!e.isTrusted || !t || !t.closest) return;   /* the page's own init clicks don't count */
+    for(var g=t;g;g=g.parentElement) if(g._fzon){ g._fzon.forEach(function(b){ b.classList.remove('fz-cue'); }); g._fzon=null; } },true);
+  cues(); window.addEventListener('load',cues);
+
+  /* ---- 6 · the hero chips on a phone (WP1): one row that scrolls; the right-edge fade lifts at the end ---- */
+  $$('.fhero .arc').forEach(function(arc){
+    function end(){ arc.classList.toggle('end', arc.scrollWidth-arc.clientWidth-arc.scrollLeft<4); }
+    arc.addEventListener('scroll',end,{passive:true}); window.addEventListener('resize',end); end();
+  });
+
+  window.__extras={teach:teach, snd:snd, late:late,
+    sound:function(){ return {on:sOn, gain:master?master.gain.value:0, target:sOn?level():0, focus:focus(), state:AC?AC.state:'none'}; }};
 })();
 
 })();
