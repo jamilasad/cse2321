@@ -2093,9 +2093,9 @@ function hla(src){
     var rest=src.slice(i);
     m=/^[A-Za-z]+/.exec(rest);
     if(m){
-      var w=m[0], after=src.slice(i+w.length);
+      var w=m[0], nx=src.slice(i+w.length);
       if(AKW.test(w)) out+='<span class="k">'+w+'</span>';
-      else if(/^[A-Z]{2,}$/.test(w) && /^\(/.test(after)) out+='<span class="f">'+w+'</span>';
+      else if(/^[A-Z]{2,}$/.test(w) && /^\(/.test(nx)) out+='<span class="f">'+w+'</span>';
       else out+=w;
       i+=w.length; continue;
     }
@@ -2755,7 +2755,7 @@ document.addEventListener('keydown',function(e){
     ['2','Three walks, and the expression tree','02-traversals.html'],
     ['3','Binary search trees: search and insert','03-bst-search-insert.html'],
     ['4','Deleting from a BST, and two walks','04-bst-delete.html'],
-    ['5','Heaps',''],
+    ['5','Heaps','05-heaps.html'],
     ['6','Heapsort and the priority queue','06-heapsort.html']
   ];
   var here=(location.pathname.split('/').pop()||'');
