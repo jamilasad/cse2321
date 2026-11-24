@@ -1242,7 +1242,7 @@ html[data-ft="night"] .nrpairs .bad{background:#3a1c1c;color:#fecaca}
 .nrbirds{position:absolute;inset:0;pointer-events:none}
 .nrdoor{position:absolute;border-radius:50%;overflow:hidden}
 .nrpin{position:absolute;left:50%;top:0;width:0;height:0}
-.nrs{position:absolute;display:block;background-repeat:no-repeat;background-image:url(../assets/forest-art/flock.webp)}
+.nrs{position:absolute;display:block;background-repeat:no-repeat}
 .nrhot{position:absolute;inset:0}
 .nrbox{position:absolute;top:8%;height:62%;width:10.4%;transform:translateX(-50%);appearance:none;background:none;border:0;border-radius:.6rem;cursor:pointer;padding:0}
 .nrbox:focus-visible{outline:3px solid var(--f-acc,#476a2e);outline-offset:2px}
@@ -1555,6 +1555,7 @@ html[data-ft="night"] .t5tbl td{color:var(--f-ink,#e6efe2);border-color:#22352d}
   </div>
 
   <p><b>Complete tree or heap?</b> Every heap is complete. A complete tree need not be a heap. Pick a picture, then click a box to see its parent and its children.</p>
+  <p>The birds are Trees 1's family, but here their colours, crests and flowers mean nothing. A bigger key is a bigger bird, and the plate under each door gives the key.</p>
 
   <div class="sim" id="cx-sim">
     <div class="simhd">
@@ -2199,9 +2200,9 @@ function hla(src){
     var rest=src.slice(i);
     m=/^[A-Za-z]+/.exec(rest);
     if(m){
-      var w=m[0], after=src.slice(i+w.length);
+      var w=m[0], nx=src.slice(i+w.length);
       if(AKW.test(w)) out+='<span class="k">'+w+'</span>';
-      else if(/^[A-Z]{2,}$/.test(w) && /^\(/.test(after)) out+='<span class="f">'+w+'</span>';
+      else if(/^[A-Z]{2,}$/.test(w) && /^\(/.test(nx)) out+='<span class="f">'+w+'</span>';
       else out+=w;
       i+=w.length; continue;
     }
@@ -2330,12 +2331,22 @@ var SP26=[90,70,80,40,60,10,50], A25H=[77,55,60,50,30,44,55,22], F758=[97,88,95,
 })();
 
 /* =================== THE NEST-BOX ROW ===================
-   Trees 1's empty row of nine boxes is the array. One clay bird (flock.webp,
-   faceless) sits in each door, scaled by its key's rank among the keys of the
-   run, so equal keys are equal birds; the number is on the plate under the
-   door. One state paints everything; a move forward also plays its motion:
+   Trees 1's empty row of nine boxes is the array, and Trees 1's family sits in
+   the doors, seated as Trees 1 seats them (each door clips its bird; grown-ups
+   sink a little, so the rim hides where the bust is cut). The key's rank picks
+   the bird: the largest is the grandfather, the next two the son and the
+   daughter, the rest chicks, a bigger key a bigger chick. Equal keys are equal
+   birds, and a bird travels with its key. The number is on the plate under
+   the door; colour, crest and flower mean nothing here (Jamil, 2026-11-24). One state paints everything; a move forward also plays its motion:
    a swap (both duck, and come up exchanged), an arrival, a departure, a move. */
-var FLOCK={"cw":139,"ch":118,"ax":63.8,"ay":114.0,"ref":100,"n":10,"f":{"rest":0,"up":1,"down":2,"left":3,"right":4,"ruffle":5,"duck":6,"wing":7,"call":8,"bow":9}};
+var NART={"gp":{"src":"nest-gp.webp","cw":101,"ch":123,"ax":58.6,"ay":117.0,"ref":90,"n":10,"f":{"g1":0,"g2":1,"g3":2,"g4":3,"g5":4,"g6":5,"g7":6,"g8":7,"g9":8,"g10":9}},"son":{"src":"nest-son.webp","cw":81,"ch":101,"ax":40.9,"ay":95.2,"ref":90,"n":10,"f":{"s1":0,"s2":1,"s3":2,"s4":3,"s5":4,"s6":5,"s7":6,"s8":7,"s9":8,"s10":9}},"dau":{"src":"nest-dau.webp","cw":99,"ch":113,"ax":49.2,"ay":106.9,"ref":90,"n":10,"f":{"d1":0,"d2":1,"d3":2,"d4":3,"d5":4,"d6":5,"d7":6,"d8":7,"d9":8,"d10":9}},"cgs":{"src":"nest-cgs.webp","cw":66,"ch":83,"ax":32.8,"ay":77.7,"ref":70,"n":5,"f":{"c1":0,"c2":1,"c3":2,"c4":3,"c5":4}},"cgd":{"src":"nest-cgd.webp","cw":65,"ch":92,"ax":33.0,"ay":86.3,"ref":70,"n":5,"f":{"c1":0,"c2":1,"c3":2,"c4":3,"c5":4}},"cas":{"src":"nest-cas.webp","cw":66,"ch":95,"ax":33.2,"ay":89.5,"ref":70,"n":5,"f":{"c1":0,"c2":1,"c3":2,"c4":3,"c5":4}},"cad":{"src":"nest-cad.webp","cw":74,"ch":101,"ax":38.6,"ay":95.0,"ref":70,"n":5,"f":{"c1":0,"c2":1,"c3":2,"c4":3,"c5":4}}};
+var CHICKS=['cgs','cas','cgd','cad'];
+/* the poses this page asks for, in each bird's own sheet (Trees 1 checked them by eye; the son's 9 and 10 are not used) */
+function famPose(kind,name){
+  var p={gp:'g',son:'s',dau:'d'}[kind];
+  if(p) return {rest:p+(kind==='son'?'2':'1'),up:p+'5',down:{gp:'g2',son:'s3',dau:'d2'}[kind],wing:p+'7',call:p+'8',ruffle:p+'8',duck:p+(kind==='son'?'2':'1')}[name]||(p+(kind==='son'?'2':'1'));
+  return {rest:'c1',up:'c3',down:'c4',wing:'c2',call:'c5',ruffle:'c5',duck:'c1'}[name]||'c1';
+}
 /* the dark inside of each door, measured on the picture (Trees 1): centre x, centre y, width */
 var DOOR=[[.0853,.4295,.1062],[.2041,.4303,.0896],[.3131,.4324,.0879],[.4178,.4531,.0788],[.5187,.4531,.0848],
           [.6180,.4519,.0830],[.7192,.4531,.0776],[.8208,.4535,.0828],[.9277,.4502,.0876]];
@@ -2357,23 +2368,32 @@ function NR(host,opt){
     if(hot){ (function(n){ var b=document.createElement('button'); b.type='button'; b.className='nrbox'; b.style.left=(DOOR[n-1][0]*100)+'%';
       b.setAttribute('aria-label','Box '+n); b.addEventListener('click',function(){ opt.click(n); }); hot.appendChild(b); })(k); }
   }
-  function factor(v){ if(v==null||v==='?') return .75; var d=keys.filter(function(x,i){ return keys.indexOf(x)===i; }).sort(function(a,b){ return a-b; }), r=d.indexOf(v);
-    return d.length<2?.8:.56+.38*r/(d.length-1); }
-  function frame(b,name){ var i=FLOCK.f[name]; if(i==null) i=0; b.s.style.backgroundPosition=(i*100/(FLOCK.n-1))+'% 0'; b.pose=name; }
+  /* which bird a key is, and how tall it sits in its door (Trees 1: grown-ups 1.12 and 1.06, chicks 0.9) */
+  function who(v){
+    var d=keys.filter(function(x,i){ return keys.indexOf(x)===i; }).sort(function(a,b){ return b-a; }), r=d.indexOf(v);
+    if(r<0) r=d.length;
+    if(r===0) return {kind:'gp',h:1.12};
+    if(r===1) return {kind:'son',h:1.06};
+    if(r===2) return {kind:'dau',h:1.06};
+    var c=d.length-3, f=c>1?(r-3)/(c-1):0;
+    return {kind:CHICKS[(r-3)%4],h:.96-.14*f,chick:true};
+  }
+  function frame(b,name){ var a=NART[b.kind], i=a.f[famPose(b.kind,name)]; if(i==null) i=0; b.s.style.backgroundPosition=(a.n>1?i*100/(a.n-1):0)+'% 0'; b.pose=name; }
   function setBird(k,v,pose){
     var b=B[k-1]; b.key=v;
     if(v==null){ b.s.style.visibility='hidden'; return; }
     b.s.style.visibility='';
-    var kk=b.d*factor(v)/FLOCK.ref;
-    b.s.style.width=(FLOCK.cw*kk)+'px'; b.s.style.height=(FLOCK.ch*kk)+'px'; b.s.style.left=(-FLOCK.ax*kk)+'px'; b.s.style.top=(-FLOCK.ay*kk)+'px';
-    b.s.style.backgroundSize=(FLOCK.n*100)+'% 100%';
+    var w=who(v), a=NART[w.kind], kk=w.h*b.d/a.ref; b.kind=w.kind;
+    b.pin.style.top=(b.d*(w.chick?1.1:1.16))+'px';
+    b.s.style.backgroundImage='url(../assets/forest-art/'+a.src+')';
+    b.s.style.width=(a.cw*kk)+'px'; b.s.style.height=(a.ch*kk)+'px'; b.s.style.left=(-a.ax*kk)+'px'; b.s.style.top=(-a.ay*kk)+'px';
+    b.s.style.backgroundSize=(a.n*100)+'% 100%';
     frame(b,pose||'rest');
   }
   function fit(){
     var W=birds.clientWidth, H=birds.clientHeight; if(!W) return;
     B.forEach(function(b,i){ var c=DOOR[i], d=c[2]*1.1*W; b.d=d;
-      b.door.style.left=(c[0]*W-d/2)+'px'; b.door.style.top=(c[1]*H-d/2)+'px'; b.door.style.width=b.door.style.height=d+'px';
-      b.pin.style.top=(d*.97)+'px'; });
+      b.door.style.left=(c[0]*W-d/2)+'px'; b.door.style.top=(c[1]*H-d/2)+'px'; b.door.style.width=b.door.style.height=d+'px'; });
     if(cur) paint(cur,true);
   }
   function el(t,a){ var e=document.createElementNS(SVN,t); for(var q in a) e.setAttribute(q,a[q]); return e; }
