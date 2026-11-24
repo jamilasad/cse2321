@@ -12,6 +12,7 @@ var $=function(s,r){return (r||document).querySelector(s);};
 var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
 var RM=window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 var FZ={sky:[]};   /* what the living things share: the margin trees, the floor, the hero sky's hooks */
+window.FZ=FZ;      /* a page's own creatures (Trees 5's t5-crea) use the same helpers */
 var LEAFSVG='<svg viewBox="0 0 16 12"><path d="M1 11C2 4 8 1 15 1c-1 6-5 10-14 10z" fill="#6f9a48"/><path d="M2 10L12 3" stroke="#3f5f28" stroke-width=".8"/></svg>';
 
 /* ---------- TIME OF DAY: the one theme control (the forest pages) ----------
@@ -1328,9 +1329,10 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
     if(css) a.style.cssText=css; host.appendChild(a);
     a.addEventListener('click',function(e){
       e.stopPropagation(); if(a.classList.contains('got')) return;
-      a.classList.add('got'); if(found.indexOf(id)<0) found.push(id);
+      a.classList.add('got'); var was=found.length; if(found.indexOf(id)<0) found.push(id);
       try{ localStorage.setItem(AKEY,JSON.stringify(found)); }catch(x){}
       setTimeout(function(){ a.remove(); },900); showPile();
+      if(was<ALL && found.length>=ALL) setTimeout(parade,1400);   /* the eighteenth: the den opens, and the segment's animals go home */
     });
   }
   if(PG){
@@ -1341,6 +1343,28 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
     if(ex){ var foot=document.createElement('div'); foot.className='fz-acorn-foot'; ex.appendChild(foot); hide('t'+PG+'c',foot); }
   }
   showPile();
+  /* the end of the hunt (Trees 6, Jamil's yes 2026-11-24): with all eighteen found, the segment's
+     animals walk along the floor in one line, smallest first, and go in at the den's open door.
+     A sorted line is Trees 6's own idea. Wordless; nothing for the exam sits behind it. On Trees 6
+     a click on the open door plays it again. */
+  var PARADE=[['ant',16,['a1','a2','a3','a4']],['bee',16,['e1','e2']],['spider',16,['s1','s2','s3','s4']],['cat',15,['c1','c2','c3']],
+    ['frog',20,['p4','p5','p6','p7']],['bird',22,['b4','b5']],['squ',26,['q1','q2']],['wood',26,['k7','k8']],['tort',24,['t1','t2','t3','t4']],
+    ['owl',30,['o6','o7']],['deer',34,['r1','r2','r3','r4']]];
+  var paraded=false;
+  function parade(){
+    if(RM || !fl || !den || !FZ.spr || !FZ.walk || paraded || FZ.quiet()) return; paraded=true;
+    var F=fl.getBoundingClientRect(), D=den.getBoundingClientRect(), door=D.left-F.left+D.width/2, gy=F.height-14;
+    PARADE.forEach(function(p,i){ setTimeout(function(){
+      if(!FZ.ART[p[0]]) return;
+      var e=FZ.spr(p[0],p[1]); e.style.position='absolute'; e.style.zIndex=3; fl.appendChild(e);
+      FZ.place(e,F.width+40,gy-(p[0]==='owl'||p[0]==='bee'?14:0)); FZ.face(e,-1);   /* in from the floor's right end, which the floor clips: the page never widens */
+      FZ.walk(e,door,e._y,130,p[2],8).then(function(){ return e.animate([{opacity:1,scale:'1'},{opacity:0,scale:'.4'}],{duration:500,easing:'ease-in',fill:'forwards'}).finished; }).then(function(){ e.remove(); });
+    },i*900); });
+    setTimeout(function(){ paraded=false; },PARADE.length*900+9000);
+  }
+  if(den && PG==='6'){ den.style.pointerEvents='auto'; den.style.cursor='pointer'; den.addEventListener('click',function(){ if(found.length>=ALL) parade(); }); }
+  if(FORCE==='parade') setTimeout(parade,2500);
+  FZ.parade=parade;
 
   /* ---- 13 · the review panel: ?fzreview in the address shows every living thing on demand ----
      For checking the page before it goes live. Students never see it.                      */
@@ -1355,7 +1379,7 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
       '<p>Visitors</p><div class="row"><button data-a="doel">Doel</button><button data-a="owl">Owl</button><button data-a="deer">Deer</button><button data-a="star">Shooting star</button>'+(season==='monsoon'?'<button data-a="rain">Rain</button>':'')+'</div>'+
       (EGG?'<p>The egg on this page</p><div class="row"><button data-a="'+EGG[1]+'">'+EGG[0]+'</button></div>':'')+
       '<p>Earned</p><div class="row"><button data-a="sims">Finish every simulator</button><button data-a="quiz">Answer every check</button><button data-a="clear">Clear the checks</button></div>'+
-      '<p>Acorn hunt</p><div class="row"><button data-a="show">Show where</button><button data-a="all">Find all 18</button><button data-a="reset">Reset</button></div>'+
+      '<p>Acorn hunt</p><div class="row"><button data-a="show">Show where</button><button data-a="all">Find all 18</button><button data-a="reset">Reset</button><button data-a="parade">The parade home</button></div>'+
       '<p>Wind and places</p><div class="row"><button data-a="gust">A gust</button><button data-a="top">To the hero</button><button data-a="floor">To the floor</button></div>'+
       '<p class="note">Time of day: the menu in the top bar. Breeze: a fast flick over empty page. The panel is here only because the address has ?fzreview.</p></div>';
     document.body.appendChild(R); FZ.rev=R;
@@ -1372,6 +1396,7 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
       if(a==='all'){ try{ localStorage.setItem(AKEY,JSON.stringify(['t1a','t1b','t1c','t2a','t2b','t2c','t3a','t3b','t3c','t4a','t4b','t4c','t5a','t5b','t5c','t6a','t6b','t6c'])); }catch(x){} location.reload(); }
       if(a==='reset'){ try{ localStorage.removeItem(AKEY); }catch(x){} location.reload(); }
       if(a==='gust' && FZ.gustNow) FZ.gustNow(1);
+      if(a==='parade'){ paraded=false; if(fl) fl.scrollIntoView({block:'center'}); setTimeout(parade,600); }
       if(a==='top') window.scrollTo({top:0}); if(a==='floor' && fl) fl.scrollIntoView({block:'center'});
     });
     FZ.revHooks.forEach(function(f){ f(R); }); return R;
@@ -1994,7 +2019,9 @@ FZ.ART={"doel":{"src":"doel.webp","cw":153,"ch":163,"ax":86.1,"ay":142.8,"ref":9
     '1':{s1:'bird fly', s2:'frog bird', s3:'squ fly', s4:'fly bird', sm:'ant ant tort', s5:'ant bird', s6:'squ bird', s7:'hog cat'},
     '2':{s1:'ant ant fly', s2:'ant frog', s3:'mole squ', s4:'bird bird', s5:'bee bird', s6:'bird fly', s7:'hog squ', s8:'spider fly', s9:'tort cat'},
     '3':{s1:'bird bird', s2:'frog cat', s3:'mole ant', s4:'doel bird', s5:'cat ant', s6:'deer fly', s7:'bird bird:18', s8:'tort hog'},
-    '4':{s1:'bird bird:18 squ', s2:'tort ant', s3:'bee bird', s4:'bird bird', s5:'ant ant tort', s6:'fly frog', s7:'squ hog', s8:'owl cat'}
+    '4':{s1:'bird bird:18 squ', s2:'tort ant', s3:'bee bird', s4:'bird bird', s5:'ant ant tort', s6:'fly frog', s7:'squ hog', s8:'owl cat'},
+    '5':{s1:'ant ant fly', s2:'doel cat', s3:'squ bee', s4:'mole ant', s5:'bee hog', s6:'frog fly', s7:'ant ant', s8:'squ'},   /* T5-WORLD-PLAN §2.5 */
+    '6':{s1:'frog fly', s2:'doel mole', s3:'bee fly', s4:'squ bee', s5:'ant frog', s6:'frog fly', s7:'mole hog', s8:'squ cat'}   /* T6-WORLD-PLAN §2.4: never the kind its card's actor is */
   }[PG];
   if(!CAST) return;
   var GY=44, LY=26, PERCH=166, ALL=[];   /* the top stage's ground line (the card's top), the moss's below a card; the right corner kept for the doel and the actors */
