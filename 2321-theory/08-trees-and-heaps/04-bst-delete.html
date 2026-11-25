@@ -1245,6 +1245,10 @@ html[data-ft="night"] .bsb text{fill:#14201a}
 html[data-ft="night"] .bsb-s path,html[data-ft="night"] .bsb-s rect{fill:#c9a37a}
 .bsb{transition:transform .35s cubic-bezier(.4,0,.2,1)}
 
+/* §5 · a part not placed yet waits in a box under its parent, as on Trees 2 */
+.exbx rect{fill:var(--f-panel,#fff);stroke:var(--f-line2,#cbd3c2);stroke-width:1.8;stroke-dasharray:6 4}
+.exbx text{font-family:var(--mono);font-weight:800;font-size:14px;fill:var(--f-ink,#1f2d24);text-anchor:middle;dominant-baseline:central}
+.exbx.nx rect{fill:var(--f-amb-bg,#fbefd2);stroke:var(--f-amber,#e0a33a);stroke-width:2.6;stroke-dasharray:none}
 /* §5 · the two walks as strips: the root, its part, the left and right of the split */
 .rbstrips{display:flex;flex-direction:column;gap:.35rem;align-items:center}
 .rbrow{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;justify-content:center}
@@ -1327,7 +1331,7 @@ html[data-ft="night"] .rbR{background:#3d3220}
         <div class="hero-meta">
           <div><b>4 finals</b>ask about deleting from a BST</div>
           <div><b>2 finals</b>give two walks and ask for the tree</div>
-          <div><b>64 min</b>8 sections</div>
+          <div><b>58 min</b>8 sections</div>
         </div>
         <div class="byline">
           <span class="av">JA</span>
@@ -1575,23 +1579,19 @@ html[data-ft="night"] .rbR{background:#3d3220}
 </article>
 
 <!-- ============ 5 · ONE TREE FROM TWO WALKS ============ -->
-<article class="card numbered" id="s5" style="--accent:#0f766e" data-min="12" data-key="Preorder's first key is the root; it splits the inorder into the left and right subtrees.">
+<article class="card numbered" id="s5" style="--accent:#0f766e" data-min="6" data-key="Preorder's first key is the root; it splits the inorder into the left and right subtrees.">
   <span class="badge">5</span>
   <div class="hdr-row">
     <div><p class="kicker">Section 5</p><h2>One tree from two walks</h2></div>
-    <span class="timechip">⏱ 12 min</span>
+    <span class="timechip">⏱ 6 min</span>
   </div>
 
-  <p>A different question, from the same chapter. You are given two walks of a tree, not a BST, and asked to draw it. Spring 2023 Q4 (b), which is Lipschutz's Solved 7.2:</p>
+  <p>You rebuilt trees from two walks in Trees 2: the preorder names each part's root (the postorder names it last), and the inorder splits the part into its left and right sides. Two finals set this question. The first is Spring 2023 Q4 (b), which is Lipschutz's Solved 7.2:</p>
   <div class="pastq">
     <div class="pqh"><span class="pqs">Final</span><span class="pqw">Spring 2023 · Q4 (b)</span><span class="pqm">3 marks</span></div>
     <p class="pqt">A binary tree T has 9 nodes. The inorder and preorder traversals of T yield: Inorder: E A C K F H D B G; Preorder: F A E K C D H G B. Draw the tree T.</p>
   </div>
-  <ul>
-    <li>Preorder visits the root <b>first</b>, so F is the root.</li>
-    <li>Inorder visits the root <b>between</b> its subtrees. Everything left of F in the inorder (E A C K) is the left subtree; everything right of it (H D B G) is the right subtree.</li>
-    <li>Do the same to each part, with the preorder keys that belong to it.</li>
-  </ul>
+  <p>Draw it on paper first, then check it below. Each press places one root; a part not placed yet waits in a box.</p>
 
   <div class="sim" id="rb-sim">
     <div class="simhd">
@@ -2390,12 +2390,14 @@ var RB=[
 ];
 (function(){
   var host=$('#rb-tv'), tabs=$('#rb-tabs'), strips=$('#rb-strips'); if(!host) return;
-  var cur=0, steps=[], api, V=null, P;
+  var cur=0, steps=[], api, V=null, P, RT, gB;
   RB.forEach(function(p,k){ var b=document.createElement('button'); b.type='button'; b.textContent=p.name;
     b.addEventListener('click',function(){ if(cur===k) return; cur=k; build(); if(api) api.reset(); }); tabs.appendChild(b); });
   function build(){
     P=RB[cur]; var R=rebuild(P.a,P.i,P.mode), WN=P.mode==='pre'?'Preorder':'Postorder', all=P.a.map(String);
+    RT=R.t;
     V=drawTree(host,specW(R.t),{xg:40,r:16,yg:50,mx:26,label:'The tree being rebuilt'});
+    gB=sv('g',{'class':'exbxs'}); V.svg.insertBefore(gB,V.svg.lastChild);
     steps.length=0;
     steps.push({k:-1,msg:'Two walks of the same tree: the '+WN.toLowerCase()+' and the inorder. The '+(P.mode==='pre'?'<b>first</b>':'<b>last</b>')+' '+WN.toLowerCase()+' key is the root.'});
     R.steps.forEach(function(s,k){
@@ -2409,6 +2411,22 @@ var RB=[
     $$('button',tabs).forEach(function(b,k){ b.classList.toggle('on',k===cur); });
   }
   function specW(n){ return n?n.v+((n.l||n.r)?'('+specW(n.l)+','+specW(n.r)+')':''):'-'; }
+  /* every part whose parent is placed and whose own root is not yet waits in a box that spans
+     the place its subtree will take; the box placed next is amber */
+  function boxes(placed,next){
+    while(gB.firstChild) gB.removeChild(gB.firstChild);
+    var R=V.R, wait=[];
+    (function w(n,p){ if(!n) return; var k=String(n.v);
+      if(placed.indexOf(k)<0){ if(p===null||placed.indexOf(p)>=0) wait.push([n,p]); return; }
+      w(n.l,k); w(n.r,k); })(RT,null);
+    wait.forEach(function(e){
+      var n=e[0], keys=walk(n,'in').map(String), xl=V.xy[keys[0]][0], xr=V.xy[keys[keys.length-1]][0], y=V.xy[String(n.v)][1], top=y-R+2;
+      if(e[1]!==null){ var q=V.xy[e[1]]; sv('line',{'class':'tv-ed',x1:q[0],y1:q[1],x2:(xl+xr)/2,y2:top},gB); }
+      var g=sv('g',{'class':'exbx'+(String(n.v)===next?' nx':'')},gB);
+      sv('rect',{x:xl-R+2,y:top,width:xr-xl+2*R-4,height:2*R-4,rx:9},g);
+      keys.forEach(function(k){ var t=sv('text',{x:V.xy[k][0],y:y},g); t.textContent=k; });
+    });
+  }
   function row(name,arr,cls){ return '<div class="rbrow"><b>'+name+'</b><span class="rbcells">'+arr.map(function(x,i){ return '<i class="'+(cls(i)||'')+'">'+x+'</i>'; }).join('')+'</span></div>'; }
   build();
   api=Sim.make({el:'#rb-sim',steps:steps,play:1300,render:function(st,i,a){
@@ -2416,6 +2434,7 @@ var RB=[
     var s=st.s, placed=s?s.placed:(st.end?P.a.map(String):[]);
     if(st.end) placed=P.a.map(String);
     V.set({hide:P.a.map(String).filter(function(k){ return placed.indexOf(k)<0; }),on:s?[String(s.root)]:[],mk:s?placed.filter(function(k){ return k!==String(s.root); }).map(String):placed});
+    boxes(placed.map(String),steps[i+1]&&steps[i+1].s?String(steps[i+1].s.root):null);
     var WN=P.mode==='pre'?'Preorder':'Postorder';
     strips.innerHTML=row(WN,P.a,function(i){ if(!s) return st.end?'dn':''; if(i===s.ri) return 'rt'; if(i>=s.wseg[0]&&i<=s.wseg[1]) return 'sg'; return placed.indexOf(String(P.a[i]))>=0?'dn':''; })+
       row('Inorder',P.i,function(i){ if(!s) return st.end?'dn':''; if(i===s.at) return 'rt'; if(i>=s.seg[0]&&i<s.at) return 'L'; if(i>s.at&&i<=s.seg[1]) return 'R'; return placed.indexOf(String(P.i[i]))>=0?'dn':''; });

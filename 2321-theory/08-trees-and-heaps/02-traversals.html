@@ -1258,7 +1258,7 @@ body.codelight .trout b{color:var(--f-acc,#476a2e)}
 .t2three{display:grid;gap:.8rem;margin:1rem 0}
 @media(min-width:900px){.t2three{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
-/* §5 and §7 · the expression as tokens */
+/* §6 and §8 · the expression as tokens */
 .exrow{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;min-height:2.3rem}
 .exk{display:inline-grid;place-items:center;min-width:1.9rem;height:2.1rem;padding:0 .35rem;border-radius:.45rem;
   font-family:var(--mono);font-weight:800;font-size:.95rem;border:1.5px solid var(--f-line,#dde3d6);background:var(--f-panel,#fff);
@@ -1268,8 +1268,36 @@ body.codelight .trout b{color:var(--f-acc,#476a2e)}
 .exk.cd{border-color:var(--f-acc2,#5b7f3a)}
 .exk.pk{background:var(--f-amb-bg,#fbefd2);border-color:var(--f-amber,#e0a33a);box-shadow:0 0 0 2px color-mix(in srgb,var(--f-amber,#e0a33a) 35%,transparent)}
 .exk.dn{opacity:.35}
+/* §5 · the walks as strips: a subtree's block, its root, its left and right sides */
+.wrrows{display:grid;gap:.35rem;max-width:660px;margin:.2rem auto 0;width:100%}
+.wrrows p{margin:0;display:flex;align-items:center;gap:.6rem}
+.wrcs{display:flex;flex-wrap:wrap;gap:3px}
+.wrc{display:inline-grid;place-items:center;min-width:1.8rem;height:1.9rem;padding:0 .3rem;border-radius:.4rem;font-family:var(--mono);font-weight:800;font-size:.92rem;
+  border:1.5px solid var(--f-line,#dde3d6);background:var(--f-panel,#fff);color:var(--f-ink,#1f2d24);transition:background .3s,border-color .3s,opacity .3s}
+.wrc.blk{border-color:var(--f-ink,#1f2d24);border-width:2.5px}
+.wrc.ls{background:#e3efda;border-color:#5b7f3a}
+.wrc.rs{background:#f6e6cf;border-color:#a16207}
+html[data-ft="night"] .wrc.ls{background:#22342a;border-color:#86b36a}
+html[data-ft="night"] .wrc.rs{background:#3d3220;border-color:#e0a33a}
+.wrc.rt{background:var(--f-amb-bg,#fbefd2);border-color:var(--f-amber,#e0a33a);box-shadow:0 0 0 3px color-mix(in srgb,var(--f-amber,#e0a33a) 40%,transparent)}
+.wrc.dn{opacity:.35}
+#wr-tv .tv-nd.rsd circle.o{fill:#f6e6cf;stroke:#a16207}
+html[data-ft="night"] #wr-tv .tv-nd.rsd circle.o{fill:#3d3220;stroke:#e0a33a}
+.wrkey{font-size:.85rem;color:var(--f-mute,#57614f);text-align:center;margin:0}
+.wrkey i{font-style:normal;display:inline-block;width:.9rem;height:.9rem;border-radius:.25rem;vertical-align:-.12rem;margin:0 .25rem 0 .7rem;border:1.5px solid}
+.wrkey .k1{background:var(--f-amb-bg,#fbefd2);border-color:var(--f-amber,#e0a33a)}
+.wrkey .k2{background:#e3efda;border-color:#5b7f3a}
+.wrkey .k3{background:#f6e6cf;border-color:#a16207}
+@media(max-width:560px){.wrrows p{flex-direction:column;align-items:flex-start;gap:.2rem}.wrrows .wkk{flex:none;width:5.4rem}}
+.fsbody .wrc{min-width:2.3rem;height:2.4rem;font-size:1.1rem}
+/* §8 · the bonus line */
+.bonusnote{margin:0 0 .9rem;padding:.45rem .8rem;border-left:4px solid var(--f-amber,#e0a33a);background:var(--f-amb-bg,#fbefd2);border-radius:.4rem;color:var(--f-ink,#1f2d24)}
+/* §5 and §6 · a part not split yet waits in a box; the one split next has an amber border */
+.exbx rect{fill:var(--f-panel,#fff);stroke:var(--f-line2,#cbd3c2);stroke-width:1.8;stroke-dasharray:6 4}
+.exbx text{font-family:var(--mono);font-weight:800;font-size:14px;fill:var(--f-ink,#1f2d24);text-anchor:middle;dominant-baseline:central}
+.exbx.nx rect{fill:var(--f-amb-bg,#fbefd2);stroke:var(--f-amber,#e0a33a);stroke-width:2.6;stroke-dasharray:none}
 
-/* §7 · the stack is a hollow log, filled from one end */
+/* §8 · the stack is a hollow log, filled from one end */
 .psgrid{display:grid;gap:1rem;align-items:center}
 @media(min-width:760px){.psgrid{grid-template-columns:230px minmax(0,1fr)}}
 .pslog{display:flex;flex-direction:column}
@@ -1335,12 +1363,12 @@ html[data-ft="night"] .psslot{background:#e9dcc2}
         <h1>Three <em>walks</em>, one tree</h1>
         <p class="hero-lede">One walk round a tree passes every node three times. Read off the first, second or third pass and you get <b>preorder, inorder or postorder</b>. The same walk turns an expression into prefix and postfix.</p>
         <div class="arc">
-          <span>One walk</span><span>Three orders</span><span>Three lines of code</span><span>Move one line</span><span>The expression tree</span><span>Polish forms</span><span>The stack method</span><span>Traps</span><span>The page to keep</span>
+          <span>One walk</span><span>Three orders</span><span>Three lines of code</span><span>Move one line</span><span>Where the root goes</span><span>The expression tree</span><span>Polish forms</span><span>The stack method (bonus)</span><span>Traps</span><span>The page to keep</span>
         </div>
         <div class="hero-meta">
           <div><b>5 finals</b>expression tree + walks</div>
           <div><b>3 marks</b>each time</div>
-          <div><b>64 min</b>9 sections</div>
+          <div><b>70 min</b>10 sections, plus a 6-min bonus</div>
         </div>
         <div class="byline">
           <span class="av">JA</span>
@@ -1363,7 +1391,7 @@ html[data-ft="night"] .psslot{background:#e9dcc2}
 
 <div class="box bad" style="margin-bottom:1.5rem">
   <p class="bt">🎓 Read this before anything else</p>
-  <p style="margin:0"><b>Five finals</b> ask you to build an expression tree and write its walks: Autumn 2022, Spring 2023, Autumn 2023, Autumn 2024, Spring 2025. Sections 5 and 6 are that question, and the Exam tab answers all five.</p>
+  <p style="margin:0"><b>Five finals</b> ask you to build an expression tree and write its walks: Autumn 2022, Spring 2023, Autumn 2023, Autumn 2024, Spring 2025. Sections 6 and 7 are that question, and the Exam tab answers all five.</p>
 </div>
 
 <div class="goals">
@@ -1546,11 +1574,82 @@ html[data-ft="night"] .psslot{background:#e9dcc2}
   </div>
 </article>
 
-<!-- ============ 5 · THE EXPRESSION TREE, BY HAND ============ -->
-<article class="card numbered" id="s5" style="--accent:#0f766e" data-min="12" data-key="An expression tree's root is the operator done last: lowest priority outside all brackets, the rightmost of equals.">
+<!-- ============ 5 · WHERE EACH WALK PUTS THE ROOT ============ -->
+<article class="card numbered" id="sw" style="--accent:#5b7f3a" data-min="12" data-key="Preorder puts each subtree's root first, postorder last, and inorder between its two sides.">
   <span class="badge">5</span>
   <div class="hdr-row">
-    <div><p class="kicker">Section 5</p><h2>The expression tree, by hand</h2></div>
+    <div><p class="kicker">Section 5</p><h2>Where each walk puts the root</h2></div>
+    <span class="timechip">⏱ 12 min</span>
+  </div>
+
+  <p>In every walk, the keys of one subtree come out side by side. Each press below picks one subtree of Fig 7.1 and lights its keys. Before the next press, say where its root sits in each walk.</p>
+
+  <div class="sim" id="wr-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">Where is the root?</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+      <div class="simrail"></div>
+      <div class="tvw" id="wr-tv"></div>
+      <div class="wrrows" id="wr-rows"></div>
+      <p class="wrkey"><i class="k1"></i>the root <i class="k2"></i>its left side <i class="k3"></i>its right side</p>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#476a2e">Next &#9656;</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 1</span>
+      </div>
+      <div class="simmsg"><span class="smn">1</span><p></p></div>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="th"><b>Your turn</b></div>
+    <div class="tq">
+      <p>A tree's preorder starts with <span class="mono">F</span>. Its inorder is <span class="mono">E A C K F H D B G</span>. Which keys are in F's left subtree, and which in its right?</p>
+    </div>
+    <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
+    <div class="ta">
+      <p style="margin:0"><span class="mono">E A C K</span> on the left and <span class="mono">H D B G</span> on the right. Preorder puts the root first, so F is the root. Inorder puts F's left side before it and its right side after it.</p>
+    </div>
+  </div>
+
+  <p>Do the same inside each side, and the whole tree comes back. Keep each side in a box until you split it. Each box takes two presses: the first asks which key is its root, the second answers.</p>
+
+  <div class="sim" id="rw-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">One tree from two walks</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+      <div class="simrail"></div>
+      <div class="kdtabs" id="rw-tabs"></div>
+      <div class="wrrows" id="rw-rows"></div>
+      <div class="tvw" id="rw-tv"></div>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#476a2e">Next &#9656;</button>
+        <button class="btn ghost sm" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 1</span>
+      </div>
+      <div class="simmsg"><span class="smn">1</span><p></p></div>
+    </div>
+  </div>
+
+  <p style="margin:0">With postorder in place of preorder, each box's root is the <b>last</b> of its keys: the third tab. Two finals set this question, Spring 2023 and Spring 2024, and Trees 4 practises both.</p>
+</article>
+
+<!-- ============ 6 · THE EXPRESSION TREE, BY HAND ============ -->
+<article class="card numbered" id="s5" style="--accent:#0f766e" data-min="12" data-key="An expression tree's root is the operator done last: lowest priority outside all brackets, the rightmost of equals.">
+  <span class="badge">6</span>
+  <div class="hdr-row">
+    <div><p class="kicker">Section 6</p><h2>The expression tree, by hand</h2></div>
     <span class="timechip">⏱ 12 min</span>
   </div>
 
@@ -1611,15 +1710,15 @@ html[data-ft="night"] .psslot{background:#e9dcc2}
   </div>
 </article>
 
-<!-- ============ 6 · ITS WALKS ARE THE POLISH FORMS ============ -->
+<!-- ============ 7 · ITS WALKS ARE THE POLISH FORMS ============ -->
 <article class="card numbered" id="s6" style="--accent:#7a4a2a" data-min="8" data-key="Preorder of an expression tree = prefix; postorder = postfix; inorder loses the brackets.">
-  <span class="badge">6</span>
+  <span class="badge">7</span>
   <div class="hdr-row">
-    <div><p class="kicker">Section 6</p><h2>Its walks are the Polish forms</h2></div>
+    <div><p class="kicker">Section 7</p><h2>Its walks are the Polish forms</h2></div>
     <span class="timechip">⏱ 8 min</span>
   </div>
 
-  <p>Walk the expression tree from Section 5:</p>
+  <p>Walk the expression tree from Section 6:</p>
   <ul>
     <li>Preorder: <span class="mono">+ + A * B C * − / D E F G</span>, the <b>prefix</b> form.</li>
     <li>Postorder: <span class="mono">A B C * + D E / F − G * +</span>, the <b>postfix</b> form you converted to by hand in Segment 4.</li>
@@ -1649,13 +1748,15 @@ html[data-ft="night"] .psslot{background:#e9dcc2}
   </div>
 </article>
 
-<!-- ============ 7 · THE MACHINE METHOD ============ -->
+<!-- ============ 8 · THE MACHINE METHOD ============ -->
 <article class="card numbered" id="s7" style="--accent:#1f3d2b" data-min="6" data-key="Postfix to tree with one stack: an operand is pushed as a leaf; an operator pops right, then left, and pushes the joined node.">
-  <span class="badge">7</span>
+  <span class="badge">8</span>
   <div class="hdr-row">
-    <div><p class="kicker">Section 7</p><h2>The machine method</h2></div>
+    <div><p class="kicker">Section 8 · Bonus</p><h2>The machine method</h2></div>
     <span class="timechip">⏱ 6 min</span>
   </div>
+
+  <p class="bonusnote"><b>Bonus.</b> No exam asks this method. In the exam, build the tree by hand, as in Section 6.</p>
 
   <p>A program does not hunt for "the operator done last". It uses what you built in Segment 4. First convert to postfix. Then read the postfix left to right with <b>one stack</b>:</p>
   <ul>
@@ -1700,22 +1801,22 @@ html[data-ft="night"] .psslot{background:#e9dcc2}
     </div>
   </div>
 
-  <p>The same idea in C++. The hand rule stays the exam method; this is how a program does it.</p>
+  <p>The same idea in C++.</p>
   <div class="srtcw" style="max-width:620px;margin:1rem auto">
     <button class="srtcp" type="button" data-src="bpc">Copy</button>
     <pre class="code srtcode free" data-src="bpc"></pre>
   </div>
 </article>
 
-<!-- ============ 8 · TRAPS ============ -->
+<!-- ============ 9 · TRAPS ============ -->
 <article class="card numbered" id="s8" style="--accent:#b45309" data-min="4">
-  <span class="badge">8</span>
+  <span class="badge">9</span>
   <div class="hdr-row">
-    <div><p class="kicker">Section 8</p><h2>Traps</h2></div>
+    <div><p class="kicker">Section 9</p><h2>Traps</h2></div>
     <span class="timechip">⏱ 4 min</span>
   </div>
   <ul>
-    <li><b>Hidden multiplication.</b> <span class="mono">3m</span> means <span class="mono">3 * m</span>, and <span class="mono">(3m + n)(5x − y)³</span> has a * between the brackets. Autumn 2022 set exactly this one; pick it in the Section 5 simulator.</li>
+    <li><b>Hidden multiplication.</b> <span class="mono">3m</span> means <span class="mono">3 * m</span>, and <span class="mono">(3m + n)(5x − y)³</span> has a * between the brackets. Autumn 2022 set exactly this one; pick it in the Section 6 simulator.</li>
     <li><b>The power is done first.</b> <span class="mono">^</span> has the highest priority. Chained powers, A ^ B ^ C, follow Segment 4's rule, read left to right. No exam has chained them.</li>
     <li><b>Equal priority.</b> In <span class="mono">A − B + C</span> the root is the <b>+</b>: of equal operators, the rightmost is done last.</li>
   </ul>
@@ -1732,11 +1833,11 @@ html[data-ft="night"] .psslot{background:#e9dcc2}
   </div>
 </article>
 
-<!-- ============ 9 · THE PAGE TO KEEP ============ -->
+<!-- ============ 10 · THE PAGE TO KEEP ============ -->
 <article class="card numbered" id="s9" style="--accent:#1f3d2b" data-min="4">
-  <span class="badge">9</span>
+  <span class="badge">10</span>
   <div class="hdr-row">
-    <div><p class="kicker">Section 9</p><h2>The page to keep</h2></div>
+    <div><p class="kicker">Section 10</p><h2>The page to keep</h2></div>
     <span class="timechip">⏱ 4 min</span>
   </div>
   <div class="keep3">
@@ -1762,7 +1863,7 @@ html[data-ft="night"] .psslot{background:#e9dcc2}
       <ul>
         <li>Root = the operator done last: lowest priority outside brackets, rightmost of equals.</li>
         <li>Preorder = prefix, postorder = postfix, inorder loses the brackets.</li>
-        <li>By machine: postfix, then one stack.</li>
+        <li>By machine (bonus): postfix, then one stack.</li>
       </ul>
     </div>
   </div>
@@ -1803,7 +1904,7 @@ html[data-ft="night"] .psslot{background:#e9dcc2}
 
 <article class="card" style="--accent:#0f766e">
   <div class="hdr-row"><div><p class="kicker">Questions and answers</p><h2>All five, worked</h2></div></div>
-  <p>For each: the tree, then the walks the question asks for. The method is Section 5's rule.</p>
+  <p>For each: the tree, then the walks the question asks for. The method is Section 6's rule.</p>
   <div id="ex-answers"></div>
 </article>
 
@@ -2011,6 +2112,25 @@ function spec(n){ return n ? n.k+((n.l||n.r)?'('+spec(n.l)+','+spec(n.r)+')':'')
 function lab(k){ var s=k.replace(/#.*$/,''); return s==='-'?'−':s; }
 function walk(n,o,a){ a=a||[]; if(!n) return a;
   if(o==='pre') a.push(n); walk(n.l,o,a); if(o==='in') a.push(n); walk(n.r,o,a); if(o==='post') a.push(n); return a; }
+/* §5 and §6 · a part not split yet waits in a box (Jamil, 2026-11-25). The tree is laid out once,
+   by inorder, so a part's box spans exactly the place its subtree will take, and splitting it moves
+   nothing. The box hangs from its parent by a line to its middle, so the line gives no hint of
+   which key is the root. b: {from, to: first and last inorder keys; at: the part's root;
+   par: its parent or null; keys: spread the keys where they will land, or text: one centred label; nx} */
+function boxLayer(V){ var g=sv('g',{'class':'exbxs'}); V.svg.insertBefore(g,V.svg.lastChild); return g; }
+function waitBoxes(V,layer,list){
+  while(layer.firstChild) layer.removeChild(layer.firstChild);
+  var R=V.R;
+  list.forEach(function(b){
+    var xl=V.xy[b.from][0], xr=V.xy[b.to][0], y=V.xy[b.at][1], w=xr-xl+2*R-4, cx=(xl+xr)/2, top=y-R+2;
+    if(b.par){ var p=V.xy[b.par]; sv('line',{'class':'tv-ed',x1:p[0],y1:p[1],x2:cx,y2:top},layer); }
+    var g=sv('g',{'class':'exbx'+(b.nx?' nx':'')},layer);
+    sv('rect',{x:xl-R+2,y:top,width:w,height:2*R-4,rx:9},g);
+    if(b.keys) b.keys.forEach(function(k){ var t=sv('text',{x:V.xy[k][0],y:y},g); t.textContent=lab(k); });
+    else { var t=sv('text',{x:cx,y:y},g); t.textContent=b.text;
+      if(b.text.length*8.6>w-10){ t.setAttribute('textLength',w-10); t.setAttribute('lengthAdjust','spacingAndGlyphs'); } }
+  });
+}
 
 /* =================== 1 · ONE WALK ROUND FIG 7.1 ===================
    The walk is generated: a node is passed on the way down (1st), from below
@@ -2165,6 +2285,98 @@ function walk(n,o,a){ a=a||[]; if(!n) return a;
   }); });
 })();
 
+/* =================== 5 · WHERE EACH WALK PUTS THE ROOT ===================
+   Jamil, 2026-11-25: show step by step where each walk puts a subtree's root, then
+   rebuild a tree from two walks with the same boxes as the expression tree. Every
+   answer waits one press behind its question.                                  */
+function wrRows(host,rows){
+  host.innerHTML=rows.map(function(r){
+    return '<p><span class="wkk '+r[0]+'">'+{pre:'Preorder',in:'Inorder',post:'Postorder'}[r[0]]+'</span><span class="wrcs">'+
+      r[1].map(function(k){ return '<span class="wrc" data-k="'+k+'">'+k+'</span>'; }).join('')+'</span></p>';
+  }).join('');
+}
+function wrPaint(host,o,fn){ $$('.wkk.'+o,host).forEach(function(lb){ $$('.wrc',lb.parentNode).forEach(function(c){ c.className='wrc '+(fn(c.getAttribute('data-k'))||''); }); }); }
+function keysOf(n){ return walk(n,'in').map(function(x){ return x.k; }); }
+
+/* Part 1 · Fig 7.1 and its three walks: a subtree's keys light as a block, then its root and its two sides */
+(function(){
+  var host=$('#wr-tv'), rows=$('#wr-rows'); if(!host) return;
+  var V=drawTree(host,FIG71,{xg:46,r:17,yg:54,label:'Fig 7.1'});
+  wrRows(rows,['pre','in','post'].map(function(o){ return [o,walk(V.t,o).map(function(n){ return n.k; })]; }));
+  function find(n,k){ if(!n) return null; if(n.k===k) return n; return find(n.l,k)||find(n.r,k); }
+  function side(a,w){ return a.length?'<b>'+a.join(' ')+'</b> on its '+w:'nothing on its '+w; }
+  var steps=[{msg:'Fig 7.1 and its three walks. Each press picks one subtree.'}];
+  ['B','C','H','E','A'].forEach(function(k){
+    var n=find(V.t,k), sub=keysOf(n), L=keysOf(n.l), R=keysOf(n.r);
+    steps.push({k:k,sub:sub,msg:(k==='A'?'The whole tree is a subtree too: ':'The subtree under <b>'+k+'</b>: ')+'its keys sit side by side in all three walks. Where is <b>'+k+'</b> in its block, in each walk?'});
+    steps.push({k:k,sub:sub,L:L,R:R,show:true,msg:'Preorder puts <b>'+k+'</b> first in its block, and postorder puts it last. Inorder puts it between its two sides: '+side(L,'left')+', '+side(R,'right')+'.'});
+  });
+  steps.push({end:true,msg:'Every subtree follows the same rule: <b>first</b> in preorder, <b>last</b> in postorder, and in inorder <b>between</b> its left side and its right side.'});
+  Sim.make({el:'#wr-sim',steps:steps,
+    render:function(s,i,a){
+      var sub=s.sub||[];
+      V.set({mk:sub.filter(function(k){ return !(s.show && k===s.k); }),on:s.show?[s.k]:[],dim:sub.length>0});
+      if(s.show) s.R.forEach(function(k){ V.node[V.byKey[k].id].classList.add('rsd'); });   /* the right side in the right side's colour */
+      ['pre','in','post'].forEach(function(o){ wrPaint(rows,o,function(k){ if(sub.indexOf(k)<0) return ''; if(!s.show) return 'blk'; return k===s.k?'rt':s.L.indexOf(k)>=0?'ls':'rs'; }); });
+      a.msg(s.msg);
+    }});
+})();
+
+/* Part 2 · one tree from two walks, a box at a time: the question, then the split */
+(function(){
+  var host=$('#rw-tv'), rows=$('#rw-rows'), tabs=$('#rw-tabs'); if(!host) return;
+  var SETS=[['Warm-up','pre','M K J L R T S','J K L M R S T'],
+            ['Spring 2023 · Q4 (b)','pre','F A E K C D H G B','E A C K F H D B G'],
+            ['Fig 7.1 · from postorder','post','D F E B G L J K H C A','D B F E A G C L J H K']];
+  var cur=0, V, gB, PAR, O, steps=[], api;
+  SETS.forEach(function(x,k){ var b=document.createElement('button'); b.type='button'; b.textContent=x[0];
+    b.addEventListener('click',function(){ if(cur===k) return; cur=k; build(); if(api) api.reset(); }); tabs.appendChild(b); });
+  /* the root of a part is the first (preorder) or last (postorder) of its keys; the inorder splits the rest */
+  function rebuild(o,w,ino){
+    if(!ino.length) return null;
+    var k=o==='pre'?w[0]:w[w.length-1], i=ino.indexOf(k), L=ino.slice(0,i), R=ino.slice(i+1);
+    var wl=o==='pre'?w.slice(1,1+L.length):w.slice(0,L.length), wr=o==='pre'?w.slice(1+L.length):w.slice(L.length,w.length-1);
+    return {k:k,ino:ino,w:w,l:rebuild(o,wl,L),r:rebuild(o,wr,R)};
+  }
+  function side(c,w){ return c?'<b>'+c.ino.join(' ')+'</b> is '+w+' of it: the '+w+' box':'nothing is '+w+' of it: no '+w+' child'; }
+  function build(){
+    var S=SETS[cur], W=S[2].split(' '), I=S[3].split(' '), WN=S[1]==='pre'?'preorder':'postorder', T=rebuild(S[1],W,I);
+    O=S[1];
+    V=drawTree(host,spec(T),{xg:44,r:17,yg:56,label:'The tree rebuilt from its '+WN+' and its inorder'});
+    gB=boxLayer(V); PAR={};
+    (function w(n,p){ if(!n) return; PAR[n.k]=p; w(n.l,n.k); w(n.r,n.k); })(T,null);
+    wrRows(rows,[[S[1],W],['in',I]]);
+    steps.length=0;
+    var made=[], wait=[T];
+    while(wait.length){
+      var n=wait[0];
+      if(n.ino.length===1){
+        wait.shift(); made=made.concat([n.k]);
+        steps.push({made:made.slice(),wait:wait.slice(),cur:n,ans:true,msg:'The box <b>'+n.k+'</b> holds one key, so <b>'+n.k+'</b> is a leaf.'});
+        continue;
+      }
+      steps.push({made:made.slice(),wait:wait.slice(),cur:n,ans:false,msg:(made.length?'The box <b>'+n.ino.join(' ')+'</b>':'The whole inorder is one box')+'. Its keys sit together in the '+WN+': <b>'+n.w.join(' ')+'</b>. Which of them is the root?'});
+      wait.shift(); made=made.concat([n.k]); if(n.l) wait.push(n.l); if(n.r) wait.push(n.r);
+      steps.push({made:made.slice(),wait:wait.slice(),cur:n,ans:true,msg:'<b>'+n.k+'</b> comes '+(O==='pre'?'first':'last')+' of them, so it is the root'+(made.length===1?'':' of this box')+'. In the inorder, '+side(n.l,'left')+'; '+side(n.r,'right')+'.'});
+    }
+    steps.push({made:made.slice(),wait:[],end:true,msg:'No boxes are left: all '+I.length+' keys are placed. Walk the tree in '+WN+' and you get <b>'+S[2]+'</b> back.'});
+    $$('button',tabs).forEach(function(b,k){ b.classList.toggle('on',k===cur); });
+  }
+  build();
+  api=Sim.make({el:'#rw-sim',steps:steps,play:1300,
+    render:function(s,i,a){
+      api=a;
+      var c=s.end?null:s.cur, root=c&&s.ans?c.k:null;
+      function done(k){ return s.made.indexOf(k)>=0 && k!==root; }
+      [O,'in'].forEach(function(o){ wrPaint(rows,o,function(k){ if(k===root) return 'rt';
+        if(c && s.ans && c.l && c.l.ino.indexOf(k)>=0) return 'ls'; if(c && s.ans && c.r && c.r.ino.indexOf(k)>=0) return 'rs';
+        if(c && !s.ans && c.ino.indexOf(k)>=0) return 'blk'; return done(k)||s.end?'dn':''; }); });
+      V.set({hide:V.all.filter(function(n){ return s.made.indexOf(n.k)<0; }).map(function(n){ return n.k; }),on:root?[root]:[]});
+      waitBoxes(V,gB,s.wait.map(function(n){ return {from:n.ino[0],to:n.ino[n.ino.length-1],at:n.k,par:PAR[n.k],keys:n.ino,nx:!s.ans&&n===s.cur}; }));
+      a.msg(s.msg);
+    }});
+})();
+
 /* =================== THE EXPRESSIONS ===================
    One tokenizer and the two methods, both run here so every answer on the
    page is computed, not typed. Chained ^ reads left to right (Segment 4). */
@@ -2211,7 +2423,7 @@ function postfixOf(tk){
   });
   return out;
 }
-var EXPRS=[['Autumn 2023/24','(A+B*C)+((D/E-F)*G)'],['Spring 2025','((P+Q)*(R-S))-(T/U+V)'],['Spring 2023','(A+B*C)-((D/E+F)-G)'],
+var EXPRS=[['Warm-up','A+B*C^D'],['Autumn 2023/24','(A+B*C)+((D/E-F)*G)'],['Spring 2025','((P+Q)*(R-S))-(T/U+V)'],['Spring 2023','(A+B*C)-((D/E+F)-G)'],
            ['Autumn 2022','(3m+n)(5x-y)^3'],['The deck','A+(B*C-(D/E^F)*G)*H']];
 function pretty(e){ return e.replace(/([+\-*\/^])/g,' $1 ').replace(/-/g,'−').replace(/\s+/g,' ').replace(/\( /g,'(').replace(/ \)/g,')').trim(); }
 function chipRow(host,tk,cls){
@@ -2221,32 +2433,44 @@ function chipRow(host,tk,cls){
   }).join('');
 }
 
-/* =================== 5 · THE HAND RULE =================== */
+/* =================== 6 · THE HAND RULE ===================
+   Jamil, 2026-11-25: put the operator first, everything left of it in a box on its
+   left and everything right of it in a box on its right, then do the same to each
+   box. Boxes are split level by level, left to right; the one split next has an
+   amber border. The boxes are §5's (waitBoxes).                              */
 (function(){
   var row=$('#ex-row'), host=$('#ex-tv'), tabs=$('#ex-tabs'); if(!host) return;
-  var cur=0, V, H, steps=[], api;
+  var cur=0, V, H, HK, BY, PAR, gB, steps=[], api;
   EXPRS.forEach(function(x,k){ var b=document.createElement('button'); b.type='button'; b.textContent=x[0];
     b.addEventListener('click',function(){ if(cur===k) return; cur=k; build(); if(api) api.reset(); }); tabs.appendChild(b); });
+  function at(n){ return +n.k.split('#')[1]; }
+  function first(n){ while(n.l) n=n.l; return n; }
+  function last(n){ while(n.r) n=n.r; return n; }
+  function part(n){ var s=BY[at(n)]; return pretty(H.tk.slice(s.span[0],s.span[1]).join('')); }
   function build(){
-    H=handRule(EXPRS[cur][1]);
-    V=drawTree(host,spec(H.root),{xg:42,r:17,yg:56,label:'The expression tree of '+pretty(EXPRS[cur][1])});
-    var made=[];
+    H=handRule(EXPRS[cur][1]); HK={}; BY={}; PAR={};
+    H.steps.forEach(function(s){ BY[s.pick]=s; });
+    (function w(n,p){ if(!n) return; HK[n.k]=n; PAR[n.k]=p; w(n.l,n.k); w(n.r,n.k); })(H.root,null);
+    V=drawTree(host,spec(H.root),{xg:42,r:17,yg:58,label:'The expression tree of '+pretty(EXPRS[cur][1])});
+    gB=boxLayer(V);
+    var made=[], wait=[H.root];
     steps.length=0;
-    steps.push({made:[],msg:'The whole expression: <b>'+pretty(EXPRS[cur][1])+'</b>. Find the operator that is done last.'});
-    H.steps.forEach(function(s){
-      var key=H.tk[s.pick]+'#'+s.pick, k=H.tk[s.pick], m;
-      made=made.concat([key]);
-      if(s.leaf) m='<b>'+k+'</b> is a single operand: a leaf.';
+    steps.push({made:[],wait:[H.root.k],msg:'The whole expression is one box. Find the operator that is done last.'});
+    while(wait.length){
+      var n=wait.shift(), s=BY[at(n)], k=lab(n.k), m;
+      made=made.concat([n.k]);
+      if(s.leaf) m=(s.stripped?'Drop the brackets. ':'')+'<b>'+k+'</b> is a single operand, so this box becomes a leaf.';
       else {
         var c=s.cands.map(function(i){ return lab(H.tk[i]); }), low=s.low.length;
-        m=(s.stripped?'These brackets wrap the whole part, so drop them. ':'')+
+        m=(s.stripped?'These brackets wrap the whole box, so drop them. ':'')+
           'Outside all brackets: <b>'+c.join(' ')+'</b>. '+
-          (c.length===1?'Only one, so it is done last.' : 'Lowest priority: '+lab(k)+(low>1?'; of the '+low+' that tie, take the rightmost.':'.'))+
-          ' <b>'+lab(k)+'</b> becomes '+(made.length===1?'the root.':'a node here.');
+          (c.length===1?'Only one, so it is done last.' : 'Lowest priority: '+k+(low>1?'; of the '+low+' that tie, take the rightmost.':'.'))+
+          ' <b>'+k+'</b> becomes '+(made.length===1?'the root':'the node')+'. Left of it, <b>'+part(n.l)+'</b>, goes into the left box; right of it, <b>'+part(n.r)+'</b>, into the right box.';
+        wait.push(n.l,n.r);
       }
-      steps.push({made:made.slice(),pick:s.pick,span:s.span,cands:s.cands||[],leaf:s.leaf,msg:m});
-    });
-    steps.push({made:made.slice(),end:true,msg:'Every token is now a node: <b>'+H.tk.filter(function(c){ return c!=='('&&c!==')'; }).length+' nodes</b>, with every operator inside and every operand a leaf.'});
+      steps.push({made:made.slice(),wait:wait.map(function(x){ return x.k; }),pick:s.pick,span:s.span,cands:s.cands||[],leaf:s.leaf,msg:m});
+    }
+    steps.push({made:made.slice(),wait:[],end:true,msg:'No boxes are left: <b>'+made.length+' nodes</b>, with every operator inside and every operand a leaf.'});
     $$('button',tabs).forEach(function(b,k){ b.classList.toggle('on',k===cur); });
   }
   build();
@@ -2259,11 +2483,12 @@ function chipRow(host,tk,cls){
       chipRow(row,H.tk,cls);
       V.set({hide:V.all.filter(function(n){ return s.made.indexOf(n.k)<0; }).map(function(n){ return n.k; }),
              on:s.pick!=null&&!s.end?[H.tk[s.pick]+'#'+s.pick]:[]});
+      waitBoxes(V,gB,s.wait.map(function(k,j){ var n=HK[k]; return {from:first(n).k,to:last(n).k,at:k,par:PAR[k],text:part(n),nx:j===0}; }));
       a.msg(s.msg);
     }});
 })();
 
-/* =================== 7 · POSTFIX TO TREE, ONE STACK =================== */
+/* =================== 8 · POSTFIX TO TREE, ONE STACK =================== */
 (function(){
   var row=$('#ps-row'), slots=$('#ps-log .psslots'), host=$('#ps-tv'), tabs=$('#ps-tabs'); if(!host) return;
   var cur=0, PF, steps=[], api;
