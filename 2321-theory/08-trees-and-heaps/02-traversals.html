@@ -1229,6 +1229,10 @@ html[data-ft="night"] .arw.post line{stroke:#c9a37a}html[data-ft="night"] .arw.p
 .arw g.hit polygon{transform-box:fill-box;transform-origin:center;transform:scale(1.35)}
 .arln path{fill:none;stroke:var(--f-soft,#3d4a40);stroke-width:2.2;stroke-linecap:round}
 .arants{position:absolute;inset:0;pointer-events:none;z-index:2;overflow:visible}
+#ar-sim .simbd{position:relative}
+#ar-sim .simbd>*:not(.arfall){position:relative;z-index:1}
+.arfall{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.arfall .fz-spr{position:absolute}
 .arants .fz-spr{position:absolute;transition:opacity .5s}
 #ar-tv{position:relative}
 .arpen{fill:var(--f-ink,#1f2d24);stroke:var(--f-panel,#fff);stroke-width:2;transition:cx .3s,cy .3s}
@@ -2278,14 +2282,24 @@ function waitBoxes(V,layer,list){
   SX.push(E[0]); SY.push(E[1]); SD.push(tot);
   function ptAt(d){ var lo=0,hi=SD.length-1; while(lo<hi){ var m=(lo+hi+1)>>1; if(SD[m]<=d) lo=m; else hi=m-1; }
     var j=Math.min(SD.length-1,lo+1), t=SD[j]>SD[lo]?(d-SD[lo])/(SD[j]-SD[lo]):0; return [SX[lo]+(SX[j]-SX[lo])*t,SY[lo]+(SY[j]-SY[lo])*t]; }
-  var antLayer=null, ants=[], lastT=0, RMQ=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var antLayer=null, fallLayer=null, ants=[], lastT=0, RMQ=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var body=host.closest('.simbd');
   function antsReady(){
     if(antLayer) return true;
-    var F=window.FZ; if(!F||!F.spr||!F.ART||!F.ART.ant) return false;
+    var F=window.FZ; if(!F||!F.spr||!F.ART||!F.ART.ant||!body) return false;
     antLayer=document.createElement('div'); antLayer.className='arants'; antLayer.setAttribute('aria-hidden','true'); host.appendChild(antLayer);
-    [[0,34],[26,28],[50,38]].forEach(function(g,i){ var el=F.spr('ant',22,'arant'); antLayer.appendChild(el);
-      ants.push({el:el,d:0,gap:g[0],v:g[1],ph:i*370,face:1,ang:0}); });
+    /* the falling ants go in a layer under everything else in the simulator, clipped at its bottom */
+    fallLayer=document.createElement('div'); fallLayer.className='arfall'; fallLayer.setAttribute('aria-hidden','true'); body.insertBefore(fallLayer,body.firstChild);
+    [[0,34],[26,28],[50,38]].forEach(function(g,i){ var el=F.spr('ant',20,'arant'); antLayer.appendChild(el);
+      ants.push({el:el,d:0,gap:g[0],v:g[1],ph:i*370,face:1,ang:0,st:'walk'}); });
     return true;
+  }
+  /* 2026-11-26 (Jamil): when the line is gone (Reset, a new tab, or Back to before it starts), the ants on it
+     drop off: they fall behind the buttons and the text, and vanish at the bottom of the simulator. They come
+     back at the start of the line once it is drawn again. */
+  function drop(a,x,y,k){
+    var fr=fallLayer.getBoundingClientRect(); fallLayer.appendChild(a.el);
+    a.st='fall'; a.fx=x-fr.left; a.fy=y-fr.top; a.vy=-60-Math.random()*50; a.vx=(Math.random()-.5)*50; a.spin=(Math.random()<.5?-1:1)*(160+Math.random()*200);
   }
   function stroll(t){
     requestAnimationFrame(stroll);
@@ -2293,7 +2307,24 @@ function waitBoxes(V,layer,list){
     if(RMQ||document.hidden||!antsReady()) return;
     var hr=host.getBoundingClientRect(); if(hr.bottom<0||hr.top>innerHeight||!hr.width) return;
     var z=hr.width/(host.offsetWidth||hr.width), sr=svg.getBoundingClientRect(), k=sr.width/V.W/z, ox=(sr.left-hr.left)/z, oy=(sr.top-hr.top)/z, F=window.FZ;
+    var sc=String(Math.max(.85,Math.min(1.7,k)));
     ants.forEach(function(a,i){
+      if(a.st==='fall'){
+        var H=fallLayer.clientHeight;
+        a.vy+=900*dt; a.fy+=a.vy*dt; a.fx+=a.vx*dt; a.ang+=a.spin*dt;
+        F.frame(a.el,'a10'); a.el._extra='rotate('+a.ang.toFixed(1)+'deg)'; F.face(a.el,a.face); a.el.style.scale=sc;
+        F.place(a.el,a.fx,a.fy);
+        a.el.style.opacity=String(Math.max(0,Math.min(1,(H-a.fy)/70)));
+        if(a.fy>H+30){ a.st='gone'; a.el.style.visibility='hidden'; }
+        return;
+      }
+      if(a.st==='gone'){
+        if(visLen<=0) return;
+        antLayer.appendChild(a.el); a.st='walk'; a.d=0; a.ang=0; a.face=1; a.el.style.visibility=''; a.el.style.opacity='0';
+      }
+      if(visLen<=0 && a.d>1){
+        var p0=ptAt(a.d); drop(a,hr.left+(ox+p0[0]*k)*z,hr.top+(oy+p0[1]*k)*z,k); return;
+      }
       var goal=Math.max(0,visLen-a.gap), mv=0;
       if(a.d<goal-.5){ a.d=Math.min(goal,a.d+a.v*dt); mv=1; } else if(a.d>goal+.5){ a.d=Math.max(goal,a.d-a.v*1.5*dt); mv=-1; }
       var p=ptAt(a.d);
@@ -2301,9 +2332,9 @@ function waitBoxes(V,layer,list){
         if(Math.abs(dx)+Math.abs(dy)>.2){ a.face=dx>=0?1:-1; a.ang=Math.atan2(a.face*dy,a.face*dx)*180/Math.PI; } }
       F.frame(a.el, mv ? ['a1','a2','a3','a4'][Math.floor((t+a.ph)/130)%4] : (Math.floor((t+a.ph*3)/2600)%3===0?'a6':'a5'));
       a.el._extra='rotate('+a.ang.toFixed(1)+'deg)'; F.face(a.el,a.face);
-      a.el.style.scale=String(Math.max(.85,Math.min(1.7,k)));
+      a.el.style.scale=sc;
       F.place(a.el,ox+p[0]*k,oy+p[1]*k);
-      a.el.style.opacity=(i>0&&a.d<1&&goal<1)?'0':'1';   /* at the start only the first ant waits */
+      a.el.style.opacity=(a.d<1&&goal<1&&(i>0||visLen<=0&&ants.some(function(b){ return b.st!=='walk'; })))?'0':'1';   /* at the start only the first ant waits, and not after a drop */
     });
   }
   requestAnimationFrame(stroll);
