@@ -1214,6 +1214,29 @@ html[data-ft="night"] .wkfp{fill:#c9a37a}
 .wkk.pre{background:#4f7a35}.wkk.in{background:#8f5d10}.wkk.post{background:#8a6240}
 .wkv{font-family:var(--mono);font-weight:700;font-size:.92rem;letter-spacing:.12em;color:var(--f-ink,#1f2d24)}
 
+/* §2 · the arrow trick: one arrow per node, one pencil line round the tree */
+#ar-sim .tvw{min-height:0}
+.arw line{stroke-width:2.6;stroke-linecap:round}
+.arw.pre line{stroke:#4f7a35}.arw.pre polygon{fill:#4f7a35}
+.arw.in line{stroke:#b07a12}.arw.in polygon{fill:#b07a12}
+.arw.post line{stroke:#8a6240}.arw.post polygon{fill:#8a6240}
+html[data-ft="night"] .arw.pre line{stroke:#86b36a}html[data-ft="night"] .arw.pre polygon{fill:#86b36a}
+html[data-ft="night"] .arw.in line{stroke:#e0a33a}html[data-ft="night"] .arw.in polygon{fill:#e0a33a}
+html[data-ft="night"] .arw.post line{stroke:#c9a37a}html[data-ft="night"] .arw.post polygon{fill:#c9a37a}
+.arw g{transition:opacity .3s}
+.arw g.done{opacity:.4}
+.arw g.hit line{stroke-width:4.2}
+.arw g.hit polygon{transform-box:fill-box;transform-origin:center;transform:scale(1.35)}
+.arln path{fill:none;stroke:var(--f-soft,#3d4a40);stroke-width:2.2;stroke-linecap:round}
+.arants{position:absolute;inset:0;pointer-events:none;z-index:2;overflow:visible}
+.arants .fz-spr{position:absolute;transition:opacity .5s}
+#ar-tv{position:relative}
+.arpen{fill:var(--f-ink,#1f2d24);stroke:var(--f-panel,#fff);stroke-width:2;transition:cx .3s,cy .3s}
+.arout{display:flex;align-items:center;gap:.7rem;justify-content:center;margin:.1rem 0 0;min-height:2rem}
+.arout b{font-size:.68rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--f-mute,#57614f)}
+.arout span{font-family:var(--mono);font-weight:800;font-size:1.05rem;letter-spacing:.14em;color:var(--f-ink,#1f2d24);min-width:13ch}
+.fsbody .arout span{font-size:1.4rem}
+
 /* §2 · the three recipes */
 .t2defs{display:grid;gap:.8rem;margin:1rem 0}
 @media(min-width:760px){.t2defs{grid-template-columns:repeat(3,minmax(0,1fr))}}
@@ -1460,17 +1483,35 @@ html[data-ft="night"] .psslot{background:#e9dcc2}
   </div>
   <p>Preorder writes each node at its <b>first</b> pass, inorder at its <b>second</b>, postorder at its <b>third</b>.</p>
 
-  <figure class="antw" id="ant-trail">
-    <div class="antbar"><span><b>The ants' walk.</b> Pick a walk and say its order out loud. Then watch: the ants go round the tree and drop a numbered crumb at each node's first, second or third pass.</span>
-      <button type="button" data-o="pre">Preorder</button><button type="button" data-o="in">Inorder</button><button type="button" data-o="post">Postorder</button></div>
-    <div class="antstage"></div>
-    <p class="antout" aria-live="polite">Pick a walk.</p>
-  </figure>
+  <p><b>The arrow trick, for paper.</b> Draw a short arrow from every node: pointing <b>left</b> for preorder, <b>down</b> for inorder, <b>right</b> for postorder. Then draw one line round the whole tree, starting left of the root and keeping close to it. Write a node when the line touches its arrow. The line is Section 1's walk, and the arrow marks the pass you keep.</p>
+
+  <div class="sim" id="ar-sim">
+    <div class="simhd">
+      <span class="simttl">Simulator</span>
+      <span class="simnm">The arrow trick, step by step</span>
+      <button class="focusb" type="button">&#9974; Focus</button>
+    </div>
+    <div class="simbd">
+      <div class="simrail"></div>
+      <div class="kdtabs" id="ar-tabs"><button type="button" data-o="pre" class="on">Preorder: arrows left</button><button type="button" data-o="in">Inorder: arrows down</button><button type="button" data-o="post">Postorder: arrows right</button></div>
+      <div class="tvw" id="ar-tv"></div>
+      <p class="arout"><b>Written</b><span id="ar-out"></span></p>
+      <div class="simctl">
+        <button class="btn" data-k="next" style="background:#1f5d43">Next &#9656;</button>
+        <button class="btn ghost sm" data-k="play" data-off="&#9654; Play" data-on="&#10073;&#10073; Pause">&#9654; Play</button>
+        <button class="btn ghost sm" data-k="back">&#9666; Back</button>
+        <button class="btn ghost sm" data-k="reset">Reset</button>
+        <span class="simkeys"><kbd>n</kbd> <kbd>b</kbd> <kbd>p</kbd> <kbd>r</kbd></span>
+        <span class="simcnt">1 / 1</span>
+      </div>
+      <div class="simmsg"><span class="smn">1</span><p></p></div>
+    </div>
+  </div>
 
   <div class="turn">
     <div class="th"><b>Your turn</b></div>
     <div class="tq">
-      <p>Write Fig 7.1 in preorder before you look at the simulator's first row.</p>
+      <p>Use the arrow trick on Fig 7.1: write its preorder before you look at the first row of the Section 1 simulator.</p>
     </div>
     <button class="tbtn" type="button" data-label="Show the answer">Show the answer</button>
     <div class="ta">
@@ -1718,7 +1759,7 @@ html[data-ft="night"] .psslot{background:#e9dcc2}
     <span class="timechip">⏱ 8 min</span>
   </div>
 
-  <p>Walk the expression tree from Section 6:</p>
+  <p>Walk the expression tree from Section 6. The arrow trick from Section 2 works here too: arrows left give the prefix, arrows right the postfix.</p>
   <ul>
     <li>Preorder: <span class="mono">+ + A * B C * − / D E F G</span>, the <b>prefix</b> form.</li>
     <li>Postorder: <span class="mono">A B C * + D E / F − G * +</span>, the <b>postfix</b> form you converted to by hand in Segment 4.</li>
@@ -1848,6 +1889,7 @@ html[data-ft="night"] .psslot{background:#e9dcc2}
         <li><b>Inorder</b> L N R: root in the middle.</li>
         <li><b>Postorder</b> L R N: root last.</li>
         <li>One walk round the tree: 1st, 2nd, 3rd pass.</li>
+        <li>On paper: arrows left, down or right, then one line round the tree.</li>
       </ul>
     </div>
     <div>
@@ -2180,6 +2222,134 @@ function waitBoxes(V,layer,list){
       for(var o in rows) rows[o].textContent=seq[o].join(' ');
       V.set({on:upto>=0&&!st.end?[visits[upto][0].k]:[]});
       api.msg(st.msg);
+    }});
+})();
+
+/* =================== 2 · THE ARROW TRICK ===================
+   Jamil, 2026-11-26: the pencil trick for writing a walk. An arrow from every
+   node (left for preorder, down for inorder, right for postorder), then one
+   line round the tree: a node is written when the line touches its arrow. The
+   line goes through the same three points per node as Section 1's walk, so an
+   arrow's tip sits exactly on the line. A small tree of its own, so §2's turn
+   on Fig 7.1 is not answered here.                                          */
+(function(){
+  var host=$('#ar-tv'), tabs=$('#ar-tabs'), outEl=$('#ar-out'); if(!host) return;
+  var V=drawTree(host,'A(B(D,E(G,-)),C(-,F))',{xg:56,r:18,yg:72,mx:62,padB:30,label:'A small tree for the arrow trick'});
+  var R=V.R, OFF=22, svg=V.svg, mode='pre', steps=[], api;
+  var NAME={pre:'Preorder',in:'Inorder',post:'Postorder'}, DIR={pre:'left',in:'down',post:'right'};
+  var visits=[];
+  (function tour(n){ if(!n) return; visits.push([n,'pre']); tour(n.l); visits.push([n,'in']); tour(n.r); visits.push([n,'post']); })(V.t);
+  function pt(v){ var xy=V.xy[v[0].k]; return v[1]==='pre'?[xy[0]-R-OFF,xy[1]] : v[1]==='in'?[xy[0],xy[1]+R+OFF] : [xy[0]+R+OFF,xy[1]]; }
+  var P=visits.map(pt), S=[P[0][0]-6,P[0][1]-22], E=[P[P.length-1][0]+6,P[P.length-1][1]-22];
+  /* the line's points: the three passes of every node, plus a corner where the line wraps round a node
+     (over a left child's top-left, over a right child's top-right on the way back up, and under a
+     missing child), so the smooth curve never cuts into a node. vix[j] = where pass j sits in pts */
+  var pts=[S], vix=[], C=Math.SQRT1_2*(R+OFF);
+  (function tour(n,side){ if(!n) return; var xy=V.xy[n.k];
+    if(side==='l') pts.push([xy[0]-C,xy[1]-C]);
+    pts.push([xy[0]-R-OFF,xy[1]]); vix.push(pts.length-1);
+    if(n.l) tour(n.l,'l'); else pts.push([xy[0]-C,xy[1]+C]);
+    pts.push([xy[0],xy[1]+R+OFF]); vix.push(pts.length-1);
+    if(n.r) tour(n.r,'r'); else pts.push([xy[0]+C,xy[1]+C]);
+    pts.push([xy[0]+R+OFF,xy[1]]); vix.push(pts.length-1);
+    if(side==='r') pts.push([xy[0]+C,xy[1]-C]);
+  })(V.t,null);
+  pts.push(E);
+  /* under the nodes: the line, leg by leg, then the arrows */
+  var gL=sv('g',{'class':'arln'}), gA=sv('g',{'class':'arw pre'});
+  svg.insertBefore(gL,svg.lastChild); svg.insertBefore(gA,svg.lastChild);
+  var legs=[];
+  /* a smooth pencil line: each leg is a Catmull-Rom curve through its two points, so the line rounds
+     under each node instead of zig-zagging; one path per leg, so it can be drawn leg by leg */
+  function at(k){ return pts[Math.max(0,Math.min(pts.length-1,k))]; }
+  for(var q=1;q<pts.length;q++){
+    var p0=at(q-2), p1=at(q-1), p2=at(q), p3=at(q+1);
+    var c1=[p1[0]+(p2[0]-p0[0])/6,p1[1]+(p2[1]-p0[1])/6], c2=[p2[0]-(p3[0]-p1[0])/6,p2[1]-(p3[1]-p1[1])/6];
+    legs.push(sv('path',{d:'M'+p1.join(' ')+'C'+c1.join(' ')+' '+c2.join(' ')+' '+p2.join(' ')},gL));
+  }
+  var pen=sv('circle',{'class':'arpen',r:5,cx:S[0],cy:S[1]},svg);
+  /* the ants (Jamil, 2026-11-26: "let some ants walk in the arrow trick simulator following the line
+     drawn ... casually"). Three clay ants (forest.js sprites) stroll along the part of the line drawn so
+     far, each at its own easy pace, and wait near its end; if a press takes the line back, they walk
+     back. Not in a hidden tab, not off screen, none under reduced motion. Their layer is not called
+     'antlayer', so the card's residents do not take them for a section act and freeze. */
+  var SX=[],SY=[],SD=[],CUM=[],tot=0,visLen=0;
+  legs.forEach(function(l){ var L=l.getTotalLength(); for(var d=0;d<L;d+=2){ var q=l.getPointAtLength(d); SX.push(q.x); SY.push(q.y); SD.push(tot+d); } tot+=L; CUM.push(tot); });
+  SX.push(E[0]); SY.push(E[1]); SD.push(tot);
+  function ptAt(d){ var lo=0,hi=SD.length-1; while(lo<hi){ var m=(lo+hi+1)>>1; if(SD[m]<=d) lo=m; else hi=m-1; }
+    var j=Math.min(SD.length-1,lo+1), t=SD[j]>SD[lo]?(d-SD[lo])/(SD[j]-SD[lo]):0; return [SX[lo]+(SX[j]-SX[lo])*t,SY[lo]+(SY[j]-SY[lo])*t]; }
+  var antLayer=null, ants=[], lastT=0, RMQ=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function antsReady(){
+    if(antLayer) return true;
+    var F=window.FZ; if(!F||!F.spr||!F.ART||!F.ART.ant) return false;
+    antLayer=document.createElement('div'); antLayer.className='arants'; antLayer.setAttribute('aria-hidden','true'); host.appendChild(antLayer);
+    [[0,34],[26,28],[50,38]].forEach(function(g,i){ var el=F.spr('ant',22,'arant'); antLayer.appendChild(el);
+      ants.push({el:el,d:0,gap:g[0],v:g[1],ph:i*370,face:1,ang:0}); });
+    return true;
+  }
+  function stroll(t){
+    requestAnimationFrame(stroll);
+    var dt=lastT?Math.min(.1,(t-lastT)/1000):0; lastT=t;
+    if(RMQ||document.hidden||!antsReady()) return;
+    var hr=host.getBoundingClientRect(); if(hr.bottom<0||hr.top>innerHeight||!hr.width) return;
+    var z=hr.width/(host.offsetWidth||hr.width), sr=svg.getBoundingClientRect(), k=sr.width/V.W/z, ox=(sr.left-hr.left)/z, oy=(sr.top-hr.top)/z, F=window.FZ;
+    ants.forEach(function(a,i){
+      var goal=Math.max(0,visLen-a.gap), mv=0;
+      if(a.d<goal-.5){ a.d=Math.min(goal,a.d+a.v*dt); mv=1; } else if(a.d>goal+.5){ a.d=Math.max(goal,a.d-a.v*1.5*dt); mv=-1; }
+      var p=ptAt(a.d);
+      if(mv){ var q=ptAt(Math.max(0,Math.min(tot,a.d+3*mv))), dx=q[0]-p[0], dy=q[1]-p[1];
+        if(Math.abs(dx)+Math.abs(dy)>.2){ a.face=dx>=0?1:-1; a.ang=Math.atan2(a.face*dy,a.face*dx)*180/Math.PI; } }
+      F.frame(a.el, mv ? ['a1','a2','a3','a4'][Math.floor((t+a.ph)/130)%4] : (Math.floor((t+a.ph*3)/2600)%3===0?'a6':'a5'));
+      a.el._extra='rotate('+a.ang.toFixed(1)+'deg)'; F.face(a.el,a.face);
+      a.el.style.scale=String(Math.max(.85,Math.min(1.7,k)));
+      F.place(a.el,ox+p[0]*k,oy+p[1]*k);
+      a.el.style.opacity=(i>0&&a.d<1&&goal<1)?'0':'1';   /* at the start only the first ant waits */
+    });
+  }
+  requestAnimationFrame(stroll);
+  var arrows={};
+  function drawArrows(){
+    while(gA.firstChild) gA.removeChild(gA.firstChild);
+    gA.setAttribute('class','arw '+mode);
+    V.all.forEach(function(n){
+      var xy=V.xy[n.k], d=mode==='pre'?[-1,0]:mode==='in'?[0,1]:[1,0];
+      var a=[xy[0]+d[0]*(R+2),xy[1]+d[1]*(R+2)], t=[xy[0]+d[0]*(R+OFF),xy[1]+d[1]*(R+OFF)];
+      var g=sv('g',{},gA);
+      sv('line',{x1:a[0],y1:a[1],x2:t[0]-d[0]*5,y2:t[1]-d[1]*5},g);
+      var px=-d[1], py=d[0];   /* across the arrow */
+      sv('polygon',{points:[t[0],t[1],t[0]-d[0]*7+px*4.5,t[1]-d[1]*7+py*4.5,t[0]-d[0]*7-px*4.5,t[1]-d[1]*7-py*4.5].join(' ')},g);
+      arrows[n.k]=g;
+    });
+  }
+  function build(){
+    drawArrows(); steps.length=0;
+    var w=NAME[mode], wrote=[];
+    steps.push({leg:-1,arrows:false,msg:'<b>'+w+'</b>: first draw a short arrow from every node, pointing <b>'+DIR[mode]+'</b>.'});
+    steps.push({leg:-1,arrows:true,msg:'Every node has its arrow. Now draw one line round the whole tree, starting left of the root, A, and keeping close to the tree.'});
+    visits.forEach(function(v,j){
+      if(v[1]!==mode) return;
+      wrote=wrote.concat([v[0].k]);
+      var note=!v[0].l&&!v[0].r?' '+v[0].k+' is a leaf, so the line goes round it at once; only the '+DIR[mode]+' arrow counts.':'';
+      steps.push({leg:vix[j],arrows:true,hit:v[0].k,wrote:wrote.slice(),msg:'The line touches <b>'+v[0].k+'</b>\'s arrow: write '+v[0].k+'.'+note});
+    });
+    steps.push({leg:pts.length-1,arrows:true,wrote:wrote.slice(),end:true,msg:'Back above the root. <b>'+wrote.join(' ')+'</b> is the '+w.toLowerCase()+'.'});
+    $$('button',tabs).forEach(function(b){ b.classList.toggle('on',b.dataset.o===mode); });
+  }
+  $$('button',tabs).forEach(function(b){ b.addEventListener('click',function(){ if(b.dataset.o===mode) return; mode=b.dataset.o; build(); if(api) api.reset(); }); });
+  build();
+  api=Sim.make({el:'#ar-sim',steps:steps,play:1100,
+    render:function(s,i,a){
+      api=a;
+      legs.forEach(function(l,k){ l.style.visibility=s.end||k<s.leg?'visible':'hidden'; });
+      var at=s.leg<0?S:pts[Math.min(s.leg,pts.length-1)];
+      pen.setAttribute('cx',at[0]); pen.setAttribute('cy',at[1]); pen.style.visibility=s.leg<0?'hidden':'visible';
+      visLen=s.end?tot:(s.leg>0?CUM[s.leg-1]:0);
+      gA.style.visibility=s.arrows?'visible':'hidden';
+      var wrote=s.wrote||[];
+      V.all.forEach(function(n){ var g=arrows[n.k]; g.setAttribute('class',n.k===s.hit?'hit':wrote.indexOf(n.k)>=0?'done':''); });
+      V.set({on:s.hit?[s.hit]:[],mk:wrote.filter(function(k){ return k!==s.hit; })});
+      outEl.textContent=wrote.join(' ');
+      a.msg(s.msg);
     }});
 })();
 
